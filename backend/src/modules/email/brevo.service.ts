@@ -103,44 +103,115 @@ export class BrevoService {
   /**
    * Send OTP email
    */
+  /**
+   * Send OTP email without using Brevo templates
+   */
   async sendOtpEmail(
     email: string,
     otp: string,
     firstName?: string,
   ): Promise<{ messageId: string }> {
-    const templateId =
-      this.configService.get<number>("BREVO_OTP_TEMPLATE_ID") || 1;
+    return this.sendCustomEmail(
+      email,
+      "Verify Your Email - Codify",
+      `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Email Verification</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px;">
+        
+        <h2 style="color: #2563eb;">
+          Welcome to Codify!
+        </h2>
 
-    return this.sendTemplateEmail({
-      to: email,
-      templateId,
-      params: {
-        firstName: firstName || "User",
-        otp,
-      },
-    });
+        <p>Hello ${firstName || "User"},</p>
+
+        <p>Thank you for registering. Please use the verification code below:</p>
+
+        <div style="
+          background: #f3f4f6;
+          padding: 20px;
+          text-align: center;
+          border-radius: 8px;
+          margin: 20px 0;
+        ">
+          <h1 style="
+            letter-spacing: 8px;
+            margin: 0;
+            color: #111827;
+          ">
+            ${otp}
+          </h1>
+        </div>
+
+        <p>
+          This OTP will expire in <strong>10 minutes</strong>.
+        </p>
+
+        <p>
+          If you did not request this verification, please ignore this email.
+        </p>
+
+        <hr style="margin: 30px 0;">
+
+        <p style="font-size: 12px; color: #6b7280;">
+          © ${new Date().getFullYear()} Codify. All rights reserved.
+        </p>
+
+      </div>
+    </body>
+    </html>
+    `,
+    );
   }
 
   /**
    * Send password reset email
    */
   async sendPasswordResetEmail(
-    email: string,
-    resetUrl: string,
-    firstName?: string,
-  ): Promise<{ messageId: string }> {
-    const templateId =
-      this.configService.get<number>("BREVO_PASSWORD_RESET_TEMPLATE_ID") || 2;
+  email: string,
+  resetUrl: string,
+  firstName?: string,
+): Promise<{ messageId: string }> {
+  return this.sendCustomEmail(
+    email,
+    "Reset Your Password - Codify",
+    `
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: Arial, sans-serif;">
+      <h2>Password Reset Request</h2>
 
-    return this.sendTemplateEmail({
-      to: email,
-      templateId,
-      params: {
-        firstName: firstName || "User",
-        resetUrl,
-      },
-    });
-  }
+      <p>Hello ${firstName || "User"},</p>
+
+      <p>Click the button below to reset your password:</p>
+
+      <p>
+        <a href="${resetUrl}"
+           style="
+             background:#2563eb;
+             color:white;
+             padding:12px 20px;
+             text-decoration:none;
+             border-radius:6px;
+             display:inline-block;
+           ">
+           Reset Password
+        </a>
+      </p>
+
+      <p>
+        If you didn't request this, you can safely ignore this email.
+      </p>
+    </body>
+    </html>
+    `,
+  );
+}
 
   /**
    * Send custom email (raw HTML content)
