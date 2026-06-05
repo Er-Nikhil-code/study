@@ -13,8 +13,6 @@ export function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [maskedEmail, setMaskedEmail] = useState("");
-  const [registerSuccess, setRegisterSuccess] = useState(false);
-  const [otpExpired, setOtpExpired] = useState(false);
   const [apiError, setApiError] = useState("");
 
   const { formState, errors, updateField, setError, clearErrors } =
@@ -90,7 +88,6 @@ export function RegisterForm() {
       });
 
       setMaskedEmail(response.email_masked);
-      setRegisterSuccess(true);
       setSuccessMessage("OTP sent to your email! Expires in 10 minutes.");
       setStep(2);
     } catch (error: any) {
@@ -111,7 +108,7 @@ export function RegisterForm() {
     setApiError("");
 
     try {
-      const response = await authService.verifyOtp({
+      await authService.verifyOtp({
         email: formState.email,
         otp: formState.otp,
         password: formState.password,
@@ -138,9 +135,7 @@ export function RegisterForm() {
 
   const handleBackToStep1 = () => {
     setStep(1);
-    setRegisterSuccess(false);
     setSuccessMessage("");
-    setOtpExpired(false);
   };
 
   // Step 1: Email, Password, and Basic Info
