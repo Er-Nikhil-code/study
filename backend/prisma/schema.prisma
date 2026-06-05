@@ -1,0 +1,465 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String       @id @default(cuid())
+  email                 String       @unique
+  password_hash         String
+  first_name            String?
+  last_name             String?
+  role                  UserRole     @default(STUDENT)
+  email_verified_at     DateTime?
+  created_at            DateTime     @default(now())
+  updated_at            DateTime     @updatedAt
+  last_login_at         DateTime?
+  
+  // Relations
+  teacher_applications  TeacherApplication[]
+  attempts              Attempt[]
+  challenges_created    Challenge[]
+  challenges_assigned   Challenge[]      @relation("assigned_to")
+  daily_activities      DailyActivity[]
+  user_stats            UserStats?
+  refresh_tokens        RefreshToken[]
+  audit_logs            AuditLog[]        @relation("actor")
+  notification_events   NotificationEvent[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model RefreshToken {
+  id            String    @id @default(cuid())
+  user_id       String
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  token_hash    String    @unique
+  expires_at    DateTime
+  created_at    DateTime  @default(now())
+  revoked_at    DateTime?
+
+  @@index([user_id])
+  @@index([expires_at])
+}
+
+model OtpRecord {
+  id              String    @id @default(cuid())
+  email           String
+  otp_code        String    // 6-digit code
+  attempts        Int       @default(0)
+  created_at      DateTime  @default(now())
+  expires_at      DateTime  // now + 10 minutes
+  verified_at     DateTime?
+
+  @@index([email])
+  @@index([expires_at])
+}
+
+model PasswordResetToken {
+  id              String    @id @default(cuid())
+  user_id         String
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  token_hash      String    @unique  // SHA256 hashed token
+  created_at      DateTime  @default(now())
+  expires_at      DateTime  // now + 1 hour
+  used_at         DateTime?
+  ip_address      String?
+
+  @@index([user_id])
+  @@index([expires_at])
+}
+
+model TeacherApplication {
+  id              String    @id @default(cuid())
+  user_id         String
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  status          ApplicationStatus @default(PENDING)
+  qualification   String?
+  subject_areas   String[]  // JSON array of subject specializations
+  bio             String?
+  applied_at      DateTime  @default(now())
+  reviewed_at     DateTime?
+  reviewed_by     String?   // Admin user ID
+  rejection_note  String?
+  verified_email_at DateTime?
+
+  @@index([user_id])
+  @@index([status])
+}
+
+model Subject {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  code            String
+  created_at      DateTime  @default(now())
+
+  chapters        Chapter[]
+
+  @@index([code])
+}
+
+model Chapter {
+  id              String    @id @default(cuid())
+  subject_id      String
+  subject         Subject   @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  name            String
+  order           Int
+  created_at      DateTime  @default(now())
+
+  topics          Topic[]
+
+  @@unique([subject_id, name])
+  @@index([subject_id])
+}
+
+model Topic {
+  id              String    @id @default(cuid())
+  chapter_id      String
+  chapter         Chapter   @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  name            String
+  order           Int
+  created_at      DateTime  @default(now())
+
+  questions       Question[]
+  responses       Response[]
+
+  @@unique([chapter_id, name])
+  @@index([chapter_id])
+}
+
+model Asset {
+  id              String    @id @default(cuid())
+  file_name       String
+  file_size       Int
+  mime_type       String
+  cdn_url         String    @unique  // Cloudflare R2 CDN URL
+  created_at      DateTime  @default(now())
+
+  @@index([created_at])
+}
+
+model Question {
+  id              String    @id @default(cuid())
+  topic_id        String
+  topic           Topic     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  created_by      String    // User ID of creator
+  title           String
+  question_type   QuestionType
+  content_json    Json      // Block model: [{type:'TEXT'|'LATEX'|'IMAGE', content/asset_id}]
+  options_json    Json?     // For MCQ, multiple correct, etc.
+  answer_key      Json      // Answer structure depends on question type
+  solution_json   Json?     // Step-by-step solution blocks
+  difficulty      Difficulty @default(MEDIUM)
+  marks           Float     @default(1)
+  negative_marks  Float     @default(0)
+  version         Int       @default(1)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  test_questions  TestQuestion[]
+  responses       Response[]
+  challenges      Challenge[]
+  version_history QuestionVersion[]
+
+  @@index([topic_id])
+  @@index([created_by])
+  @@index([question_type])
+  @@index([created_at])
+}
+
+model QuestionVersion {
+  id              String    @id @default(cuid())
+  question_id     String
+  question        Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  version         Int
+  content_json    Json
+  options_json    Json?
+  answer_key      Json
+  solution_json   Json?
+  created_at      DateTime  @default(now())
+
+  @@unique([question_id, version])
+  @@index([question_id])
+}
+
+model Test {
+  id              String    @id @default(cuid())
+  title           String
+  description     String?
+  created_by      String    // User ID
+  duration_minutes Int      @default(180)
+  total_marks     Float
+  passing_marks   Float?
+  status          TestStatus @default(DRAFT)
+  start_time      DateTime?
+  end_time        DateTime?
+  section_config  Json?     // Array of section configs with marking schemes
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  test_questions  TestQuestion[]
+  attempts        Attempt[]
+  test_series     TestSeries[]
+
+  @@index([created_by])
+  @@index([status])
+  @@index([start_time])
+  @@index([created_at])
+}
+
+model TestQuestion {
+  id              String    @id @default(cuid())
+  test_id         String
+  test            Test      @relation(fields: [test_id], references: [id], onDelete: Cascade)
+  question_id     String
+  question        Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  order           Int
+  section         Int       @default(0)  // Section number for marking scheme
+  marks_override  Float?    // If different from question.marks
+  created_at      DateTime  @default(now())
+
+  responses       Response[]
+
+  @@unique([test_id, question_id])
+  @@index([test_id])
+  @@index([question_id])
+}
+
+model TestSeries {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  created_by      String    // User ID
+  tests           Test[]
+  created_at      DateTime  @default(now())
+
+  @@index([created_by])
+}
+
+model Attempt {
+  id              String    @id @default(cuid())
+  user_id         String
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  test_id         String
+  test            Test      @relation(fields: [test_id], references: [id], onDelete: Cascade)
+  attempt_no      Int       @default(1)
+  status          AttemptStatus @default(IN_PROGRESS)
+  score           Float?
+  max_score       Float?
+  percentile      Float?
+  rank            Int?      // Rank among all attempts for this test
+  practice_mode   Boolean   @default(false)
+  started_at      DateTime  @default(now())
+  submitted_at    DateTime?
+  time_taken_sec  Int?      // Total time spent
+
+  responses       Response[]
+
+  @@unique([user_id, test_id, attempt_no])
+  @@index([user_id])
+  @@index([test_id])
+  @@index([status])
+  @@index([started_at])
+}
+
+model Response {
+  id              String    @id @default(cuid())
+  attempt_id      String
+  attempt         Attempt   @relation(fields: [attempt_id], references: [id], onDelete: Cascade)
+  test_question_id String
+  test_question   TestQuestion @relation(fields: [test_question_id], references: [id], onDelete: Cascade)
+  topic_id        String
+  topic           Topic     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  question_id     String
+  question        Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  
+  answer_json     Json      // Student's answer (structure varies by question type)
+  is_correct      Boolean?  // Null = not yet scored, true = correct, false = incorrect
+  marks_obtained  Float?
+  time_on_question Int?     // Seconds spent on this question
+  reviewed        Boolean   @default(false)
+  marked_for_review Boolean @default(false)
+  
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@unique([attempt_id, question_id])
+  @@index([attempt_id])
+  @@index([question_id])
+  @@index([topic_id])
+}
+
+model Challenge {
+  id              String    @id @default(cuid())
+  response_id     String    // The response being challenged
+  question_id     String
+  question        Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  submitted_by    String    // User ID who submitted challenge
+  assigned_to     String    // User ID (teacher) who reviews it
+  status          ChallengeStatus @default(PENDING)
+  reason          ChallengeReason
+  description     String
+  screenshot_url  String?
+  
+  resolution_note String?
+  revised_answer_key Json? // If challenge accepted and answer key revised
+  
+  created_at      DateTime  @default(now())
+  resolved_at     DateTime?
+
+  @@index([question_id])
+  @@index([assigned_to])
+  @@index([status])
+  @@index([created_at])
+}
+
+model UserStats {
+  id              String    @id @default(cuid())
+  user_id         String    @unique
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  total_tests     Int       @default(0)
+  total_score     Float     @default(0)
+  best_score      Float?
+  avg_accuracy    Float?
+  
+  current_streak  Int       @default(0)
+  longest_streak  Int       @default(0)
+  
+  badges_json     Json      @default("{}")  // {first_test: false, streak_7: false, ...}
+  preferences_json Json     @default("{dark_mode: false, font_size: 'medium'}")
+  
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@index([user_id])
+}
+
+model DailyActivity {
+  id              String    @id @default(cuid())
+  user_id         String
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  activity_date   DateTime  // Date (stored in UTC)
+  activity_type   String    // 'test_attempt', 'daily_quiz', etc.
+  activity_count  Int       @default(1)
+  created_at      DateTime  @default(now())
+
+  @@unique([user_id, activity_date])
+  @@index([user_id])
+  @@index([activity_date])
+}
+
+model NotificationEvent {
+  id              String    @id @default(cuid())
+  user_id         String
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  type            NotificationType
+  title           String
+  message         String
+  data_json       Json?     // Event-specific data (rank_change, badge_earned, etc.)
+  is_read         Boolean   @default(false)
+  created_at      DateTime  @default(now())
+
+  @@index([user_id])
+  @@index([created_at])
+}
+
+model AuditLog {
+  id              String    @id @default(cuid())
+  actor_id        String
+  actor           User      @relation("actor", fields: [actor_id], references: [id], onDelete: SetNull)
+  action          String    // 'teacher_approved', 'answer_key_revised', 'challenge_resolved', etc.
+  entity_type     String    // 'teacher_application', 'question', 'challenge', 'user'
+  entity_id       String
+  before_json     Json?     // State before change
+  after_json      Json?     // State after change
+  ip_address      String?
+  user_agent      String?
+  created_at      DateTime  @default(now())
+
+  @@index([actor_id])
+  @@index([entity_type])
+  @@index([created_at])
+}
+
+// Enums
+enum UserRole {
+  STUDENT
+  PENDING_TEACHER
+  TEACHER
+  ADMIN
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum QuestionType {
+  SINGLE_CORRECT
+  MULTIPLE_CORRECT
+  NUMERICAL
+  TRUE_FALSE
+  MATCHING
+  ESSAY
+  FILL_BLANK
+  IMAGE_BASED
+  DRAG_DROP
+  CODE
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum TestStatus {
+  DRAFT
+  PUBLISHED
+  ONGOING
+  COMPLETED
+  ARCHIVED
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  SCORED
+  PENDING_REVIEW
+}
+
+enum ChallengeStatus {
+  PENDING
+  RESOLVED
+  REJECTED
+  ESCALATED
+}
+
+enum ChallengeReason {
+  WRONG_ANSWER_KEY
+  AMBIGUOUS_QUESTION
+  WRONG_EXPLANATION
+  TYPO
+  UNCLEAR_WORDING
+  OTHER
+}
+
+enum NotificationType {
+  RANK_UPDATE
+  BADGE_EARNED
+  STREAK_MILESTONE
+  CHALLENGE_RESOLVED
+  TEACHER_APPROVED
+  TEST_PUBLISHED
+  CUSTOM
+}
