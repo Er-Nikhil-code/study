@@ -1,12 +1,10 @@
 import { z } from "zod";
 
-// Registration Request DTO
+// Registration Request DTO (Step 1: Email + Name only)
 export const RegisterRequestSchema = z.object({
   email: z.string().email("Invalid email format"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().optional(),
-  role: z.enum(["STUDENT", "PENDING_TEACHER"]).default("STUDENT"),
 });
 
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;

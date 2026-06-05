@@ -46,8 +46,10 @@ export class BrevoService {
     }
 
     try {
-      this.logger.debug(`📤 [BREVO] Preparing to send email to ${dto.to}, template: ${dto.templateId}`);
-      
+      this.logger.debug(
+        `📤 [BREVO] Preparing to send email to ${dto.to}, template: ${dto.templateId}`,
+      );
+
       const senderEmail = this.configService.get<string>("BREVO_SENDER_EMAIL");
       const senderName = this.configService.get<string>("BREVO_SENDER_NAME");
 
@@ -62,7 +64,9 @@ export class BrevoService {
 
       if (dto.params) {
         payload.params = dto.params;
-        this.logger.debug(`📋 [BREVO] Email params: ${JSON.stringify(Object.keys(dto.params))}`);
+        this.logger.debug(
+          `📋 [BREVO] Email params: ${JSON.stringify(Object.keys(dto.params))}`,
+        );
       }
 
       this.logger.debug(`🔗 [BREVO] Calling Brevo API...`);
@@ -83,9 +87,13 @@ export class BrevoService {
     } catch (error: any) {
       this.logger.error(
         `❌ [BREVO] Failed to send email to ${dto.to}: ${error?.message || "Unknown error"}`,
-        error?.response?.status ? `Status: ${error.response.status}` : undefined,
+        error?.response?.status
+          ? `Status: ${error.response.status}`
+          : undefined,
       );
-      this.logger.debug(`📊 [BREVO] Error details: ${JSON.stringify(error?.response?.data || error?.message)}`);
+      this.logger.debug(
+        `📊 [BREVO] Error details: ${JSON.stringify(error?.response?.data || error?.message)}`,
+      );
       throw new Error(
         `Email send failed: ${error?.message || "Unknown error"}`,
       );

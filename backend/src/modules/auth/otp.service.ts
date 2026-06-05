@@ -41,12 +41,14 @@ export class OtpService {
   async createOtpRecord(email: string): Promise<any> {
     const otp = this.generateOtp();
     this.logger.debug(`🔐 [OTP-CREATE] Generated OTP: ${otp} for ${email}`);
-    
+
     const otpValidityMinutes = this.configService.get<number>(
       "OTP_VALIDITY_MINUTES",
       10,
     );
-    this.logger.debug(`⏱️  [OTP-CREATE] OTP validity: ${otpValidityMinutes} minutes`);
+    this.logger.debug(
+      `⏱️  [OTP-CREATE] OTP validity: ${otpValidityMinutes} minutes`,
+    );
 
     const expiresAt = new Date(Date.now() + otpValidityMinutes * 60 * 1000);
 
@@ -66,7 +68,9 @@ export class OtpService {
       },
     });
 
-    this.logger.log(`✅ [OTP-CREATE] OTP created for ${email}, expires at ${expiresAt}`);
+    this.logger.log(
+      `✅ [OTP-CREATE] OTP created for ${email}, expires at ${expiresAt}`,
+    );
     return record;
   }
 
@@ -91,7 +95,9 @@ export class OtpService {
           error: "OTP not found",
         };
       }
-      this.logger.debug(`📝 [OTP-VERIFY] OTP record found, attempts: ${record.attempts}`);
+      this.logger.debug(
+        `📝 [OTP-VERIFY] OTP record found, attempts: ${record.attempts}`,
+      );
 
       // Check if expired
       if (new Date() > record.expires_at) {
@@ -106,7 +112,9 @@ export class OtpService {
       // Check max attempts
       const maxAttempts = this.configService.get<number>("OTP_MAX_ATTEMPTS", 3);
       if (record.attempts >= maxAttempts) {
-        this.logger.warn(`🚫 [OTP-VERIFY] Max OTP attempts exceeded for ${email}`);
+        this.logger.warn(
+          `🚫 [OTP-VERIFY] Max OTP attempts exceeded for ${email}`,
+        );
         return {
           result: OtpVerificationResult.TOO_MANY_ATTEMPTS,
           error: "Maximum attempts exceeded",
@@ -115,10 +123,14 @@ export class OtpService {
 
       // Check OTP match
       this.logger.debug(`🔐 [OTP-VERIFY] Comparing OTP codes for ${email}`);
-      this.logger.debug(`📋 [OTP-VERIFY] Expected: ${record.otp_code}, Provided: ${otp}`);
-      
+      this.logger.debug(
+        `📋 [OTP-VERIFY] Expected: ${record.otp_code}, Provided: ${otp}`,
+      );
+
       if (record.otp_code !== otp) {
-        this.logger.warn(`❌ [OTP-VERIFY] OTP mismatch for ${email}, attempt ${record.attempts + 1}/${maxAttempts}`);
+        this.logger.warn(
+          `❌ [OTP-VERIFY] OTP mismatch for ${email}, attempt ${record.attempts + 1}/${maxAttempts}`,
+        );
         await (this.prisma as any).otpRecord.update({
           where: { id: record.id },
           data: { attempts: record.attempts + 1 },

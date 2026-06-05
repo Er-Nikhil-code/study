@@ -43,8 +43,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async register(@Body() body: RegisterRequest): Promise<RegisterResponse> {
     try {
-      this.logger.debug(`📝 [REGISTER] Received request for email: ${body.email}`);
-      
+      this.logger.debug(
+        `📝 [REGISTER] Received request for email: ${body.email}`,
+      );
+
       // Validate request
       const parsed = RegisterRequestSchema.safeParse(body);
       if (!parsed.success) {
@@ -57,13 +59,17 @@ export class AuthController {
         );
       }
 
-      this.logger.log(`🚀 [REGISTER] Starting registration for ${parsed.data.email}`);
+      this.logger.log(
+        `🚀 [REGISTER] Starting registration for ${parsed.data.email}`,
+      );
       const result = await this.authService.register(
         parsed.data.email.toLowerCase(),
         parsed.data.firstName,
       );
 
-      this.logger.log(`✅ [REGISTER] OTP sent successfully to ${parsed.data.email}`);
+      this.logger.log(
+        `✅ [REGISTER] OTP sent successfully to ${parsed.data.email}`,
+      );
       return {
         message:
           "OTP has been sent to your email. Please verify to complete registration.",
@@ -89,8 +95,10 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   async verifyOtp(@Body() body: VerifyOtpRequest): Promise<VerifyOtpResponse> {
     try {
-      this.logger.debug(`🔐 [VERIFY-OTP] Received OTP verification for ${body.email}`);
-      
+      this.logger.debug(
+        `🔐 [VERIFY-OTP] Received OTP verification for ${body.email}`,
+      );
+
       // Validate request
       const parsed = VerifyOtpRequestSchema.safeParse(body);
       if (!parsed.success) {
@@ -113,7 +121,9 @@ export class AuthController {
         parsed.data.role as "STUDENT" | "PENDING_TEACHER",
       );
 
-      this.logger.log(`✅ [VERIFY-OTP] User created successfully: ${result.user.id}`);
+      this.logger.log(
+        `✅ [VERIFY-OTP] User created successfully: ${result.user.id}`,
+      );
       return {
         message: "Account created successfully!",
         user: result.user,
