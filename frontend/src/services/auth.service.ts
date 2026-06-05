@@ -4,6 +4,8 @@ import type {
   RegisterResponse,
   VerifyOtpRequest,
   VerifyOtpResponse,
+  LoginRequest,
+  LoginResponse,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
   ResetPasswordRequest,
@@ -47,6 +49,32 @@ class AuthService {
     const response = await this.api.post<VerifyOtpResponse>(
       "/auth/register/verify-otp",
       data,
+    );
+
+    // Store tokens
+    if (typeof window !== "undefined") {
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+    }
+
+    return response.data;
+  }
+
+  async login(data: LoginRequest): Promise<LoginResponse>;
+  async login(email: string, password: string): Promise<LoginResponse>;
+  async login(
+    emailOrData: string | LoginRequest,
+    password?: string,
+  ): Promise<LoginResponse> {
+    const loginData: LoginRequest =
+      typeof emailOrData === "string"
+        ? { email: emailOrData, password: password! }
+        : emailOrData;
+
+    const response = await this.api.post<LoginResponse>(
+      "/auth/login",
+      loginData,
     );
 
     // Store tokens
@@ -103,4 +131,5 @@ class AuthService {
   }
 }
 
-export default new AuthService();
+export const authService = new AuthService();
+export default authService;

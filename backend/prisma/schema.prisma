@@ -25,11 +25,12 @@ model User {
   // Relations
   teacher_applications  TeacherApplication[]
   attempts              Attempt[]
-  challenges_created    Challenge[]
+  challenges_created    Challenge[]      @relation("challenges_created")
   challenges_assigned   Challenge[]      @relation("assigned_to")
   daily_activities      DailyActivity[]
   user_stats            UserStats?
   refresh_tokens        RefreshToken[]
+  password_reset_tokens PasswordResetToken[] @relation("password_reset_tokens")
   audit_logs            AuditLog[]        @relation("actor")
   notification_events   NotificationEvent[]
 
@@ -66,7 +67,7 @@ model OtpRecord {
 model PasswordResetToken {
   id              String    @id @default(cuid())
   user_id         String
-  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user            User      @relation("password_reset_tokens", fields: [user_id], references: [id], onDelete: Cascade)
   token_hash      String    @unique  // SHA256 hashed token
   created_at      DateTime  @default(now())
   expires_at      DateTime  // now + 1 hour
@@ -303,7 +304,9 @@ model Challenge {
   question_id     String
   question        Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
   submitted_by    String    // User ID who submitted challenge
+  created_by      User      @relation("challenges_created", fields: [submitted_by], references: [id], onDelete: Cascade)
   assigned_to     String    // User ID (teacher) who reviews it
+  reviewer        User      @relation("assigned_to", fields: [assigned_to], references: [id], onDelete: Cascade)
   status          ChallengeStatus @default(PENDING)
   reason          ChallengeReason
   description     String
@@ -334,8 +337,8 @@ model UserStats {
   current_streak  Int       @default(0)
   longest_streak  Int       @default(0)
   
-  badges_json     Json      @default("{}")  // {first_test: false, streak_7: false, ...}
-  preferences_json Json     @default("{dark_mode: false, font_size: 'medium'}")
+  badges_json     Json      @default("{}")  // {"first_test": false, "streak_7": false, ...}
+  preferences_json Json     @default("{\"dark_mode\": false, \"font_size\": \"medium\"}")
   
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt

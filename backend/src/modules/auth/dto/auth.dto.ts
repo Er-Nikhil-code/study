@@ -77,6 +77,27 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
+// Login Request DTO
+export const LoginRequestSchema = z.object({
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export type LoginRequest = z.infer<typeof LoginRequestSchema>;
+
+// Login Response DTO
+export interface LoginResponse {
+  message: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    role: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+}
+
 // Error Response DTO
 export interface ErrorResponse {
   statusCode: number;

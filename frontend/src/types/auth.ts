@@ -34,6 +34,23 @@ export interface VerifyOtpResponse {
   refreshToken: string;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  message: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    role: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+}
+
 export interface ForgotPasswordRequest {
   email: string;
 }

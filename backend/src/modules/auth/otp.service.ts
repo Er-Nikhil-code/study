@@ -1,7 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../../prisma/prisma.service";
-import { OtpRecord } from "@prisma/client";
 import * as crypto from "crypto";
 
 export enum OtpVerificationResult {
@@ -39,7 +38,7 @@ export class OtpService {
   /**
    * Create and store OTP record for email
    */
-  async createOtpRecord(email: string): Promise<OtpRecord> {
+  async createOtpRecord(email: string): Promise<any> {
     const otp = this.generateOtp();
     const otpValidityMinutes = this.configService.get<number>(
       "OTP_VALIDITY_MINUTES",
@@ -49,11 +48,11 @@ export class OtpService {
     const expiresAt = new Date(Date.now() + otpValidityMinutes * 60 * 1000);
 
     // Delete old OTP records for this email (cleanup)
-    await this.prisma.otpRecord.deleteMany({
+    await (this.prisma as any).otpRecord.deleteMany({
       where: { email },
     });
 
-    const record = await this.prisma.otpRecord.create({
+    const record = await (this.prisma as any).otpRecord.create({
       data: {
         email,
         otp_code: otp,
@@ -74,7 +73,7 @@ export class OtpService {
     otp: string,
   ): Promise<{ result: OtpVerificationResult; error?: string }> {
     try {
-      const record = await this.prisma.otpRecord.findFirst({
+      const record = await (this.prisma as any).otpRecord.findFirst({
         where: { email },
         orderBy: { created_at: "desc" },
       });
@@ -108,7 +107,7 @@ export class OtpService {
 
       // Check OTP match
       if (record.otp_code !== otp) {
-        await this.prisma.otpRecord.update({
+        await (this.prisma as any).otpRecord.update({
           where: { id: record.id },
           data: { attempts: record.attempts + 1 },
         });
@@ -120,17 +119,17 @@ export class OtpService {
       }
 
       // OTP is valid - mark as verified
-      await this.prisma.otpRecord.update({
+      await (this.prisma as any).otpRecord.update({
         where: { id: record.id },
         data: { verified_at: new Date() },
       });
 
       this.logger.log(`OTP verified successfully for email: ${email}`);
       return { result: OtpVerificationResult.SUCCESS };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error verifying OTP for email ${email}: ${error.message}`,
-        error.stack,
+        `Error verifying OTP for email ${email}: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }
@@ -140,7 +139,7 @@ export class OtpService {
    * Get OTP status for email
    */
   async getOtpStatus(email: string): Promise<OtpStatusDto> {
-    const record = await this.prisma.otpRecord.findFirst({
+    const record = await (this.prisma as any).otpRecord.findFirst({
       where: { email },
       orderBy: { created_at: "desc" },
     });
@@ -171,7 +170,7 @@ export class OtpService {
    */
   async deleteExpiredOtps(): Promise<number> {
     try {
-      const result = await this.prisma.otpRecord.deleteMany({
+      const result = await (this.prisma as any).otpRecord.deleteMany({
         where: {
           expires_at: {
             lt: new Date(),
@@ -181,10 +180,10 @@ export class OtpService {
 
       this.logger.log(`Deleted ${result.count} expired OTP records`);
       return result.count;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error deleting expired OTPs: ${error.message}`,
-        error.stack,
+        `Error deleting expired OTPs: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }
@@ -195,14 +194,14 @@ export class OtpService {
    */
   async deleteOtpRecord(email: string): Promise<void> {
     try {
-      await this.prisma.otpRecord.deleteMany({
+      await (this.prisma as any).otpRecord.deleteMany({
         where: { email },
       });
       this.logger.log(`Deleted OTP record for email: ${email}`);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error deleting OTP record for ${email}: ${error.message}`,
-        error.stack,
+        `Error deleting OTP record for email ${email}: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }

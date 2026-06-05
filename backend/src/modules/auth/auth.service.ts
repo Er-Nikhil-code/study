@@ -68,10 +68,10 @@ export class AuthService {
         email_masked: emailMasked,
         otp_expiry_minutes: otpValidityMinutes,
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Registration error for email ${email}: ${error.message}`,
-        error.stack,
+        `Registration error for email ${email}: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }
@@ -169,10 +169,77 @@ export class AuthService {
         accessToken,
         refreshToken,
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `OTP verification and user creation error for email ${email}: ${error.message}`,
-        error.stack,
+        `OTP verification and user creation error for email ${email}: ${error?.message || "Unknown error"}`,
+        error?.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Login user with email and password
+   */
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{
+    user: any;
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    try {
+      // Find user
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException("Invalid email or password");
+      }
+
+      // Check if email is verified
+      if (!user.email_verified_at) {
+        throw new UnauthorizedException(
+          "Please verify your email first. Use OTP registration to complete verification.",
+        );
+      }
+
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(
+        password,
+        user.password_hash,
+      );
+      if (!isPasswordValid) {
+        throw new UnauthorizedException("Invalid email or password");
+      }
+
+      // Generate tokens
+      const { accessToken, refreshToken } = await this.generateTokens(
+        user.id,
+        user.email,
+      );
+
+      // Log to audit
+      await this.logAudit(user.id, "user_login", "user", user.id, null, null);
+
+      this.logger.log(`User logged in successfully: ${email}`);
+
+      return {
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.first_name,
+          role: user.role,
+        },
+        accessToken,
+        refreshToken,
+      };
+    } catch (error: any) {
+      this.logger.error(
+        `Login error for email ${email}: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }
@@ -184,7 +251,7 @@ export class AuthService {
   async forgotPassword(email: string): Promise<{ email_masked: string }> {
     try {
       // Find user
-      const user = await this.prisma.user.findUnique({
+      const user = await (this.prisma as any).user.findUnique({
         where: { email },
       });
 
@@ -224,10 +291,10 @@ export class AuthService {
       this.logger.log(`Password reset link sent to email: ${email}`);
 
       return { email_masked: this.maskEmail(email) };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Forgot password error for email ${email}: ${error.message}`,
-        error.stack,
+        `Forgot password error for email ${email}: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       // Don't throw error to not reveal if email exists
       return { email_masked: this.maskEmail(email) };
@@ -252,10 +319,10 @@ export class AuthService {
         );
       }
 
-      const userId = tokenResult.userId;
+      const userId = tokenResult.userId!;
 
       // Find user
-      const user = await this.prisma.user.findUnique({
+      const user = await (this.prisma as any).user.findUnique({
         where: { id: userId },
       });
 
@@ -295,8 +362,11 @@ export class AuthService {
       return {
         message: "Password has been reset successfully. Please log in.",
       };
-    } catch (error) {
-      this.logger.error(`Password reset error: ${error.message}`, error.stack);
+    } catch (error: any) {
+      this.logger.error(
+        `Password reset error: ${error?.message || "Unknown error"}`,
+        error?.stack,
+      );
       throw error;
     }
   }
@@ -348,10 +418,10 @@ export class AuthService {
       });
 
       return { accessToken, refreshToken };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error generating tokens: ${error.message}`,
-        error.stack,
+        `Error generating tokens: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }
@@ -392,8 +462,11 @@ export class AuthService {
           ip_address: ipAddress,
         },
       });
-    } catch (error) {
-      this.logger.error(`Error logging audit: ${error.message}`, error.stack);
+    } catch (error: any) {
+      this.logger.error(
+        `Error logging audit: ${error?.message || "Unknown error"}`,
+        error?.stack,
+      );
       // Don't throw - audit logging shouldn't block main operation
     }
   }

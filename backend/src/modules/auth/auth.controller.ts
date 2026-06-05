@@ -16,6 +16,9 @@ import {
   VerifyOtpRequest,
   VerifyOtpRequestSchema,
   VerifyOtpResponse,
+  LoginRequest,
+  LoginRequestSchema,
+  LoginResponse,
   ForgotPasswordRequest,
   ForgotPasswordRequestSchema,
   ForgotPasswordResponse,
@@ -45,7 +48,7 @@ export class AuthController {
       if (!parsed.success) {
         const error = parsed.error as any;
         throw new BadRequestException(
-          error.errors?.[0]?.message || "Invalid request"
+          error.errors?.[0]?.message || "Invalid request",
         );
       }
 
@@ -84,7 +87,7 @@ export class AuthController {
       if (!parsed.success) {
         const error = parsed.error as any;
         throw new BadRequestException(
-          error.errors?.[0]?.message || "Invalid request"
+          error.errors?.[0]?.message || "Invalid request",
         );
       }
 
@@ -113,6 +116,45 @@ export class AuthController {
   }
 
   /**
+   * POST /auth/login
+   * Login with email and password
+   * Rate limited: 10 requests per 15 minutes
+   */
+  @Throttle({ default: { limit: 10, ttl: 900 } })
+  @Post("login")
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() body: LoginRequest): Promise<LoginResponse> {
+    try {
+      // Validate request
+      const parsed = LoginRequestSchema.safeParse(body);
+      if (!parsed.success) {
+        const error = parsed.error as any;
+        throw new BadRequestException(
+          error.errors?.[0]?.message || "Invalid request",
+        );
+      }
+
+      const result = await this.authService.login(
+        parsed.data.email.toLowerCase(),
+        parsed.data.password,
+      );
+
+      return {
+        message: "Login successful!",
+        user: result.user,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      };
+    } catch (error: any) {
+      this.logger.error(
+        `Login endpoint error: ${error?.message || "Unknown error"}`,
+        error?.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
    * POST /auth/forgot-password
    * Step 1: Initiate password reset and send reset link
    * Rate limited: 5 requests per 30 minutes
@@ -129,7 +171,7 @@ export class AuthController {
       if (!parsed.success) {
         const error = parsed.error as any;
         throw new BadRequestException(
-          error.errors?.[0]?.message || "Invalid request"
+          error.errors?.[0]?.message || "Invalid request",
         );
       }
 
@@ -168,7 +210,7 @@ export class AuthController {
       if (!parsed.success) {
         const error = parsed.error as any;
         throw new BadRequestException(
-          error.errors?.[0]?.message || "Invalid request"
+          error.errors?.[0]?.message || "Invalid request",
         );
       }
 

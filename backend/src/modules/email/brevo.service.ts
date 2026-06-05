@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import * as SibApiV3Sdk from "brevo";
+import axios from "axios";
 
 export interface SendEmailDto {
   to: string;
@@ -13,19 +13,18 @@ export interface SendEmailDto {
 @Injectable()
 export class BrevoService {
   private readonly logger = new Logger(BrevoService.name);
-  private apiInstance: SibApiV3Sdk.TransactionalEmailsApi;
+  private apiKey: string;
+  private apiUrl = "https://api.brevo.com/v3/smtp/email";
 
   constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get<string>("BREVO_API_KEY");
+    const apiKey = this.configService.get<string | undefined>("BREVO_API_KEY");
 
     if (!apiKey) {
       this.logger.error("BREVO_API_KEY is not configured");
       throw new Error("BREVO_API_KEY environment variable is required");
     }
 
-    const configuration = new SibApiV3Sdk.Configuration();
-    configuration.apiKey = apiKey;
-    this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi(configuration);
+    this.apiKey = apiKey;
   }
 
   /**
@@ -36,33 +35,41 @@ export class BrevoService {
       const senderEmail = this.configService.get<string>("BREVO_SENDER_EMAIL");
       const senderName = this.configService.get<string>("BREVO_SENDER_NAME");
 
-      const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-      sendSmtpEmail.to = [{ email: dto.to }];
-      sendSmtpEmail.sender = {
-        name: senderName,
-        email: senderEmail,
+      const payload: any = {
+        to: [{ email: dto.to }],
+        sender: {
+          name: senderName || "Study Platform",
+          email: senderEmail || "noreply@study.app",
+        },
+        templateId: dto.templateId,
       };
-      sendSmtpEmail.templateId = dto.templateId;
 
       if (dto.params) {
-        sendSmtpEmail.params = dto.params;
+        payload.params = dto.params;
       }
 
-      const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      const response = await axios.post(this.apiUrl, payload, {
+        headers: {
+          "api-key": this.apiKey,
+          "Content-Type": "application/json",
+        },
+      });
 
       this.logger.log(
         `Email sent successfully to ${dto.to} with template ID ${dto.templateId}`,
       );
 
       return {
-        messageId: response.messageId,
+        messageId: response.data.messageId || response.data.id || "sent",
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Failed to send email to ${dto.to}: ${error.message}`,
-        error.stack,
+        `Failed to send email to ${dto.to}: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
-      throw new Error(`Email send failed: ${error.message}`);
+      throw new Error(
+        `Email send failed: ${error?.message || "Unknown error"}`,
+      );
     }
   }
 
@@ -74,7 +81,8 @@ export class BrevoService {
     otp: string,
     firstName?: string,
   ): Promise<{ messageId: string }> {
-    const templateId = this.configService.get<number>("BREVO_OTP_TEMPLATE_ID");
+    const templateId =
+      this.configService.get<number>("BREVO_OTP_TEMPLATE_ID") || 1;
 
     return this.sendTemplateEmail({
       to: email,
@@ -94,9 +102,8 @@ export class BrevoService {
     resetUrl: string,
     firstName?: string,
   ): Promise<{ messageId: string }> {
-    const templateId = this.configService.get<number>(
-      "BREVO_PASSWORD_RESET_TEMPLATE_ID",
-    );
+    const templateId =
+      this.configService.get<number>("BREVO_PASSWORD_RESET_TEMPLATE_ID") || 2;
 
     return this.sendTemplateEmail({
       to: email,
@@ -120,30 +127,38 @@ export class BrevoService {
       const senderEmail = this.configService.get<string>("BREVO_SENDER_EMAIL");
       const senderName = this.configService.get<string>("BREVO_SENDER_NAME");
 
-      const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-      sendSmtpEmail.to = [{ email }];
-      sendSmtpEmail.sender = {
-        name: senderName,
-        email: senderEmail,
+      const payload = {
+        to: [{ email }],
+        sender: {
+          name: senderName || "Study Platform",
+          email: senderEmail || "noreply@study.app",
+        },
+        subject,
+        htmlContent,
       };
-      sendSmtpEmail.subject = subject;
-      sendSmtpEmail.htmlContent = htmlContent;
 
-      const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      const response = await axios.post(this.apiUrl, payload, {
+        headers: {
+          "api-key": this.apiKey,
+          "Content-Type": "application/json",
+        },
+      });
 
       this.logger.log(
         `Custom email sent to ${email} with subject "${subject}"`,
       );
 
       return {
-        messageId: response.messageId,
+        messageId: response.data.messageId || response.data.id || "sent",
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Failed to send custom email to ${email}: ${error.message}`,
-        error.stack,
+        `Failed to send custom email to ${email}: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
-      throw new Error(`Email send failed: ${error.message}`);
+      throw new Error(
+        `Email send failed: ${error?.message || "Unknown error"}`,
+      );
     }
   }
 }

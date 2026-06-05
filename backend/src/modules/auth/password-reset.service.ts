@@ -1,7 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../../prisma/prisma.service";
-import { PasswordResetToken } from "@prisma/client";
 import * as crypto from "crypto";
 
 export enum TokenVerificationResult {
@@ -57,7 +56,7 @@ export class PasswordResetService {
       const expiresAt = new Date(Date.now() + expiryMinutes * 60 * 1000);
 
       // Delete old unused tokens for this user
-      await this.prisma.passwordResetToken.deleteMany({
+      await (this.prisma as any).passwordResetToken.deleteMany({
         where: {
           user_id: userId,
           used_at: null,
@@ -65,7 +64,7 @@ export class PasswordResetService {
       });
 
       // Create new token
-      await this.prisma.passwordResetToken.create({
+      await (this.prisma as any).passwordResetToken.create({
         data: {
           user_id: userId,
           token_hash: tokenHash,
@@ -77,10 +76,10 @@ export class PasswordResetService {
       this.logger.log(`Password reset token created for user: ${userId}`);
 
       return { token, expiresAt };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error creating reset token for user ${userId}: ${error.message}`,
-        error.stack,
+        `Error creating password reset token for user ${userId}: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }
@@ -95,7 +94,7 @@ export class PasswordResetService {
       const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
       // Find token record
-      const record = await this.prisma.passwordResetToken.findUnique({
+      const record = await (this.prisma as any).passwordResetToken.findUnique({
         where: { token_hash: tokenHash },
       });
 
@@ -132,10 +131,10 @@ export class PasswordResetService {
         result: TokenVerificationResult.SUCCESS,
         userId: record.user_id,
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error verifying reset token: ${error.message}`,
-        error.stack,
+        `Error verifying reset token: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }
@@ -148,16 +147,16 @@ export class PasswordResetService {
     try {
       const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
-      await this.prisma.passwordResetToken.update({
+      await (this.prisma as any).passwordResetToken.update({
         where: { token_hash: tokenHash },
         data: { used_at: new Date() },
       });
 
       this.logger.log("Reset token marked as used");
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error marking token as used: ${error.message}`,
-        error.stack,
+        `Error marking token as used: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }
@@ -168,7 +167,7 @@ export class PasswordResetService {
    */
   async deleteExpiredTokens(): Promise<number> {
     try {
-      const result = await this.prisma.passwordResetToken.deleteMany({
+      const result = await (this.prisma as any).passwordResetToken.deleteMany({
         where: {
           expires_at: {
             lt: new Date(),
@@ -179,10 +178,10 @@ export class PasswordResetService {
 
       this.logger.log(`Deleted ${result.count} expired password reset tokens`);
       return result.count;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error deleting expired tokens: ${error.message}`,
-        error.stack,
+        `Error deleting password reset token: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }
@@ -193,7 +192,7 @@ export class PasswordResetService {
    */
   async invalidateUserTokens(userId: string): Promise<void> {
     try {
-      await this.prisma.passwordResetToken.deleteMany({
+      await (this.prisma as any).passwordResetToken.deleteMany({
         where: {
           user_id: userId,
           used_at: null,
@@ -201,10 +200,10 @@ export class PasswordResetService {
       });
 
       this.logger.log(`Invalidated all reset tokens for user: ${userId}`);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
-        `Error invalidating tokens for user ${userId}: ${error.message}`,
-        error.stack,
+        `Error invalidating tokens for user ${userId}: ${error?.message || "Unknown error"}`,
+        error?.stack,
       );
       throw error;
     }
