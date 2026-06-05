@@ -1,0 +1,442 @@
+'use client';
+
+import { useState } from 'react';
+import { AlertCircle, CheckCircle, Clock, Eye, EyeOff } from 'lucide-react';
+import authService from '@/services/auth.service';
+import { useFormState } from '@/hooks/useFormState';
+import { useOtpTimer } from '@/hooks/useOtpTimer';
+
+export function RegisterForm() {
+  const [step, setStep] = useState<1 | 2>(1);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [maskedEmail, setMaskedEmail] = useState('');
+  const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [otpExpired, setOtpExpired] = useState(false);
+  const [apiError, setApiError] = useState('');
+
+  const { formState, errors, updateField, setError, clearErrors } = useFormState();
+  const { formattedTime, isExpired } = useOtpTimer(600); // 10 minutes
+
+  const validateStep1 = (): boolean => {
+    clearErrors();
+    let isValid = true;
+
+    // Email validation
+    if (!formState.email) {
+      setError('email', 'Email is required');
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.email)) {
+      setError('email', 'Invalid email format');
+      isValid = false;
+    }
+
+    // Password validation
+    if (!formState.password) {
+      setError('password', 'Password is required');
+      isValid = false;
+    } else if (formState.password.length < 8) {
+      setError('password', 'Password must be at least 8 characters');
+      isValid = false;
+    }
+
+    // Confirm password validation
+    if (formState.password !== formState.confirmPassword) {
+      setError('confirmPassword', 'Passwords do not match');
+      isValid = false;
+    }
+
+    // First name validation
+    if (!formState.firstName) {
+      setError('firstName', 'First name is required');
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
+  const validateStep2 = (): boolean => {
+    clearErrors();
+    let isValid = true;
+
+    // OTP validation
+    if (!formState.otp) {
+      setError('otp', 'OTP is required');
+      isValid = false;
+    } else if (!/^\d{6}$/.test(formState.otp)) {
+      setError('otp', 'OTP must be 6 digits');
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
+  const handleRegisterStep1 = async () => {
+    if (!validateStep1()) return;
+
+    setLoading(true);
+    setApiError('');
+
+    try {
+      const response = await authService.register({
+        email: formState.email,
+        password: formState.password,
+        firstName: formState.firstName,
+        lastName: formState.lastName || undefined,
+        role: formState.role,
+      });
+
+      setMaskedEmail(response.email_masked);
+      setRegisterSuccess(true);
+      setSuccessMessage('OTP sent to your email! Expires in 10 minutes.');
+      setStep(2);
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        'An error occurred during registration';
+      setApiError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!validateStep2()) return;
+
+    setLoading(true);
+    setApiError('');
+
+    try {
+      const response = await authService.verifyOtp({
+        email: formState.email,
+        otp: formState.otp,
+        password: formState.password,
+        firstName: formState.firstName,
+        lastName: formState.lastName || undefined,
+        role: formState.role,
+      });
+
+      setSuccessMessage('✅ Account created successfully! Redirecting...');
+      // Redirect to dashboard or home
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 2000);
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        'Invalid OTP or verification failed';
+      setApiError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBackToStep1 = () => {
+    setStep(1);
+    setRegisterSuccess(false);
+    setSuccessMessage('');
+    setOtpExpired(false);
+  };
+
+  // Step 1: Email, Password, and Basic Info
+  if (step === 1) {
+    return (
+      <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">Create Account</h1>
+        <p className="text-gray-600 mb-6">Join the Study Platform</p>
+
+        {apiError && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 rounded flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700">{apiError}</p>
+          </div>
+        )}
+
+        <form onSubmit={(e) => { e.preventDefault(); handleRegisterStep1(); }} className="space-y-4">
+          {/* Email Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={formState.email}
+              onChange={(e) => updateField('email', e.target.value)}
+              placeholder="you@example.com"
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
+                errors.email
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:ring-blue-500'
+              }`}
+              disabled={loading}
+            />
+            {errors.email && (
+              <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+            )}
+          </div>
+
+          {/* First Name Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              First Name
+            </label>
+            <input
+              type="text"
+              value={formState.firstName}
+              onChange={(e) => updateField('firstName', e.target.value)}
+              placeholder="John"
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
+                errors.firstName
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:ring-blue-500'
+              }`}
+              disabled={loading}
+            />
+            {errors.firstName && (
+              <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>
+            )}
+          </div>
+
+          {/* Last Name Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Last Name
+            </label>
+            <input
+              type="text"
+              value={formState.lastName}
+              onChange={(e) => updateField('lastName', e.target.value)}
+              placeholder="Doe"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
+            />
+          </div>
+
+          {/* Role Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              I am a:
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="STUDENT"
+                  checked={formState.role === 'STUDENT'}
+                  onChange={(e) => updateField('role', e.target.value as any)}
+                  className="w-4 h-4"
+                  disabled={loading}
+                />
+                <span className="text-gray-700">Student</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="PENDING_TEACHER"
+                  checked={formState.role === 'PENDING_TEACHER'}
+                  onChange={(e) => updateField('role', e.target.value as any)}
+                  className="w-4 h-4"
+                  disabled={loading}
+                />
+                <span className="text-gray-700">Teacher</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Password Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={formState.password}
+                onChange={(e) => updateField('password', e.target.value)}
+                placeholder="Min 8 characters"
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${
+                  errors.password
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-blue-500'
+                }`}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
+                disabled={loading}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+            )}
+          </div>
+
+          {/* Confirm Password Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirm Password
+            </label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={formState.confirmPassword}
+                onChange={(e) => updateField('confirmPassword', e.target.value)}
+                placeholder="Re-enter your password"
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${
+                  errors.confirmPassword
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-blue-500'
+                }`}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
+                disabled={loading}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-600 mt-1">{errors.confirmPassword}</p>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed mt-6"
+          >
+            {loading ? 'Sending OTP...' : 'Continue'}
+          </button>
+
+          <p className="text-center text-sm text-gray-600">
+            Already have an account?{' '}
+            <a href="/login" className="text-blue-600 hover:underline">
+              Login
+            </a>
+          </p>
+        </form>
+      </div>
+    );
+  }
+
+  // Step 2: OTP Verification
+  return (
+    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <h1 className="text-3xl font-bold mb-2 text-gray-900">Verify Email</h1>
+      <p className="text-gray-600 mb-6">Enter the 6-digit code sent to {maskedEmail}</p>
+
+      {successMessage && (
+        <div className="mb-4 p-3 bg-green-100 border border-green-400 rounded flex items-start gap-3">
+          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-green-700">{successMessage}</p>
+        </div>
+      )}
+
+      {apiError && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 rounded flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700">{apiError}</p>
+        </div>
+      )}
+
+      {isExpired && (
+        <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 rounded flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm text-yellow-700">OTP has expired</p>
+            <button
+              onClick={handleBackToStep1}
+              className="text-sm text-yellow-600 hover:underline mt-1"
+            >
+              Request a new OTP
+            </button>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }} className="space-y-4">
+        {/* OTP Input */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            6-Digit Code
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              value={formState.otp}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                updateField('otp', value);
+              }}
+              placeholder="000000"
+              className={`w-full px-4 py-3 text-center text-2xl border-2 rounded-lg font-mono tracking-widest focus:outline-none transition ${
+                errors.otp
+                  ? 'border-red-500 focus:ring-2 focus:ring-red-500'
+                  : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
+              }`}
+              disabled={loading || isExpired}
+            />
+          </div>
+          {errors.otp && (
+            <p className="text-sm text-red-600 mt-1">{errors.otp}</p>
+          )}
+        </div>
+
+        {/* Timer Display */}
+        <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
+          <span className="text-sm text-gray-700">Code expires in:</span>
+          <div className="flex items-center gap-2">
+            <Clock className={`w-4 h-4 ${isExpired ? 'text-red-600' : 'text-blue-600'}`} />
+            <span
+              className={`text-sm font-mono font-bold ${
+                isExpired ? 'text-red-600' : 'text-gray-900'
+              }`}
+            >
+              {formattedTime}
+            </span>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={loading || isExpired}
+          className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed mt-6"
+        >
+          {loading ? 'Verifying...' : 'Verify & Create Account'}
+        </button>
+
+        {/* Back Button */}
+        <button
+          type="button"
+          onClick={handleBackToStep1}
+          className="w-full py-2 px-4 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition"
+        >
+          Back
+        </button>
+      </form>
+    </div>
+  );
+}
