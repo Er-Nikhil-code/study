@@ -1,4 +1,3 @@
-// src/modules/upload/upload.controller.ts
 import {
   Controller,
   Post,
@@ -8,14 +7,11 @@ import {
   UploadedFile,
   BadRequestException,
   Param,
-  UseGuards,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadService } from "./upload.service";
-import { JwtAuthGuard } from "@/modules/common/guards/jwt.guard";
 
 @Controller("api/upload")
-@UseGuards(JwtAuthGuard)
 export class UploadController {
   constructor(private uploadService: UploadService) {}
 
@@ -48,6 +44,17 @@ export class UploadController {
   @Delete("assets/:assetId")
   async deleteAsset(@Param("assetId") assetId: string) {
     // In practice, fetch the asset first to get the CDN URL
+    const asset = await this.uploadService.getAssets();
+    const targetAsset = asset.find((a: any) => a.id === assetId);
+    
+    if (!targetAsset) {
+      throw new BadRequestException("Asset not found");
+    }
+
+    await this.uploadService.deleteFile(targetAsset.cdn_url);
+    return { success: true, message: "Asset deleted" };
+  }
+}
     const asset = await this.uploadService.getAssets();
     const targetAsset = asset.find((a) => a.id === assetId);
 
