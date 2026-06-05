@@ -632,18 +632,19 @@ function RegisterFormEmbedded({
     e.preventDefault();
     setErrors({});
 
-    if (!email || !firstName || !password) {
+    // Step 1: Only validate email and firstName (no password yet)
+    if (!email || !firstName) {
       setErrors({
         email: !email ? "Email is required" : "",
         firstName: !firstName ? "First name is required" : "",
-        password: !password ? "Password is required" : "",
       });
       return;
     }
 
     setIsLoading(true);
     try {
-      await authService.register({ email, password, firstName });
+      // Step 1: Send only email and firstName
+      await authService.register({ email, firstName });
       setStep(2);
       setGeneralError(null);
     } catch (error: any) {
@@ -655,12 +656,30 @@ function RegisterFormEmbedded({
 
   const handleStep2 = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otp) {
-      setErrors({ otp: "OTP is required" });
+    setErrors({});
+
+    // Step 2: Validate OTP and password
+    if (!otp || !password) {
+      setErrors({
+        otp: !otp ? "OTP is required" : "",
+        password: !password ? "Password is required" : "",
+      });
       return;
     }
+
+    if (!/^\d{6}$/.test(otp)) {
+      setErrors({ otp: "OTP must be 6 digits" });
+      return;
+    }
+
+    if (password.length < 8) {
+      setErrors({ password: "Password must be at least 8 characters" });
+      return;
+    }
+
     setIsLoading(true);
     try {
+      // Step 2: Send email, OTP, password, and other details
       await authService.verifyOtp({
         email,
         otp,
@@ -720,37 +739,12 @@ function RegisterFormEmbedded({
             )}
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-600/30 text-white placeholder-slate-500 focus:outline-none focus:border-red-600/50 focus:ring-1 focus:ring-red-600/20 transition-all"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-300 text-xs font-medium"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-            {errors.password && (
-              <p className="text-red-400 text-xs mt-1">{errors.password}</p>
-            )}
-          </div>
-
           <button
             type="submit"
             disabled={isLoading}
             className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 text-sm"
           >
-            {isLoading ? "Creating account..." : "Continue"}
+            {isLoading ? "Sending OTP..." : "Continue"}
           </button>
         </>
       ) : (
@@ -774,6 +768,33 @@ function RegisterFormEmbedded({
             />
             {errors.otp && (
               <p className="text-red-400 text-xs mt-1">{errors.otp}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border ${
+                  errors.password ? "border-red-500/50" : "border-slate-600/30"
+                } text-white placeholder-slate-500 focus:outline-none focus:border-red-600/50 focus:ring-1 focus:ring-red-600/20 transition-all`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-300 text-xs font-medium"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-red-400 text-xs mt-1">{errors.password}</p>
             )}
           </div>
 
