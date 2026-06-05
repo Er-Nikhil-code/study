@@ -1,13 +1,6 @@
-import "reflect-metadata";
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { ConfigService } from "@nestjs/config";
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
 
-  // Enable CORS
   app.enableCors({
     origin: [
       "http://localhost:3000",
@@ -20,20 +13,15 @@ async function bootstrap() {
     allowedHeaders: ["Content-Type", "Authorization"],
   });
 
-  // Global prefix
   app.setGlobalPrefix("api");
 
-  
   const port = Number(process.env.PORT) || 3001;
 
   await app.listen(port);
 
   console.log(`🚀 Server listening on port ${port}`);
-  await app.listen(port, () => {
-    console.log(`✅ Server is running on http://localhost:${port}`);
-    console.log(`📚 API available at http://localhost:${port}/api`);
-    console.log(`🛡️ Rate limiting enabled`);
-  });
+  console.log(`📚 API available at /api`);
+  console.log(`🛡️ Rate limiting enabled`);
 }
 
 bootstrap();
