@@ -5,6 +5,7 @@ import {
   PutObjectCommand,
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
+import type { Multer } from "multer";
 import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
@@ -24,7 +25,7 @@ export class UploadService {
   }
 
   async uploadFile(
-    file: Express.Multer.File,
+    file: Multer.File,
     context?: string,
   ): Promise<string> {
     if (!file) {

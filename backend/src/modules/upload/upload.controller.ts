@@ -9,6 +9,7 @@ import {
   Param,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+import type { Multer } from "multer";
 import { UploadService } from "./upload.service";
 
 @Controller("api/upload")
@@ -17,21 +18,21 @@ export class UploadController {
 
   @Post("image")
   @UseInterceptors(FileInterceptor("file"))
-  async uploadImage(@UploadedFile() file: Express.Multer.File) {
+  async uploadImage(@UploadedFile() file: Multer.File) {
     const url = await this.uploadService.uploadFile(file, "images");
     return { success: true, url };
   }
 
   @Post("document")
   @UseInterceptors(FileInterceptor("file"))
-  async uploadDocument(@UploadedFile() file: Express.Multer.File) {
+  async uploadDocument(@UploadedFile() file: Multer.File) {
     const url = await this.uploadService.uploadFile(file, "documents");
     return { success: true, url };
   }
 
   @Post("solution")
   @UseInterceptors(FileInterceptor("file"))
-  async uploadSolution(@UploadedFile() file: Express.Multer.File) {
+  async uploadSolution(@UploadedFile() file: Multer.File) {
     const url = await this.uploadService.uploadFile(file, "solutions");
     return { success: true, url };
   }
