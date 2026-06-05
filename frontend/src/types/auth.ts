@@ -1,10 +1,10 @@
 // Auth Types
+
+// Step 1: Register (Email + Name only)
 export interface RegisterRequest {
   email: string;
-  password: string;
   firstName: string;
   lastName?: string;
-  role?: "STUDENT" | "PENDING_TEACHER";
 }
 
 export interface RegisterResponse {
@@ -13,6 +13,7 @@ export interface RegisterResponse {
   otp_expiry_minutes: number;
 }
 
+// Step 2: Verify OTP (Email + OTP + Password)
 export interface VerifyOtpRequest {
   email: string;
   otp: string;
