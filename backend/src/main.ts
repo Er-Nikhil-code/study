@@ -23,8 +23,12 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix("api");
 
-  const port = configService.get<number>("API_PORT", 3001);
+  
+  const port = Number(process.env.PORT) || 3001;
 
+  await app.listen(port);
+
+  console.log(`🚀 Server listening on port ${port}`);
   await app.listen(port, () => {
     console.log(`✅ Server is running on http://localhost:${port}`);
     console.log(`📚 API available at http://localhost:${port}/api`);
