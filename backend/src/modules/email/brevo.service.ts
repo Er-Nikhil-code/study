@@ -95,7 +95,9 @@ export class BrevoService {
         `📊 [BREVO] Error details: ${JSON.stringify(error?.response?.data || error?.message)}`,
       );
       throw new Error(
-        `Email send failed: ${error?.message || "Unknown error"}`,
+        `Email send failed: ${
+          error?.response?.data?.message || error?.message || "Unknown error"
+        }`,
       );
     }
   }
@@ -262,7 +264,9 @@ export class BrevoService {
         error?.stack,
       );
       throw new Error(
-        `Email send failed: ${error?.message || "Unknown error"}`,
+        `Email send failed: ${
+          error?.response?.data?.message || error?.message || "Unknown error"
+        }`,
       );
     }
   }
