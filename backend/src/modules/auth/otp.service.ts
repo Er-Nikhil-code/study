@@ -40,18 +40,23 @@ export class OtpService {
    */
   async createOtpRecord(email: string): Promise<any> {
     const otp = this.generateOtp();
+    this.logger.debug(`🔐 [OTP-CREATE] Generated OTP: ${otp} for ${email}`);
+    
     const otpValidityMinutes = this.configService.get<number>(
       "OTP_VALIDITY_MINUTES",
       10,
     );
+    this.logger.debug(`⏱️  [OTP-CREATE] OTP validity: ${otpValidityMinutes} minutes`);
 
     const expiresAt = new Date(Date.now() + otpValidityMinutes * 60 * 1000);
 
     // Delete old OTP records for this email (cleanup)
+    this.logger.debug(`🗑️  [OTP-CREATE] Deleting old OTP records for ${email}`);
     await (this.prisma as any).otpRecord.deleteMany({
       where: { email },
     });
 
+    this.logger.debug(`💾 [OTP-CREATE] Saving OTP record for ${email}`);
     const record = await (this.prisma as any).otpRecord.create({
       data: {
         email,
@@ -61,7 +66,7 @@ export class OtpService {
       },
     });
 
-    this.logger.log(`OTP created for email: ${email}`);
+    this.logger.log(`✅ [OTP-CREATE] OTP created for ${email}, expires at ${expiresAt}`);
     return record;
   }
 
@@ -73,32 +78,35 @@ export class OtpService {
     otp: string,
   ): Promise<{ result: OtpVerificationResult; error?: string }> {
     try {
+      this.logger.debug(`🔍 [OTP-VERIFY] Looking up OTP record for ${email}`);
       const record = await (this.prisma as any).otpRecord.findFirst({
         where: { email },
         orderBy: { created_at: "desc" },
       });
 
       if (!record) {
-        this.logger.warn(`OTP record not found for email: ${email}`);
+        this.logger.warn(`⚠️  [OTP-VERIFY] No OTP record found for ${email}`);
         return {
           result: OtpVerificationResult.NOT_FOUND,
           error: "OTP not found",
         };
       }
+      this.logger.debug(`📝 [OTP-VERIFY] OTP record found, attempts: ${record.attempts}`);
 
       // Check if expired
       if (new Date() > record.expires_at) {
-        this.logger.warn(`OTP expired for email: ${email}`);
+        this.logger.warn(`⏰ [OTP-VERIFY] OTP expired for ${email}`);
         return {
           result: OtpVerificationResult.EXPIRED,
           error: "OTP has expired",
         };
       }
+      this.logger.debug(`✓ [OTP-VERIFY] OTP not expired`);
 
       // Check max attempts
       const maxAttempts = this.configService.get<number>("OTP_MAX_ATTEMPTS", 3);
       if (record.attempts >= maxAttempts) {
-        this.logger.warn(`Max OTP attempts exceeded for email: ${email}`);
+        this.logger.warn(`🚫 [OTP-VERIFY] Max OTP attempts exceeded for ${email}`);
         return {
           result: OtpVerificationResult.TOO_MANY_ATTEMPTS,
           error: "Maximum attempts exceeded",
@@ -106,12 +114,15 @@ export class OtpService {
       }
 
       // Check OTP match
+      this.logger.debug(`🔐 [OTP-VERIFY] Comparing OTP codes for ${email}`);
+      this.logger.debug(`📋 [OTP-VERIFY] Expected: ${record.otp_code}, Provided: ${otp}`);
+      
       if (record.otp_code !== otp) {
+        this.logger.warn(`❌ [OTP-VERIFY] OTP mismatch for ${email}, attempt ${record.attempts + 1}/${maxAttempts}`);
         await (this.prisma as any).otpRecord.update({
           where: { id: record.id },
           data: { attempts: record.attempts + 1 },
         });
-        this.logger.warn(`Invalid OTP for email: ${email}`);
         return {
           result: OtpVerificationResult.INVALID_OTP,
           error: "Invalid OTP",
@@ -119,16 +130,17 @@ export class OtpService {
       }
 
       // OTP is valid - mark as verified
+      this.logger.debug(`✅ [OTP-VERIFY] OTP match confirmed for ${email}`);
       await (this.prisma as any).otpRecord.update({
         where: { id: record.id },
         data: { verified_at: new Date() },
       });
 
-      this.logger.log(`OTP verified successfully for email: ${email}`);
+      this.logger.log(`✨ [OTP-VERIFY] OTP verified successfully for ${email}`);
       return { result: OtpVerificationResult.SUCCESS };
     } catch (error: any) {
       this.logger.error(
-        `Error verifying OTP for email ${email}: ${error?.message || "Unknown error"}`,
+        `❌ [OTP-VERIFY] Error verifying OTP for ${email}: ${error?.message || "Unknown error"}`,
         error?.stack,
       );
       throw error;

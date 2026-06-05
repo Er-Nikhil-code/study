@@ -40,12 +40,14 @@ export class BrevoService {
   async sendTemplateEmail(dto: SendEmailDto): Promise<{ messageId: string }> {
     if (!this.isAvailable || !this.apiKey) {
       this.logger.warn(
-        `📧 Email service not configured - skipping email to ${dto.to}`,
+        `📧 [BREVO] Email service not configured - skipping email to ${dto.to}`,
       );
       return { messageId: "skipped-no-service" };
     }
 
     try {
+      this.logger.debug(`📤 [BREVO] Preparing to send email to ${dto.to}, template: ${dto.templateId}`);
+      
       const senderEmail = this.configService.get<string>("BREVO_SENDER_EMAIL");
       const senderName = this.configService.get<string>("BREVO_SENDER_NAME");
 
@@ -60,8 +62,10 @@ export class BrevoService {
 
       if (dto.params) {
         payload.params = dto.params;
+        this.logger.debug(`📋 [BREVO] Email params: ${JSON.stringify(Object.keys(dto.params))}`);
       }
 
+      this.logger.debug(`🔗 [BREVO] Calling Brevo API...`);
       const response = await axios.post(this.apiUrl, payload, {
         headers: {
           "api-key": this.apiKey,
@@ -70,7 +74,7 @@ export class BrevoService {
       });
 
       this.logger.log(
-        `Email sent successfully to ${dto.to} with template ID ${dto.templateId}`,
+        `✅ [BREVO] Email sent successfully to ${dto.to}, messageId: ${response.data.messageId || response.data.id}`,
       );
 
       return {
@@ -78,9 +82,10 @@ export class BrevoService {
       };
     } catch (error: any) {
       this.logger.error(
-        `Failed to send email to ${dto.to}: ${error?.message || "Unknown error"}`,
-        error?.stack,
+        `❌ [BREVO] Failed to send email to ${dto.to}: ${error?.message || "Unknown error"}`,
+        error?.response?.status ? `Status: ${error.response.status}` : undefined,
       );
+      this.logger.debug(`📊 [BREVO] Error details: ${JSON.stringify(error?.response?.data || error?.message)}`);
       throw new Error(
         `Email send failed: ${error?.message || "Unknown error"}`,
       );

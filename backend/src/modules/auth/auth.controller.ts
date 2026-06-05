@@ -43,20 +43,27 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async register(@Body() body: RegisterRequest): Promise<RegisterResponse> {
     try {
+      this.logger.debug(`📝 [REGISTER] Received request for email: ${body.email}`);
+      
       // Validate request
       const parsed = RegisterRequestSchema.safeParse(body);
       if (!parsed.success) {
         const error = parsed.error as any;
+        this.logger.warn(
+          `⚠️  [REGISTER] Validation failed: ${error.errors?.[0]?.message}`,
+        );
         throw new BadRequestException(
           error.errors?.[0]?.message || "Invalid request",
         );
       }
 
+      this.logger.log(`🚀 [REGISTER] Starting registration for ${parsed.data.email}`);
       const result = await this.authService.register(
         parsed.data.email.toLowerCase(),
         parsed.data.firstName,
       );
 
+      this.logger.log(`✅ [REGISTER] OTP sent successfully to ${parsed.data.email}`);
       return {
         message:
           "OTP has been sent to your email. Please verify to complete registration.",
@@ -65,7 +72,7 @@ export class AuthController {
       };
     } catch (error: any) {
       this.logger.error(
-        `Register endpoint error: ${error?.message || "Unknown error"}`,
+        `❌ [REGISTER] Error: ${error?.message || "Unknown error"}`,
         error?.stack,
       );
       throw error;
@@ -82,15 +89,21 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   async verifyOtp(@Body() body: VerifyOtpRequest): Promise<VerifyOtpResponse> {
     try {
+      this.logger.debug(`🔐 [VERIFY-OTP] Received OTP verification for ${body.email}`);
+      
       // Validate request
       const parsed = VerifyOtpRequestSchema.safeParse(body);
       if (!parsed.success) {
         const error = parsed.error as any;
+        this.logger.warn(
+          `⚠️  [VERIFY-OTP] Validation failed: ${error.errors?.[0]?.message}`,
+        );
         throw new BadRequestException(
           error.errors?.[0]?.message || "Invalid request",
         );
       }
 
+      this.logger.log(`🚀 [VERIFY-OTP] Verifying OTP for ${parsed.data.email}`);
       const result = await this.authService.verifyOtpAndCreateUser(
         parsed.data.email.toLowerCase(),
         parsed.data.otp,
@@ -100,6 +113,7 @@ export class AuthController {
         parsed.data.role as "STUDENT" | "PENDING_TEACHER",
       );
 
+      this.logger.log(`✅ [VERIFY-OTP] User created successfully: ${result.user.id}`);
       return {
         message: "Account created successfully!",
         user: result.user,
@@ -108,7 +122,7 @@ export class AuthController {
       };
     } catch (error: any) {
       this.logger.error(
-        `Verify OTP endpoint error: ${error?.message || "Unknown error"}`,
+        `❌ [VERIFY-OTP] Error: ${error?.message || "Unknown error"}`,
         error?.stack,
       );
       throw error;

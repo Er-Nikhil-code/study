@@ -36,24 +36,35 @@ export class AuthService {
     firstName: string,
   ): Promise<{ email_masked: string; otp_expiry_minutes: number }> {
     try {
+      this.logger.debug(`📝 [AUTH-REGISTER] Starting registration for ${email}`);
+      
       // Check if user already exists
+      this.logger.debug(`🔍 [AUTH-REGISTER] Checking if user exists: ${email}`);
       const existingUser = await this.prisma.user.findUnique({
         where: { email },
       });
 
       if (existingUser) {
+        this.logger.warn(`⚠️  [AUTH-REGISTER] User already exists: ${email}`);
         throw new BadRequestException("Email already registered");
       }
+      this.logger.debug(`✓ [AUTH-REGISTER] User doesn't exist, proceeding`);
 
       // Create OTP record
+      this.logger.debug(`🔐 [AUTH-REGISTER] Creating OTP record for ${email}`);
       const otpRecord = await this.otpService.createOtpRecord(email);
+      this.logger.log(`✅ [AUTH-REGISTER] OTP created: ${otpRecord.otp_code}`);
 
       // Send OTP via Brevo (fire-and-forget, don't block response)
+      this.logger.debug(`📧 [AUTH-REGISTER] Sending OTP email to ${email}`);
       this.brevoService
         .sendOtpEmail(email, otpRecord.otp_code, firstName)
+        .then(() => {
+          this.logger.log(`📨 [AUTH-REGISTER] OTP email sent successfully to ${email}`);
+        })
         .catch((error) => {
           this.logger.warn(
-            `Failed to send OTP email to ${email}: ${error?.message}`,
+            `⚠️  [AUTH-REGISTER] Failed to send OTP email to ${email}: ${error?.message}`,
           );
         });
 
@@ -64,7 +75,7 @@ export class AuthService {
         10,
       );
 
-      this.logger.log(`Registration initiated for email: ${email}`);
+      this.logger.log(`✨ [AUTH-REGISTER] Registration initiated for email: ${email}, expires in ${otpValidityMinutes} minutes`);
 
       return {
         email_masked: emailMasked,
@@ -72,7 +83,7 @@ export class AuthService {
       };
     } catch (error: any) {
       this.logger.error(
-        `Registration error for email ${email}: ${error?.message || "Unknown error"}`,
+        `❌ [AUTH-REGISTER] Error for ${email}: ${error?.message || "Unknown error"}`,
         error?.stack,
       );
       throw error;
@@ -95,28 +106,38 @@ export class AuthService {
     refreshToken: string;
   }> {
     try {
+      this.logger.debug(`🔐 [VERIFY-OTP] Starting OTP verification for ${email}`);
+      
       // Verify OTP
+      this.logger.debug(`🔍 [VERIFY-OTP] Verifying OTP code for ${email}`);
       const otpResult = await this.otpService.verifyOtp(email, otp);
+      this.logger.debug(`📝 [VERIFY-OTP] OTP result: ${otpResult.result}`);
 
       if (otpResult.result !== OtpVerificationResult.SUCCESS) {
+        this.logger.warn(`⚠️  [VERIFY-OTP] OTP verification failed: ${otpResult.error}`);
         throw new BadRequestException(
           otpResult.error || "OTP verification failed",
         );
       }
+      this.logger.log(`✅ [VERIFY-OTP] OTP verified successfully for ${email}`);
 
       // Check if user already exists (double-check)
+      this.logger.debug(`🔍 [VERIFY-OTP] Double-checking if user exists: ${email}`);
       const existingUser = await this.prisma.user.findUnique({
         where: { email },
       });
 
       if (existingUser) {
+        this.logger.warn(`⚠️  [VERIFY-OTP] User already exists: ${email}`);
         throw new BadRequestException("Email already registered");
       }
 
       // Hash password
+      this.logger.debug(`🔐 [VERIFY-OTP] Hashing password for ${email}`);
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create user
+      this.logger.log(`👤 [VERIFY-OTP] Creating user account for ${email}, role: ${role}`);
       const user = await this.prisma.user.create({
         data: {
           email,
@@ -127,39 +148,47 @@ export class AuthService {
           email_verified_at: new Date(),
         },
       });
+      this.logger.log(`✨ [VERIFY-OTP] User created: ${user.id}`);
 
       // Create user stats
+      this.logger.debug(`📊 [VERIFY-OTP] Creating user stats for ${user.id}`);
       await this.prisma.userStats.create({
         data: {
           user_id: user.id,
         },
       });
+      this.logger.debug(`✓ [VERIFY-OTP] User stats created`);
 
       // If teacher application, create the application record
       if (role === "PENDING_TEACHER") {
+        this.logger.debug(`📋 [VERIFY-OTP] Creating teacher application for ${user.id}`);
         await this.prisma.teacherApplication.create({
           data: {
             user_id: user.id,
             verified_email_at: new Date(),
           },
         });
+        this.logger.log(`✓ [VERIFY-OTP] Teacher application created`);
       }
 
       // Delete OTP record
+      this.logger.debug(`🗑️  [VERIFY-OTP] Deleting OTP record for ${email}`);
       await this.otpService.deleteOtpRecord(email);
 
       // Generate tokens
+      this.logger.debug(`🔑 [VERIFY-OTP] Generating JWT tokens for ${user.id}`);
       const { accessToken, refreshToken } = await this.generateTokens(
         user.id,
         user.email,
       );
 
       // Log to audit
+      this.logger.debug(`📋 [VERIFY-OTP] Logging to audit for ${user.id}`);
       await this.logAudit(user.id, "user_registered", "user", user.id, null, {
         role,
       });
 
-      this.logger.log(`User registered successfully: ${email}`);
+      this.logger.log(`✨ [VERIFY-OTP] User registered successfully: ${email}`);
 
       return {
         user: {
@@ -173,9 +202,10 @@ export class AuthService {
       };
     } catch (error: any) {
       this.logger.error(
-        `OTP verification and user creation error for email ${email}: ${error?.message || "Unknown error"}`,
+        `❌ [VERIFY-OTP] Error for ${email}: ${error?.message || "Unknown error"}`,
         error?.stack,
       );
+      this.logger.debug(`📊 [VERIFY-OTP] Error details: ${JSON.stringify(error)}`);
       throw error;
     }
   }
