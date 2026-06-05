@@ -46,7 +46,7 @@ export class UploadController {
     // In practice, fetch the asset first to get the CDN URL
     const asset = await this.uploadService.getAssets();
     const targetAsset = asset.find((a: any) => a.id === assetId);
-    
+
     if (!targetAsset) {
       throw new BadRequestException("Asset not found");
     }

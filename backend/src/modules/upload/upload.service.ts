@@ -23,10 +23,7 @@ export class UploadService {
     });
   }
 
-  async uploadFile(
-    file: any,
-    context?: string,
-  ): Promise<string> {
+  async uploadFile(file: any, context?: string): Promise<string> {
     if (!file) {
       throw new BadRequestException("No file provided");
     }

@@ -13,24 +13,38 @@ export interface SendEmailDto {
 @Injectable()
 export class BrevoService {
   private readonly logger = new Logger(BrevoService.name);
-  private apiKey: string;
+  private apiKey: string | null;
   private apiUrl = "https://api.brevo.com/v3/smtp/email";
+  private isAvailable: boolean;
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string | undefined>("BREVO_API_KEY");
 
     if (!apiKey) {
-      this.logger.error("BREVO_API_KEY is not configured");
-      throw new Error("BREVO_API_KEY environment variable is required");
+      this.logger.warn(
+        "⚠️  BREVO_API_KEY is not configured - email sending will be disabled",
+      );
+      this.apiKey = null;
+      this.isAvailable = false;
+      return;
     }
 
     this.apiKey = apiKey;
+    this.isAvailable = true;
+    this.logger.log("✅ Brevo email service initialized");
   }
 
   /**
    * Send email using Brevo template
    */
   async sendTemplateEmail(dto: SendEmailDto): Promise<{ messageId: string }> {
+    if (!this.isAvailable || !this.apiKey) {
+      this.logger.warn(
+        `📧 Email service not configured - skipping email to ${dto.to}`,
+      );
+      return { messageId: "skipped-no-service" };
+    }
+
     try {
       const senderEmail = this.configService.get<string>("BREVO_SENDER_EMAIL");
       const senderName = this.configService.get<string>("BREVO_SENDER_NAME");
@@ -123,6 +137,13 @@ export class BrevoService {
     subject: string,
     htmlContent: string,
   ): Promise<{ messageId: string }> {
+    if (!this.isAvailable || !this.apiKey) {
+      this.logger.warn(
+        `📧 Email service not configured - skipping email to ${email}`,
+      );
+      return { messageId: "skipped-no-service" };
+    }
+
     try {
       const senderEmail = this.configService.get<string>("BREVO_SENDER_EMAIL");
       const senderName = this.configService.get<string>("BREVO_SENDER_NAME");

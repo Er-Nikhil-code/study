@@ -48,12 +48,14 @@ export class AuthService {
       // Create OTP record
       const otpRecord = await this.otpService.createOtpRecord(email);
 
-      // Send OTP via Brevo
-      await this.brevoService.sendOtpEmail(
-        email,
-        otpRecord.otp_code,
-        firstName,
-      );
+      // Send OTP via Brevo (fire-and-forget, don't block response)
+      this.brevoService
+        .sendOtpEmail(email, otpRecord.otp_code, firstName)
+        .catch((error) => {
+          this.logger.warn(
+            `Failed to send OTP email to ${email}: ${error?.message}`,
+          );
+        });
 
       // Mask email for response
       const emailMasked = this.maskEmail(email);
@@ -271,12 +273,14 @@ export class AuthService {
       const appUrl = this.configService.get<string>("APP_URL");
       const resetUrl = `${appUrl}/auth/reset-password?token=${token}`;
 
-      // Send email via Brevo
-      await this.brevoService.sendPasswordResetEmail(
-        email,
-        resetUrl,
-        user.first_name,
-      );
+      // Send email via Brevo (fire-and-forget, don't block response)
+      this.brevoService
+        .sendPasswordResetEmail(email, resetUrl, user.first_name)
+        .catch((error) => {
+          this.logger.warn(
+            `Failed to send password reset email to ${email}: ${error?.message}`,
+          );
+        });
 
       // Log to audit
       await this.logAudit(
