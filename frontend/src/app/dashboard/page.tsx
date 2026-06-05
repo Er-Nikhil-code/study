@@ -411,7 +411,7 @@ export default function DashboardPage() {
               <button
                 onClick={() => {
                   authService.logout();
-                  router.replace("/login");
+                  window.location.href = "/";
                 }}
                 className="w-full rounded-xl bg-red-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-red-700"
               >
