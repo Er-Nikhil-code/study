@@ -59,18 +59,17 @@ export class AuthService {
 
       // Send OTP via Brevo (fire-and-forget, don't block response)
       this.logger.debug(`📧 [AUTH-REGISTER] Sending OTP email to ${email}`);
-      this.brevoService
-        .sendOtpEmail(email, otpRecord.otp_code, firstName)
-        .then(() => {
-          this.logger.log(
-            `📨 [AUTH-REGISTER] OTP email sent successfully to ${email}`,
-          );
-        })
-        .catch((error) => {
-          this.logger.warn(
-            `⚠️  [AUTH-REGISTER] Failed to send OTP email to ${email}: ${error?.message}`,
-          );
-        });
+      this.logger.debug(`📧 [AUTH-REGISTER] Sending OTP email to ${email}`);
+
+      await this.brevoService.sendOtpEmail(
+        email,
+        otpRecord.otp_code,
+        firstName,
+      );
+
+      this.logger.log(
+        `📨 [AUTH-REGISTER] OTP email sent successfully to ${email}`,
+      );
 
       // Mask email for response
       const emailMasked = this.maskEmail(email);
@@ -319,16 +318,25 @@ export class AuthService {
 
       // Build reset URL
       const appUrl = this.configService.get<string>("APP_URL");
+
+      this.logger.log(`APP_URL: ${appUrl}`);
+      this.logger.log(`Generated token: ${token}`);
+
       const resetUrl = `${appUrl}/auth/reset-password?token=${token}`;
 
+      this.logger.log(`Reset URL: ${resetUrl}`);
       // Send email via Brevo (fire-and-forget, don't block response)
-      this.brevoService
-        .sendPasswordResetEmail(email, resetUrl, user.first_name)
-        .catch((error) => {
-          this.logger.warn(
-            `Failed to send password reset email to ${email}: ${error?.message}`,
-          );
-        });
+      this.logger.debug(`📧 [FORGOT-PASSWORD] Sending reset email to ${email}`);
+
+      await this.brevoService.sendPasswordResetEmail(
+        email,
+        resetUrl,
+        user.first_name,
+      );
+
+      this.logger.log(
+        `📨 [FORGOT-PASSWORD] Reset email sent successfully to ${email}`,
+      );
 
       // Log to audit
       await this.logAudit(
@@ -341,7 +349,8 @@ export class AuthService {
       );
 
       this.logger.log(`Password reset link sent to email: ${email}`);
-
+      this.logger.log(`User found: ${user.email}`);
+      this.logger.log(`Email verified: ${!!user.email_verified_at}`);
       return { email_masked: this.maskEmail(email) };
     } catch (error: any) {
       this.logger.error(
