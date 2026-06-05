@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { BrevoService } from './brevo.service';
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { BrevoService } from "./brevo.service";
 
 @Module({
   imports: [ConfigModule],

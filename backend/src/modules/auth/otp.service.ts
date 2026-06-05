@@ -1,15 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../prisma/prisma.service';
-import { OtpRecord } from '@prisma/client';
-import * as crypto from 'crypto';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PrismaService } from "../../prisma/prisma.service";
+import { OtpRecord } from "@prisma/client";
+import * as crypto from "crypto";
 
 export enum OtpVerificationResult {
-  SUCCESS = 'SUCCESS',
-  INVALID_OTP = 'INVALID_OTP',
-  EXPIRED = 'EXPIRED',
-  TOO_MANY_ATTEMPTS = 'TOO_MANY_ATTEMPTS',
-  NOT_FOUND = 'NOT_FOUND',
+  SUCCESS = "SUCCESS",
+  INVALID_OTP = "INVALID_OTP",
+  EXPIRED = "EXPIRED",
+  TOO_MANY_ATTEMPTS = "TOO_MANY_ATTEMPTS",
+  NOT_FOUND = "NOT_FOUND",
 }
 
 export interface OtpStatusDto {
@@ -25,14 +25,14 @@ export class OtpService {
 
   constructor(
     private prisma: PrismaService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
   /**
    * Generate a cryptographically secure 6-digit OTP
    */
   generateOtp(): string {
-    const otp = crypto.randomInt(0, 1000000).toString().padStart(6, '0');
+    const otp = crypto.randomInt(0, 1000000).toString().padStart(6, "0");
     return otp;
   }
 
@@ -42,8 +42,8 @@ export class OtpService {
   async createOtpRecord(email: string): Promise<OtpRecord> {
     const otp = this.generateOtp();
     const otpValidityMinutes = this.configService.get<number>(
-      'OTP_VALIDITY_MINUTES',
-      10
+      "OTP_VALIDITY_MINUTES",
+      10,
     );
 
     const expiresAt = new Date(Date.now() + otpValidityMinutes * 60 * 1000);
@@ -71,35 +71,38 @@ export class OtpService {
    */
   async verifyOtp(
     email: string,
-    otp: string
+    otp: string,
   ): Promise<{ result: OtpVerificationResult; error?: string }> {
     try {
       const record = await this.prisma.otpRecord.findFirst({
         where: { email },
-        orderBy: { created_at: 'desc' },
+        orderBy: { created_at: "desc" },
       });
 
       if (!record) {
         this.logger.warn(`OTP record not found for email: ${email}`);
-        return { result: OtpVerificationResult.NOT_FOUND, error: 'OTP not found' };
+        return {
+          result: OtpVerificationResult.NOT_FOUND,
+          error: "OTP not found",
+        };
       }
 
       // Check if expired
       if (new Date() > record.expires_at) {
         this.logger.warn(`OTP expired for email: ${email}`);
-        return { result: OtpVerificationResult.EXPIRED, error: 'OTP has expired' };
+        return {
+          result: OtpVerificationResult.EXPIRED,
+          error: "OTP has expired",
+        };
       }
 
       // Check max attempts
-      const maxAttempts = this.configService.get<number>(
-        'OTP_MAX_ATTEMPTS',
-        3
-      );
+      const maxAttempts = this.configService.get<number>("OTP_MAX_ATTEMPTS", 3);
       if (record.attempts >= maxAttempts) {
         this.logger.warn(`Max OTP attempts exceeded for email: ${email}`);
         return {
           result: OtpVerificationResult.TOO_MANY_ATTEMPTS,
-          error: 'Maximum attempts exceeded',
+          error: "Maximum attempts exceeded",
         };
       }
 
@@ -112,7 +115,7 @@ export class OtpService {
         this.logger.warn(`Invalid OTP for email: ${email}`);
         return {
           result: OtpVerificationResult.INVALID_OTP,
-          error: 'Invalid OTP',
+          error: "Invalid OTP",
         };
       }
 
@@ -127,7 +130,7 @@ export class OtpService {
     } catch (error) {
       this.logger.error(
         `Error verifying OTP for email ${email}: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw error;
     }
@@ -139,28 +142,27 @@ export class OtpService {
   async getOtpStatus(email: string): Promise<OtpStatusDto> {
     const record = await this.prisma.otpRecord.findFirst({
       where: { email },
-      orderBy: { created_at: 'desc' },
+      orderBy: { created_at: "desc" },
     });
 
     if (!record) {
       return {
         email,
         attempts_remaining: this.configService.get<number>(
-          'OTP_MAX_ATTEMPTS',
-          3
+          "OTP_MAX_ATTEMPTS",
+          3,
         ),
       };
     }
 
-    const maxAttempts = this.configService.get<number>('OTP_MAX_ATTEMPTS', 3);
+    const maxAttempts = this.configService.get<number>("OTP_MAX_ATTEMPTS", 3);
     const attemptsRemaining = Math.max(0, maxAttempts - record.attempts);
 
     return {
       email,
       attempts_remaining: attemptsRemaining,
       expires_at: record.expires_at,
-      next_retry_time:
-        record.attempts > 0 ? new Date() : undefined,
+      next_retry_time: record.attempts > 0 ? new Date() : undefined,
     };
   }
 
@@ -182,7 +184,7 @@ export class OtpService {
     } catch (error) {
       this.logger.error(
         `Error deleting expired OTPs: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw error;
     }
@@ -200,7 +202,7 @@ export class OtpService {
     } catch (error) {
       this.logger.error(
         `Error deleting OTP record for ${email}: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw error;
     }

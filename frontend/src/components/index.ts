@@ -1,3 +1,3 @@
-export * from './RegisterForm';
-export * from './ForgotPasswordForm';
-export * from './ResetPasswordForm';
+export * from "./RegisterForm";
+export * from "./ForgotPasswordForm";
+export * from "./ResetPasswordForm";

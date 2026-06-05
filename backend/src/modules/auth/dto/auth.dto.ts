@@ -1,12 +1,12 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // Registration Request DTO
 export const RegisterRequestSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  firstName: z.string().min(1, 'First name is required'),
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  firstName: z.string().min(1, "First name is required"),
   lastName: z.string().optional(),
-  role: z.enum(['STUDENT', 'PENDING_TEACHER']).default('STUDENT'),
+  role: z.enum(["STUDENT", "PENDING_TEACHER"]).default("STUDENT"),
 });
 
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
@@ -20,12 +20,12 @@ export interface RegisterResponse {
 
 // Verify OTP Request DTO
 export const VerifyOtpRequestSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  otp: z.string().regex(/^\d{6}$/, 'OTP must be 6 digits'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  firstName: z.string().min(1, 'First name is required'),
+  email: z.string().email("Invalid email format"),
+  otp: z.string().regex(/^\d{6}$/, "OTP must be 6 digits"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  firstName: z.string().min(1, "First name is required"),
   lastName: z.string().optional(),
-  role: z.enum(['STUDENT', 'PENDING_TEACHER']).default('STUDENT'),
+  role: z.enum(["STUDENT", "PENDING_TEACHER"]).default("STUDENT"),
 });
 
 export type VerifyOtpRequest = z.infer<typeof VerifyOtpRequestSchema>;
@@ -45,7 +45,7 @@ export interface VerifyOtpResponse {
 
 // Forgot Password Request DTO
 export const ForgotPasswordRequestSchema = z.object({
-  email: z.string().email('Invalid email format'),
+  email: z.string().email("Invalid email format"),
 });
 
 export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordRequestSchema>;
@@ -57,14 +57,18 @@ export interface ForgotPasswordResponse {
 }
 
 // Reset Password Request DTO
-export const ResetPasswordRequestSchema = z.object({
-  token: z.string().min(1, 'Reset token is required'),
-  newPassword: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string().min(8, 'Confirm password must be at least 8 characters'),
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+export const ResetPasswordRequestSchema = z
+  .object({
+    token: z.string().min(1, "Reset token is required"),
+    newPassword: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z
+      .string()
+      .min(8, "Confirm password must be at least 8 characters"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>;
 

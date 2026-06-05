@@ -129,6 +129,7 @@ src/
 ## 🎨 UI Components
 
 ### RegisterForm
+
 - 2-step registration with OTP verification
 - Email and password validation
 - Role selection (Student/Teacher)
@@ -136,11 +137,13 @@ src/
 - Error handling and feedback
 
 ### ForgotPasswordForm
+
 - Email input with validation
 - Success message with masked email
 - Link to create new account
 
 ### ResetPasswordForm
+
 - Password input with validation
 - Token validation from URL params
 - Success message with redirect to login
@@ -156,8 +159,8 @@ All API calls are handled through `src/services/auth.service.ts`:
 
 ## 🚦 Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
+| Variable              | Description          | Default                     |
+| --------------------- | -------------------- | --------------------------- |
 | `NEXT_PUBLIC_API_URL` | Backend API base URL | `http://localhost:3001/api` |
 
 ## 📝 Available Scripts
@@ -182,6 +185,7 @@ To test the registration flow:
 ### Test OTP
 
 The backend generates real OTPs. During development, you can:
+
 - Check the application logs to see the OTP
 - Use Brevo dashboard to see sent emails
 - Check your email inbox (if using real Brevo API key)

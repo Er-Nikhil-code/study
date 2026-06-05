@@ -1,15 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../prisma/prisma.service';
-import { PasswordResetToken } from '@prisma/client';
-import * as crypto from 'crypto';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PrismaService } from "../../prisma/prisma.service";
+import { PasswordResetToken } from "@prisma/client";
+import * as crypto from "crypto";
 
 export enum TokenVerificationResult {
-  SUCCESS = 'SUCCESS',
-  INVALID_TOKEN = 'INVALID_TOKEN',
-  EXPIRED = 'EXPIRED',
-  ALREADY_USED = 'ALREADY_USED',
-  NOT_FOUND = 'NOT_FOUND',
+  SUCCESS = "SUCCESS",
+  INVALID_TOKEN = "INVALID_TOKEN",
+  EXPIRED = "EXPIRED",
+  ALREADY_USED = "ALREADY_USED",
+  NOT_FOUND = "NOT_FOUND",
 }
 
 export interface TokenVerificationDto {
@@ -24,7 +24,7 @@ export class PasswordResetService {
 
   constructor(
     private prisma: PrismaService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -33,10 +33,10 @@ export class PasswordResetService {
    */
   generateResetToken(): { token: string; tokenHash: string } {
     // Generate 32-byte random token
-    const token = crypto.randomBytes(32).toString('hex');
+    const token = crypto.randomBytes(32).toString("hex");
 
     // Hash the token for storage
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
     return { token, tokenHash };
   }
@@ -46,13 +46,13 @@ export class PasswordResetService {
    */
   async createResetToken(
     userId: string,
-    ipAddress?: string
+    ipAddress?: string,
   ): Promise<{ token: string; expiresAt: Date }> {
     try {
       const { token, tokenHash } = this.generateResetToken();
       const expiryMinutes = this.configService.get<number>(
-        'PASSWORD_RESET_TOKEN_EXPIRY_MINUTES',
-        60
+        "PASSWORD_RESET_TOKEN_EXPIRY_MINUTES",
+        60,
       );
       const expiresAt = new Date(Date.now() + expiryMinutes * 60 * 1000);
 
@@ -80,7 +80,7 @@ export class PasswordResetService {
     } catch (error) {
       this.logger.error(
         `Error creating reset token for user ${userId}: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw error;
     }
@@ -89,15 +89,10 @@ export class PasswordResetService {
   /**
    * Verify reset token
    */
-  async verifyResetToken(
-    token: string
-  ): Promise<TokenVerificationDto> {
+  async verifyResetToken(token: string): Promise<TokenVerificationDto> {
     try {
       // Hash the provided token
-      const tokenHash = crypto
-        .createHash('sha256')
-        .update(token)
-        .digest('hex');
+      const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
       // Find token record
       const record = await this.prisma.passwordResetToken.findUnique({
@@ -105,19 +100,21 @@ export class PasswordResetService {
       });
 
       if (!record) {
-        this.logger.warn('Reset token not found');
+        this.logger.warn("Reset token not found");
         return {
           result: TokenVerificationResult.NOT_FOUND,
-          error: 'Token not found',
+          error: "Token not found",
         };
       }
 
       // Check if already used
       if (record.used_at) {
-        this.logger.warn(`Reset token already used for user: ${record.user_id}`);
+        this.logger.warn(
+          `Reset token already used for user: ${record.user_id}`,
+        );
         return {
           result: TokenVerificationResult.ALREADY_USED,
-          error: 'Token has already been used',
+          error: "Token has already been used",
         };
       }
 
@@ -126,7 +123,7 @@ export class PasswordResetService {
         this.logger.warn(`Reset token expired for user: ${record.user_id}`);
         return {
           result: TokenVerificationResult.EXPIRED,
-          error: 'Token has expired',
+          error: "Token has expired",
         };
       }
 
@@ -138,7 +135,7 @@ export class PasswordResetService {
     } catch (error) {
       this.logger.error(
         `Error verifying reset token: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw error;
     }
@@ -149,21 +146,18 @@ export class PasswordResetService {
    */
   async markTokenAsUsed(token: string): Promise<void> {
     try {
-      const tokenHash = crypto
-        .createHash('sha256')
-        .update(token)
-        .digest('hex');
+      const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
       await this.prisma.passwordResetToken.update({
         where: { token_hash: tokenHash },
         data: { used_at: new Date() },
       });
 
-      this.logger.log('Reset token marked as used');
+      this.logger.log("Reset token marked as used");
     } catch (error) {
       this.logger.error(
         `Error marking token as used: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw error;
     }
@@ -183,14 +177,12 @@ export class PasswordResetService {
         },
       });
 
-      this.logger.log(
-        `Deleted ${result.count} expired password reset tokens`
-      );
+      this.logger.log(`Deleted ${result.count} expired password reset tokens`);
       return result.count;
     } catch (error) {
       this.logger.error(
         `Error deleting expired tokens: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw error;
     }
@@ -212,7 +204,7 @@ export class PasswordResetService {
     } catch (error) {
       this.logger.error(
         `Error invalidating tokens for user ${userId}: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw error;
     }

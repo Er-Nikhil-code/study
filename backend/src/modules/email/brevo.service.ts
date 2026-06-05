@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as SibApiV3Sdk from 'brevo';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import * as SibApiV3Sdk from "brevo";
 
 export interface SendEmailDto {
   to: string;
@@ -16,11 +16,11 @@ export class BrevoService {
   private apiInstance: SibApiV3Sdk.TransactionalEmailsApi;
 
   constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get<string>('BREVO_API_KEY');
-    
+    const apiKey = this.configService.get<string>("BREVO_API_KEY");
+
     if (!apiKey) {
-      this.logger.error('BREVO_API_KEY is not configured');
-      throw new Error('BREVO_API_KEY environment variable is required');
+      this.logger.error("BREVO_API_KEY is not configured");
+      throw new Error("BREVO_API_KEY environment variable is required");
     }
 
     const configuration = new SibApiV3Sdk.Configuration();
@@ -33,8 +33,8 @@ export class BrevoService {
    */
   async sendTemplateEmail(dto: SendEmailDto): Promise<{ messageId: string }> {
     try {
-      const senderEmail = this.configService.get<string>('BREVO_SENDER_EMAIL');
-      const senderName = this.configService.get<string>('BREVO_SENDER_NAME');
+      const senderEmail = this.configService.get<string>("BREVO_SENDER_EMAIL");
+      const senderName = this.configService.get<string>("BREVO_SENDER_NAME");
 
       const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
       sendSmtpEmail.to = [{ email: dto.to }];
@@ -43,15 +43,15 @@ export class BrevoService {
         email: senderEmail,
       };
       sendSmtpEmail.templateId = dto.templateId;
-      
+
       if (dto.params) {
         sendSmtpEmail.params = dto.params;
       }
 
       const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
-      
+
       this.logger.log(
-        `Email sent successfully to ${dto.to} with template ID ${dto.templateId}`
+        `Email sent successfully to ${dto.to} with template ID ${dto.templateId}`,
       );
 
       return {
@@ -60,7 +60,7 @@ export class BrevoService {
     } catch (error) {
       this.logger.error(
         `Failed to send email to ${dto.to}: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw new Error(`Email send failed: ${error.message}`);
     }
@@ -72,15 +72,15 @@ export class BrevoService {
   async sendOtpEmail(
     email: string,
     otp: string,
-    firstName?: string
+    firstName?: string,
   ): Promise<{ messageId: string }> {
-    const templateId = this.configService.get<number>('BREVO_OTP_TEMPLATE_ID');
+    const templateId = this.configService.get<number>("BREVO_OTP_TEMPLATE_ID");
 
     return this.sendTemplateEmail({
       to: email,
       templateId,
       params: {
-        firstName: firstName || 'User',
+        firstName: firstName || "User",
         otp,
       },
     });
@@ -92,17 +92,17 @@ export class BrevoService {
   async sendPasswordResetEmail(
     email: string,
     resetUrl: string,
-    firstName?: string
+    firstName?: string,
   ): Promise<{ messageId: string }> {
     const templateId = this.configService.get<number>(
-      'BREVO_PASSWORD_RESET_TEMPLATE_ID'
+      "BREVO_PASSWORD_RESET_TEMPLATE_ID",
     );
 
     return this.sendTemplateEmail({
       to: email,
       templateId,
       params: {
-        firstName: firstName || 'User',
+        firstName: firstName || "User",
         resetUrl,
       },
     });
@@ -114,11 +114,11 @@ export class BrevoService {
   async sendCustomEmail(
     email: string,
     subject: string,
-    htmlContent: string
+    htmlContent: string,
   ): Promise<{ messageId: string }> {
     try {
-      const senderEmail = this.configService.get<string>('BREVO_SENDER_EMAIL');
-      const senderName = this.configService.get<string>('BREVO_SENDER_NAME');
+      const senderEmail = this.configService.get<string>("BREVO_SENDER_EMAIL");
+      const senderName = this.configService.get<string>("BREVO_SENDER_NAME");
 
       const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
       sendSmtpEmail.to = [{ email }];
@@ -131,7 +131,9 @@ export class BrevoService {
 
       const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
 
-      this.logger.log(`Custom email sent to ${email} with subject "${subject}"`);
+      this.logger.log(
+        `Custom email sent to ${email} with subject "${subject}"`,
+      );
 
       return {
         messageId: response.messageId,
@@ -139,7 +141,7 @@ export class BrevoService {
     } catch (error) {
       this.logger.error(
         `Failed to send custom email to ${email}: ${error.message}`,
-        error.stack
+        error.stack,
       );
       throw new Error(`Email send failed: ${error.message}`);
     }

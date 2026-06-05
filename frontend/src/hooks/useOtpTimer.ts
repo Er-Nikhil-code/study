@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export function useOtpTimer(initialSeconds: number = 600) {
   const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
@@ -31,8 +31,8 @@ export function useOtpTimer(initialSeconds: number = 600) {
     minutes,
     seconds,
     isExpired,
-    formattedTime: `${minutes.toString().padStart(2, '0')}:${seconds
+    formattedTime: `${minutes.toString().padStart(2, "0")}:${seconds
       .toString()
-      .padStart(2, '0')}`,
+      .padStart(2, "0")}`,
   };
 }

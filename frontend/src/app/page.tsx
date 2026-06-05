@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { BookOpen, Users, Award } from 'lucide-react';
+import Link from "next/link";
+import { BookOpen, Users, Award } from "lucide-react";
 
 export default function HomePage() {
   return (
@@ -34,8 +34,9 @@ export default function HomePage() {
           Learn and Teach with Confidence
         </h2>
         <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-          Join thousands of students and teachers using Study Platform to achieve academic
-          excellence through interactive learning and comprehensive exam preparation.
+          Join thousands of students and teachers using Study Platform to
+          achieve academic excellence through interactive learning and
+          comprehensive exam preparation.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -65,30 +66,36 @@ export default function HomePage() {
             {/* Feature 1 */}
             <div className="bg-gray-50 p-8 rounded-lg border border-gray-200 hover:border-blue-600 transition">
               <BookOpen className="w-12 h-12 text-blue-600 mb-4" />
-              <h4 className="text-xl font-bold text-gray-900 mb-3">Comprehensive Content</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">
+                Comprehensive Content
+              </h4>
               <p className="text-gray-700">
-                Access thousands of practice questions, detailed explanations, and learning
-                materials across all subjects.
+                Access thousands of practice questions, detailed explanations,
+                and learning materials across all subjects.
               </p>
             </div>
 
             {/* Feature 2 */}
             <div className="bg-gray-50 p-8 rounded-lg border border-gray-200 hover:border-blue-600 transition">
               <Users className="w-12 h-12 text-blue-600 mb-4" />
-              <h4 className="text-xl font-bold text-gray-900 mb-3">Expert Instructors</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">
+                Expert Instructors
+              </h4>
               <p className="text-gray-700">
-                Learn from experienced teachers who provide guidance, feedback, and support
-                throughout your learning journey.
+                Learn from experienced teachers who provide guidance, feedback,
+                and support throughout your learning journey.
               </p>
             </div>
 
             {/* Feature 3 */}
             <div className="bg-gray-50 p-8 rounded-lg border border-gray-200 hover:border-blue-600 transition">
               <Award className="w-12 h-12 text-blue-600 mb-4" />
-              <h4 className="text-xl font-bold text-gray-900 mb-3">Track Progress</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">
+                Track Progress
+              </h4>
               <p className="text-gray-700">
-                Monitor your performance with detailed analytics and get personalized
-                recommendations for improvement.
+                Monitor your performance with detailed analytics and get
+                personalized recommendations for improvement.
               </p>
             </div>
           </div>

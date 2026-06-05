@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export interface FormState {
   email: string;
@@ -7,22 +7,24 @@ export interface FormState {
   firstName: string;
   lastName: string;
   otp: string;
-  role: 'STUDENT' | 'PENDING_TEACHER';
+  role: "STUDENT" | "PENDING_TEACHER";
 }
 
 export function useFormState(initial: Partial<FormState> = {}) {
   const [formState, setFormState] = useState<FormState>({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    otp: '',
-    role: 'STUDENT',
+    email: "",
+    password: "",
+    confirmPassword: "",
+    firstName: "",
+    lastName: "",
+    otp: "",
+    role: "STUDENT",
     ...initial,
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof FormState, string>>
+  >({});
 
   const updateField = (field: keyof FormState, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -46,13 +48,13 @@ export function useFormState(initial: Partial<FormState> = {}) {
 
   const reset = () => {
     setFormState({
-      email: '',
-      password: '',
-      confirmPassword: '',
-      firstName: '',
-      lastName: '',
-      otp: '',
-      role: 'STUDENT',
+      email: "",
+      password: "",
+      confirmPassword: "",
+      firstName: "",
+      lastName: "",
+      otp: "",
+      role: "STUDENT",
     });
     setErrors({});
   };

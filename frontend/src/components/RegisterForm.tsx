@@ -1,23 +1,24 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { AlertCircle, CheckCircle, Clock, Eye, EyeOff } from 'lucide-react';
-import authService from '@/services/auth.service';
-import { useFormState } from '@/hooks/useFormState';
-import { useOtpTimer } from '@/hooks/useOtpTimer';
+import { useState } from "react";
+import { AlertCircle, CheckCircle, Clock, Eye, EyeOff } from "lucide-react";
+import authService from "@/services/auth.service";
+import { useFormState } from "@/hooks/useFormState";
+import { useOtpTimer } from "@/hooks/useOtpTimer";
 
 export function RegisterForm() {
   const [step, setStep] = useState<1 | 2>(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [maskedEmail, setMaskedEmail] = useState('');
+  const [successMessage, setSuccessMessage] = useState("");
+  const [maskedEmail, setMaskedEmail] = useState("");
   const [registerSuccess, setRegisterSuccess] = useState(false);
   const [otpExpired, setOtpExpired] = useState(false);
-  const [apiError, setApiError] = useState('');
+  const [apiError, setApiError] = useState("");
 
-  const { formState, errors, updateField, setError, clearErrors } = useFormState();
+  const { formState, errors, updateField, setError, clearErrors } =
+    useFormState();
   const { formattedTime, isExpired } = useOtpTimer(600); // 10 minutes
 
   const validateStep1 = (): boolean => {
@@ -26,31 +27,31 @@ export function RegisterForm() {
 
     // Email validation
     if (!formState.email) {
-      setError('email', 'Email is required');
+      setError("email", "Email is required");
       isValid = false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.email)) {
-      setError('email', 'Invalid email format');
+      setError("email", "Invalid email format");
       isValid = false;
     }
 
     // Password validation
     if (!formState.password) {
-      setError('password', 'Password is required');
+      setError("password", "Password is required");
       isValid = false;
     } else if (formState.password.length < 8) {
-      setError('password', 'Password must be at least 8 characters');
+      setError("password", "Password must be at least 8 characters");
       isValid = false;
     }
 
     // Confirm password validation
     if (formState.password !== formState.confirmPassword) {
-      setError('confirmPassword', 'Passwords do not match');
+      setError("confirmPassword", "Passwords do not match");
       isValid = false;
     }
 
     // First name validation
     if (!formState.firstName) {
-      setError('firstName', 'First name is required');
+      setError("firstName", "First name is required");
       isValid = false;
     }
 
@@ -63,10 +64,10 @@ export function RegisterForm() {
 
     // OTP validation
     if (!formState.otp) {
-      setError('otp', 'OTP is required');
+      setError("otp", "OTP is required");
       isValid = false;
     } else if (!/^\d{6}$/.test(formState.otp)) {
-      setError('otp', 'OTP must be 6 digits');
+      setError("otp", "OTP must be 6 digits");
       isValid = false;
     }
 
@@ -77,7 +78,7 @@ export function RegisterForm() {
     if (!validateStep1()) return;
 
     setLoading(true);
-    setApiError('');
+    setApiError("");
 
     try {
       const response = await authService.register({
@@ -90,13 +91,13 @@ export function RegisterForm() {
 
       setMaskedEmail(response.email_masked);
       setRegisterSuccess(true);
-      setSuccessMessage('OTP sent to your email! Expires in 10 minutes.');
+      setSuccessMessage("OTP sent to your email! Expires in 10 minutes.");
       setStep(2);
     } catch (error: any) {
       const message =
         error.response?.data?.message ||
         error.message ||
-        'An error occurred during registration';
+        "An error occurred during registration";
       setApiError(message);
     } finally {
       setLoading(false);
@@ -107,7 +108,7 @@ export function RegisterForm() {
     if (!validateStep2()) return;
 
     setLoading(true);
-    setApiError('');
+    setApiError("");
 
     try {
       const response = await authService.verifyOtp({
@@ -119,16 +120,16 @@ export function RegisterForm() {
         role: formState.role,
       });
 
-      setSuccessMessage('✅ Account created successfully! Redirecting...');
+      setSuccessMessage("✅ Account created successfully! Redirecting...");
       // Redirect to dashboard or home
       setTimeout(() => {
-        window.location.href = '/dashboard';
+        window.location.href = "/dashboard";
       }, 2000);
     } catch (error: any) {
       const message =
         error.response?.data?.message ||
         error.message ||
-        'Invalid OTP or verification failed';
+        "Invalid OTP or verification failed";
       setApiError(message);
     } finally {
       setLoading(false);
@@ -138,7 +139,7 @@ export function RegisterForm() {
   const handleBackToStep1 = () => {
     setStep(1);
     setRegisterSuccess(false);
-    setSuccessMessage('');
+    setSuccessMessage("");
     setOtpExpired(false);
   };
 
@@ -146,7 +147,9 @@ export function RegisterForm() {
   if (step === 1) {
     return (
       <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold mb-2 text-gray-900">Create Account</h1>
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">
+          Create Account
+        </h1>
         <p className="text-gray-600 mb-6">Join the Study Platform</p>
 
         {apiError && (
@@ -156,7 +159,13 @@ export function RegisterForm() {
           </div>
         )}
 
-        <form onSubmit={(e) => { e.preventDefault(); handleRegisterStep1(); }} className="space-y-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleRegisterStep1();
+          }}
+          className="space-y-4"
+        >
           {/* Email Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -165,12 +174,12 @@ export function RegisterForm() {
             <input
               type="email"
               value={formState.email}
-              onChange={(e) => updateField('email', e.target.value)}
+              onChange={(e) => updateField("email", e.target.value)}
               placeholder="you@example.com"
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
                 errors.email
-                  ? 'border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:ring-blue-500'
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
               }`}
               disabled={loading}
             />
@@ -187,12 +196,12 @@ export function RegisterForm() {
             <input
               type="text"
               value={formState.firstName}
-              onChange={(e) => updateField('firstName', e.target.value)}
+              onChange={(e) => updateField("firstName", e.target.value)}
               placeholder="John"
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
                 errors.firstName
-                  ? 'border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:ring-blue-500'
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
               }`}
               disabled={loading}
             />
@@ -209,7 +218,7 @@ export function RegisterForm() {
             <input
               type="text"
               value={formState.lastName}
-              onChange={(e) => updateField('lastName', e.target.value)}
+              onChange={(e) => updateField("lastName", e.target.value)}
               placeholder="Doe"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={loading}
@@ -226,8 +235,8 @@ export function RegisterForm() {
                 <input
                   type="radio"
                   value="STUDENT"
-                  checked={formState.role === 'STUDENT'}
-                  onChange={(e) => updateField('role', e.target.value as any)}
+                  checked={formState.role === "STUDENT"}
+                  onChange={(e) => updateField("role", e.target.value as any)}
                   className="w-4 h-4"
                   disabled={loading}
                 />
@@ -237,8 +246,8 @@ export function RegisterForm() {
                 <input
                   type="radio"
                   value="PENDING_TEACHER"
-                  checked={formState.role === 'PENDING_TEACHER'}
-                  onChange={(e) => updateField('role', e.target.value as any)}
+                  checked={formState.role === "PENDING_TEACHER"}
+                  onChange={(e) => updateField("role", e.target.value as any)}
                   className="w-4 h-4"
                   disabled={loading}
                 />
@@ -254,14 +263,14 @@ export function RegisterForm() {
             </label>
             <div className="relative">
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={formState.password}
-                onChange={(e) => updateField('password', e.target.value)}
+                onChange={(e) => updateField("password", e.target.value)}
                 placeholder="Min 8 characters"
                 className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${
                   errors.password
-                    ? 'border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:ring-blue-500'
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
                 }`}
                 disabled={loading}
               />
@@ -290,14 +299,14 @@ export function RegisterForm() {
             </label>
             <div className="relative">
               <input
-                type={showConfirmPassword ? 'text' : 'password'}
+                type={showConfirmPassword ? "text" : "password"}
                 value={formState.confirmPassword}
-                onChange={(e) => updateField('confirmPassword', e.target.value)}
+                onChange={(e) => updateField("confirmPassword", e.target.value)}
                 placeholder="Re-enter your password"
                 className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${
                   errors.confirmPassword
-                    ? 'border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:ring-blue-500'
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
                 }`}
                 disabled={loading}
               />
@@ -315,7 +324,9 @@ export function RegisterForm() {
               </button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-sm text-red-600 mt-1">{errors.confirmPassword}</p>
+              <p className="text-sm text-red-600 mt-1">
+                {errors.confirmPassword}
+              </p>
             )}
           </div>
 
@@ -325,11 +336,11 @@ export function RegisterForm() {
             disabled={loading}
             className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed mt-6"
           >
-            {loading ? 'Sending OTP...' : 'Continue'}
+            {loading ? "Sending OTP..." : "Continue"}
           </button>
 
           <p className="text-center text-sm text-gray-600">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <a href="/login" className="text-blue-600 hover:underline">
               Login
             </a>
@@ -343,7 +354,9 @@ export function RegisterForm() {
   return (
     <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold mb-2 text-gray-900">Verify Email</h1>
-      <p className="text-gray-600 mb-6">Enter the 6-digit code sent to {maskedEmail}</p>
+      <p className="text-gray-600 mb-6">
+        Enter the 6-digit code sent to {maskedEmail}
+      </p>
 
       {successMessage && (
         <div className="mb-4 p-3 bg-green-100 border border-green-400 rounded flex items-start gap-3">
@@ -374,7 +387,13 @@ export function RegisterForm() {
         </div>
       )}
 
-      <form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }} className="space-y-4">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleVerifyOtp();
+        }}
+        className="space-y-4"
+      >
         {/* OTP Input */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -387,14 +406,14 @@ export function RegisterForm() {
               maxLength={6}
               value={formState.otp}
               onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, '');
-                updateField('otp', value);
+                const value = e.target.value.replace(/\D/g, "");
+                updateField("otp", value);
               }}
               placeholder="000000"
               className={`w-full px-4 py-3 text-center text-2xl border-2 rounded-lg font-mono tracking-widest focus:outline-none transition ${
                 errors.otp
-                  ? 'border-red-500 focus:ring-2 focus:ring-red-500'
-                  : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
+                  ? "border-red-500 focus:ring-2 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-2 focus:ring-blue-500"
               }`}
               disabled={loading || isExpired}
             />
@@ -408,10 +427,12 @@ export function RegisterForm() {
         <div className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
           <span className="text-sm text-gray-700">Code expires in:</span>
           <div className="flex items-center gap-2">
-            <Clock className={`w-4 h-4 ${isExpired ? 'text-red-600' : 'text-blue-600'}`} />
+            <Clock
+              className={`w-4 h-4 ${isExpired ? "text-red-600" : "text-blue-600"}`}
+            />
             <span
               className={`text-sm font-mono font-bold ${
-                isExpired ? 'text-red-600' : 'text-gray-900'
+                isExpired ? "text-red-600" : "text-gray-900"
               }`}
             >
               {formattedTime}
@@ -425,7 +446,7 @@ export function RegisterForm() {
           disabled={loading || isExpired}
           className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed mt-6"
         >
-          {loading ? 'Verifying...' : 'Verify & Create Account'}
+          {loading ? "Verifying..." : "Verify & Create Account"}
         </button>
 
         {/* Back Button */}

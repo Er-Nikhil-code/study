@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { OtpService } from '../modules/auth/otp.service';
-import { PasswordResetService } from '../modules/auth/password-reset.service';
+import { Injectable, Logger } from "@nestjs/common";
+import { Cron, CronExpression } from "@nestjs/schedule";
+import { OtpService } from "../modules/auth/otp.service";
+import { PasswordResetService } from "../modules/auth/password-reset.service";
 
 /**
  * Scheduled cleanup jobs for OTP records and password reset tokens
@@ -12,7 +12,7 @@ export class CleanupService {
 
   constructor(
     private otpService: OtpService,
-    private passwordResetService: PasswordResetService
+    private passwordResetService: PasswordResetService,
   ) {}
 
   /**
@@ -23,8 +23,11 @@ export class CleanupService {
     try {
       const deletedCount = await this.otpService.deleteExpiredOtps();
       this.logger.debug(`OTP cleanup: Deleted ${deletedCount} expired records`);
-    } catch (error) {
-      this.logger.error(`Error during OTP cleanup: ${error.message}`, error.stack);
+    } catch (error: any) {
+      this.logger.error(
+        `Error during OTP cleanup: ${error?.message || "Unknown error"}`,
+        error?.stack,
+      );
     }
   }
 
@@ -34,10 +37,16 @@ export class CleanupService {
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
   async cleanupExpiredTokens(): Promise<void> {
     try {
-      const deletedCount = await this.passwordResetService.deleteExpiredTokens();
-      this.logger.debug(`Token cleanup: Deleted ${deletedCount} expired reset tokens`);
-    } catch (error) {
-      this.logger.error(`Error during token cleanup: ${error.message}`, error.stack);
+      const deletedCount =
+        await this.passwordResetService.deleteExpiredTokens();
+      this.logger.debug(
+        `Token cleanup: Deleted ${deletedCount} expired reset tokens`,
+      );
+    } catch (error: any) {
+      this.logger.error(
+        `Error during token cleanup: ${error?.message || "Unknown error"}`,
+        error?.stack,
+      );
     }
   }
 }

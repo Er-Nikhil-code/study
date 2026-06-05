@@ -1,9 +1,9 @@
-import type { Metadata } from 'next';
-import './globals.css';
+import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'Study Platform',
-  description: 'Learn and teach with our comprehensive study platform',
+  title: "Study Platform",
+  description: "Learn and teach with our comprehensive study platform",
 };
 
 export default function RootLayout({

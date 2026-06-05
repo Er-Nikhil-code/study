@@ -93,18 +93,18 @@ npm run prisma:studio
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | Required |
-| `BREVO_API_KEY` | Brevo email service API key | Required |
-| `JWT_SECRET` | JWT signing secret | Required |
-| `JWT_EXPIRY_HOURS` | Access token expiry | 1 |
-| `JWT_REFRESH_EXPIRY_DAYS` | Refresh token expiry | 7 |
-| `OTP_VALIDITY_MINUTES` | OTP validity period | 10 |
-| `OTP_MAX_ATTEMPTS` | Max OTP verification attempts | 3 |
-| `PASSWORD_RESET_TOKEN_EXPIRY_MINUTES` | Reset token validity | 60 |
-| `APP_URL` | Frontend application URL | http://localhost:3000 |
-| `API_PORT` | API server port | 3001 |
+| Variable                              | Description                   | Default               |
+| ------------------------------------- | ----------------------------- | --------------------- |
+| `DATABASE_URL`                        | PostgreSQL connection string  | Required              |
+| `BREVO_API_KEY`                       | Brevo email service API key   | Required              |
+| `JWT_SECRET`                          | JWT signing secret            | Required              |
+| `JWT_EXPIRY_HOURS`                    | Access token expiry           | 1                     |
+| `JWT_REFRESH_EXPIRY_DAYS`             | Refresh token expiry          | 7                     |
+| `OTP_VALIDITY_MINUTES`                | OTP validity period           | 10                    |
+| `OTP_MAX_ATTEMPTS`                    | Max OTP verification attempts | 3                     |
+| `PASSWORD_RESET_TOKEN_EXPIRY_MINUTES` | Reset token validity          | 60                    |
+| `APP_URL`                             | Frontend application URL      | http://localhost:3000 |
+| `API_PORT`                            | API server port               | 3001                  |
 
 ## Brevo Setup
 
@@ -122,6 +122,7 @@ npm run prisma:studio
 ### Update Configuration
 
 Update template IDs in `.env.local`:
+
 ```
 BREVO_OTP_TEMPLATE_ID=1
 BREVO_PASSWORD_RESET_TEMPLATE_ID=2
@@ -142,15 +143,18 @@ The Prisma schema includes:
 ## Architecture
 
 ### Service Layer
+
 - `AuthService`: Authentication logic (register, login, password reset)
 - `OtpService`: OTP generation, validation, cleanup
 - `PasswordResetService`: Token generation and verification
 - `BrevoService`: Email delivery via Brevo API
 
 ### Scheduled Jobs
+
 - `CleanupService`: Hourly OTP cleanup, daily token cleanup
 
 ### Modules
+
 - `AuthModule`: Authentication endpoints and logic
 - `EmailModule`: Email service integration
 
@@ -176,11 +180,13 @@ npm run test:cov
 ## Deployment
 
 ### Vercel (Frontend)
+
 ```bash
 # Frontend deploys automatically on push to main
 ```
 
 ### Railway (Backend)
+
 ```bash
 # Create Docker image and deploy
 docker build -t study-backend .

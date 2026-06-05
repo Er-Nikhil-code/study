@@ -4,7 +4,7 @@ export interface RegisterRequest {
   password: string;
   firstName: string;
   lastName?: string;
-  role?: 'STUDENT' | 'PENDING_TEACHER';
+  role?: "STUDENT" | "PENDING_TEACHER";
 }
 
 export interface RegisterResponse {
@@ -19,7 +19,7 @@ export interface VerifyOtpRequest {
   password: string;
   firstName: string;
   lastName?: string;
-  role?: 'STUDENT' | 'PENDING_TEACHER';
+  role?: "STUDENT" | "PENDING_TEACHER";
 }
 
 export interface VerifyOtpResponse {
