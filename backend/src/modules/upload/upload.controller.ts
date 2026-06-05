@@ -55,14 +55,3 @@ export class UploadController {
     return { success: true, message: "Asset deleted" };
   }
 }
-    const asset = await this.uploadService.getAssets();
-    const targetAsset = asset.find((a) => a.id === assetId);
-
-    if (!targetAsset) {
-      throw new BadRequestException("Asset not found");
-    }
-
-    await this.uploadService.deleteFile(targetAsset.cdn_url);
-    return { success: true, message: "Asset deleted" };
-  }
-}
