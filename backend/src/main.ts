@@ -1,20 +1,36 @@
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: [
-      "http://localhost:3000",
-      "https://codify.today",
-      "https://www.codify.today",
-      "https://study-ten-coral.vercel.app",
-    ],
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "https://codify.today",
+        "https://www.codify.today",
+      ];
+
+      if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
+
     credentials: true,
+
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+
     allowedHeaders: ["Content-Type", "Authorization"],
   });
 
@@ -25,8 +41,6 @@ async function bootstrap() {
   await app.listen(port);
 
   console.log(`🚀 Server listening on port ${port}`);
-  console.log(`📚 API available at /api`);
-  console.log(`🛡️ Rate limiting enabled`);
 }
 
 bootstrap();
