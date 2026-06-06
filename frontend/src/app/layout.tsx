@@ -1,11 +1,9 @@
-import type { Metadata } from "next";
-import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "Study Platform",
-  description: "Learn and teach with our comprehensive study platform",
-};
-
+import QueryProvider from "@/providers/query-provider";
+import ThemeProvider from "@/providers/theme-provider";
+import AuthProvider from "@/providers/auth-provider";
+import SocketProvider from "@/providers/socket-provider";
+import ToastProvider from "@/providers/toast-provider";
+import RealtimeEvents from "@/components/realtime/RealtimeEvents";
 export default function RootLayout({
   children,
 }: {
@@ -13,7 +11,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50">{children}</body>
+      <body>
+        <QueryProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <SocketProvider>
+                <ToastProvider>
+                  <RealtimeEvents />
+                  {children}
+                </ToastProvider>
+              </SocketProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </QueryProvider>
+      </body>
     </html>
   );
 }
