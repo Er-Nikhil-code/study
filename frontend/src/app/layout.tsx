@@ -1,9 +1,12 @@
+import "./globals.css";
+
 import QueryProvider from "@/providers/query-provider";
 import ThemeProvider from "@/providers/theme-provider";
 import AuthProvider from "@/providers/auth-provider";
 import SocketProvider from "@/providers/socket-provider";
 import ToastProvider from "@/providers/toast-provider";
 import RealtimeEvents from "@/components/realtime/RealtimeEvents";
+
 export default function RootLayout({
   children,
 }: {
