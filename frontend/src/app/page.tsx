@@ -123,16 +123,16 @@ export default function HomePage() {
           }
           
           @keyframes ember-glow {
-            0%, 100% { box-shadow: 0 0 4px rgba(245, 158, 11, 0.6), 0 0 10px rgba(245, 158, 11, 0.3); }
-            30% { box-shadow: 0 0 8px rgba(251, 191, 36, 1), 0 0 15px rgba(251, 191, 36, 0.8); }
-            70% { box-shadow: 0 0 3px rgba(249, 115, 22, 0.5), 0 0 8px rgba(249, 115, 22, 0.2); }
+            0%, 100% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.6), 0 0 10px rgba(220, 38, 38, 0.3); }
+            30% { box-shadow: 0 0 8px rgba(248, 113, 113, 1), 0 0 15px rgba(248, 113, 113, 0.8); }
+            70% { box-shadow: 0 0 3px rgba(225, 29, 72, 0.5), 0 0 8px rgba(225, 29, 72, 0.2); }
           }
           
           .bg-float-1 {
             position: absolute;
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(220, 38, 38, 0.3) 0%, transparent 70%);
             border-radius: 50%;
             filter: blur(80px);
             animation: float-shape-1 12s ease-in-out infinite;
@@ -144,7 +144,7 @@ export default function HomePage() {
             position: absolute;
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(217, 119, 6, 0.25) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(185, 28, 28, 0.25) 0%, transparent 70%);
             border-radius: 50%;
             filter: blur(100px);
             animation: float-shape-2 15s ease-in-out infinite;
@@ -155,7 +155,7 @@ export default function HomePage() {
           .bg-pulse {
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, transparent 50%, rgba(217, 119, 6, 0.03) 100%);
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.04) 0%, transparent 50%, rgba(185, 28, 28, 0.03) 100%);
             animation: pulse-subtle 6s ease-in-out infinite;
           }
           
@@ -167,7 +167,7 @@ export default function HomePage() {
           .ambient-fire {
             position: absolute;
             inset: 0;
-            background: radial-gradient(ellipse at 50% 50%, rgba(251, 191, 36, 0.12) 0%, rgba(245, 158, 11, 0.06) 30%, transparent 70%);
+            background: radial-gradient(ellipse at 50% 50%, rgba(248, 113, 113, 0.12) 0%, rgba(220, 38, 38, 0.06) 30%, transparent 70%);
             animation: ambient-glow 8s ease-in-out infinite;
             pointer-events: none;
           }
@@ -175,7 +175,7 @@ export default function HomePage() {
           .ember {
             position: absolute;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(253, 230, 138, 0.9), rgba(245, 158, 11, 0.4));
+            background: radial-gradient(circle at 30% 30%, rgba(254, 202, 202, 0.9), rgba(220, 38, 38, 0.4));
             animation: ember-roam linear infinite;
             animation-play-state: running;
           }
@@ -185,7 +185,7 @@ export default function HomePage() {
             position: absolute;
             width: 70%;
             height: 70%;
-            background: rgba(251, 191, 36, 0.8);
+            background: rgba(248, 113, 113, 0.8);
             border-radius: 50%;
             top: 50%;
             left: 50%;
@@ -204,7 +204,7 @@ export default function HomePage() {
             left: 0;
             right: 0;
             height: 300px;
-            background: linear-gradient(to top, rgba(245, 158, 11, 0.3) 0%, rgba(217, 119, 6, 0.15) 40%, transparent 100%);
+            background: linear-gradient(to top, rgba(220, 38, 38, 0.3) 0%, rgba(185, 28, 28, 0.15) 40%, transparent 100%);
             animation: bottom-glow 6s ease-in-out infinite;
             pointer-events: none;
           }
@@ -257,8 +257,8 @@ export default function HomePage() {
       <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-5 hidden md:block">
         <style>{`
           @keyframes line-glow {
-            0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
-            50% { box-shadow: 0 0 25px rgba(251, 191, 36, 0.5); }
+            0%, 100% { box-shadow: 0 0 15px rgba(220, 38, 38, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(248, 113, 113, 0.5); }
           }
           
           .divider-line {
@@ -266,9 +266,9 @@ export default function HomePage() {
             height: 60vh;
             background: linear-gradient(to bottom,
               transparent 0%,
-              rgba(245, 158, 11, 0.2) 15%,
-              rgba(251, 191, 36, 0.6) 50%,
-              rgba(217, 119, 6, 0.2) 85%,
+              rgba(220, 38, 38, 0.2) 15%,
+              rgba(248, 113, 113, 0.6) 50%,
+              rgba(185, 28, 28, 0.2) 85%,
               transparent 100%);
             animation: line-glow 4s ease-in-out infinite;
             position: relative;
@@ -281,62 +281,62 @@ export default function HomePage() {
 
       {/* Subtle Ambient Elements */}
       <div className="absolute right-0 top-0 bottom-0 w-96 pointer-events-none z-5">
-        <div className="absolute top-1/4 right-1/4 w-40 h-40 bg-gradient-to-br from-amber-500/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute bottom-1/4 right-1/3 w-32 h-32 bg-gradient-to-tl from-orange-600/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
+        <div className="absolute top-1/4 right-1/4 w-40 h-40 bg-gradient-to-br from-red-500/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-1/4 right-1/3 w-32 h-32 bg-gradient-to-tl from-rose-600/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
       </div>
 
       {/* Left Section - Platform Info */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-start px-8 md:px-16 py-12 md:py-16 relative z-10">
         {/* Logo Section */}
         <div className="mb-12 md:mb-16">
-          <h1 className="text-6xl md:text-7xl font-bold mb-4 tracking-tight">
-            <span className="text-white">Study</span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 ml-3 drop-shadow-sm">Platform</span>
+          <h1 className="text-6xl md:text-7xl font-bold mb-4 tracking-tight uppercase flex items-center">
+            <span className="text-white">CODI</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-rose-500 drop-shadow-sm">FY</span>
           </h1>
-          <div className="h-1.5 w-24 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
+          <div className="h-1.5 w-24 bg-gradient-to-r from-red-500 to-rose-600 rounded-full shadow-[0_0_10px_rgba(220,38,38,0.5)]"></div>
         </div>
 
         {/* Animated Tagline */}
         <div className="mb-12 md:mb-16 h-12 flex items-center">
-          <p className="text-2xl md:text-3xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 transition-all duration-1000 ease-in-out tracking-wide">
+          <p className="text-2xl md:text-3xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-red-200 to-red-500 transition-all duration-1000 ease-in-out tracking-wide">
             {textOptions[animatedText]}
           </p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4 mb-12 md:mb-16 w-full max-w-md relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 rounded-2xl blur-xl -z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-rose-500/5 rounded-2xl blur-xl -z-10"></div>
           
-          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-amber-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full"></div>
-            <div className="text-3xl font-bold text-amber-400 mb-1 group-hover:text-amber-300 transition-colors drop-shadow-sm">
+          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-red-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-red-400/40 hover:shadow-[0_0_20px_rgba(220,38,38,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-red-500/10 to-transparent rounded-bl-full"></div>
+            <div className="text-3xl font-bold text-red-400 mb-1 group-hover:text-red-300 transition-colors drop-shadow-sm">
               10K+
             </div>
             <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">
               Active Students
             </div>
           </div>
-          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-amber-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full"></div>
-            <div className="text-3xl font-bold text-amber-400 mb-1 group-hover:text-amber-300 transition-colors drop-shadow-sm">
+          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-red-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-red-400/40 hover:shadow-[0_0_20px_rgba(220,38,38,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-red-500/10 to-transparent rounded-bl-full"></div>
+            <div className="text-3xl font-bold text-red-400 mb-1 group-hover:text-red-300 transition-colors drop-shadow-sm">
               500+
             </div>
             <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">
               Expert Teachers
             </div>
           </div>
-          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-amber-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full"></div>
-            <div className="text-3xl font-bold text-amber-400 mb-1 group-hover:text-amber-300 transition-colors drop-shadow-sm">
+          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-red-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-red-400/40 hover:shadow-[0_0_20px_rgba(220,38,38,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-red-500/10 to-transparent rounded-bl-full"></div>
+            <div className="text-3xl font-bold text-red-400 mb-1 group-hover:text-red-300 transition-colors drop-shadow-sm">
               1M+
             </div>
             <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">
               Questions Attempted
             </div>
           </div>
-          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-amber-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full"></div>
-            <div className="text-3xl font-bold text-amber-400 mb-1 group-hover:text-amber-300 transition-colors drop-shadow-sm">
+          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-red-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-red-400/40 hover:shadow-[0_0_20px_rgba(220,38,38,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-red-500/10 to-transparent rounded-bl-full"></div>
+            <div className="text-3xl font-bold text-red-400 mb-1 group-hover:text-red-300 transition-colors drop-shadow-sm">
               100%
             </div>
             <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">Success Rate</div>
@@ -346,32 +346,32 @@ export default function HomePage() {
         {/* Features */}
         <div className="space-y-4 w-full max-w-md">
           <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-all shadow-[0_0_10px_rgba(245,158,11,0.1)]">
-              <div className="w-2 h-2 bg-amber-400 rounded-full group-hover:shadow-[0_0_8px_rgba(251,191,36,0.8)] transition-all"></div>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 group-hover:bg-red-500/20 group-hover:border-red-400/50 transition-all shadow-[0_0_10px_rgba(220,38,38,0.1)]">
+              <div className="w-2 h-2 bg-red-400 rounded-full group-hover:shadow-[0_0_8px_rgba(248,113,113,0.8)] transition-all"></div>
             </div>
             <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
               Interactive live test series & mocks
             </span>
           </div>
           <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-all shadow-[0_0_10px_rgba(245,158,11,0.1)]">
-              <div className="w-2 h-2 bg-amber-400 rounded-full group-hover:shadow-[0_0_8px_rgba(251,191,36,0.8)] transition-all"></div>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 group-hover:bg-red-500/20 group-hover:border-red-400/50 transition-all shadow-[0_0_10px_rgba(220,38,38,0.1)]">
+              <div className="w-2 h-2 bg-red-400 rounded-full group-hover:shadow-[0_0_8px_rgba(248,113,113,0.8)] transition-all"></div>
             </div>
             <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
               Advanced analytics & performance tracking
             </span>
           </div>
           <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-all shadow-[0_0_10px_rgba(245,158,11,0.1)]">
-              <div className="w-2 h-2 bg-amber-400 rounded-full group-hover:shadow-[0_0_8px_rgba(251,191,36,0.8)] transition-all"></div>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 group-hover:bg-red-500/20 group-hover:border-red-400/50 transition-all shadow-[0_0_10px_rgba(220,38,38,0.1)]">
+              <div className="w-2 h-2 bg-red-400 rounded-full group-hover:shadow-[0_0_8px_rgba(248,113,113,0.8)] transition-all"></div>
             </div>
             <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
               Detailed step-by-step LaTeX solutions
             </span>
           </div>
           <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-all shadow-[0_0_10px_rgba(245,158,11,0.1)]">
-              <div className="w-2 h-2 bg-amber-400 rounded-full group-hover:shadow-[0_0_8px_rgba(251,191,36,0.8)] transition-all"></div>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 group-hover:bg-red-500/20 group-hover:border-red-400/50 transition-all shadow-[0_0_10px_rgba(220,38,38,0.1)]">
+              <div className="w-2 h-2 bg-red-400 rounded-full group-hover:shadow-[0_0_8px_rgba(248,113,113,0.8)] transition-all"></div>
             </div>
             <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
               Direct challenge workflows with teachers
@@ -384,7 +384,7 @@ export default function HomePage() {
       <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-12 py-16 relative z-10">
         <div className="w-full max-w-md p-8 sm:p-10 bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] relative overflow-hidden">
           {/* Decorative glow inside auth box */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/20 rounded-full blur-3xl"></div>
           
           {/* Tabs */}
           <div className="flex gap-2 mb-8 bg-black/40 p-1.5 rounded-xl border border-white/5 relative z-10">
@@ -392,7 +392,7 @@ export default function HomePage() {
               onClick={() => setAuthView("login")}
               className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all duration-500 text-sm tracking-wide ${
                 authView === "login"
-                  ? "bg-gradient-to-r from-amber-600 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                  ? "bg-gradient-to-r from-red-600 to-rose-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)]"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
@@ -402,7 +402,7 @@ export default function HomePage() {
               onClick={() => setAuthView("signup")}
               className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all duration-500 text-sm tracking-wide ${
                 authView === "signup"
-                  ? "bg-gradient-to-r from-amber-600 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                  ? "bg-gradient-to-r from-red-600 to-rose-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)]"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
@@ -511,8 +511,8 @@ function LoginFormEmbedded({
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@example.com"
             className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-              errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
-            } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
+              errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+            } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
           />
           {errors.email && (
             <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>
@@ -530,13 +530,13 @@ function LoginFormEmbedded({
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-                errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
-              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
+                errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3 text-zinc-500 hover:text-amber-400 text-xs font-medium transition-colors p-1"
+              className="absolute right-3 top-3 text-zinc-500 hover:text-red-400 text-xs font-medium transition-colors p-1"
             >
               {showPassword ? "Hide" : "Show"}
             </button>
@@ -549,13 +549,13 @@ function LoginFormEmbedded({
 
       <div className="flex items-center justify-between mt-2">
         <label className="flex items-center gap-2 cursor-pointer group">
-          <input type="checkbox" className="rounded bg-black/40 border-white/10 text-amber-500 focus:ring-amber-500/20 focus:ring-offset-0" />
+          <input type="checkbox" className="rounded bg-black/40 border-white/10 text-red-500 focus:ring-red-500/20 focus:ring-offset-0" />
           <span className="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors">Remember me</span>
         </label>
         <button
           type="button"
           onClick={onSwitchToForgot}
-          className="text-amber-500 hover:text-amber-400 text-xs font-medium transition-colors"
+          className="text-red-500 hover:text-red-400 text-xs font-medium transition-colors"
         >
           Forgot password?
         </button>
@@ -564,7 +564,7 @@ function LoginFormEmbedded({
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-3 mt-4 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
+        className="w-full py-3 mt-4 bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(220,38,38,0.25)] hover:shadow-[0_6px_20px_rgba(220,38,38,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
       >
         {isLoading ? (
           <span className="flex items-center justify-center gap-2">
@@ -583,7 +583,7 @@ function LoginFormEmbedded({
           <button
             type="button"
             onClick={onSwitchToSignup}
-            className="text-amber-500 hover:text-amber-400 font-medium transition-colors"
+            className="text-red-500 hover:text-red-400 font-medium transition-colors"
           >
             Create one now
           </button>
@@ -707,8 +707,8 @@ function RegisterFormEmbedded({
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="e.g. Alex"
               className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-                errors.firstName ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
-              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.firstName ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
+                errors.firstName ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.firstName ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
             />
             {errors.firstName && (
               <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.firstName}</p>
@@ -725,8 +725,8 @@ function RegisterFormEmbedded({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
               className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-                errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
-              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
+                errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
             />
             {errors.email && (
               <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>
@@ -736,7 +736,7 @@ function RegisterFormEmbedded({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 mt-6 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
+            className="w-full py-3 mt-6 bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(220,38,38,0.25)] hover:shadow-[0_6px_20px_rgba(220,38,38,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
           >
             {isLoading ? "Sending OTP..." : "Continue"}
           </button>
@@ -756,8 +756,8 @@ function RegisterFormEmbedded({
               placeholder="000000"
               maxLength={6}
               className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-                errors.otp ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
-              } text-white text-center text-3xl tracking-[0.5em] placeholder-zinc-700 font-mono focus:outline-none focus:ring-1 ${errors.otp ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
+                errors.otp ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+              } text-white text-center text-3xl tracking-[0.5em] placeholder-zinc-700 font-mono focus:outline-none focus:ring-1 ${errors.otp ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
             />
             {errors.otp && (
               <p className="text-red-400 text-xs mt-1.5 text-center">{errors.otp}</p>
@@ -775,13 +775,13 @@ function RegisterFormEmbedded({
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-                  errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
-                } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
+                  errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+                } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-zinc-500 hover:text-amber-400 text-xs font-medium transition-colors p-1"
+                className="absolute right-3 top-3 text-zinc-500 hover:text-red-400 text-xs font-medium transition-colors p-1"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
@@ -795,7 +795,7 @@ function RegisterFormEmbedded({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 mt-6 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
+            className="w-full py-3 mt-6 bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(220,38,38,0.25)] hover:shadow-[0_6px_20px_rgba(220,38,38,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
           >
             {isLoading ? "Verifying..." : "Verify & Create Account"}
           </button>
@@ -817,7 +817,7 @@ function RegisterFormEmbedded({
             <button
               type="button"
               onClick={onSwitchToLogin}
-              className="text-amber-500 hover:text-amber-400 font-medium transition-colors"
+              className="text-red-500 hover:text-red-400 font-medium transition-colors"
             >
               Sign In
             </button>
@@ -917,8 +917,8 @@ function ForgotPasswordFormEmbedded({
           onChange={(e) => setEmail(e.target.value)}
           placeholder="name@example.com"
           className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-            errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
-          } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
+            errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+          } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
         />
         {errors.email && (
           <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>
@@ -928,7 +928,7 @@ function ForgotPasswordFormEmbedded({
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-3 mt-6 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
+        className="w-full py-3 mt-6 bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(220,38,38,0.25)] hover:shadow-[0_6px_20px_rgba(220,38,38,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
       >
         {isLoading ? "Sending Link..." : "Send Reset Link"}
       </button>
