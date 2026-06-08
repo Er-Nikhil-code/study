@@ -63,13 +63,13 @@ export function ForgotPasswordForm() {
           We've sent a password reset link to {maskedEmail}
         </p>
 
-        <div className="mb-6 p-4 bg-blue-100 border border-blue-400 rounded-lg flex items-start gap-3">
-          <CheckCircle className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div className="mb-6 p-4 bg-red-100 border border-red-400 rounded-lg flex items-start gap-3">
+          <CheckCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm text-blue-700 font-medium">
+            <p className="text-sm text-red-700 font-medium">
               Email sent successfully!
             </p>
-            <p className="text-sm text-blue-600 mt-1">
+            <p className="text-sm text-red-600 mt-1">
               Click the link in your email to reset your password. The link
               expires in 60 minutes.
             </p>
@@ -84,7 +84,7 @@ export function ForgotPasswordForm() {
                 setSubmitted(false);
                 updateField("email", "");
               }}
-              className="text-blue-600 hover:underline font-medium"
+              className="text-red-600 hover:underline font-medium"
             >
               Try again
             </button>
@@ -94,7 +94,7 @@ export function ForgotPasswordForm() {
             Remember your password?{" "}
             <a
               href="/login"
-              className="text-blue-600 hover:underline font-medium"
+              className="text-red-600 hover:underline font-medium"
             >
               Sign in
             </a>
@@ -155,7 +155,7 @@ export function ForgotPasswordForm() {
             className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
               errors.email
                 ? "border-red-500 focus:ring-red-500"
-                : "border-gray-300 focus:ring-blue-500"
+                : "border-gray-300 focus:ring-red-500"
             }`}
             disabled={loading}
           />
@@ -168,14 +168,14 @@ export function ForgotPasswordForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed mt-6"
+          className="w-full py-2 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed mt-6"
         >
           {loading ? "Sending..." : "Send Reset Link"}
         </button>
 
         <p className="text-center text-sm text-gray-600">
           Remember your password?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
+          <a href="/login" className="text-red-600 hover:underline">
             Sign in
           </a>
         </p>

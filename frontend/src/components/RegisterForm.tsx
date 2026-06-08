@@ -144,7 +144,7 @@ export function RegisterForm() {
         <h1 className="text-3xl font-bold mb-2 text-gray-900">
           Create Account
         </h1>
-        <p className="text-gray-600 mb-6">Join the Study Platform</p>
+        <p className="text-gray-600 mb-6">Join the CODIFY</p>
 
         {apiError && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 rounded flex items-start gap-3">
@@ -173,7 +173,7 @@ export function RegisterForm() {
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
                 errors.email
                   ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500"
+                  : "border-gray-300 focus:ring-red-500"
               }`}
               disabled={loading}
             />
@@ -195,7 +195,7 @@ export function RegisterForm() {
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
                 errors.firstName
                   ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500"
+                  : "border-gray-300 focus:ring-red-500"
               }`}
               disabled={loading}
             />
@@ -214,7 +214,7 @@ export function RegisterForm() {
               value={formState.lastName}
               onChange={(e) => updateField("lastName", e.target.value)}
               placeholder="Doe"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               disabled={loading}
             />
           </div>
@@ -254,14 +254,14 @@ export function RegisterForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed mt-6"
+            className="w-full py-2 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed mt-6"
           >
             {loading ? "Sending OTP..." : "Continue"}
           </button>
 
           <p className="text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <a href="/login" className="text-blue-600 hover:underline">
+            <a href="/login" className="text-red-600 hover:underline">
               Login
             </a>
           </p>
@@ -333,7 +333,7 @@ export function RegisterForm() {
               className={`w-full px-4 py-3 text-center text-2xl border-2 rounded-lg font-mono tracking-widest focus:outline-none transition ${
                 errors.otp
                   ? "border-red-500 focus:ring-2 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-2 focus:ring-blue-500"
+                  : "border-gray-300 focus:ring-2 focus:ring-red-500"
               }`}
               disabled={loading || isExpired}
             />
@@ -348,7 +348,7 @@ export function RegisterForm() {
           <span className="text-sm text-gray-700">Code expires in:</span>
           <div className="flex items-center gap-2">
             <Clock
-              className={`w-4 h-4 ${isExpired ? "text-red-600" : "text-blue-600"}`}
+              className={`w-4 h-4 ${isExpired ? "text-red-600" : "text-red-600"}`}
             />
             <span
               className={`text-sm font-mono font-bold ${
@@ -374,7 +374,7 @@ export function RegisterForm() {
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${
                 errors.password
                   ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500"
+                  : "border-gray-300 focus:ring-red-500"
               }`}
               disabled={loading}
             />
@@ -410,7 +410,7 @@ export function RegisterForm() {
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${
                 errors.confirmPassword
                   ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500"
+                  : "border-gray-300 focus:ring-red-500"
               }`}
               disabled={loading}
             />
@@ -438,7 +438,7 @@ export function RegisterForm() {
         <button
           type="submit"
           disabled={loading || isExpired}
-          className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed mt-6"
+          className="w-full py-2 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed mt-6"
         >
           {loading ? "Verifying..." : "Verify & Create Account"}
         </button>

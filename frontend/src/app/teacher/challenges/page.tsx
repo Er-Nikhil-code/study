@@ -63,7 +63,7 @@ export default function TeacherChallengesPage() {
                 className={[
                   "rounded-full border px-3 py-1 text-xs font-medium",
                   challenge.status === "Pending"
-                    ? "border-amber-500/20 bg-amber-500/10 text-amber-300"
+                    ? "border-red-500/20 bg-red-500/10 text-red-300"
                     : challenge.status === "Reviewed"
                       ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
                       : "border-red-500/20 bg-red-500/10 text-red-200",

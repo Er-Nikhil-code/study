@@ -191,7 +191,7 @@ export default function ResultDetailPage() {
                     {/* Challenge button */}
                     <button
                       onClick={() => setChallengeQ({ ...q, responseId: r.id })}
-                      className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-200 transition hover:bg-amber-500/15"
+                      className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/15"
                     >
                       ⚡ Challenge This Question
                     </button>
@@ -244,7 +244,7 @@ export default function ResultDetailPage() {
                   <button onClick={() => { setChallengeQ(null); setChallengeDesc(""); }}
                     className="rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-400 transition hover:text-white">Cancel</button>
                   <button onClick={handleChallenge} disabled={challengeLoading || !challengeDesc.trim()}
-                    className="rounded-xl bg-amber-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-700 disabled:opacity-50">
+                    className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
                     {challengeLoading ? "Submitting…" : "Submit Challenge"}
                   </button>
                 </div>

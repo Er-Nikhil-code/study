@@ -214,7 +214,7 @@ export default function AttemptPage() {
           </div>
           <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
             timeLeft < 300 ? "bg-red-600/20 text-red-300 animate-pulse"
-              : timeLeft < 600 ? "bg-amber-500/15 text-amber-300"
+              : timeLeft < 600 ? "bg-red-500/15 text-red-300"
               : "bg-white/[0.05] text-white"
           }`}>{formatTime(timeLeft)}</div>
           <div className="flex items-center gap-3">

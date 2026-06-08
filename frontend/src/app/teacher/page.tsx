@@ -70,7 +70,7 @@ export default function TeacherHomePage() {
                     <span className="ml-2 text-xs text-zinc-500">{c.reason}</span>
                   </div>
                   <span className={`rounded-full border px-2 py-0.5 text-xs ${
-                    c.status === "PENDING" ? "border-amber-500/20 bg-amber-500/10 text-amber-300"
+                    c.status === "PENDING" ? "border-red-500/20 bg-red-500/10 text-red-300"
                       : c.status === "RESOLVED" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
                       : "border-red-500/20 bg-red-500/10 text-red-300"
                   }`}>{c.status}</span>

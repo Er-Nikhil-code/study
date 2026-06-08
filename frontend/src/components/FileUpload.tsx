@@ -112,7 +112,7 @@ export function FileUpload({
 
   return (
     <div className="w-full">
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 transition">
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-red-400 transition">
         <input
           ref={fileInputRef}
           type="file"
@@ -152,7 +152,7 @@ export function FileUpload({
           <button
             onClick={handleUpload}
             disabled={loading}
-            className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400 flex items-center justify-center gap-2"
+            className="flex-1 py-2 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition disabled:bg-gray-400 flex items-center justify-center gap-2"
           >
             {loading && <Loader className="w-4 h-4 animate-spin" />}
             {loading ? "Uploading..." : "Upload"}

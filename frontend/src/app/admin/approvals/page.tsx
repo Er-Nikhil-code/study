@@ -60,7 +60,7 @@ export default function AdminApprovalsPage() {
                 className={[
                   "rounded-full border px-3 py-1 text-xs font-medium",
                   item.status === "Pending"
-                    ? "border-amber-500/20 bg-amber-500/10 text-amber-300"
+                    ? "border-red-500/20 bg-red-500/10 text-red-300"
                     : "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
                 ].join(" ")}
               >

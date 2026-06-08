@@ -24,8 +24,8 @@ export default function ToastProvider({ children }: ToastProviderProps) {
             description: "!text-zinc-400",
             success: "!border-emerald-500/20",
             error: "!border-red-500/30",
-            warning: "!border-amber-500/20",
-            info: "!border-blue-500/20",
+            warning: "!border-red-500/20",
+            info: "!border-red-500/20",
           },
         }}
       />

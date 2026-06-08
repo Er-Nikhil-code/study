@@ -33,7 +33,7 @@ const typeLabel = (t: string) =>
 const difficultyBadge = (d: string) => {
   const colors: Record<string, string> = {
     EASY: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
-    MEDIUM: "border-amber-500/20 bg-amber-500/10 text-amber-300",
+    MEDIUM: "border-red-500/20 bg-red-500/10 text-red-300",
     HARD: "border-red-500/20 bg-red-500/10 text-red-300",
   };
   return (

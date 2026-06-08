@@ -75,7 +75,7 @@ export default function LeaderboardPage() {
                     row.rank <= 3 ? "bg-white/[0.02]" : ""
                   }`}>
                   <div className={`font-bold ${
-                    row.rank === 1 ? "text-amber-300" : row.rank === 2 ? "text-zinc-300" : row.rank === 3 ? "text-amber-600" : "text-zinc-500"
+                    row.rank === 1 ? "text-red-300" : row.rank === 2 ? "text-zinc-300" : row.rank === 3 ? "text-red-600" : "text-zinc-500"
                   }`}>
                     {row.rank <= 3 ? ["🥇", "🥈", "🥉"][row.rank - 1] : `#${row.rank}`}
                   </div>

@@ -93,9 +93,9 @@ export function ResetPasswordForm({
           </h1>
           <p className="text-gray-400 mb-6">Invalid reset link</p>
 
-          <div className="mb-6 rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 flex items-start gap-3">
+          <div className="mb-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 flex items-start gap-3">
             <svg
-              className="w-6 h-6 text-amber-400 flex-shrink-0 mt-0.5"
+              className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -108,10 +108,10 @@ export function ResetPasswordForm({
               />
             </svg>
             <div>
-              <p className="text-sm text-amber-200 font-medium">
+              <p className="text-sm text-red-200 font-medium">
                 Invalid or expired token
               </p>
-              <p className="text-sm text-amber-300/70 mt-1">
+              <p className="text-sm text-red-300/70 mt-1">
                 The password reset link is invalid or has expired. Please request
                 a new one.
               </p>

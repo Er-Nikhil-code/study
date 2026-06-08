@@ -11,7 +11,7 @@ import { PrismaService } from "../../prisma/prisma.service";
 export class TestsService {
   private readonly logger = new Logger(TestsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   /* ════════════════════════════════════════════
    *  TEST CRUD (Teacher / Admin)

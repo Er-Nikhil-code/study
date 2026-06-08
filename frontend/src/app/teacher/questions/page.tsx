@@ -60,9 +60,9 @@ export default function TeacherQuestionsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "APPROVED": return "border-emerald-500/20 bg-emerald-500/10 text-emerald-300";
-      case "PENDING_REVIEW": return "border-amber-500/20 bg-amber-500/10 text-amber-300";
+      case "PENDING_REVIEW": return "border-red-500/20 bg-red-500/10 text-red-300";
       case "REJECTED": return "border-red-500/20 bg-red-500/10 text-red-300";
-      case "NEEDS_REVISION": return "border-orange-500/20 bg-orange-500/10 text-orange-300";
+      case "NEEDS_REVISION": return "border-rose-500/20 bg-rose-500/10 text-rose-300";
       default: return "border-zinc-500/20 bg-zinc-500/10 text-zinc-300"; // DRAFT
     }
   };
@@ -143,7 +143,7 @@ export default function TeacherQuestionsPage() {
                 </Link>
                 {userRole === "INTERN" && (q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION") && (
                   <button onClick={() => handleSubmitReview(q.id)} disabled={submittingId === q.id}
-                    className="rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-200 transition hover:bg-amber-500/15 disabled:opacity-50">
+                    className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/15 disabled:opacity-50">
                     {submittingId === q.id ? "Submitting…" : "Submit for Review"}
                   </button>
                 )}

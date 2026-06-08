@@ -76,7 +76,7 @@ export default function TeacherTestsPage() {
                       ? "border-red-500/30 bg-red-500/10 text-red-200"
                       : test.status === "Scheduled"
                         ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
-                        : "border-amber-500/20 bg-amber-500/10 text-amber-300",
+                        : "border-red-500/20 bg-red-500/10 text-red-300",
                   ].join(" ")}
                 >
                   {test.status}

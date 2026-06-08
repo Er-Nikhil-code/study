@@ -18,7 +18,7 @@ import { Roles } from "../common/decorators/roles.decorator";
 
 @Controller("tests")
 export class TestsController {
-  constructor(private testsService: TestsService) {}
+  constructor(private testsService: TestsService) { }
 
   /* ── Public / Student ── */
 

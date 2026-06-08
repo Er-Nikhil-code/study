@@ -59,9 +59,9 @@ export default function ResultsPage() {
                   <div className="text-xs text-zinc-500">{r.submitted_at ? new Date(r.submitted_at).toLocaleDateString() : "—"}</div>
                   <div className="text-xs">
                     {r.attempt_no === 1 ? (
-                      <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-blue-300">1st</span>
+                      <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-red-300">1st</span>
                     ) : (
-                      <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-amber-300">Re #{r.attempt_no}</span>
+                      <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-red-300">Re #{r.attempt_no}</span>
                     )}
                   </div>
                   <div className="text-xs text-zinc-500">{r.time_taken_sec ? `${Math.floor(r.time_taken_sec / 60)}m` : "—"}</div>

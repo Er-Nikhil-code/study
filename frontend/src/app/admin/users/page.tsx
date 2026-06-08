@@ -91,8 +91,8 @@ export default function AdminUsersPage() {
       ADMIN: "border-purple-500/20 bg-purple-500/10 text-purple-300",
       TEACHER: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
       INTERN: "border-pink-500/20 bg-pink-500/10 text-pink-300",
-      STUDENT: "border-blue-500/20 bg-blue-500/10 text-blue-300",
-      PENDING_TEACHER: "border-amber-500/20 bg-amber-500/10 text-amber-300",
+      STUDENT: "border-red-500/20 bg-red-500/10 text-red-300",
+      PENDING_TEACHER: "border-red-500/20 bg-red-500/10 text-red-300",
     };
     return (
       <span

@@ -14,4 +14,4 @@ import { PrismaService } from "../../prisma/prisma.service";
   providers: [TestsService, PrismaService],
   exports: [TestsService],
 })
-export class TestsModule {}
+export class TestsModule { }

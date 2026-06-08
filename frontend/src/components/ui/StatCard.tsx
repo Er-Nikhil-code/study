@@ -11,7 +11,7 @@ const toneClasses = {
   default: "text-white",
   red: "text-red-400",
   green: "text-emerald-400",
-  amber: "text-amber-400",
+  amber: "text-red-400",
 };
 
 export default function StatCard({
