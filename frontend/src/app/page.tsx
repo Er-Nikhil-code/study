@@ -123,9 +123,9 @@ export default function HomePage() {
           }
           
           @keyframes ember-glow {
-            0%, 100% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.6), 0 0 10px rgba(220, 38, 38, 0.3); }
-            30% { box-shadow: 0 0 8px rgba(248, 113, 113, 1), 0 0 15px rgba(248, 113, 113, 0.8); }
-            70% { box-shadow: 0 0 3px rgba(225, 29, 72, 0.5), 0 0 8px rgba(225, 29, 72, 0.2); }
+            0%, 100% { box-shadow: 0 0 5px rgba(249, 115, 22, 0.7), 0 0 12px rgba(220, 38, 38, 0.5); opacity: 0.8; }
+            30% { box-shadow: 0 0 10px rgba(253, 230, 138, 1), 0 0 25px rgba(249, 115, 22, 0.9), 0 0 40px rgba(220, 38, 38, 0.6); opacity: 1; }
+            70% { box-shadow: 0 0 3px rgba(220, 38, 38, 0.6), 0 0 8px rgba(185, 28, 28, 0.4); opacity: 0.6; }
           }
           
           .bg-float-1 {
@@ -175,22 +175,25 @@ export default function HomePage() {
           .ember {
             position: absolute;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(254, 202, 202, 0.9), rgba(220, 38, 38, 0.4));
+            /* Realistic fire core: white/yellow center fading to orange/red edge */
+            background: radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.9) 0%, rgba(253, 230, 138, 0.8) 20%, rgba(249, 115, 22, 0.5) 60%, rgba(220, 38, 38, 0.1) 100%);
             animation: ember-roam linear infinite;
             animation-play-state: running;
+            mix-blend-mode: screen; /* Makes them pop vibrantly on dark backgrounds */
           }
           
           .ember::before {
             content: '';
             position: absolute;
-            width: 70%;
-            height: 70%;
-            background: rgba(248, 113, 113, 0.8);
+            width: 100%;
+            height: 100%;
+            background: transparent;
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation: ember-glow 2s ease-in-out infinite;
+            animation: ember-glow 3s ease-in-out infinite;
+            mix-blend-mode: screen;
           }
           
           @keyframes bottom-glow {
