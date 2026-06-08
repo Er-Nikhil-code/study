@@ -45,7 +45,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async getMe(@Req() req: any) {
     try {
-      const result = await this.authService.getMe(req.user.userId);
+      const result = await this.authService.getMe(req.user.sub);
       return {
         user: result.user,
         accessToken: result.accessToken,
