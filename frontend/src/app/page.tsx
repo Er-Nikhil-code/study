@@ -123,9 +123,9 @@ export default function HomePage() {
           }
           
           @keyframes ember-glow {
-            0%, 100% { box-shadow: 0 0 5px rgba(249, 115, 22, 0.7), 0 0 12px rgba(220, 38, 38, 0.5); opacity: 0.8; }
-            30% { box-shadow: 0 0 10px rgba(253, 230, 138, 1), 0 0 25px rgba(249, 115, 22, 0.9), 0 0 40px rgba(220, 38, 38, 0.6); opacity: 1; }
-            70% { box-shadow: 0 0 3px rgba(220, 38, 38, 0.6), 0 0 8px rgba(185, 28, 28, 0.4); opacity: 0.6; }
+            0%, 100% { box-shadow: 0 0 5px rgba(249, 115, 22, 0.8), 0 0 15px rgba(249, 115, 22, 0.5); opacity: 0.8; }
+            30% { box-shadow: 0 0 10px rgba(249, 115, 22, 1), 0 0 25px rgba(249, 115, 22, 0.8), 0 0 40px rgba(220, 38, 38, 0.6); opacity: 1; }
+            70% { box-shadow: 0 0 4px rgba(249, 115, 22, 0.6), 0 0 10px rgba(249, 115, 22, 0.3); opacity: 0.7; }
           }
           
           .bg-float-1 {
@@ -175,8 +175,8 @@ export default function HomePage() {
           .ember {
             position: absolute;
             border-radius: 50%;
-            /* Realistic fire core: white/yellow center fading to orange/red edge */
-            background: radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.9) 0%, rgba(253, 230, 138, 0.8) 20%, rgba(249, 115, 22, 0.5) 60%, rgba(220, 38, 38, 0.1) 100%);
+            /* Red core with orange glow */
+            background: radial-gradient(circle at 40% 40%, rgba(220, 38, 38, 0.95) 0%, rgba(239, 68, 68, 0.8) 20%, rgba(249, 115, 22, 0.6) 60%, rgba(249, 115, 22, 0.1) 100%);
             animation: ember-roam linear infinite;
             animation-play-state: running;
             mix-blend-mode: screen; /* Makes them pop vibrantly on dark backgrounds */
@@ -385,7 +385,7 @@ export default function HomePage() {
 
       {/* Right Section - Auth Box */}
       <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-12 py-16 relative z-10">
-        <div className="w-full max-w-md p-8 sm:p-10 bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] relative overflow-hidden">
+        <div className="w-full max-w-md p-8 sm:p-10 bg-transparent relative overflow-hidden">
           {/* Decorative glow inside auth box */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/20 rounded-full blur-3xl"></div>
           
