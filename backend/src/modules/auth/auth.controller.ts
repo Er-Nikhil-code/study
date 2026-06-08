@@ -118,7 +118,7 @@ export class AuthController {
         parsed.data.password,
         parsed.data.firstName,
         parsed.data.lastName,
-        parsed.data.role as "STUDENT" | "PENDING_TEACHER",
+        parsed.data.role,
       );
 
       this.logger.log(

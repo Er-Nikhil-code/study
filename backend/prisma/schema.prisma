@@ -393,6 +393,17 @@ model AuditLog {
   @@index([created_at])
 }
 
+model Role {
+  id                String    @id @default(cuid())
+  name              String    @unique  // STUDENT, TEACHER, ADMIN, or custom roles
+  description       String    @default("")
+  permissions_json  Json      @default("[]")  // Array of permission strings
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  @@index([name])
+}
+
 // Enums
 enum UserRole {
   STUDENT
@@ -413,6 +424,7 @@ enum QuestionType {
   NUMERICAL
   TRUE_FALSE
   MATCHING
+  PASSAGE
   ESSAY
   FILL_BLANK
   IMAGE_BASED

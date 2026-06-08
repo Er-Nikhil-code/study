@@ -1,45 +1,195 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
+import { adminNavItems } from "./nav";
+import adminService, { type DashboardStats } from "@/services/admin.service";
 
-const navItems = [
-  { label: "Admin home", href: "/admin" },
-  { label: "Approvals", href: "/admin/approvals" },
-  { label: "Users", href: "/admin/users" },
-  { label: "Challenges", href: "/admin/challenges" },
-  { label: "System", href: "/admin/system" },
-];
+function StatCard({
+  label,
+  value,
+  accent = false,
+  loading = false,
+}: {
+  label: string;
+  value: string | number;
+  accent?: boolean;
+  loading?: boolean;
+}) {
+  return (
+    <Panel accent={accent}>
+      <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+        {label}
+      </div>
+      <div
+        className={`mt-2 text-3xl font-semibold ${accent ? "text-red-300" : "text-white"}`}
+      >
+        {loading ? (
+          <span className="inline-block h-8 w-16 animate-pulse rounded-lg bg-white/10" />
+        ) : (
+          value
+        )}
+      </div>
+    </Panel>
+  );
+}
 
 export default function AdminHomePage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    adminService
+      .getDashboardStats()
+      .then((data) => {
+        setStats(data);
+        setError(null);
+      })
+      .catch((err) => {
+        setError(err?.response?.data?.message || "Failed to load stats");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
-    <DashboardShell activeHref="/admin" navItems={navItems}>
+    <DashboardShell activeHref="/admin" navItems={adminNavItems}>
       <SectionTitle
-        title="Admin dashboard"
+        title="Admin Dashboard"
         subtitle="Oversight, moderation, and system health in one place."
       />
 
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <Panel accent>
-          <div className="text-sm text-zinc-400">Approvals</div>
-          <div className="mt-2 text-3xl font-semibold text-white">12</div>
-        </Panel>
-        <Panel>
-          <div className="text-sm text-zinc-400">Users</div>
-          <div className="mt-2 text-3xl font-semibold text-white">4,281</div>
-        </Panel>
-        <Panel>
-          <div className="text-sm text-zinc-400">Incidents</div>
-          <div className="mt-2 text-3xl font-semibold text-emerald-300">0</div>
-        </Panel>
+      {error && (
+        <div className="mt-4 rounded-2xl border border-red-600/30 bg-red-600/10 px-4 py-3 text-sm text-red-400">
+          {error}
+        </div>
+      )}
+
+      {/* Primary stats row */}
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Total Users"
+          value={stats?.totalUsers ?? "—"}
+          loading={loading}
+        />
+        <StatCard
+          label="Pending Approvals"
+          value={stats?.pendingApprovals ?? "—"}
+          accent={(stats?.pendingApprovals ?? 0) > 0}
+          loading={loading}
+        />
+        <StatCard
+          label="Total Questions"
+          value={stats?.totalQuestions ?? "—"}
+          loading={loading}
+        />
+        <StatCard
+          label="Open Challenges"
+          value={stats?.openChallenges ?? "—"}
+          accent={(stats?.openChallenges ?? 0) > 0}
+          loading={loading}
+        />
       </div>
 
-      <div className="mt-6">
+      {/* Secondary stats row */}
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Students"
+          value={stats?.totalStudents ?? "—"}
+          loading={loading}
+        />
+        <StatCard
+          label="Teachers"
+          value={stats?.totalTeachers ?? "—"}
+          loading={loading}
+        />
+        <StatCard
+          label="Total Tests"
+          value={stats?.totalTests ?? "—"}
+          loading={loading}
+        />
+        <StatCard
+          label="Total Attempts"
+          value={stats?.totalAttempts ?? "—"}
+          loading={loading}
+        />
+      </div>
+
+      {/* Quick actions */}
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Link
           href="/admin/approvals"
-          className="inline-flex rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/15"
+          className="group rounded-2xl border border-red-500/20 bg-red-500/5 p-5 transition hover:bg-red-500/10 hover:border-red-500/30"
         >
-          Review approvals
+          <div className="text-sm font-medium text-red-300 group-hover:text-red-200">
+            Review Approvals
+          </div>
+          <p className="mt-1 text-xs text-zinc-500">
+            Approve or reject pending teacher applications
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/users"
+          className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:bg-white/[0.06] hover:border-white/20"
+        >
+          <div className="text-sm font-medium text-white group-hover:text-white">
+            Manage Users
+          </div>
+          <p className="mt-1 text-xs text-zinc-500">
+            Search, edit roles, and delete user accounts
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/roles"
+          className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:bg-white/[0.06] hover:border-white/20"
+        >
+          <div className="text-sm font-medium text-white group-hover:text-white">
+            Manage Roles
+          </div>
+          <p className="mt-1 text-xs text-zinc-500">
+            Add, edit, and configure permission-based roles
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/questions"
+          className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:bg-white/[0.06] hover:border-white/20"
+        >
+          <div className="text-sm font-medium text-white group-hover:text-white">
+            Manage Questions
+          </div>
+          <p className="mt-1 text-xs text-zinc-500">
+            Browse, search, and moderate the question bank
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/challenges"
+          className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:bg-white/[0.06] hover:border-white/20"
+        >
+          <div className="text-sm font-medium text-white group-hover:text-white">
+            Challenges
+          </div>
+          <p className="mt-1 text-xs text-zinc-500">
+            Review disputed questions and answer keys
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/system"
+          className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:bg-white/[0.06] hover:border-white/20"
+        >
+          <div className="text-sm font-medium text-white group-hover:text-white">
+            System Health
+          </div>
+          <p className="mt-1 text-xs text-zinc-500">
+            Monitor API performance, queues, and errors
+          </p>
         </Link>
       </div>
     </DashboardShell>

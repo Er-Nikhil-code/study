@@ -1,9 +1,37 @@
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
+import { Logger } from "@nestjs/common";
 
 async function bootstrap() {
+  const logger = new Logger("Bootstrap");
+
+  // Validate critical environment variables
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET === "your-secret-key") {
+    logger.error(
+      "❌ FATAL: JWT_SECRET is not configured or is using the default value. Set a strong secret in your environment.",
+    );
+    if (process.env.NODE_ENV === "production") {
+      process.exit(1);
+    }
+  }
+
   const app = await NestFactory.create(AppModule);
+
+  // Parse CORS origins from environment variable, with sensible defaults
+  const defaultOrigins = [
+    "http://localhost:3000",
+    "https://codify.today",
+    "https://www.codify.today",
+  ];
+
+  const corsOriginsEnv = process.env.CORS_ORIGINS;
+  const allowedOrigins = corsOriginsEnv
+    ? corsOriginsEnv
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean)
+    : defaultOrigins;
 
   app.enableCors({
     origin: (
@@ -14,13 +42,10 @@ async function bootstrap() {
         return callback(null, true);
       }
 
-      const allowedOrigins = [
-        "http://localhost:3000",
-        "https://codify.today",
-        "https://www.codify.today",
-      ];
-
-      if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app")
+      ) {
         return callback(null, true);
       }
 
@@ -40,7 +65,10 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  console.log(`🚀 Server listening on port ${port}`);
+  logger.log(`🚀 Server listening on port ${port}`);
+  logger.log(
+    `🌐 CORS origins: ${allowedOrigins.join(", ")} + *.vercel.app`,
+  );
 }
 
 bootstrap();

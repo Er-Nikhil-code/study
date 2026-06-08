@@ -1,14 +1,7 @@
 import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
-
-const navItems = [
-  { label: "Admin home", href: "/admin" },
-  { label: "Approvals", href: "/admin/approvals" },
-  { label: "Users", href: "/admin/users" },
-  { label: "Challenges", href: "/admin/challenges" },
-  { label: "System", href: "/admin/system" },
-];
+import { adminNavItems } from "../nav";
 
 const approvals = [
   {
@@ -36,7 +29,7 @@ const approvals = [
 
 export default function AdminApprovalsPage() {
   return (
-    <DashboardShell activeHref="/admin/approvals" navItems={navItems}>
+    <DashboardShell activeHref="/admin/approvals" navItems={adminNavItems}>
       <SectionTitle
         title="Teacher approvals"
         subtitle="Review pending teacher applications and move them through the approval flow."

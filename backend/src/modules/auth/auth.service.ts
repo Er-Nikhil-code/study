@@ -59,7 +59,6 @@ export class AuthService {
 
       // Send OTP via Brevo (fire-and-forget, don't block response)
       this.logger.debug(`📧 [AUTH-REGISTER] Sending OTP email to ${email}`);
-      this.logger.debug(`📧 [AUTH-REGISTER] Sending OTP email to ${email}`);
 
       await this.brevoService.sendOtpEmail(
         email,
@@ -104,7 +103,7 @@ export class AuthService {
     password: string,
     firstName: string,
     lastName?: string,
-    role: "STUDENT" | "PENDING_TEACHER" = "STUDENT",
+    role: string = "STUDENT",
   ): Promise<{
     user: any;
     accessToken: string;
@@ -143,13 +142,21 @@ export class AuthService {
         throw new BadRequestException("Email already registered");
       }
 
+      // Validate role - only STUDENT and PENDING_TEACHER allowed on registration
+      const validRoles = ["STUDENT", "PENDING_TEACHER"];
+      const assignedRole = validRoles.includes(role) ? role : "STUDENT";
+
+      this.logger.debug(
+        `🔐 [VERIFY-OTP] Role validation: requested=${role}, assigned=${assignedRole}`,
+      );
+
       // Hash password
       this.logger.debug(`🔐 [VERIFY-OTP] Hashing password for ${email}`);
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create user
       this.logger.log(
-        `👤 [VERIFY-OTP] Creating user account for ${email}, role: ${role}`,
+        `👤 [VERIFY-OTP] Creating user account for ${email}, role: ${assignedRole}`,
       );
       const user = await this.prisma.user.create({
         data: {
@@ -157,7 +164,11 @@ export class AuthService {
           password_hash: hashedPassword,
           first_name: firstName,
           last_name: lastName,
-          role: role === "PENDING_TEACHER" ? "PENDING_TEACHER" : "STUDENT",
+          role: assignedRole as
+            | "STUDENT"
+            | "PENDING_TEACHER"
+            | "TEACHER"
+            | "ADMIN",
           email_verified_at: new Date(),
         },
       });
@@ -173,7 +184,7 @@ export class AuthService {
       this.logger.debug(`✓ [VERIFY-OTP] User stats created`);
 
       // If teacher application, create the application record
-      if (role === "PENDING_TEACHER") {
+      if (assignedRole === "PENDING_TEACHER") {
         this.logger.debug(
           `📋 [VERIFY-OTP] Creating teacher application for ${user.id}`,
         );
@@ -200,7 +211,7 @@ export class AuthService {
       // Log to audit
       this.logger.debug(`📋 [VERIFY-OTP] Logging to audit for ${user.id}`);
       await this.logAudit(user.id, "user_registered", "user", user.id, null, {
-        role,
+        role: assignedRole,
       });
 
       this.logger.log(`✨ [VERIFY-OTP] User registered successfully: ${email}`);
@@ -317,14 +328,11 @@ export class AuthService {
         await this.passwordResetService.createResetToken(user.id);
 
       // Build reset URL
-      const appUrl = this.configService.get<string>("APP_URL");
+      const appUrl = this.configService.get<string>("APP_URL", "http://localhost:3000");
 
-      this.logger.log(`APP_URL: ${appUrl}`);
-      this.logger.log(`Generated token: ${token}`);
+      const resetUrl = `${appUrl}/reset-password?token=${token}`;
 
-      const resetUrl = `${appUrl}/auth/reset-password?token=${token}`;
-
-      this.logger.log(`Reset URL: ${resetUrl}`);
+      this.logger.debug(`📧 [FORGOT-PASSWORD] Reset URL generated for ${email}`);
       // Send email via Brevo (fire-and-forget, don't block response)
       this.logger.debug(`📧 [FORGOT-PASSWORD] Sending reset email to ${email}`);
 

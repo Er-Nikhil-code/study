@@ -23,7 +23,7 @@ export const VerifyOtpRequestSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().optional(),
-  role: z.enum(["STUDENT", "PENDING_TEACHER"]).default("STUDENT"),
+  role: z.string().optional().default("STUDENT"), // Dynamic role from database
 });
 
 export type VerifyOtpRequest = z.infer<typeof VerifyOtpRequestSchema>;

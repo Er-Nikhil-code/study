@@ -2,9 +2,15 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { JwtModule } from "@nestjs/jwt";
 import { AuthModule } from "./modules/auth/auth.module";
 import { EmailModule } from "./modules/email/email.module";
+import { RolesModule } from "./modules/roles/roles.module";
+import { QuestionsModule } from "./modules/questions/questions.module";
+import { AdminModule } from "./modules/admin/admin.module";
+import { HealthModule } from "./modules/health/health.module";
 import { CleanupService } from "./jobs/cleanup.service";
+import { KeepAliveService } from "./jobs/keep-alive.service";
 
 @Module({
   imports: [
@@ -13,6 +19,11 @@ import { CleanupService } from "./jobs/cleanup.service";
       envFilePath: [".env.local", ".env"],
     }),
     ScheduleModule.forRoot(),
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET || "your-secret-key",
+      signOptions: { expiresIn: "1h" },
+    }),
     ThrottlerModule.forRoot([
       {
         name: "register",
@@ -37,7 +48,11 @@ import { CleanupService } from "./jobs/cleanup.service";
     ]),
     AuthModule,
     EmailModule,
+    RolesModule,
+    QuestionsModule,
+    AdminModule,
+    HealthModule,
   ],
-  providers: [CleanupService],
+  providers: [CleanupService, KeepAliveService],
 })
 export class AppModule {}

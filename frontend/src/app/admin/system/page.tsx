@@ -1,14 +1,7 @@
 import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
-
-const navItems = [
-  { label: "Admin home", href: "/admin" },
-  { label: "Approvals", href: "/admin/approvals" },
-  { label: "Users", href: "/admin/users" },
-  { label: "Challenges", href: "/admin/challenges" },
-  { label: "System", href: "/admin/system" },
-];
+import { adminNavItems } from "../nav";
 
 const challenges = [
   {
@@ -33,7 +26,7 @@ const challenges = [
 
 export default function AdminChallengesPage() {
   return (
-    <DashboardShell activeHref="/admin/challenges" navItems={navItems}>
+    <DashboardShell activeHref="/admin/system" navItems={adminNavItems}>
       <SectionTitle
         title="Escalated challenges"
         subtitle="Admin override queue for unresolved or escalated student issues."
