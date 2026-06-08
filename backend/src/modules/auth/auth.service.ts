@@ -136,7 +136,6 @@ export class AuthService {
     password: string,
     firstName: string,
     lastName?: string,
-    role: string = "STUDENT",
   ): Promise<{
     user: any;
     accessToken: string;
@@ -175,12 +174,10 @@ export class AuthService {
         throw new BadRequestException("Email already registered");
       }
 
-      // Validate role - only STUDENT and PENDING_TEACHER allowed on registration
-      const validRoles = ["STUDENT", "PENDING_TEACHER"];
-      const assignedRole = validRoles.includes(role) ? role : "STUDENT";
+      const assignedRole = "STUDENT";
 
       this.logger.debug(
-        `🔐 [VERIFY-OTP] Role validation: requested=${role}, assigned=${assignedRole}`,
+        `🔐 [VERIFY-OTP] Role validation: forced assigned=${assignedRole}`,
       );
 
       // Hash password
@@ -216,19 +213,7 @@ export class AuthService {
       });
       this.logger.debug(`✓ [VERIFY-OTP] User stats created`);
 
-      // If teacher application, create the application record
-      if (assignedRole === "PENDING_TEACHER") {
-        this.logger.debug(
-          `📋 [VERIFY-OTP] Creating teacher application for ${user.id}`,
-        );
-        await this.prisma.teacherApplication.create({
-          data: {
-            user_id: user.id,
-            verified_email_at: new Date(),
-          },
-        });
-        this.logger.log(`✓ [VERIFY-OTP] Teacher application created`);
-      }
+      // Teacher applications are now handled strictly by Admin manual assignment.
 
       // Delete OTP record
       this.logger.debug(`🗑️  [VERIFY-OTP] Deleting OTP record for ${email}`);

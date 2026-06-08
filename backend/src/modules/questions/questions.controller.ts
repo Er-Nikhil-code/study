@@ -21,7 +21,7 @@ import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
 import { Roles } from "../common/decorators/roles.decorator";
 
-@Controller("api/admin/questions")
+@Controller("admin/questions")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class QuestionsController {
   constructor(private questionsService: QuestionsService) {}

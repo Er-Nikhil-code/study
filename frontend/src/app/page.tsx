@@ -656,7 +656,6 @@ function RegisterFormEmbedded({
         otp,
         password,
         firstName,
-        role: "STUDENT",
       });
       router.push("/dashboard");
     } catch (error: any) {
