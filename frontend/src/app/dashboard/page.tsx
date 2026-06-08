@@ -19,22 +19,48 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const u = authService.getUser();
-    if (!u) { router.push("/"); return; }
-    setUser(u);
-    setRole((u.role as Role) || "STUDENT");
+    let isMounted = true;
 
-    if (u.role === "ADMIN") {
-      router.push("/admin");
-      return;
-    }
+    const initializeDashboard = async () => {
+      // Synchronous initial check to avoid flash
+      const u = authService.getUser();
+      if (!u) { router.push("/"); return; }
+      setUser(u);
+      setRole((u.role as Role) || "STUDENT");
 
-    // Fetch dashboard data
-    const promises: Promise<any>[] = [studentService.getDashboard().then(setStudentData).catch(() => {})];
-    if (u.role === "TEACHER") {
-      promises.push(studentService.getTeacherDashboard().then(setTeacherData).catch(() => {}));
-    }
-    Promise.all(promises).finally(() => setLoading(false));
+      try {
+        // Refresh token & user state from backend to catch DB-level role changes
+        const res = await authService.me();
+        const latestUser = res.user;
+        if (isMounted) {
+          setUser(latestUser);
+          setRole((latestUser.role as Role) || "STUDENT");
+
+          if (latestUser.role === "ADMIN") {
+            router.push("/admin");
+            return;
+          }
+
+          // Fetch dashboard data
+          const promises: Promise<any>[] = [studentService.getDashboard().then(setStudentData).catch(() => {})];
+          if (latestUser.role === "TEACHER") {
+            promises.push(studentService.getTeacherDashboard().then(setTeacherData).catch(() => {}));
+          }
+          await Promise.all(promises);
+        }
+      } catch (err) {
+        if (isMounted) {
+          authService.logout();
+          router.push("/");
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    initializeDashboard();
+
+    return () => { isMounted = false; };
   }, [router]);
 
   const name = user?.first_name || user?.firstName || user?.email?.split("@")[0] || "User";

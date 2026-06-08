@@ -1,13 +1,17 @@
 import {
   Controller,
+  Get,
   Post,
   Body,
   BadRequestException,
   HttpCode,
   HttpStatus,
   Logger,
+  UseGuards,
+  Req,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
+import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { AuthService } from "./auth.service";
 import {
   RegisterRequest,
@@ -32,6 +36,26 @@ export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
   constructor(private authService: AuthService) {}
+
+  /**
+   * GET /auth/me
+   * Retrieve current user profile and refresh token payload
+   */
+  @Get("me")
+  @UseGuards(JwtAuthGuard)
+  async getMe(@Req() req: any) {
+    try {
+      const result = await this.authService.getMe(req.user.userId);
+      return {
+        user: result.user,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      };
+    } catch (error: any) {
+      this.logger.error(`Get me endpoint error: ${error?.message || "Unknown error"}`);
+      throw error;
+    }
+  }
 
   /**
    * POST /auth/register

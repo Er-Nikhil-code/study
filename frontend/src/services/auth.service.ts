@@ -107,6 +107,16 @@ class AuthService {
     return response.data;
   }
 
+  async me(): Promise<any> {
+    const response = await this.api.get("/auth/me");
+    if (typeof window !== "undefined") {
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+    }
+    return response.data;
+  }
+
   logout(): void {
     if (typeof window !== "undefined") {
       localStorage.removeItem("accessToken");

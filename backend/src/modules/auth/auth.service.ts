@@ -29,6 +29,39 @@ export class AuthService {
   ) {}
 
   /**
+   * Fetch current user and generate fresh tokens
+   */
+  async getMe(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException("User not found");
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>("JWT_SECRET"),
+        expiresIn: "1h",
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
+        expiresIn: "7d",
+      }),
+    ]);
+
+    const { password_hash, ...userWithoutPassword } = user;
+
+    return {
+      user: userWithoutPassword,
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  /**
    * Register user - step 1: create OTP and send email
    */
   async register(

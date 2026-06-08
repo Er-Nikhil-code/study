@@ -383,9 +383,6 @@ export default function HomePage() {
       {/* Right Section - Auth Box */}
       <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-12 py-16 relative z-10">
         <div className="w-full max-w-md p-8 sm:p-10 bg-transparent relative overflow-hidden">
-          {/* Decorative glow inside auth box */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/20 rounded-full blur-3xl"></div>
-          
           {/* Tabs */}
           <div className="flex gap-2 mb-8 bg-black/40 p-1.5 rounded-xl border border-white/5 relative z-10">
             <button
@@ -486,10 +483,6 @@ function LoginFormEmbedded({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-semibold text-white tracking-tight">Welcome back</h2>
-        <p className="text-zinc-400 text-sm mt-1">Enter your details to sign in to your account</p>
-      </div>
 
       {generalError && (
         <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-center gap-2">
@@ -677,14 +670,6 @@ function RegisterFormEmbedded({
       onSubmit={step === 1 ? handleStep1 : handleStep2}
       className="space-y-5"
     >
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-semibold text-white tracking-tight">
-          {step === 1 ? "Create an account" : "Verify your email"}
-        </h2>
-        <p className="text-zinc-400 text-sm mt-1">
-          {step === 1 ? "Enter your details to get started" : `We sent a code to ${email}`}
-        </p>
-      </div>
 
       {generalError && (
         <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-center gap-2">
@@ -891,12 +876,6 @@ function ForgotPasswordFormEmbedded({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-semibold text-white tracking-tight">Reset Password</h2>
-        <p className="text-zinc-400 text-sm mt-2 px-4">
-          Enter your email address and we'll send you a link to reset your password.
-        </p>
-      </div>
 
       {generalError && (
         <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-center gap-2">
