@@ -185,123 +185,125 @@ export default function AdminQuestionsPage() {
         </div>
       )}
 
-      {/* Questions table */}
-      <Panel className="mt-4 overflow-hidden p-0">
-        <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_80px_80px_90px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
-          <div>Title</div>
-          <div>Type</div>
-          <div>Difficulty</div>
-          <div>Marks</div>
-          <div>Topic</div>
-          <div>Actions</div>
-        </div>
-
-        {loading ? (
-          <div className="divide-y divide-white/10">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_80px_80px_90px] gap-3 px-5 py-4"
-              >
-                <div className="h-4 w-48 animate-pulse rounded bg-white/10" />
-                <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
-                <div className="h-4 w-16 animate-pulse rounded bg-white/10" />
-                <div className="h-4 w-10 animate-pulse rounded bg-white/10" />
-                <div className="h-4 w-20 animate-pulse rounded bg-white/10" />
-                <div className="h-4 w-14 animate-pulse rounded bg-white/10" />
-              </div>
-            ))}
+      {/* Questions list */}
+      <Panel className="mt-4 p-0 overflow-x-auto">
+        <div className="min-w-[800px]">
+          <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_80px_80px_90px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+            <div>Title</div>
+            <div>Type</div>
+            <div>Difficulty</div>
+            <div>Marks</div>
+            <div>Topic</div>
+            <div>Actions</div>
           </div>
-        ) : questions.length === 0 ? (
-          <div className="px-5 py-12 text-center text-sm text-zinc-500">
-            No questions found{search ? ` matching "${search}"` : ""}.
-          </div>
-        ) : (
-          <div className="divide-y divide-white/10">
-            {questions.map((q) => {
-              const contentBlocks = Array.isArray((q as any).content_json)
-                ? (q as any).content_json
-                : [];
 
-              return (
-                <div key={q.id}>
-                  <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_80px_80px_90px] gap-3 px-5 py-4 text-sm items-center">
-                    <button
-                      onClick={() =>
-                        setExpandedId(expandedId === q.id ? null : q.id)
-                      }
-                      className="truncate text-white text-left hover:text-red-300 transition cursor-pointer"
-                      title={q.title}
-                    >
-                      {q.title}
-                    </button>
-
-                    <div className="text-xs text-zinc-400">
-                      {typeLabel(q.question_type)}
-                    </div>
-
-                    <div>{difficultyBadge(q.difficulty)}</div>
-
-                    <div className="text-zinc-300 text-xs">
-                      {q.marks}
-                      {q.negative_marks > 0 && (
-                        <span className="text-red-400 ml-1">
-                          -{q.negative_marks}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="truncate text-xs text-zinc-500" title={q.topic?.name}>
-                      {q.topic?.name || "—"}
-                    </div>
-
-                    <div>
-                      {deletingId === q.id ? (
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleDelete(q.id)}
-                            disabled={deleteLoading}
-                            className="rounded-lg bg-red-600 px-2 py-1 text-xs text-white transition hover:bg-red-700 disabled:opacity-50"
-                          >
-                            {deleteLoading ? "…" : "Yes"}
-                          </button>
-                          <button
-                            onClick={() => setDeletingId(null)}
-                            className="rounded-lg border border-white/10 px-2 py-1 text-xs text-zinc-400 transition hover:text-white"
-                          >
-                            No
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setDeletingId(q.id)}
-                          className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs text-red-300 transition hover:bg-red-500/20"
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Expanded content preview with LaTeX rendering */}
-                  {expandedId === q.id && contentBlocks.length > 0 && (
-                    <div className="border-t border-white/5 bg-white/[0.02] px-5 py-4">
-                      <div className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-2">
-                        Content Preview
-                      </div>
-                      <ContentBlockRenderer blocks={contentBlocks} />
-                      {q.topic?.chapter && (
-                        <div className="mt-3 text-xs text-zinc-500">
-                          {q.topic.chapter.subject?.name} → {q.topic.chapter.name} → {q.topic.name}
-                        </div>
-                      )}
-                    </div>
-                  )}
+          {loading ? (
+            <div className="divide-y divide-white/10">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_80px_80px_90px] gap-3 px-5 py-4"
+                >
+                  <div className="h-4 w-48 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-16 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-10 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-20 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-14 animate-pulse rounded bg-white/10" />
                 </div>
-              );
-            })}
-          </div>
-        )}
+              ))}
+            </div>
+          ) : questions.length === 0 ? (
+            <div className="px-5 py-12 text-center text-sm text-zinc-500">
+              No questions found{search ? ` matching "${search}"` : ""}.
+            </div>
+          ) : (
+            <div className="divide-y divide-white/10">
+              {questions.map((q) => {
+                const contentBlocks = Array.isArray((q as any).content_json)
+                  ? (q as any).content_json
+                  : [];
+
+                return (
+                  <div key={q.id}>
+                    <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_80px_80px_90px] gap-3 px-5 py-4 text-sm items-center">
+                      <button
+                        onClick={() =>
+                          setExpandedId(expandedId === q.id ? null : q.id)
+                        }
+                        className="truncate text-white text-left hover:text-red-300 transition cursor-pointer"
+                        title={q.title}
+                      >
+                        {q.title}
+                      </button>
+
+                      <div className="text-xs text-zinc-400">
+                        {typeLabel(q.question_type)}
+                      </div>
+
+                      <div>{difficultyBadge(q.difficulty)}</div>
+
+                      <div className="text-zinc-300 text-xs">
+                        {q.marks}
+                        {q.negative_marks > 0 && (
+                          <span className="text-red-400 ml-1">
+                            -{q.negative_marks}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="truncate text-xs text-zinc-500" title={q.topic?.name}>
+                        {q.topic?.name || "—"}
+                      </div>
+
+                      <div>
+                        {deletingId === q.id ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleDelete(q.id)}
+                              disabled={deleteLoading}
+                              className="rounded-lg bg-red-600 px-2 py-1 text-xs text-white transition hover:bg-red-700 disabled:opacity-50"
+                            >
+                              {deleteLoading ? "…" : "Yes"}
+                            </button>
+                            <button
+                              onClick={() => setDeletingId(null)}
+                              className="rounded-lg border border-white/10 px-2 py-1 text-xs text-zinc-400 transition hover:text-white"
+                            >
+                              No
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setDeletingId(q.id)}
+                            className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs text-red-300 transition hover:bg-red-500/20"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Expanded content preview with LaTeX rendering */}
+                    {expandedId === q.id && contentBlocks.length > 0 && (
+                      <div className="border-t border-white/5 bg-white/[0.02] px-5 py-4">
+                        <div className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-2">
+                          Content Preview
+                        </div>
+                        <ContentBlockRenderer blocks={contentBlocks} />
+                        {q.topic?.chapter && (
+                          <div className="mt-3 text-xs text-zinc-500">
+                            {q.topic.chapter.subject?.name} → {q.topic.chapter.name} → {q.topic.name}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </Panel>
 
       {/* Pagination */}

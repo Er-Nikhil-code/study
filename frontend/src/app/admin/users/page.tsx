@@ -181,8 +181,9 @@ export default function AdminUsersPage() {
       )}
 
       {/* Users table */}
-      <Panel className="mt-4 overflow-hidden p-0">
-        <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_100px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+      <Panel className="mt-4 p-0 overflow-x-auto">
+        <div className="min-w-[800px]">
+          <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_100px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
           <div>Name</div>
           <div>Role</div>
           <div>Email</div>
@@ -303,6 +304,7 @@ export default function AdminUsersPage() {
             ))}
           </div>
         )}
+        </div>
       </Panel>
 
       {/* Pagination */}

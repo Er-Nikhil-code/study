@@ -72,7 +72,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-row items-center justify-center overflow-hidden relative">
+    <div className="min-h-screen bg-[#050505] flex flex-col md:flex-row items-center justify-center overflow-x-hidden overflow-y-auto md:overflow-hidden relative">
       {/* Minimalist Animated Background */}
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none z-20"

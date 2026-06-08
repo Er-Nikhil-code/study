@@ -103,7 +103,7 @@ export default function DashboardPage() {
             {studentData && (
               <>
                 {/* Streak + Rank row */}
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
                   <Panel accent>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Current Streak</div>
                     <div className="mt-2 text-3xl font-semibold text-red-300">{studentData.current_streak}🔥</div>
@@ -124,7 +124,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Activity row */}
-                <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mt-4 grid gap-4 grid-cols-2 lg:grid-cols-4">
                   <Panel>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Tests Taken</div>
                     <div className="mt-2 text-2xl font-semibold text-white">{studentData.total_tests}</div>
@@ -200,7 +200,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Quick links */}
-                <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mt-6 grid gap-3 grid-cols-2 lg:grid-cols-4">
                   <Link href="/tests" className="group rounded-2xl border border-red-500/20 bg-red-500/5 p-4 transition hover:bg-red-500/10">
                     <div className="text-sm font-medium text-red-300">Browse Tests</div>
                     <p className="text-xs text-zinc-500 mt-1">Find and take available tests</p>
@@ -225,7 +225,7 @@ export default function DashboardPage() {
             {role === "TEACHER" && teacherData && (
               <div className="mt-8">
                 <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500 mb-4">Teacher Tools</h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
                   <Panel accent>
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Questions Created</div>
                     <div className="mt-2 text-3xl font-semibold text-white">{teacherData.questions_created}</div>
@@ -243,7 +243,7 @@ export default function DashboardPage() {
                     <div className="mt-2 text-3xl font-semibold text-white">{teacherData.resolved_challenges}</div>
                   </Panel>
                 </div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="mt-4 grid gap-3 grid-cols-1 sm:grid-cols-3">
                   <Link href="/teacher/questions" className="group rounded-2xl border border-red-500/20 bg-red-500/5 p-4 transition hover:bg-red-500/10">
                     <div className="text-sm font-medium text-red-300">Question Bank</div>
                   </Link>
@@ -261,7 +261,7 @@ export default function DashboardPage() {
             {role === "INTERN" && (
               <div className="mt-8">
                 <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500 mb-4">Intern Tools</h2>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="mt-4 grid gap-3 grid-cols-1 sm:grid-cols-3">
                   <Link href="/teacher/questions" className="group rounded-2xl border border-red-500/20 bg-red-500/5 p-4 transition hover:bg-red-500/10">
                     <div className="text-sm font-medium text-red-300">Question Bank</div>
                     <p className="text-xs text-zinc-500 mt-1">Submit new questions for review</p>

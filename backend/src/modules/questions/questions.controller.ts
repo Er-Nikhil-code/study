@@ -42,6 +42,12 @@ export class QuestionsController {
     );
   }
 
+  @Get("topics")
+  @Roles("INTERN", "TEACHER", "ADMIN")
+  async listTopics() {
+    return this.questionsService.findAllTopics();
+  }
+
   @Get()
   @Roles("INTERN", "TEACHER", "ADMIN")
   async listQuestions(

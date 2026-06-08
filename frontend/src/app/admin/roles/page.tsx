@@ -298,47 +298,49 @@ export default function AdminRolesPage() {
 
       {/* List View */}
       {view === "list" && (
-        <Panel className="mt-4 overflow-hidden p-0">
-          <div className="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1.5fr)_80px_80px_100px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
-            <div>Name</div><div>Designation</div><div>Reports To</div><div>Level</div><div>Perms</div><div>Actions</div>
-          </div>
-          {loading ? (
-            <div className="divide-y divide-white/10">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1.5fr)_80px_80px_100px] gap-3 px-5 py-4">
-                  {[...Array(6)].map((__, j) => (
-                    <div key={j} className="h-4 w-16 animate-pulse rounded bg-white/10" />
-                  ))}
-                </div>
-              ))}
+        <Panel className="mt-6 p-0 overflow-x-auto">
+          <div className="min-w-[800px]">
+            <div className="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1.5fr)_80px_80px_100px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+              <div>Name</div><div>Designation</div><div>Reports To</div><div>Level</div><div>Perms</div><div>Actions</div>
             </div>
-          ) : (
-            <div className="divide-y divide-white/10">
-              {roles.map((role) => {
-                const perms = Array.isArray(role.permissions_json) ? role.permissions_json : [];
-                const isSystem = SYSTEM_ROLES.includes(role.name);
-                return (
-                  <div key={role.id} className="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1.5fr)_80px_80px_100px] gap-3 px-5 py-4 text-sm items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-medium">{role.name}</span>
-                      {isSystem && <span className="rounded-full border border-zinc-600/30 bg-zinc-600/10 px-2 py-0.5 text-[10px] text-zinc-400">system</span>}
-                    </div>
-                    <div className="text-xs text-zinc-400">{(role as any).designation || "—"}</div>
-                    <div className="text-xs text-zinc-500">{role.parent?.name || "— (top level)"}</div>
-                    <div className="text-xs text-zinc-500">L{(role as any).level ?? 0}</div>
-                    <div className="text-xs text-zinc-500">{perms.length}</div>
-                    <div className="flex gap-1">
-                      <button onClick={() => openEdit(role)} className="rounded-lg border border-white/10 px-2 py-1 text-xs text-zinc-400 hover:text-white">Edit</button>
-                      {!isSystem && (
-                        <button onClick={() => setDeletingId(role.id)}
-                          className="rounded-lg border border-red-500/20 bg-red-500/10 px-2 py-1 text-xs text-red-300">Del</button>
-                      )}
-                    </div>
+            {loading ? (
+              <div className="divide-y divide-white/10">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1.5fr)_80px_80px_100px] gap-3 px-5 py-4">
+                    {[...Array(6)].map((__, j) => (
+                      <div key={j} className="h-4 w-16 animate-pulse rounded bg-white/10" />
+                    ))}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                ))}
+              </div>
+            ) : (
+              <div className="divide-y divide-white/10">
+                {roles.map((role) => {
+                  const perms = Array.isArray(role.permissions_json) ? role.permissions_json : [];
+                  const isSystem = SYSTEM_ROLES.includes(role.name);
+                  return (
+                    <div key={role.id} className="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1.5fr)_80px_80px_100px] gap-3 px-5 py-4 text-sm items-center">
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-medium">{role.name}</span>
+                        {isSystem && <span className="rounded-full border border-zinc-600/30 bg-zinc-600/10 px-2 py-0.5 text-[10px] text-zinc-400">system</span>}
+                      </div>
+                      <div className="text-xs text-zinc-400">{(role as any).designation || "—"}</div>
+                      <div className="text-xs text-zinc-500">{role.parent?.name || "— (top level)"}</div>
+                      <div className="text-xs text-zinc-500">L{(role as any).level ?? 0}</div>
+                      <div className="text-xs text-zinc-500">{perms.length}</div>
+                      <div className="flex gap-1">
+                        <button onClick={() => openEdit(role)} className="rounded-lg border border-white/10 px-2 py-1 text-xs text-zinc-400 hover:text-white">Edit</button>
+                        {!isSystem && (
+                          <button onClick={() => setDeletingId(role.id)}
+                            className="rounded-lg border border-red-500/20 bg-red-500/10 px-2 py-1 text-xs text-red-300">Del</button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </Panel>
       )}
 

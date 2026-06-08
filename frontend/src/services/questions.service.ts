@@ -13,6 +13,10 @@ export const QuestionsService = {
     return api.post("/admin/questions", data).then((r) => r.data);
   },
 
+  getTopics() {
+    return api.get("/admin/questions/topics").then((r) => r.data);
+  },
+
   update(id: string, data: unknown) {
     return api.patch(`/admin/questions/${id}`, data).then((r) => r.data);
   },

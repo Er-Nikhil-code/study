@@ -18,6 +18,28 @@ export class QuestionsService {
   constructor(private prisma: PrismaService) {}
 
   /**
+   * Fetch all active topics for dropdowns
+   */
+  async findAllTopics() {
+    return this.prisma.topic.findMany({
+      select: {
+        id: true,
+        name: true,
+        chapter: {
+          select: {
+            id: true,
+            name: true,
+            subject: {
+              select: { id: true, name: true }
+            }
+          }
+        }
+      },
+      orderBy: { name: 'asc' }
+    });
+  }
+
+  /**
    * Create a new question
    * Interns: question goes to PENDING_REVIEW
    * Teachers/Admins: question is auto-APPROVED
