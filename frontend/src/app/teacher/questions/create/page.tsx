@@ -8,6 +8,13 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { QuestionsService } from "@/services/questions.service";
 import authService from "@/services/auth.service";
 
+// Sub-components
+import McqForm from "./forms/McqForm";
+import TrueFalseForm from "./forms/TrueFalseForm";
+import FillBlankForm from "./forms/FillBlankForm";
+import MatchingForm from "./forms/MatchingForm";
+import PassageForm from "./forms/PassageForm";
+
 const getNavItems = (role: string) => {
   if (role === "INTERN") {
     return [
@@ -31,21 +38,47 @@ export default function CreateQuestionPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // General Data
   const [formData, setFormData] = useState({
     title: "",
     topic_id: "",
     difficulty: "MEDIUM",
     marks: 4,
     negative_marks: 1,
+    type: "SINGLE_CORRECT",
     content: "",
     solution: "",
+  });
+
+  // Type-specific states
+  const [mcqData, setMcqData] = useState({
     options: [
       { id: "A", text: "" },
       { id: "B", text: "" },
       { id: "C", text: "" },
       { id: "D", text: "" }
     ],
-    correct_option: "A"
+    correct_option: "A",
+    correct_options: ["A"] as string[]
+  });
+
+  const [tfData, setTfData] = useState({
+    answer: true
+  });
+
+  const [fibData, setFibData] = useState({
+    blanks: [{ position: 1, answer: "", case_sensitive: false }]
+  });
+
+  const [matchingData, setMatchingData] = useState({
+    left_column: [{ id: "L1", text: "" }, { id: "L2", text: "" }],
+    right_column: [{ id: "R1", text: "" }, { id: "R2", text: "" }],
+    pairs: [{ left_id: "L1", right_id: "R1" }, { left_id: "L2", right_id: "R2" }]
+  });
+
+  const [passageData, setPassageData] = useState({
+    sub_questions: [] as any[],
+    answers: {} as any
   });
 
   useEffect(() => {
@@ -67,18 +100,47 @@ export default function CreateQuestionPage() {
     setSaving(true);
 
     try {
-      const payload = {
+      const payload: any = {
         title: formData.title,
         topic_id: formData.topic_id,
         difficulty: formData.difficulty,
         marks: Number(formData.marks),
         negative_marks: Number(formData.negative_marks),
-        type: "SINGLE_CORRECT",
+        type: formData.type,
         content_json: [{ type: "TEXT", content: formData.content }],
-        options_json: { options: formData.options },
-        answer_key: { correct_option: formData.correct_option },
         solution_json: formData.solution ? [{ type: "TEXT", content: formData.solution }] : []
       };
+
+      // Construct Payload based on Question Type
+      switch (formData.type) {
+        case "SINGLE_CORRECT":
+          payload.options_json = { options: mcqData.options };
+          payload.answer_key = { correct_option: mcqData.correct_option };
+          break;
+        case "MULTIPLE_CORRECT":
+          payload.options_json = { options: mcqData.options };
+          payload.answer_key = { correct_options: mcqData.correct_options };
+          break;
+        case "TRUE_FALSE":
+          payload.answer_key = { answer: tfData.answer };
+          break;
+        case "FILL_BLANK":
+          payload.answer_key = { blanks: fibData.blanks };
+          break;
+        case "MATCHING":
+          payload.options_json = {
+            left_column: matchingData.left_column,
+            right_column: matchingData.right_column
+          };
+          payload.answer_key = { pairs: matchingData.pairs };
+          break;
+        case "PASSAGE":
+          payload.options_json = { sub_questions: passageData.sub_questions };
+          payload.answer_key = { answers: passageData.answers };
+          break;
+        default:
+          throw new Error("Unsupported question type");
+      }
 
       await QuestionsService.create(payload);
       router.push("/teacher/questions");
@@ -89,25 +151,20 @@ export default function CreateQuestionPage() {
     }
   };
 
-  const updateOption = (index: number, text: string) => {
-    const newOptions = [...formData.options];
-    newOptions[index].text = text;
-    setFormData({ ...formData, options: newOptions });
-  };
-
   return (
     <DashboardShell activeHref="/teacher/questions" navItems={getNavItems(role)}>
       <div className="flex items-center justify-between">
-        <SectionTitle title="Create Question" subtitle="Add a new Single Correct MCQ" />
+        <SectionTitle title="Create Question" subtitle="Add a new question to the bank" />
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-6 max-w-4xl">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-6 max-w-4xl pb-16">
         {error && (
           <div className="rounded-2xl border border-red-600/30 bg-red-600/10 px-4 py-3 text-sm text-red-400">
             {error}
           </div>
         )}
 
+        {/* General Info */}
         <Panel className="space-y-5">
           <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500">General Info</h2>
           
@@ -141,7 +198,22 @@ export default function CreateQuestionPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label className="mb-2 block text-sm text-zinc-300">Question Type</label>
+              <select
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none text-red-300 font-medium"
+              >
+                <option value="SINGLE_CORRECT" className="bg-zinc-900 text-white">Single Correct (MCQ)</option>
+                <option value="MULTIPLE_CORRECT" className="bg-zinc-900 text-white">Multiple Correct (MCQ)</option>
+                <option value="TRUE_FALSE" className="bg-zinc-900 text-white">True / False</option>
+                <option value="FILL_BLANK" className="bg-zinc-900 text-white">Fill in the Blank</option>
+                <option value="MATCHING" className="bg-zinc-900 text-white">Matching</option>
+                <option value="PASSAGE" className="bg-zinc-900 text-white">Passage (Comprehension)</option>
+              </select>
+            </div>
             <div>
               <label className="mb-2 block text-sm text-zinc-300">Difficulty</label>
               <select
@@ -179,47 +251,41 @@ export default function CreateQuestionPage() {
           </div>
         </Panel>
 
+        {/* Content Statement */}
         <Panel className="space-y-5">
-          <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500">Question Content</h2>
+          <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500">
+            {formData.type === "PASSAGE" ? "Main Passage Text" : "Question Statement"}
+          </h2>
           <div>
             <textarea
               required
               rows={4}
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white outline-none focus:border-red-500/30"
-              placeholder="Write the question statement here..."
+              className="w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white outline-none focus:border-red-500/30 font-mono"
+              placeholder={formData.type === "PASSAGE" ? "Write the main passage here..." : "Write the question statement here..."}
             />
           </div>
         </Panel>
 
-        <Panel className="space-y-5">
-          <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500">Options (Single Correct)</h2>
-          <div className="space-y-3">
-            {formData.options.map((opt, i) => (
-              <div key={opt.id} className="flex items-center gap-4">
-                <input
-                  type="radio"
-                  name="correct_option"
-                  value={opt.id}
-                  checked={formData.correct_option === opt.id}
-                  onChange={(e) => setFormData({ ...formData, correct_option: e.target.value })}
-                  className="h-4 w-4 accent-red-500 cursor-pointer"
-                />
-                <span className="text-zinc-400 font-medium w-4">{opt.id}.</span>
-                <input
-                  type="text"
-                  required
-                  value={opt.text}
-                  onChange={(e) => updateOption(i, e.target.value)}
-                  className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm text-white outline-none focus:border-red-500/30"
-                  placeholder={`Option ${opt.id} text`}
-                />
-              </div>
-            ))}
-          </div>
-        </Panel>
+        {/* Dynamic Type-Specific UI */}
+        {(formData.type === "SINGLE_CORRECT" || formData.type === "MULTIPLE_CORRECT") && (
+          <McqForm type={formData.type} data={mcqData} onChange={setMcqData} />
+        )}
+        {formData.type === "TRUE_FALSE" && (
+          <TrueFalseForm data={tfData} onChange={setTfData} />
+        )}
+        {formData.type === "FILL_BLANK" && (
+          <FillBlankForm data={fibData} onChange={setFibData} />
+        )}
+        {formData.type === "MATCHING" && (
+          <MatchingForm data={matchingData} onChange={setMatchingData} />
+        )}
+        {formData.type === "PASSAGE" && (
+          <PassageForm data={passageData} onChange={setPassageData} />
+        )}
 
+        {/* Solution */}
         <Panel className="space-y-5">
           <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500">Solution (Optional)</h2>
           <div>
@@ -233,7 +299,8 @@ export default function CreateQuestionPage() {
           </div>
         </Panel>
 
-        <div className="flex gap-4">
+        {/* Actions */}
+        <div className="flex gap-4 pt-4 border-t border-white/10">
           <button
             type="submit"
             disabled={saving || loading}
