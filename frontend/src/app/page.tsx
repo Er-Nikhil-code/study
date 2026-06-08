@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { authService } from "@/services/auth.service";
+import Logo from "@/components/ui/Logo";
 
 // Main Home Page Component
 export default function HomePage() {
@@ -292,11 +293,7 @@ export default function HomePage() {
       <div className="w-full md:w-1/2 flex flex-col justify-center items-start px-8 md:px-16 py-12 md:py-16 relative z-10">
         {/* Logo Section */}
         <div className="mb-12 md:mb-16">
-          <h1 className="text-6xl md:text-7xl font-bold mb-4 tracking-tight uppercase flex items-center">
-            <span className="text-white">CODI</span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-rose-500 drop-shadow-sm">FY</span>
-          </h1>
-          <div className="h-1.5 w-24 bg-gradient-to-r from-red-500 to-rose-600 rounded-full shadow-[0_0_10px_rgba(220,38,38,0.5)]"></div>
+          <Logo size="xl" />
         </div>
 
         {/* Animated Tagline */}
