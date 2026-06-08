@@ -97,7 +97,9 @@ export default function TeacherQuestionsPage() {
       <div className="mt-6 grid gap-4">
         {loading ? (
           [...Array(3)].map((_, i) => (
-            <Panel key={i} className="p-5 h-32 animate-pulse bg-white/[0.03]" />
+            <Panel key={i} className="p-5 h-32 animate-pulse bg-white/[0.03]">
+              <div />
+            </Panel>
           ))
         ) : questions.length === 0 ? (
           <Panel className="py-12 text-center text-sm text-zinc-500">

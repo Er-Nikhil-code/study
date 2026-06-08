@@ -20,6 +20,8 @@ const ALL_PERMISSIONS = [
 ];
 
 type RoleNode = AdminRole & {
+  designation?: string | null;
+  level?: number;
   parent?: { id: string; name: string; designation?: string } | null;
   children?: RoleNode[];
   user_count?: number;
@@ -435,8 +437,10 @@ export default function AdminRolesPage() {
                 <label className="block text-xs font-medium text-gray-300 mb-1 uppercase tracking-wide">Role</label>
                 <select value={assignRoleName} onChange={(e) => setAssignRoleName(e.target.value)}
                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none focus:border-red-500/30 appearance-none cursor-pointer">
-                  {["STUDENT", "INTERN", "PENDING_TEACHER", "TEACHER", "ADMIN"].map((r) => (
-                    <option key={r} value={r} className="bg-zinc-900">{r}</option>
+                  {roles.map((r) => (
+                    <option key={r.id} value={r.name} className="bg-zinc-900">
+                      {r.name} {r.designation ? `(${r.designation})` : ""}
+                    </option>
                   ))}
                 </select>
               </div>
