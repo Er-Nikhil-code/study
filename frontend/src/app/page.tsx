@@ -45,22 +45,28 @@ export default function HomePage() {
 
   useEffect(() => {
     // Generate embers only on client side to avoid hydration mismatch
-    const generatedEmbers = [...Array(35)].map((_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      delay: (i * 0.3) % 10,
-      duration: 7 + Math.random() * 8,
-      drift: (Math.random() - 0.5) * 250,
-      move1Y: -200 + Math.random() * 100,
-      move1X: (Math.random() - 0.5) * 200,
-      move2Y: -500 + Math.random() * 150,
-      move2X: (Math.random() - 0.5) * 250,
-      move3Y: -800 + Math.random() * 200,
-      move3X: (Math.random() - 0.5) * 300,
-      startY: -50 - Math.random() * 100,
-      endY: -1200 - Math.random() * 400,
-      size: Math.random() * 3 + 1.5, // dynamic sizes
-    }));
+    const generatedEmbers = [...Array(60)].map((_, i) => {
+      // More natural wind drift (most go slightly right or left depending on a primary wind direction)
+      const baseWind = 150; 
+      const randomWind = (Math.random() - 0.5) * 400;
+      
+      return {
+        id: i,
+        left: Math.random() * 100,
+        delay: Math.random() * 15, // more randomized start times
+        duration: 5 + Math.random() * 12, // varying speeds
+        drift: baseWind + randomWind,
+        move1Y: -100 - Math.random() * 200,
+        move1X: (Math.random() - 0.5) * 150 + baseWind * 0.3,
+        move2Y: -300 - Math.random() * 300,
+        move2X: (Math.random() - 0.5) * 250 + baseWind * 0.6,
+        move3Y: -600 - Math.random() * 400,
+        move3X: (Math.random() - 0.5) * 350 + baseWind * 0.8,
+        startY: 50 + Math.random() * 100, // start slightly below screen
+        endY: -1000 - Math.random() * 500,
+        size: Math.random() * 4 + 1, // smaller and larger embers
+      };
+    });
     setEmbers(generatedEmbers);
   }, []);
 
@@ -90,32 +96,36 @@ export default function HomePage() {
           @keyframes ember-roam {
             0% { 
               transform: translateY(var(--startY, 0px)) translateX(0px) scale(1);
-              opacity: 0.8;
+              opacity: 0;
+            }
+            10% {
+              opacity: 0.9;
             }
             25% { 
               transform: translateY(var(--move1Y, -40px)) translateX(var(--move1X, 50px)) scale(0.95);
-              opacity: 0.7;
+              opacity: 0.6;
             }
+            35% { opacity: 1; } /* flicker up */
             50% { 
               transform: translateY(var(--move2Y, -80px)) translateX(var(--move2X, -40px)) scale(1.1);
-              opacity: 0.5;
+              opacity: 0.4;
             }
+            65% { opacity: 0.8; } /* flicker up */
             75% { 
               transform: translateY(var(--move3Y, -120px)) translateX(var(--move3X, 60px)) scale(0.9);
-              opacity: 0.3;
+              opacity: 0.2;
             }
-            95% { 
-              opacity: 0.1;
-            }
+            90% { opacity: 0.5; } /* last flicker */
             100% { 
-              transform: translateY(var(--endY, -150px)) translateX(var(--drift, 0px)) scale(0.5);
+              transform: translateY(var(--endY, -150px)) translateX(var(--drift, 0px)) scale(0.3);
               opacity: 0;
             }
           }
           
           @keyframes ember-glow {
-            0%, 100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.8), 0 0 15px rgba(245, 158, 11, 0.4); }
-            50% { box-shadow: 0 0 8px rgba(251, 191, 36, 1), 0 0 20px rgba(251, 191, 36, 0.6); }
+            0%, 100% { box-shadow: 0 0 4px rgba(245, 158, 11, 0.6), 0 0 10px rgba(245, 158, 11, 0.3); }
+            30% { box-shadow: 0 0 8px rgba(251, 191, 36, 1), 0 0 15px rgba(251, 191, 36, 0.8); }
+            70% { box-shadow: 0 0 3px rgba(249, 115, 22, 0.5), 0 0 8px rgba(249, 115, 22, 0.2); }
           }
           
           .bg-float-1 {
