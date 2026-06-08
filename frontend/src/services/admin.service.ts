@@ -110,6 +110,9 @@ class AdminService {
   async createRole(data: {
     name: string;
     description?: string;
+    designation?: string;
+    level?: number;
+    parent_id?: string | null;
     permissions?: string[];
   }): Promise<AdminRole> {
     const res = await api.post<AdminRole>("/admin/roles", data);
@@ -121,6 +124,9 @@ class AdminService {
     data: {
       name?: string;
       description?: string;
+      designation?: string;
+      level?: number;
+      parent_id?: string | null;
       permissions?: string[];
     },
   ): Promise<AdminRole> {
@@ -130,6 +136,19 @@ class AdminService {
 
   async deleteRole(id: string): Promise<void> {
     await api.delete(`/admin/roles/${id}`);
+  }
+
+  async getRoleHierarchy(): Promise<AdminRole[]> {
+    const res = await api.get<AdminRole[]>("/admin/roles/hierarchy");
+    return res.data;
+  }
+
+  async assignRole(userId: string, roleName: string): Promise<void> {
+    await api.post("/admin/roles/assign", { userId, roleName });
+  }
+
+  async seedRoles(): Promise<void> {
+    await api.post("/admin/roles/seed");
   }
 
   /* ─── Questions ─── */
