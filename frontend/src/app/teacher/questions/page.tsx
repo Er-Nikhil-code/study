@@ -8,12 +8,20 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { QuestionsService } from "@/services/questions.service";
 import authService from "@/services/auth.service";
 
-const navItems = [
-  { label: "Teacher home", href: "/teacher" },
-  { label: "Questions", href: "/teacher/questions" },
-  { label: "Tests", href: "/teacher/tests" },
-  { label: "Challenges", href: "/teacher/challenges" },
-];
+const getNavItems = (role: string) => {
+  if (role === "INTERN") {
+    return [
+      { label: "Intern Dashboard", href: "/dashboard" },
+      { label: "Question Bank", href: "/teacher/questions" },
+    ];
+  }
+  return [
+    { label: "Teacher home", href: "/teacher" },
+    { label: "Questions", href: "/teacher/questions" },
+    { label: "Tests", href: "/teacher/tests" },
+    { label: "Challenges", href: "/teacher/challenges" },
+  ];
+};
 
 export default function TeacherQuestionsPage() {
   const [questions, setQuestions] = useState<any[]>([]);
@@ -68,7 +76,7 @@ export default function TeacherQuestionsPage() {
   };
 
   return (
-    <DashboardShell activeHref="/teacher/questions" navItems={navItems}>
+    <DashboardShell activeHref="/teacher/questions" navItems={getNavItems(userRole)}>
       <SectionTitle
         title="Question Bank"
         subtitle={`${total} question${total !== 1 ? "s" : ""} in your workspace.`}

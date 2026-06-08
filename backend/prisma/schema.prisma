@@ -21,8 +21,11 @@ model User {
   created_at            DateTime     @default(now())
   updated_at            DateTime     @updatedAt
   last_login_at         DateTime?
+  assigned_teacher_id   String?
   
   // Relations
+  assigned_teacher      User?        @relation("intern_teacher", fields: [assigned_teacher_id], references: [id])
+  interns               User[]       @relation("intern_teacher")
   teacher_applications  TeacherApplication[]
   attempts              Attempt[]
   challenges_created    Challenge[]      @relation("challenges_created")

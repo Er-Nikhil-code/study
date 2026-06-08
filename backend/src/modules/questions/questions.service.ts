@@ -91,10 +91,31 @@ export class QuestionsService {
     });
   }
 
-  async listPendingReview(skip = 0, take = 20) {
+  async listPendingReview(userId: string, userRole: string, skip = 0, take = 20) {
+    let creatorIds: string[] | undefined = undefined;
+
+    // If teacher, only show questions from their assigned interns
+    if (userRole === "TEACHER") {
+      const interns = await this.prisma.user.findMany({
+        where: { assigned_teacher_id: userId },
+        select: { id: true },
+      });
+      creatorIds = interns.map((i) => i.id);
+      
+      // If teacher has no interns, they have no pending questions
+      if (creatorIds.length === 0) {
+        return { data: [], total: 0, skip, take };
+      }
+    }
+
+    const whereClause: any = { approval_status: "PENDING_REVIEW" };
+    if (creatorIds) {
+      whereClause.created_by = { in: creatorIds };
+    }
+
     const [questions, total] = await Promise.all([
       this.prisma.question.findMany({
-        where: { approval_status: "PENDING_REVIEW" },
+        where: whereClause,
         skip,
         take,
         orderBy: { created_at: "desc" },
@@ -103,7 +124,7 @@ export class QuestionsService {
         },
       }),
       this.prisma.question.count({
-        where: { approval_status: "PENDING_REVIEW" },
+        where: whereClause,
       }),
     ]);
     return { data: questions, total, skip, take };

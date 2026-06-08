@@ -21,6 +21,7 @@ export interface AdminUser {
   email_verified_at: string | null;
   created_at: string;
   last_login_at: string | null;
+  assigned_teacher_id?: string | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -84,7 +85,7 @@ class AdminService {
 
   async updateUser(
     id: string,
-    data: { role?: string; first_name?: string; last_name?: string },
+    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null },
   ): Promise<AdminUser> {
     const res = await api.patch<AdminUser>(`/admin/users/${id}`, data);
     return res.data;

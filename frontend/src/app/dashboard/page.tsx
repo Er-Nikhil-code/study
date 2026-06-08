@@ -7,7 +7,7 @@ import authService from "@/services/auth.service";
 import studentService, { type StudentDashboard, type TeacherDashboard } from "@/services/student.service";
 import Panel from "@/components/ui/Panel";
 
-type Role = "STUDENT" | "PENDING_TEACHER" | "TEACHER" | "ADMIN";
+type Role = "STUDENT" | "INTERN" | "PENDING_TEACHER" | "TEACHER" | "ADMIN";
 type UserShape = { id?: string; email?: string; first_name?: string; firstName?: string; last_name?: string; lastName?: string; role?: Role };
 
 export default function DashboardPage() {
@@ -252,6 +252,19 @@ export default function DashboardPage() {
                   </Link>
                   <Link href="/teacher/challenges" className="group rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition hover:bg-white/[0.06]">
                     <div className="text-sm font-medium text-white">Challenges</div>
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* ═══ INTERN SECTION ═══ */}
+            {role === "INTERN" && (
+              <div className="mt-8">
+                <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500 mb-4">Intern Tools</h2>
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  <Link href="/teacher/questions" className="group rounded-2xl border border-red-500/20 bg-red-500/5 p-4 transition hover:bg-red-500/10">
+                    <div className="text-sm font-medium text-red-300">Question Bank</div>
+                    <p className="text-xs text-zinc-500 mt-1">Submit new questions for review</p>
                   </Link>
                 </div>
               </div>

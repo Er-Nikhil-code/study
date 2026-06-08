@@ -154,10 +154,13 @@ export class QuestionsController {
   @Get("review/pending")
   @Roles("TEACHER", "ADMIN")
   async listPendingReview(
+    @Req() req: any,
     @Query("skip") skip?: string,
     @Query("take") take?: string,
   ) {
     return this.questionsService.listPendingReview(
+      req.user.sub,
+      req.user.role,
       skip ? parseInt(skip, 10) : 0,
       take ? parseInt(take, 10) : 20,
     );

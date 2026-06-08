@@ -23,6 +23,7 @@ export default function AdminUsersPage() {
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRole, setEditRole] = useState("");
+  const [teachers, setTeachers] = useState<AdminUser[]>([]);
 
   // Delete confirmation
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -47,9 +48,19 @@ export default function AdminUsersPage() {
     }
   }, [search, roleFilter, page]);
 
+  const fetchTeachers = useCallback(async () => {
+    try {
+      const res = await adminService.getUsers({ role: "TEACHER", take: 100 });
+      setTeachers(res.data);
+    } catch (err) {
+      console.error("Failed to load teachers", err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchUsers();
-  }, [fetchUsers]);
+    fetchTeachers();
+  }, [fetchUsers, fetchTeachers]);
 
   // Debounced search
   const [searchInput, setSearchInput] = useState("");
@@ -68,6 +79,15 @@ export default function AdminUsersPage() {
       fetchUsers();
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to update role");
+    }
+  };
+
+  const handleTeacherAssign = async (userId: string, teacherId: string) => {
+    try {
+      await adminService.updateUser(userId, { assigned_teacher_id: teacherId || null });
+      fetchUsers();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to assign teacher");
     }
   };
 
@@ -201,7 +221,7 @@ export default function AdminUsersPage() {
                 </div>
 
                 {/* Role — editable */}
-                <div>
+                <div className="flex flex-col gap-2 items-start">
                   {editingId === user.id ? (
                     <select
                       value={editRole}
@@ -229,6 +249,20 @@ export default function AdminUsersPage() {
                     >
                       {roleBadge(user.role)}
                     </button>
+                  )}
+                  {user.role === "INTERN" && (
+                    <select
+                      className="mt-1 rounded-md border border-white/10 bg-zinc-800 px-2 py-1 text-[10px] text-zinc-300 outline-none w-full max-w-[120px]"
+                      value={user.assigned_teacher_id || ""}
+                      onChange={(e) => handleTeacherAssign(user.id, e.target.value)}
+                    >
+                      <option value="">No Teacher Assigned</option>
+                      {teachers.map(t => (
+                        <option key={t.id} value={t.id}>
+                          {t.first_name} {t.last_name}
+                        </option>
+                      ))}
+                    </select>
                   )}
                 </div>
 
