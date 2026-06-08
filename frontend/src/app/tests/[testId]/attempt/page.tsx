@@ -1,147 +1,404 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Navbar from "@/components/layout/Navbar";
-import Panel from "@/components/ui/Panel";
-import QuestionPalette from "@/components/tests/QuestionPalette";
-import TestTimer from "@/components/tests/TestTimer";
-import SectionTitle from "@/components/ui/SectionTitle";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import studentService, {
+  type AttemptQuestion,
+  type SavedResponse,
+} from "@/services/student.service";
+import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 
-const questions = [
-  {
-    text: "What is 2 + 2?",
-    options: ["1", "2", "4", "5"],
-    answer: 2,
-  },
-  {
-    text: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Mars", "Jupiter", "Saturn"],
-    answer: 1,
-  },
-  {
-    text: "The formula for area of a circle is?",
-    options: ["πr²", "2πr", "πd", "r²"],
-    answer: 0,
-  },
-];
+/* ─── Helper: format seconds to MM:SS ─── */
+function formatTime(sec: number) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+}
+
+/* ─── Question status for palette ─── */
+type QStatus = "unanswered" | "answered" | "review" | "review-answered";
+
+function getStatus(
+  q: AttemptQuestion,
+  answers: Record<string, any>,
+  reviews: Set<string>,
+): QStatus {
+  const hasAnswer = !!answers[q.id];
+  const isReview = reviews.has(q.id);
+  if (hasAnswer && isReview) return "review-answered";
+  if (isReview) return "review";
+  if (hasAnswer) return "answered";
+  return "unanswered";
+}
+
+const statusColors: Record<QStatus, string> = {
+  unanswered: "border-zinc-600 bg-zinc-800 text-zinc-400",
+  answered: "border-emerald-500/40 bg-emerald-500/20 text-emerald-200",
+  review: "border-purple-500/40 bg-purple-500/20 text-purple-200",
+  "review-answered":
+    "border-purple-500/40 bg-purple-500/20 text-purple-200 ring-2 ring-emerald-400/50",
+};
 
 export default function AttemptPage() {
-  const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, number | null>>({});
-  const [submitted, setSubmitted] = useState(false);
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const testId = params.testId as string;
 
-  const palette = useMemo(
-    () =>
-      questions.map((_, index) => ({
-        index,
-        answered: answers[index] !== undefined && answers[index] !== null,
-        current: current === index,
-      })),
-    [answers, current],
+  /* ─── State ─── */
+  const [loading, setLoading] = useState(true);
+  const [attemptId, setAttemptId] = useState<string>("");
+  const [questions, setQuestions] = useState<AttemptQuestion[]>([]);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [reviews, setReviews] = useState<Set<string>>(new Set());
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [showPalette, setShowPalette] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSubmitRef = useRef(false);
+
+  /* ─── Load attempt ─── */
+  useEffect(() => {
+    async function init() {
+      try {
+        const result = await studentService.startAttempt(testId);
+        setAttemptId(result.attempt.id);
+        setQuestions(result.questions);
+        setTimeLeft(result.duration_minutes * 60);
+
+        // Restore saved responses
+        const restored: Record<string, any> = {};
+        const restoredReviews = new Set<string>();
+        for (const r of result.responses) {
+          restored[r.question_id] = r.answer_json;
+          if (r.marked_for_review) restoredReviews.add(r.question_id);
+        }
+        setAnswers(restored);
+        setReviews(restoredReviews);
+
+        if (result.resumed) {
+          const elapsed = Math.floor(
+            (Date.now() - new Date(result.attempt.started_at).getTime()) / 1000,
+          );
+          const remaining = Math.max(0, result.duration_minutes * 60 - elapsed);
+          setTimeLeft(remaining);
+        }
+      } catch (err: any) {
+        setError(err?.response?.data?.message || "Failed to load test.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    init();
+  }, [testId]);
+
+  /* ─── Timer ─── */
+  useEffect(() => {
+    if (loading) return;
+    if (timeLeft <= 0 && !autoSubmitRef.current) {
+      autoSubmitRef.current = true;
+      handleSubmit();
+      return;
+    }
+    timerRef.current = setInterval(() => {
+      setTimeLeft((t) => {
+        if (t <= 1) {
+          clearInterval(timerRef.current!);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [loading, timeLeft === 0]);
+
+  const q = questions[currentIdx];
+
+  /* ─── Save answer to backend ─── */
+  const saveToBackend = useCallback(
+    async (questionId: string, answerJson: any) => {
+      if (!attemptId) return;
+      const question = questions.find((qq) => qq.id === questionId);
+      if (!question) return;
+      setSaving(true);
+      try {
+        await studentService.saveAnswer(testId, attemptId, {
+          test_question_id: question.test_question_id,
+          question_id: questionId,
+          topic_id: question.topic_id,
+          answer_json: answerJson,
+          marked_for_review: reviews.has(questionId),
+        });
+      } catch { /* offline resilient */ }
+      finally { setSaving(false); }
+    },
+    [attemptId, testId, questions, reviews],
   );
 
-  const score = questions.reduce(
-    (acc, q, index) => acc + (answers[index] === q.answer ? 1 : 0),
-    0,
-  );
+  const setAnswer = (answer: any) => {
+    if (!q) return;
+    setAnswers((prev) => ({ ...prev, [q.id]: answer }));
+    saveToBackend(q.id, answer);
+  };
+
+  const clearAnswer = () => {
+    if (!q) return;
+    setAnswers((prev) => { const next = { ...prev }; delete next[q.id]; return next; });
+    saveToBackend(q.id, null);
+  };
+
+  const toggleReview = () => {
+    if (!q) return;
+    setReviews((prev) => {
+      const next = new Set(prev);
+      if (next.has(q.id)) next.delete(q.id); else next.add(q.id);
+      return next;
+    });
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setShowSubmitModal(false);
+    try {
+      await studentService.submitAttempt(testId, attemptId);
+      if (timerRef.current) clearInterval(timerRef.current);
+      router.push(`/results/${attemptId}?testId=${testId}`);
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to submit");
+      setSubmitting(false);
+    }
+  };
+
+  const answeredCount = Object.keys(answers).length;
+  const reviewCount = reviews.size;
+  const unansweredCount = questions.length - answeredCount;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-red-500 border-t-transparent mx-auto" />
+          <p className="mt-4 text-zinc-400 text-sm">Loading test…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <p className="text-red-400">{error}</p>
+          <a href="/tests" className="mt-4 inline-block text-zinc-400 hover:text-white">← Back to tests</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(239,68,68,0.10),_transparent_30%),linear-gradient(to_bottom,_#000,_#090909_50%,_#000)]">
-      <Navbar />
-      <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:px-8">
-        <div className="space-y-6">
-          <SectionTitle
-            title="Timed attempt"
-            subtitle="Local state only for now. This page is already structured for your future payload API."
-          />
-
-          <Panel accent>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-red-300/70">
-                  Question {current + 1} of {questions.length}
-                </div>
-                <h2 className="mt-2 text-xl font-semibold text-white">
-                  {questions[current].text}
-                </h2>
-              </div>
-              <TestTimer durationMinutes={90} />
-            </div>
-
-            <div className="mt-6 grid gap-3">
-              {questions[current].options.map((option, idx) => {
-                const selected = answers[current] === idx;
-                return (
-                  <button
-                    key={option}
-                    onClick={() =>
-                      setAnswers((prev) => ({ ...prev, [current]: idx }))
-                    }
-                    className={[
-                      "rounded-2xl border px-4 py-3 text-left text-sm transition",
-                      selected
-                        ? "border-red-500/40 bg-red-500/10 text-red-100"
-                        : "border-white/10 bg-white/[0.03] text-zinc-200 hover:bg-white/[0.05]",
-                    ].join(" ")}
-                  >
-                    <span className="mr-3 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-black/50 text-xs text-zinc-300">
-                      {String.fromCharCode(65 + idx)}
-                    </span>
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                onClick={() => setCurrent((v) => Math.max(0, v - 1))}
-                className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() =>
-                  setCurrent((v) => Math.min(questions.length - 1, v + 1))
-                }
-                className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]"
-              >
-                Next
-              </button>
-              <button
-                onClick={() => setSubmitted(true)}
-                className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/15"
-              >
-                Submit
-              </button>
-            </div>
-          </Panel>
-
-          {submitted ? (
-            <Panel>
-              <div className="text-sm text-zinc-400">Submitted</div>
-              <div className="mt-2 text-2xl font-semibold text-white">
-                Score: {score}/{questions.length}
-              </div>
-              <p className="mt-2 text-sm text-zinc-400">
-                This placeholder score view is safe to replace later with the
-                live attempt result response.
-              </p>
-            </Panel>
-          ) : null}
+    <div className="min-h-screen bg-black text-white flex flex-col">
+      {/* HEADER */}
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-black/90 backdrop-blur-lg px-4 py-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium text-zinc-400">Q {currentIdx + 1}/{questions.length}</span>
+            {saving && (
+              <span className="flex items-center gap-1 text-xs text-zinc-500">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />Saving
+              </span>
+            )}
+          </div>
+          <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
+            timeLeft < 300 ? "bg-red-600/20 text-red-300 animate-pulse"
+              : timeLeft < 600 ? "bg-amber-500/15 text-amber-300"
+              : "bg-white/[0.05] text-white"
+          }`}>{formatTime(timeLeft)}</div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setShowPalette(!showPalette)} className="lg:hidden rounded-lg border border-white/10 bg-white/[0.03] p-2 text-sm">☰</button>
+            <button onClick={() => setShowSubmitModal(true)} disabled={submitting}
+              className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
+              {submitting ? "Submitting…" : "Submit Test"}
+            </button>
+          </div>
         </div>
+      </header>
 
-        <div className="space-y-4">
-          <QuestionPalette items={palette} onSelect={setCurrent} />
-          <Panel>
-            <div className="text-sm font-medium text-white">Actions</div>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">
-              Keyboard shortcuts and autosave can be added later without
-              changing this page structure.
-            </p>
-          </Panel>
+      <div className="flex flex-1 overflow-hidden">
+        {/* MAIN QUESTION */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          {q && (
+            <div className="mx-auto max-w-3xl">
+              <div className="flex items-start justify-between gap-4">
+                <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-zinc-400">
+                  {q.question_type.replace(/_/g, " ")} · {q.difficulty} · {q.marks} mark{q.marks !== 1 ? "s" : ""}
+                  {q.negative_marks > 0 && <span className="text-red-400 ml-1">(−{q.negative_marks})</span>}
+                </span>
+              </div>
+              <div className="mt-4">
+                <h2 className="text-lg font-medium text-white mb-3">{q.title}</h2>
+                <ContentBlockRenderer blocks={q.content_json || []} />
+              </div>
+              <div className="mt-6">{renderAnswerInput(q, answers[q.id], setAnswer)}</div>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <button onClick={clearAnswer} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-300 transition hover:bg-white/[0.06]">Clear Response</button>
+                <button onClick={toggleReview}
+                  className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${reviews.has(q.id)
+                    ? "border-purple-500/40 bg-purple-500/20 text-purple-200"
+                    : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+                  }`}>
+                  {reviews.has(q.id) ? "✓ Marked for Review" : "Mark for Review"}
+                </button>
+                <div className="flex-1" />
+                <button onClick={() => setCurrentIdx((i) => Math.max(0, i - 1))} disabled={currentIdx === 0}
+                  className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-2 text-sm text-zinc-300 transition hover:bg-white/[0.06] disabled:opacity-30">← Previous</button>
+                <button onClick={() => setCurrentIdx((i) => Math.min(questions.length - 1, i + 1))} disabled={currentIdx === questions.length - 1}
+                  className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-200 transition hover:bg-emerald-500/15 disabled:opacity-30">Save & Next →</button>
+              </div>
+            </div>
+          )}
+        </main>
+
+        {/* SIDEBAR PALETTE */}
+        <aside className={`${showPalette ? "block" : "hidden"} lg:block w-72 border-l border-white/10 bg-black/50 p-4 overflow-y-auto`}>
+          <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Question Palette</h3>
+          <div className="grid grid-cols-2 gap-2 mb-4 text-[10px]">
+            {([["unanswered","Not Answered"],["answered","Answered"],["review","For Review"],["review-answered","Review + Answered"]] as [QStatus,string][]).map(([status, label]) => (
+              <div key={status} className="flex items-center gap-1.5">
+                <span className={`h-4 w-4 rounded border ${statusColors[status]}`} />
+                <span className="text-zinc-500">{label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-5 gap-2">
+            {questions.map((qq, idx) => {
+              const status = getStatus(qq, answers, reviews);
+              return (
+                <button key={qq.id} onClick={() => { setCurrentIdx(idx); setShowPalette(false); }}
+                  className={`h-10 w-10 rounded-lg border text-xs font-medium transition ${statusColors[status]} ${idx === currentIdx ? "ring-2 ring-red-500" : "hover:opacity-80"}`}>
+                  {idx + 1}
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-6 space-y-2 text-xs text-zinc-400">
+            <div className="flex justify-between"><span>Answered</span><span className="text-emerald-300">{answeredCount}</span></div>
+            <div className="flex justify-between"><span>Unanswered</span><span className="text-zinc-300">{unansweredCount}</span></div>
+            <div className="flex justify-between"><span>For Review</span><span className="text-purple-300">{reviewCount}</span></div>
+          </div>
+        </aside>
+      </div>
+
+      {/* SUBMIT MODAL */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white">Submit Test?</h3>
+            <p className="mt-2 text-sm text-zinc-400">This action cannot be undone.</p>
+            <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+              <div className="rounded-xl bg-emerald-500/10 p-3">
+                <div className="text-lg font-bold text-emerald-300">{answeredCount}</div>
+                <div className="text-[10px] text-zinc-500">Answered</div>
+              </div>
+              <div className="rounded-xl bg-zinc-800 p-3">
+                <div className="text-lg font-bold text-zinc-300">{unansweredCount}</div>
+                <div className="text-[10px] text-zinc-500">Unanswered</div>
+              </div>
+              <div className="rounded-xl bg-purple-500/10 p-3">
+                <div className="text-lg font-bold text-purple-300">{reviewCount}</div>
+                <div className="text-[10px] text-zinc-500">For Review</div>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button onClick={() => setShowSubmitModal(false)} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-400 transition hover:text-white">Cancel</button>
+              <button onClick={handleSubmit} className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700">Submit Now</button>
+            </div>
+          </div>
         </div>
-      </main>
+      )}
     </div>
   );
+}
+
+/* ═════════════════════════════════════════════ */
+function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a: any) => void) {
+  const options = (q.options_json as any)?.options || [];
+
+  switch (q.question_type) {
+    case "SINGLE_CORRECT":
+      return (
+        <div className="space-y-3">
+          {options.map((opt: any) => (
+            <button key={opt.id} onClick={() => setAnswer({ selected_option: opt.id })}
+              className={`w-full text-left rounded-xl border p-4 text-sm transition ${
+                currentAnswer?.selected_option === opt.id
+                  ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-100"
+                  : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+              }`}>
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-current text-xs mr-3">{opt.id}</span>
+              {opt.text}
+            </button>
+          ))}
+        </div>
+      );
+    case "MULTIPLE_CORRECT":
+      return (
+        <div className="space-y-3">
+          {options.map((opt: any) => {
+            const selected = currentAnswer?.selected_options || [];
+            const isSelected = selected.includes(opt.id);
+            return (
+              <button key={opt.id} onClick={() => {
+                const next = isSelected ? selected.filter((s: string) => s !== opt.id) : [...selected, opt.id];
+                setAnswer({ selected_options: next });
+              }}
+                className={`w-full text-left rounded-xl border p-4 text-sm transition ${
+                  isSelected ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-100"
+                    : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+                }`}>
+                <span className={`inline-flex h-6 w-6 items-center justify-center rounded mr-3 border text-xs ${
+                  isSelected ? "border-emerald-400 bg-emerald-500/30" : "border-current"
+                }`}>{isSelected ? "✓" : opt.id}</span>
+                {opt.text}
+              </button>
+            );
+          })}
+          <p className="text-xs text-zinc-500">Select all that apply</p>
+        </div>
+      );
+    case "TRUE_FALSE":
+      return (
+        <div className="flex gap-4">
+          {["True", "False"].map((val) => (
+            <button key={val} onClick={() => setAnswer({ answer: val === "True" })}
+              className={`flex-1 rounded-xl border p-4 text-center text-sm font-medium transition ${
+                currentAnswer?.answer === (val === "True")
+                  ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-100"
+                  : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+              }`}>{val}</button>
+          ))}
+        </div>
+      );
+    case "FILL_BLANK":
+      return (
+        <input type="text" value={currentAnswer?.blanks?.[0] || ""} onChange={(e) => setAnswer({ blanks: { 0: e.target.value } })}
+          placeholder="Type your answer…"
+          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30" />
+      );
+    case "NUMERICAL":
+      return (
+        <input type="number" step="any" value={currentAnswer?.value ?? ""} onChange={(e) => setAnswer({ value: e.target.value })}
+          placeholder="Enter numerical answer…"
+          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30" />
+      );
+    default:
+      return (
+        <textarea value={currentAnswer?.text || ""} onChange={(e) => setAnswer({ text: e.target.value })}
+          placeholder="Enter your answer…"
+          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30 min-h-[120px]" />
+      );
+  }
 }

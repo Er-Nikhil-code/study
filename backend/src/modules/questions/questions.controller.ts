@@ -27,23 +27,23 @@ export class QuestionsController {
   constructor(private questionsService: QuestionsService) {}
 
   @Post()
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   @HttpCode(HttpStatus.CREATED)
   async createQuestion(@Body() body: any, @Req() req: any) {
     const parsed = CreateQuestionRequestSchema.parse(body);
-    // Map 'type' field to what service expects
     const dataForService = {
       ...parsed,
       question_type: parsed.type,
     };
     return this.questionsService.createQuestion(
-      req.user.id,
+      req.user.id || req.user.sub,
       dataForService as any,
+      req.user.role,
     );
   }
 
   @Get()
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   async listQuestions(
     @Query("topic_id") topicId?: string,
     @Query("type") type?: string,
@@ -140,5 +140,44 @@ export class QuestionsController {
       id,
       parseInt(version, 10),
     );
+  }
+
+  /* ── Approval workflow ── */
+
+  @Post(":id/submit-for-review")
+  @Roles("INTERN")
+  @HttpCode(HttpStatus.OK)
+  async submitForReview(@Param("id") id: string, @Req() req: any) {
+    return this.questionsService.submitForReview(id, req.user.id || req.user.sub);
+  }
+
+  @Get("review/pending")
+  @Roles("TEACHER", "ADMIN")
+  async listPendingReview(
+    @Query("skip") skip?: string,
+    @Query("take") take?: string,
+  ) {
+    return this.questionsService.listPendingReview(
+      skip ? parseInt(skip, 10) : 0,
+      take ? parseInt(take, 10) : 20,
+    );
+  }
+
+  @Post(":id/approve")
+  @Roles("TEACHER", "ADMIN")
+  @HttpCode(HttpStatus.OK)
+  async approveQuestion(@Param("id") id: string, @Req() req: any) {
+    return this.questionsService.approveQuestion(id, req.user.id || req.user.sub);
+  }
+
+  @Post(":id/reject")
+  @Roles("TEACHER", "ADMIN")
+  @HttpCode(HttpStatus.OK)
+  async rejectQuestion(
+    @Param("id") id: string,
+    @Body() body: { note: string },
+    @Req() req: any,
+  ) {
+    return this.questionsService.rejectQuestion(id, req.user.id || req.user.sub, body.note);
   }
 }

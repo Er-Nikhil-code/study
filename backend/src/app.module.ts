@@ -9,6 +9,9 @@ import { RolesModule } from "./modules/roles/roles.module";
 import { QuestionsModule } from "./modules/questions/questions.module";
 import { AdminModule } from "./modules/admin/admin.module";
 import { HealthModule } from "./modules/health/health.module";
+import { TestsModule } from "./modules/tests/tests.module";
+import { StudentModule } from "./modules/student/student.module";
+import { ChallengesModule } from "./modules/challenges/challenges.module";
 import { CleanupService } from "./jobs/cleanup.service";
 import { KeepAliveService } from "./jobs/keep-alive.service";
 
@@ -52,6 +55,9 @@ import { KeepAliveService } from "./jobs/keep-alive.service";
     QuestionsModule,
     AdminModule,
     HealthModule,
+    TestsModule,
+    StudentModule,
+    ChallengesModule,
   ],
   providers: [CleanupService, KeepAliveService],
 })

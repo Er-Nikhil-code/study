@@ -25,6 +25,7 @@ export default function HomePage() {
       move3X: number;
       startY: number;
       endY: number;
+      size: number;
     }>
   >([]);
 
@@ -32,6 +33,7 @@ export default function HomePage() {
     "Master Your Learning",
     "Teach with Confidence",
     "Build Your Future",
+    "Ignite Your Potential",
   ];
 
   useEffect(() => {
@@ -43,26 +45,27 @@ export default function HomePage() {
 
   useEffect(() => {
     // Generate embers only on client side to avoid hydration mismatch
-    const generatedEmbers = [...Array(25)].map((_, i) => ({
+    const generatedEmbers = [...Array(35)].map((_, i) => ({
       id: i,
       left: Math.random() * 100,
-      delay: (i * 0.4) % 10,
-      duration: 8 + Math.random() * 6,
-      drift: (Math.random() - 0.5) * 200,
+      delay: (i * 0.3) % 10,
+      duration: 7 + Math.random() * 8,
+      drift: (Math.random() - 0.5) * 250,
       move1Y: -200 + Math.random() * 100,
-      move1X: (Math.random() - 0.5) * 150,
+      move1X: (Math.random() - 0.5) * 200,
       move2Y: -500 + Math.random() * 150,
-      move2X: (Math.random() - 0.5) * 200,
+      move2X: (Math.random() - 0.5) * 250,
       move3Y: -800 + Math.random() * 200,
-      move3X: (Math.random() - 0.5) * 250,
-      startY: -100 - Math.random() * 50,
-      endY: -1200 - Math.random() * 300,
+      move3X: (Math.random() - 0.5) * 300,
+      startY: -50 - Math.random() * 100,
+      endY: -1200 - Math.random() * 400,
+      size: Math.random() * 3 + 1.5, // dynamic sizes
     }));
     setEmbers(generatedEmbers);
   }, []);
 
   return (
-    <div className="min-h-screen bg-black flex flex-row items-center justify-center overflow-hidden relative">
+    <div className="min-h-screen bg-[#050505] flex flex-row items-center justify-center overflow-hidden relative">
       {/* Minimalist Animated Background */}
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none z-20"
@@ -70,52 +73,36 @@ export default function HomePage() {
       >
         <style>{`
           @keyframes float-shape-1 {
-            0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.15; }
-            50% { transform: translateY(-30px) translateX(20px); opacity: 0.08; }
+            0%, 100% { transform: translateY(0px) translateX(0px) scale(1); opacity: 0.12; }
+            50% { transform: translateY(-40px) translateX(30px) scale(1.05); opacity: 0.08; }
           }
           
           @keyframes float-shape-2 {
-            0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.1; }
-            50% { transform: translateY(40px) translateX(-20px); opacity: 0.05; }
-          }
-          
-          @keyframes gradient-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0%, 100% { transform: translateY(0px) translateX(0px) scale(1); opacity: 0.1; }
+            50% { transform: translateY(50px) translateX(-30px) scale(0.95); opacity: 0.05; }
           }
           
           @keyframes pulse-subtle {
-            0%, 100% { opacity: 0.08; }
-            50% { opacity: 0.15; }
-          }
-          
-          @keyframes ember-float {
-            0% { transform: translateY(0px) translateX(0px); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.3; }
-            100% { transform: translateY(-150px) translateX(var(--drift, 0px)); opacity: 0; }
+            0%, 100% { opacity: 0.05; }
+            50% { opacity: 0.12; }
           }
           
           @keyframes ember-roam {
             0% { 
               transform: translateY(var(--startY, 0px)) translateX(0px) scale(1);
-              opacity: 0.6;
-            }
-            2% { 
-              opacity: 0.7;
+              opacity: 0.8;
             }
             25% { 
               transform: translateY(var(--move1Y, -40px)) translateX(var(--move1X, 50px)) scale(0.95);
-              opacity: 0.6;
+              opacity: 0.7;
             }
             50% { 
-              transform: translateY(var(--move2Y, -80px)) translateX(var(--move2X, -40px)) scale(1);
+              transform: translateY(var(--move2Y, -80px)) translateX(var(--move2X, -40px)) scale(1.1);
               opacity: 0.5;
             }
             75% { 
               transform: translateY(var(--move3Y, -120px)) translateX(var(--move3X, 60px)) scale(0.9);
-              opacity: 0.4;
+              opacity: 0.3;
             }
             95% { 
               opacity: 0.1;
@@ -127,75 +114,58 @@ export default function HomePage() {
           }
           
           @keyframes ember-glow {
-            0%, 100% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.8), 0 0 12px rgba(220, 38, 38, 0.4); }
-            50% { box-shadow: 0 0 6px rgba(220, 38, 38, 1), 0 0 16px rgba(220, 38, 38, 0.6); }
+            0%, 100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.8), 0 0 15px rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 8px rgba(251, 191, 36, 1), 0 0 20px rgba(251, 191, 36, 0.6); }
           }
           
           .bg-float-1 {
             position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(220, 38, 38, 0.4) 0%, transparent 70%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
             border-radius: 50%;
             filter: blur(80px);
-            animation: float-shape-1 8s ease-in-out infinite;
-            top: -100px;
+            animation: float-shape-1 12s ease-in-out infinite;
+            top: -150px;
             right: -100px;
           }
           
           .bg-float-2 {
             position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(220, 38, 38, 0.3) 0%, transparent 70%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(217, 119, 6, 0.25) 0%, transparent 70%);
             border-radius: 50%;
             filter: blur(100px);
-            animation: float-shape-2 10s ease-in-out infinite;
-            bottom: -150px;
+            animation: float-shape-2 15s ease-in-out infinite;
+            bottom: -200px;
             left: -150px;
           }
           
           .bg-pulse {
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(220, 38, 38, 0.03) 0%, transparent 50%, rgba(220, 38, 38, 0.02) 100%);
-            animation: pulse-subtle 4s ease-in-out infinite;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, transparent 50%, rgba(217, 119, 6, 0.03) 100%);
+            animation: pulse-subtle 6s ease-in-out infinite;
           }
           
           @keyframes ambient-glow {
-            0%, 100% { opacity: 0.12; }
+            0%, 100% { opacity: 0.1; }
             50% { opacity: 0.18; }
           }
           
           .ambient-fire {
             position: absolute;
             inset: 0;
-            background: radial-gradient(ellipse at 50% 50%, rgba(220, 38, 38, 0.15) 0%, rgba(220, 38, 38, 0.08) 30%, transparent 70%);
-            animation: ambient-glow 6s ease-in-out infinite;
-            pointer-events: none;
-          }
-          
-          @keyframes ambient-glow-2 {
-            0%, 100% { opacity: 0.08; }
-            50% { opacity: 0.14; }
-          }
-          
-          .ambient-fire-2 {
-            position: absolute;
-            inset: 0;
-            background: 
-              radial-gradient(ellipse 800px 400px at 20% 30%, rgba(220, 38, 38, 0.12) 0%, transparent 40%),
-              radial-gradient(ellipse 600px 500px at 80% 70%, rgba(220, 38, 38, 0.1) 0%, transparent 50%);
-            animation: ambient-glow-2 8s ease-in-out infinite;
+            background: radial-gradient(ellipse at 50% 50%, rgba(251, 191, 36, 0.12) 0%, rgba(245, 158, 11, 0.06) 30%, transparent 70%);
+            animation: ambient-glow 8s ease-in-out infinite;
             pointer-events: none;
           }
           
           .ember {
             position: absolute;
-            width: 3px;
-            height: 3px;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(220, 38, 38, 0.9), rgba(220, 38, 38, 0.4));
+            background: radial-gradient(circle at 30% 30%, rgba(253, 230, 138, 0.9), rgba(245, 158, 11, 0.4));
             animation: ember-roam linear infinite;
             animation-play-state: running;
           }
@@ -203,19 +173,19 @@ export default function HomePage() {
           .ember::before {
             content: '';
             position: absolute;
-            width: 2px;
-            height: 2px;
-            background: rgba(220, 38, 38, 0.7);
+            width: 70%;
+            height: 70%;
+            background: rgba(251, 191, 36, 0.8);
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation: ember-glow 1.5s ease-in-out infinite;
+            animation: ember-glow 2s ease-in-out infinite;
           }
           
           @keyframes bottom-glow {
-            0%, 100% { opacity: 0.35; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.45; }
           }
           
           .bottom-ambient-glow {
@@ -223,9 +193,9 @@ export default function HomePage() {
             bottom: 0;
             left: 0;
             right: 0;
-            height: 250px;
-            background: linear-gradient(to top, rgba(220, 38, 38, 0.4) 0%, rgba(220, 38, 38, 0.25) 40%, transparent 100%);
-            animation: bottom-glow 5s ease-in-out infinite;
+            height: 300px;
+            background: linear-gradient(to top, rgba(245, 158, 11, 0.3) 0%, rgba(217, 119, 6, 0.15) 40%, transparent 100%);
+            animation: bottom-glow 6s ease-in-out infinite;
             pointer-events: none;
           }
         `}</style>
@@ -242,9 +212,6 @@ export default function HomePage() {
         {/* Ambient fire glow across entire screen */}
         <div className="ambient-fire" />
 
-        {/* Secondary ambient fire glow */}
-        <div className="ambient-fire-2" />
-
         {/* Bottom ambient glow */}
         <div className="bottom-ambient-glow" />
 
@@ -255,8 +222,10 @@ export default function HomePage() {
             className="ember"
             style={
               {
+                width: `${ember.size}px`,
+                height: `${ember.size}px`,
                 left: `${ember.left}%`,
-                bottom: "0px",
+                bottom: "-20px",
                 "--drift": `${ember.drift}px`,
                 "--startY": `${ember.startY}px`,
                 "--endY": `${ember.endY}px`,
@@ -275,180 +244,156 @@ export default function HomePage() {
       </div>
 
       {/* Elegant Center Divider */}
-      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-5">
+      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-5 hidden md:block">
         <style>{`
           @keyframes line-glow {
-            0%, 100% { box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); }
-            50% { box-shadow: 0 0 25px rgba(220, 38, 38, 0.6); }
+            0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(251, 191, 36, 0.5); }
           }
           
           .divider-line {
             width: 1px;
-            height: 500px;
+            height: 60vh;
             background: linear-gradient(to bottom,
               transparent 0%,
-              rgba(220, 38, 38, 0.3) 15%,
-              rgba(220, 38, 38, 0.5) 50%,
-              rgba(220, 38, 38, 0.3) 85%,
+              rgba(245, 158, 11, 0.2) 15%,
+              rgba(251, 191, 36, 0.6) 50%,
+              rgba(217, 119, 6, 0.2) 85%,
               transparent 100%);
-            animation: line-glow 3s ease-in-out infinite;
+            animation: line-glow 4s ease-in-out infinite;
             position: relative;
-          }
-          
-          @keyframes accent-float {
-            0%, 100% { transform: translateY(0px); opacity: 0.15; }
-            50% { transform: translateY(-8px); opacity: 0.25; }
-          }
-          
-          .accent-line {
-            position: absolute;
-            width: 1px;
-            height: 60px;
-            background: linear-gradient(to bottom, rgba(220, 38, 38, 0.6), transparent);
-            animation: accent-float 3s ease-in-out infinite;
-          }
-          
-          .accent-1 {
-            display: none;
-          }
-          
-          .accent-2 {
-            display: none;
-          }
-          
-          .accent-3 {
-            display: none;
           }
         `}</style>
 
         {/* Main Divider Line */}
         <div className="divider-line" />
-
-        {/* Accent Lines */}
-        <div className="accent-line accent-1" />
-        <div className="accent-line accent-2" />
-        <div className="accent-line accent-3" />
       </div>
 
       {/* Subtle Ambient Elements */}
       <div className="absolute right-0 top-0 bottom-0 w-96 pointer-events-none z-5">
-        <style>{`
-          @keyframes subtle-shimmer {
-            0%, 100% { opacity: 0.08; }
-            50% { opacity: 0.15; }
-          }
-          
-          .ambient-shimmer {
-            position: absolute;
-            width: 2px;
-            animation: subtle-shimmer 4s ease-in-out infinite;
-          }
-        `}</style>
-        <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-gradient-to-br from-red-600/10 to-transparent rounded-full blur-2xl" />
-        <div className="absolute bottom-1/3 right-1/3 w-24 h-24 bg-gradient-to-tl from-red-600/8 to-transparent rounded-full blur-2xl" />
+        <div className="absolute top-1/4 right-1/4 w-40 h-40 bg-gradient-to-br from-amber-500/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-1/4 right-1/3 w-32 h-32 bg-gradient-to-tl from-orange-600/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
       </div>
+
       {/* Left Section - Platform Info */}
-      <div className="w-1/2 flex flex-col justify-center items-start px-12 py-16 relative z-10">
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-start px-8 md:px-16 py-12 md:py-16 relative z-10">
         {/* Logo Section */}
-        <div className="mb-16">
-          <h1 className="text-7xl font-bold mb-4">
+        <div className="mb-12 md:mb-16">
+          <h1 className="text-6xl md:text-7xl font-bold mb-4 tracking-tight">
             <span className="text-white">Study</span>
-            <span className="text-red-600 ml-3">Platform</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 ml-3 drop-shadow-sm">Platform</span>
           </h1>
-          <div className="h-1.5 w-24 bg-gradient-to-r from-red-600 to-red-500 rounded-full"></div>
+          <div className="h-1.5 w-24 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
         </div>
 
         {/* Animated Tagline */}
-        <div className="mb-16 h-12 flex items-center">
-          <p className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-400 transition-all duration-700 ease-in-out">
+        <div className="mb-12 md:mb-16 h-12 flex items-center">
+          <p className="text-2xl md:text-3xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500 transition-all duration-1000 ease-in-out tracking-wide">
             {textOptions[animatedText]}
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-16 w-full max-w-md">
-          <div className="p-5 bg-red-950/20 border border-red-700/30 rounded-xl hover:bg-red-950/30 hover:border-red-700/50 transition-all duration-300 cursor-default group">
-            <div className="text-3xl font-bold text-red-500 mb-1 group-hover:text-red-400 transition-colors">
+        <div className="grid grid-cols-2 gap-4 mb-12 md:mb-16 w-full max-w-md relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 rounded-2xl blur-xl -z-10"></div>
+          
+          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-amber-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full"></div>
+            <div className="text-3xl font-bold text-amber-400 mb-1 group-hover:text-amber-300 transition-colors drop-shadow-sm">
               10K+
             </div>
-            <div className="text-sm text-gray-400 font-light">
+            <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">
               Active Students
             </div>
           </div>
-          <div className="p-5 bg-red-950/20 border border-red-700/30 rounded-xl hover:bg-red-950/30 hover:border-red-700/50 transition-all duration-300 cursor-default group">
-            <div className="text-3xl font-bold text-red-500 mb-1 group-hover:text-red-400 transition-colors">
+          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-amber-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full"></div>
+            <div className="text-3xl font-bold text-amber-400 mb-1 group-hover:text-amber-300 transition-colors drop-shadow-sm">
               500+
             </div>
-            <div className="text-sm text-gray-400 font-light">
+            <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">
               Expert Teachers
             </div>
           </div>
-          <div className="p-5 bg-red-950/20 border border-red-700/30 rounded-xl hover:bg-red-950/30 hover:border-red-700/50 transition-all duration-300 cursor-default group">
-            <div className="text-3xl font-bold text-red-500 mb-1 group-hover:text-red-400 transition-colors">
-              1K+
+          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-amber-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full"></div>
+            <div className="text-3xl font-bold text-amber-400 mb-1 group-hover:text-amber-300 transition-colors drop-shadow-sm">
+              1M+
             </div>
-            <div className="text-sm text-gray-400 font-light">
-              Learning Hours
+            <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">
+              Questions Attempted
             </div>
           </div>
-          <div className="p-5 bg-red-950/20 border border-red-700/30 rounded-xl hover:bg-red-950/30 hover:border-red-700/50 transition-all duration-300 cursor-default group">
-            <div className="text-3xl font-bold text-red-500 mb-1 group-hover:text-red-400 transition-colors">
+          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-amber-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-amber-500/10 to-transparent rounded-bl-full"></div>
+            <div className="text-3xl font-bold text-amber-400 mb-1 group-hover:text-amber-300 transition-colors drop-shadow-sm">
               100%
             </div>
-            <div className="text-sm text-gray-400 font-light">Success Rate</div>
+            <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">Success Rate</div>
           </div>
         </div>
 
         {/* Features */}
         <div className="space-y-4 w-full max-w-md">
-          <div className="flex items-center gap-3 group cursor-default">
-            <div className="w-2 h-2 bg-red-600 rounded-full group-hover:bg-red-500 transition-colors"></div>
-            <span className="text-gray-300 group-hover:text-white transition-colors font-light">
-              Interactive quizzes and practice tests
+          <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-all shadow-[0_0_10px_rgba(245,158,11,0.1)]">
+              <div className="w-2 h-2 bg-amber-400 rounded-full group-hover:shadow-[0_0_8px_rgba(251,191,36,0.8)] transition-all"></div>
+            </div>
+            <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
+              Interactive live test series & mocks
             </span>
           </div>
-          <div className="flex items-center gap-3 group cursor-default">
-            <div className="w-2 h-2 bg-red-600 rounded-full group-hover:bg-red-500 transition-colors"></div>
-            <span className="text-gray-300 group-hover:text-white transition-colors font-light">
-              Personalized learning paths
+          <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-all shadow-[0_0_10px_rgba(245,158,11,0.1)]">
+              <div className="w-2 h-2 bg-amber-400 rounded-full group-hover:shadow-[0_0_8px_rgba(251,191,36,0.8)] transition-all"></div>
+            </div>
+            <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
+              Advanced analytics & performance tracking
             </span>
           </div>
-          <div className="flex items-center gap-3 group cursor-default">
-            <div className="w-2 h-2 bg-red-600 rounded-full group-hover:bg-red-500 transition-colors"></div>
-            <span className="text-gray-300 group-hover:text-white transition-colors font-light">
-              Collaborate with expert teachers
+          <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-all shadow-[0_0_10px_rgba(245,158,11,0.1)]">
+              <div className="w-2 h-2 bg-amber-400 rounded-full group-hover:shadow-[0_0_8px_rgba(251,191,36,0.8)] transition-all"></div>
+            </div>
+            <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
+              Detailed step-by-step LaTeX solutions
             </span>
           </div>
-          <div className="flex items-center gap-3 group cursor-default">
-            <div className="w-2 h-2 bg-red-600 rounded-full group-hover:bg-red-500 transition-colors"></div>
-            <span className="text-gray-300 group-hover:text-white transition-colors font-light">
-              Track progress and achievements
+          <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-all shadow-[0_0_10px_rgba(245,158,11,0.1)]">
+              <div className="w-2 h-2 bg-amber-400 rounded-full group-hover:shadow-[0_0_8px_rgba(251,191,36,0.8)] transition-all"></div>
+            </div>
+            <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
+              Direct challenge workflows with teachers
             </span>
           </div>
         </div>
       </div>
 
       {/* Right Section - Auth Box */}
-      <div className="w-1/2 flex items-center justify-center px-12 py-16 relative z-10">
-        <div className="w-full max-w-sm p-10">
+      <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-12 py-16 relative z-10">
+        <div className="w-full max-w-md p-8 sm:p-10 bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] relative overflow-hidden">
+          {/* Decorative glow inside auth box */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl"></div>
+          
           {/* Tabs */}
-          <div className="flex gap-2 mb-8 bg-black/30 p-1.5 rounded-lg border border-red-700/20">
+          <div className="flex gap-2 mb-8 bg-black/40 p-1.5 rounded-xl border border-white/5 relative z-10">
             <button
               onClick={() => setAuthView("login")}
-              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all duration-300 ${
+              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all duration-500 text-sm tracking-wide ${
                 authView === "login"
-                  ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
-                  : "text-gray-400 hover:text-gray-300"
+                  ? "bg-gradient-to-r from-amber-600 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setAuthView("signup")}
-              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all duration-300 ${
+              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all duration-500 text-sm tracking-wide ${
                 authView === "signup"
-                  ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
-                  : "text-gray-400 hover:text-gray-300"
+                  ? "bg-gradient-to-r from-amber-600 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
               Sign Up
@@ -456,9 +401,9 @@ export default function HomePage() {
           </div>
 
           {/* Form Container */}
-          <div className="relative h-96">
+          <div className="relative h-[420px] z-10">
             {authView === "login" && (
-              <div className="absolute inset-0 animate-in fade-in duration-300">
+              <div className="absolute inset-0 animate-in fade-in duration-500">
                 <LoginFormEmbedded
                   onSwitchToSignup={() => setAuthView("signup")}
                   onSwitchToForgot={() => setAuthView("forgot-password")}
@@ -466,14 +411,14 @@ export default function HomePage() {
               </div>
             )}
             {authView === "signup" && (
-              <div className="absolute inset-0 animate-in fade-in duration-300">
+              <div className="absolute inset-0 animate-in fade-in duration-500">
                 <RegisterFormEmbedded
                   onSwitchToLogin={() => setAuthView("login")}
                 />
               </div>
             )}
             {authView === "forgot-password" && (
-              <div className="absolute inset-0 animate-in fade-in duration-300">
+              <div className="absolute inset-0 animate-in fade-in duration-500">
                 <ForgotPasswordFormEmbedded
                   onSwitchToLogin={() => setAuthView("login")}
                 />
@@ -530,82 +475,109 @@ function LoginFormEmbedded({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-semibold text-white tracking-tight">Welcome back</h2>
+        <p className="text-zinc-400 text-sm mt-1">Enter your details to sign in to your account</p>
+      </div>
+
       {generalError && (
-        <div className="p-3 bg-red-600/10 border border-red-600/30 text-red-400 rounded-lg text-sm">
+        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-center gap-2">
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           {generalError}
         </div>
       )}
 
-      <div>
-        <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">
-          Email
-        </label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
-          className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border ${
-            errors.email ? "border-red-500/50" : "border-slate-600/30"
-          } text-white placeholder-slate-500 focus:outline-none focus:border-red-600/50 focus:ring-1 focus:ring-red-600/20 transition-all`}
-        />
-        {errors.email && (
-          <p className="text-red-400 text-xs mt-1">{errors.email}</p>
-        )}
+      <div className="space-y-5">
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
+            Email Address
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@example.com"
+            className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
+              errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
+            } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
+          />
+          {errors.email && (
+            <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
+                errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
+              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3 text-zinc-500 hover:text-amber-400 text-xs font-medium transition-colors p-1"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+          {errors.password && (
+            <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.password}</p>
+          )}
+        </div>
       </div>
 
-      <div>
-        <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">
-          Password
+      <div className="flex items-center justify-between mt-2">
+        <label className="flex items-center gap-2 cursor-pointer group">
+          <input type="checkbox" className="rounded bg-black/40 border-white/10 text-amber-500 focus:ring-amber-500/20 focus:ring-offset-0" />
+          <span className="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors">Remember me</span>
         </label>
-        <div className="relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border ${
-              errors.password ? "border-red-500/50" : "border-slate-600/30"
-            } text-white placeholder-slate-500 focus:outline-none focus:border-red-600/50 focus:ring-1 focus:ring-red-600/20 transition-all`}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-300 text-xs font-medium"
-          >
-            {showPassword ? "Hide" : "Show"}
-          </button>
-        </div>
-        {errors.password && (
-          <p className="text-red-400 text-xs mt-1">{errors.password}</p>
-        )}
+        <button
+          type="button"
+          onClick={onSwitchToForgot}
+          className="text-amber-500 hover:text-amber-400 text-xs font-medium transition-colors"
+        >
+          Forgot password?
+        </button>
       </div>
 
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+        className="w-full py-3 mt-4 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
       >
-        {isLoading ? "Signing in..." : "Sign In"}
+        {isLoading ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Signing in...
+          </span>
+        ) : "Sign In"}
       </button>
 
-      <div className="pt-4 space-y-3 border-t border-slate-700/30">
-        <button
-          type="button"
-          onClick={onSwitchToForgot}
-          className="w-full text-red-500 hover:text-red-400 text-xs font-medium transition-colors"
-        >
-          Forgot password?
-        </button>
-        <button
-          type="button"
-          onClick={onSwitchToSignup}
-          className="w-full text-gray-400 hover:text-gray-300 text-xs transition-colors"
-        >
+      <div className="pt-4 text-center">
+        <p className="text-zinc-400 text-xs">
           Don't have an account?{" "}
-          <span className="text-red-500 font-medium">Sign up</span>
-        </button>
+          <button
+            type="button"
+            onClick={onSwitchToSignup}
+            className="text-amber-500 hover:text-amber-400 font-medium transition-colors"
+          >
+            Create one now
+          </button>
+        </p>
       </div>
     </form>
   );
@@ -632,7 +604,6 @@ function RegisterFormEmbedded({
     e.preventDefault();
     setErrors({});
 
-    // Step 1: Only validate email and firstName (no password yet)
     if (!email || !firstName) {
       setErrors({
         email: !email ? "Email is required" : "",
@@ -643,7 +614,6 @@ function RegisterFormEmbedded({
 
     setIsLoading(true);
     try {
-      // Step 1: Send only email and firstName
       await authService.register({ email, firstName });
       setStep(2);
       setGeneralError(null);
@@ -658,7 +628,6 @@ function RegisterFormEmbedded({
     e.preventDefault();
     setErrors({});
 
-    // Step 2: Validate OTP and password
     if (!otp || !password) {
       setErrors({
         otp: !otp ? "OTP is required" : "",
@@ -679,7 +648,6 @@ function RegisterFormEmbedded({
 
     setIsLoading(true);
     try {
-      // Step 2: Send email, OTP, password, and other details
       await authService.verifyOtp({
         email,
         otp,
@@ -699,62 +667,75 @@ function RegisterFormEmbedded({
       onSubmit={step === 1 ? handleStep1 : handleStep2}
       className="space-y-5"
     >
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-semibold text-white tracking-tight">
+          {step === 1 ? "Create an account" : "Verify your email"}
+        </h2>
+        <p className="text-zinc-400 text-sm mt-1">
+          {step === 1 ? "Enter your details to get started" : `We sent a code to ${email}`}
+        </p>
+      </div>
+
       {generalError && (
-        <div className="p-3 bg-red-600/10 border border-red-600/30 text-red-400 rounded-lg text-sm">
+        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-center gap-2">
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           {generalError}
         </div>
       )}
 
       {step === 1 ? (
-        <>
+        <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">
+            <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
               First Name
             </label>
             <input
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              placeholder="John"
-              className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-600/30 text-white placeholder-slate-500 focus:outline-none focus:border-red-600/50 focus:ring-1 focus:ring-red-600/20 transition-all"
+              placeholder="e.g. Alex"
+              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
+                errors.firstName ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
+              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.firstName ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
             />
             {errors.firstName && (
-              <p className="text-red-400 text-xs mt-1">{errors.firstName}</p>
+              <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.firstName}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">
-              Email
+            <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
+              Email Address
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-600/30 text-white placeholder-slate-500 focus:outline-none focus:border-red-600/50 focus:ring-1 focus:ring-red-600/20 transition-all"
+              placeholder="name@example.com"
+              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
+                errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
+              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
             />
             {errors.email && (
-              <p className="text-red-400 text-xs mt-1">{errors.email}</p>
+              <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>
             )}
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 text-sm"
+            className="w-full py-3 mt-6 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
           >
             {isLoading ? "Sending OTP..." : "Continue"}
           </button>
-        </>
+        </div>
       ) : (
-        <>
-          <p className="text-gray-400 text-sm text-center">
-            Check your email for the OTP code
-          </p>
+        <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">
-              Enter OTP
+            <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider text-center">
+              Enter 6-Digit OTP
             </label>
             <input
               type="text"
@@ -764,16 +745,18 @@ function RegisterFormEmbedded({
               }
               placeholder="000000"
               maxLength={6}
-              className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-600/30 text-white text-center text-2xl tracking-widest placeholder-slate-500 focus:outline-none focus:border-red-600/50 focus:ring-1 focus:ring-red-600/20 transition-all"
+              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
+                errors.otp ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
+              } text-white text-center text-3xl tracking-[0.5em] placeholder-zinc-700 font-mono focus:outline-none focus:ring-1 ${errors.otp ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
             />
             {errors.otp && (
-              <p className="text-red-400 text-xs mt-1">{errors.otp}</p>
+              <p className="text-red-400 text-xs mt-1.5 text-center">{errors.otp}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">
-              Password
+            <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider mt-4">
+              Create Password
             </label>
             <div className="relative">
               <input
@@ -781,40 +764,56 @@ function RegisterFormEmbedded({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border ${
-                  errors.password ? "border-red-500/50" : "border-slate-600/30"
-                } text-white placeholder-slate-500 focus:outline-none focus:border-red-600/50 focus:ring-1 focus:ring-red-600/20 transition-all`}
+                className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
+                  errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
+                } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-300 text-xs font-medium"
+                className="absolute right-3 top-3 text-zinc-500 hover:text-amber-400 text-xs font-medium transition-colors p-1"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
             {errors.password && (
-              <p className="text-red-400 text-xs mt-1">{errors.password}</p>
+              <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.password}</p>
             )}
+            <p className="text-[10px] text-zinc-500 mt-1.5 ml-1">Must be at least 8 characters long</p>
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 text-sm"
+            className="w-full py-3 mt-6 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
           >
             {isLoading ? "Verifying..." : "Verify & Create Account"}
           </button>
-        </>
+          
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="w-full text-zinc-400 hover:text-white text-xs font-medium transition-colors mt-2"
+          >
+            Back to previous step
+          </button>
+        </div>
       )}
 
-      <button
-        type="button"
-        onClick={onSwitchToLogin}
-        className="w-full text-red-500 hover:text-red-400 text-xs font-medium transition-colors"
-      >
-        Back to Sign In
-      </button>
+      {step === 1 && (
+        <div className="pt-4 text-center border-t border-white/5 mt-4">
+          <p className="text-zinc-400 text-xs">
+            Already have an account?{" "}
+            <button
+              type="button"
+              onClick={onSwitchToLogin}
+              className="text-amber-500 hover:text-amber-400 font-medium transition-colors"
+            >
+              Sign In
+            </button>
+          </p>
+        </div>
+      )}
     </form>
   );
 }
@@ -856,32 +855,23 @@ function ForgotPasswordFormEmbedded({
 
   if (submitted) {
     return (
-      <div className="space-y-4 text-center py-6">
-        <div className="w-12 h-12 bg-red-600/10 border border-red-600/30 rounded-full flex items-center justify-center mx-auto">
-          <svg
-            className="w-6 h-6 text-red-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
+      <div className="space-y-4 text-center py-10">
+        <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+          <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <div>
-          <h3 className="text-white font-medium mb-1">Check your email</h3>
-          <p className="text-gray-400 text-sm">
-            We've sent a password reset link to {email}
+        <div className="mt-6 mb-8">
+          <h3 className="text-xl font-semibold text-white mb-2">Check your email</h3>
+          <p className="text-zinc-400 text-sm">
+            We've sent a password reset link to <br/>
+            <span className="text-white font-medium">{email}</span>
           </p>
         </div>
         <button
           type="button"
           onClick={onSwitchToLogin}
-          className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all duration-300 text-sm"
+          className="w-full py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium rounded-xl transition-all duration-300 text-sm"
         >
           Back to Sign In
         </button>
@@ -890,50 +880,58 @@ function ForgotPasswordFormEmbedded({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-semibold text-white tracking-tight">Reset Password</h2>
+        <p className="text-zinc-400 text-sm mt-2 px-4">
+          Enter your email address and we'll send you a link to reset your password.
+        </p>
+      </div>
+
       {generalError && (
-        <div className="p-3 bg-red-600/10 border border-red-600/30 text-red-400 rounded-lg text-sm">
+        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-center gap-2">
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           {generalError}
         </div>
       )}
 
-      <p className="text-gray-400 text-sm">
-        Enter your email and we'll send you a link to reset your password.
-      </p>
-
       <div>
-        <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">
+        <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
           Email Address
         </label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
-          className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border ${
-            errors.email ? "border-red-500/50" : "border-slate-600/30"
-          } text-white placeholder-slate-500 focus:outline-none focus:border-red-600/50 focus:ring-1 focus:ring-red-600/20 transition-all`}
+          placeholder="name@example.com"
+          className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
+            errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-amber-500/50"
+          } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-amber-500/20"} transition-all`}
         />
         {errors.email && (
-          <p className="text-red-400 text-xs mt-1">{errors.email}</p>
+          <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>
         )}
       </div>
 
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 text-sm"
+        className="w-full py-3 mt-6 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
       >
-        {isLoading ? "Sending..." : "Send Reset Link"}
+        {isLoading ? "Sending Link..." : "Send Reset Link"}
       </button>
 
-      <button
-        type="button"
-        onClick={onSwitchToLogin}
-        className="w-full text-red-500 hover:text-red-400 text-xs font-medium transition-colors"
-      >
-        Back to Sign In
-      </button>
+      <div className="pt-4 text-center border-t border-white/5 mt-4">
+        <button
+          type="button"
+          onClick={onSwitchToLogin}
+          className="text-zinc-400 hover:text-white text-sm font-medium transition-colors"
+        >
+          ← Back to Sign In
+        </button>
+      </div>
     </form>
   );
 }

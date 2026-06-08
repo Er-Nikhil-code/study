@@ -30,9 +30,14 @@ export class RolesController {
     @Query("take") take?: string,
   ) {
     const skipNum = skip ? parseInt(skip, 10) : 0;
-    const takeNum = take ? parseInt(take, 10) : 20;
-
+    const takeNum = take ? parseInt(take, 10) : 50;
     return this.rolesService.findAllRoles(skipNum, takeNum, search);
+  }
+
+  @Get("hierarchy")
+  @Roles("ADMIN")
+  async getHierarchy() {
+    return this.rolesService.getHierarchyTree();
   }
 
   @Get(":id")
@@ -45,15 +50,13 @@ export class RolesController {
   @Roles("ADMIN")
   @HttpCode(HttpStatus.CREATED)
   async createRole(@Body() body: any) {
-    const parsed = CreateRoleDto.parse(body);
-    return this.rolesService.createRole(parsed);
+    return this.rolesService.createRole(body);
   }
 
   @Patch(":id")
   @Roles("ADMIN")
   async updateRole(@Param("id") id: string, @Body() body: any) {
-    const parsed = UpdateRoleDto.parse(body);
-    return this.rolesService.updateRole(id, parsed);
+    return this.rolesService.updateRole(id, body);
   }
 
   @Delete(":id")
@@ -61,5 +64,20 @@ export class RolesController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteRole(@Param("id") id: string) {
     await this.rolesService.deleteRole(id);
+  }
+
+  @Post("seed")
+  @Roles("ADMIN")
+  @HttpCode(HttpStatus.OK)
+  async seedRoles() {
+    await this.rolesService.seedDefaultRoles();
+    return { message: "Default roles seeded successfully" };
+  }
+
+  @Post("assign")
+  @Roles("ADMIN")
+  @HttpCode(HttpStatus.OK)
+  async assignRole(@Body() body: { user_id: string; role_name: string }) {
+    return this.rolesService.assignRoleToUser(body.user_id, body.role_name);
   }
 }

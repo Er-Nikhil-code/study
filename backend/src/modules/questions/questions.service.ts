@@ -19,10 +19,12 @@ export class QuestionsService {
 
   /**
    * Create a new question
+   * Interns: question goes to PENDING_REVIEW
+   * Teachers/Admins: question is auto-APPROVED
    */
-  async createQuestion(userId: string, data: CreateQuestionRequestType) {
+  async createQuestion(userId: string, data: CreateQuestionRequestType, userRole?: string) {
     try {
-      this.logger.debug(`📝 [QUESTIONS] Creating question for user ${userId}`);
+      this.logger.debug(`📝 [QUESTIONS] Creating question for user ${userId} (role: ${userRole})`);
 
       // Validate topic exists
       const topic = await this.prisma.topic.findUnique({
@@ -34,6 +36,10 @@ export class QuestionsService {
           `Topic with ID "${data.topic_id}" not found`,
         );
       }
+
+      // Determine approval status based on role
+      const isIntern = userRole === "INTERN";
+      const approvalStatus = isIntern ? "PENDING_REVIEW" : "APPROVED";
 
       // Create question
       const question = await this.prisma.question.create({
@@ -49,10 +55,13 @@ export class QuestionsService {
           difficulty: data.difficulty,
           marks: data.marks,
           negative_marks: data.negative_marks,
+          approval_status: approvalStatus as any,
+          approved_by: isIntern ? null : userId,
+          approved_at: isIntern ? null : new Date(),
         },
       });
 
-      this.logger.log(`✅ [QUESTIONS] Question created: ${question.id}`);
+      this.logger.log(`✅ [QUESTIONS] Question created: ${question.id} (status: ${approvalStatus})`);
 
       return question;
     } catch (error: any) {
@@ -62,6 +71,98 @@ export class QuestionsService {
       );
       throw error;
     }
+  }
+
+  /* ════════════════════════════════════════════
+   *  APPROVAL WORKFLOW (Teacher reviews intern questions)
+   * ════════════════════════════════════════════ */
+
+  async submitForReview(questionId: string, userId: string) {
+    const question = await this.prisma.question.findUnique({ where: { id: questionId } });
+    if (!question) throw new NotFoundException("Question not found");
+    if (question.created_by !== userId) throw new BadRequestException("Not the question creator");
+    if (!["DRAFT", "NEEDS_REVISION"].includes(question.approval_status)) {
+      throw new BadRequestException("Question is not in a submittable state");
+    }
+
+    return this.prisma.question.update({
+      where: { id: questionId },
+      data: { approval_status: "PENDING_REVIEW" },
+    });
+  }
+
+  async listPendingReview(skip = 0, take = 20) {
+    const [questions, total] = await Promise.all([
+      this.prisma.question.findMany({
+        where: { approval_status: "PENDING_REVIEW" },
+        skip,
+        take,
+        orderBy: { created_at: "desc" },
+        include: {
+          topic: { select: { id: true, name: true } },
+        },
+      }),
+      this.prisma.question.count({
+        where: { approval_status: "PENDING_REVIEW" },
+      }),
+    ]);
+    return { data: questions, total, skip, take };
+  }
+
+  async approveQuestion(questionId: string, reviewerId: string) {
+    const question = await this.prisma.question.findUnique({ where: { id: questionId } });
+    if (!question) throw new NotFoundException("Question not found");
+    if (question.approval_status !== "PENDING_REVIEW") {
+      throw new BadRequestException("Question is not pending review");
+    }
+
+    // Notify the intern
+    await this.prisma.notificationEvent.create({
+      data: {
+        user_id: question.created_by,
+        type: "CUSTOM",
+        title: "Question Approved ✅",
+        message: `Your question "${question.title}" has been approved.`,
+        data_json: { question_id: questionId },
+      },
+    });
+
+    return this.prisma.question.update({
+      where: { id: questionId },
+      data: {
+        approval_status: "APPROVED",
+        approved_by: reviewerId,
+        approved_at: new Date(),
+        rejection_note: null,
+      },
+    });
+  }
+
+  async rejectQuestion(questionId: string, reviewerId: string, note: string) {
+    const question = await this.prisma.question.findUnique({ where: { id: questionId } });
+    if (!question) throw new NotFoundException("Question not found");
+    if (question.approval_status !== "PENDING_REVIEW") {
+      throw new BadRequestException("Question is not pending review");
+    }
+
+    // Notify the intern
+    await this.prisma.notificationEvent.create({
+      data: {
+        user_id: question.created_by,
+        type: "CUSTOM",
+        title: "Question Needs Revision",
+        message: `Your question "${question.title}" needs changes: ${note}`,
+        data_json: { question_id: questionId, note },
+      },
+    });
+
+    return this.prisma.question.update({
+      where: { id: questionId },
+      data: {
+        approval_status: "NEEDS_REVISION",
+        rejection_note: note,
+      },
+    });
   }
 
   /**

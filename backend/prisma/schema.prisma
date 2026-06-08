@@ -162,6 +162,10 @@ model Question {
   marks           Float     @default(1)
   negative_marks  Float     @default(0)
   version         Int       @default(1)
+  approval_status QuestionApprovalStatus @default(DRAFT)
+  approved_by     String?   // User ID of approver (teacher/admin)
+  approved_at     DateTime?
+  rejection_note  String?
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt
 
@@ -173,6 +177,7 @@ model Question {
   @@index([topic_id])
   @@index([created_by])
   @@index([question_type])
+  @@index([approval_status])
   @@index([created_at])
 }
 
@@ -397,19 +402,34 @@ model Role {
   id                String    @id @default(cuid())
   name              String    @unique  // STUDENT, TEACHER, ADMIN, or custom roles
   description       String    @default("")
+  designation       String    @default("")  // Display title (e.g. "Senior Teacher", "Content Head")
+  level             Int       @default(0)   // Hierarchy level: 0=top, higher=lower
+  parent_id         String?   // ID of parent role (who this role reports to)
+  parent            Role?     @relation("RoleHierarchy", fields: [parent_id], references: [id])
+  children          Role[]    @relation("RoleHierarchy")
   permissions_json  Json      @default("[]")  // Array of permission strings
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 
   @@index([name])
+  @@index([parent_id])
 }
 
 // Enums
 enum UserRole {
   STUDENT
+  INTERN
   PENDING_TEACHER
   TEACHER
   ADMIN
+}
+
+enum QuestionApprovalStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  NEEDS_REVISION
 }
 
 enum ApplicationStatus {

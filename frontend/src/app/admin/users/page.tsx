@@ -7,8 +7,8 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { adminNavItems } from "../nav";
 import adminService, { type AdminUser } from "@/services/admin.service";
 
-const ROLES = ["ALL", "STUDENT", "PENDING_TEACHER", "TEACHER", "ADMIN"];
-const ASSIGNABLE_ROLES = ["STUDENT", "PENDING_TEACHER", "TEACHER", "ADMIN"];
+const ROLES = ["ALL", "STUDENT", "INTERN", "PENDING_TEACHER", "TEACHER", "ADMIN"];
+const ASSIGNABLE_ROLES = ["STUDENT", "INTERN", "PENDING_TEACHER", "TEACHER", "ADMIN"];
 const PAGE_SIZE = 15;
 
 export default function AdminUsersPage() {
@@ -90,6 +90,7 @@ export default function AdminUsersPage() {
     const colors: Record<string, string> = {
       ADMIN: "border-purple-500/20 bg-purple-500/10 text-purple-300",
       TEACHER: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
+      INTERN: "border-pink-500/20 bg-pink-500/10 text-pink-300",
       STUDENT: "border-blue-500/20 bg-blue-500/10 text-blue-300",
       PENDING_TEACHER: "border-amber-500/20 bg-amber-500/10 text-amber-300",
     };
