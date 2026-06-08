@@ -230,10 +230,10 @@ export default function HomePage() {
         <div className="bottom-ambient-glow" />
 
         {/* Fire Embers - scattered across screen */}
-        {embers.map((ember) => (
+        {embers.map((ember, index) => (
           <div
             key={ember.id}
-            className="ember"
+            className={`ember ${index % 4 !== 0 ? 'hidden md:block' : ''}`}
             style={
               {
                 width: `${ember.size}px`,
