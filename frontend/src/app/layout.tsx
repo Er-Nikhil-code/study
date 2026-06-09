@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: "Codify is the ultimate next-generation learning platform. Experience seamless educational content management, intelligent question banks, and powerful performance analytics designed for modern educators and students.",
   keywords: "Codify, LMS, Learning Management System, EdTech, Online Testing, Performance Analytics, Education",
   openGraph: {
-    title: "Codify",
+    title: "CODIFY",
     description: "The ultimate next-generation learning platform with intelligent content management and analytics.",
     type: "website",
     siteName: "Codify",
