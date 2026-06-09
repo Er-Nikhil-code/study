@@ -21,9 +21,7 @@ export default function InternDashboardPage() {
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["intern", "dashboard"] });
-  };
+
 
   if (!user) return null;
   const name = user.email.split("@")[0];
@@ -35,13 +33,6 @@ export default function InternDashboardPage() {
           <h1 className="text-2xl font-semibold text-white">Welcome back, {name}</h1>
           <p className="text-sm text-zinc-500 mt-1">Manage your question bank contributions.</p>
         </div>
-        <button 
-          onClick={handleRefresh}
-          disabled={isFetching}
-          className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-white transition hover:bg-white/[0.06] disabled:opacity-50"
-        >
-          {isFetching ? "Refreshing..." : "Refresh Data"}
-        </button>
       </div>
 
       {loading ? (

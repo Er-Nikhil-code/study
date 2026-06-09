@@ -20,27 +20,47 @@ export class ChallengesService {
   async submitChallenge(
     userId: string,
     data: {
-      response_id: string;
-      question_id: string;
+      response_id?: string;
+      question_id?: string;
+      note_id?: string;
       reason: string;
       description: string;
       screenshot_url?: string;
     },
   ) {
-    // Find the question to get its creator
-    const question = await this.prisma.question.findUnique({
-      where: { id: data.question_id },
-      select: { id: true, created_by: true, title: true },
-    });
-    if (!question) throw new NotFoundException("Question not found");
+    if (!data.question_id && !data.note_id) {
+      throw new BadRequestException("Must provide either question_id or note_id");
+    }
 
-    // Create the challenge — auto-assign to question creator
+    let creatorId = "";
+    let itemTitle = "";
+
+    if (data.question_id) {
+      const question = await this.prisma.question.findUnique({
+        where: { id: data.question_id },
+        select: { id: true, created_by: true, title: true },
+      });
+      if (!question) throw new NotFoundException("Question not found");
+      creatorId = question.created_by;
+      itemTitle = question.title;
+    } else if (data.note_id) {
+      const note = await this.prisma.note.findUnique({
+        where: { id: data.note_id },
+        select: { id: true, created_by: true, title: true },
+      });
+      if (!note) throw new NotFoundException("Note not found");
+      creatorId = note.created_by;
+      itemTitle = note.title;
+    }
+
+    // Create the challenge — auto-assign to creator
     const challenge = await this.prisma.challenge.create({
       data: {
         response_id: data.response_id,
         question_id: data.question_id,
+        note_id: data.note_id,
         submitted_by: userId,
-        assigned_to: question.created_by,
+        assigned_to: creatorId,
         status: "PENDING",
         reason: data.reason as any,
         description: data.description,
@@ -51,20 +71,21 @@ export class ChallengesService {
     // Create notification for the teacher
     await this.prisma.notificationEvent.create({
       data: {
-        user_id: question.created_by,
+        user_id: creatorId,
         type: "CHALLENGE_RESOLVED",
-        title: "New Question Challenge",
-        message: `A student has challenged your question: "${question.title}" — Reason: ${data.reason}`,
+        title: `New ${data.note_id ? "Note" : "Question"} Challenge`,
+        message: `A student has challenged your ${data.note_id ? "note" : "question"}: "${itemTitle}" — Reason: ${data.reason}`,
         data_json: {
           challenge_id: challenge.id,
           question_id: data.question_id,
+          note_id: data.note_id,
           reason: data.reason,
         },
       },
     });
 
     this.logger.log(
-      `✅ Challenge submitted: ${challenge.id} for Q:${data.question_id} → Teacher:${question.created_by}`,
+      `✅ Challenge submitted: ${challenge.id} for ${data.note_id ? "Note" : "Q"}:${data.note_id || data.question_id} → Teacher:${creatorId}`,
     );
 
     return challenge;
@@ -133,7 +154,7 @@ export class ChallengesService {
   ) {
     const challenge = await this.prisma.challenge.findUnique({
       where: { id: challengeId },
-      include: { question: true },
+      include: { question: true, note: true },
     });
 
     if (!challenge) throw new NotFoundException("Challenge not found");
@@ -142,17 +163,22 @@ export class ChallengesService {
     if (challenge.status !== "PENDING")
       throw new BadRequestException("Challenge already resolved");
 
+    const isNote = !!challenge.note_id;
+    const itemTitle = isNote ? challenge.note?.title : challenge.question?.title;
+    const creatorId = isNote ? challenge.note?.created_by : challenge.question?.created_by;
+
     // ── FORWARD TO INTERN ──
-    // Re-assign the challenge to the intern who created the question
+    // Re-assign the challenge to the intern who created the item
     if (data.action === "FORWARD_TO_INTERN") {
-      const internId = challenge.question.created_by;
+      const internId = creatorId;
+      if (!internId) throw new BadRequestException("Creator not found");
 
       // Update challenge: reassign to intern
       const updated = await this.prisma.challenge.update({
         where: { id: challengeId },
         data: {
           assigned_to: internId,
-          resolution_note: data.resolution_note || "Forwarded to question creator for review",
+          resolution_note: data.resolution_note || "Forwarded to creator for review",
         },
       });
 
@@ -162,10 +188,11 @@ export class ChallengesService {
           user_id: internId,
           type: "CUSTOM",
           title: "Challenge Forwarded to You",
-          message: `A student challenged question "${challenge.question.title}". Your teacher has forwarded this to you for review. ${data.resolution_note || ""}`.trim(),
+          message: `A student challenged ${isNote ? "note" : "question"} "${itemTitle}". Your teacher has forwarded this to you for review. ${data.resolution_note || ""}`.trim(),
           data_json: {
             challenge_id: challengeId,
             question_id: challenge.question_id,
+            note_id: challenge.note_id,
             forwarded_by: teacherId,
           },
         },
@@ -177,10 +204,11 @@ export class ChallengesService {
           user_id: challenge.submitted_by,
           type: "CHALLENGE_RESOLVED",
           title: "Challenge Under Review",
-          message: `Your challenge for "${challenge.question.title}" is being reviewed by the question creator.`,
+          message: `Your challenge for "${itemTitle}" is being reviewed by the creator.`,
           data_json: {
             challenge_id: challengeId,
             question_id: challenge.question_id,
+            note_id: challenge.note_id,
             status: "UNDER_REVIEW",
           },
         },
@@ -213,7 +241,7 @@ export class ChallengesService {
     }
 
     // If revising answer key, update the question
-    if (data.action === "REVISE_ANSWER_KEY" && data.revised_answer_key) {
+    if (data.action === "REVISE_ANSWER_KEY" && data.revised_answer_key && challenge.question_id) {
       await this.prisma.question.update({
         where: { id: challenge.question_id },
         data: {
@@ -224,7 +252,7 @@ export class ChallengesService {
     }
 
     // If revising solution, update the question
-    if (data.action === "REVISE_SOLUTION" && data.revised_solution_json) {
+    if (data.action === "REVISE_SOLUTION" && data.revised_solution_json && challenge.question_id) {
       await this.prisma.question.update({
         where: { id: challenge.question_id },
         data: {
@@ -249,19 +277,19 @@ export class ChallengesService {
     let studentMessage: string;
     switch (data.action) {
       case "ACCEPT":
-        studentMessage = `Your challenge for "${challenge.question.title}" has been accepted. The question has been reviewed and corrected.`;
+        studentMessage = `Your challenge for "${itemTitle}" has been accepted. The item has been reviewed and corrected.`;
         break;
       case "REVISE_ANSWER_KEY":
-        studentMessage = `Your challenge for "${challenge.question.title}" has been accepted. The answer key has been updated.`;
+        studentMessage = `Your challenge for "${itemTitle}" has been accepted. The answer key has been updated.`;
         break;
       case "REVISE_SOLUTION":
-        studentMessage = `Your challenge for "${challenge.question.title}" has been accepted. The solution has been revised.`;
+        studentMessage = `Your challenge for "${itemTitle}" has been accepted. The solution has been revised.`;
         break;
       case "REJECT":
-        studentMessage = `Your challenge for "${challenge.question.title}" has been reviewed and rejected. ${data.resolution_note || "The original answer is correct."}`;
+        studentMessage = `Your challenge for "${itemTitle}" has been reviewed and rejected. ${data.resolution_note || "The original content is correct."}`;
         break;
       default:
-        studentMessage = `Your challenge for "${challenge.question.title}" has been ${newStatus.toLowerCase()}.`;
+        studentMessage = `Your challenge for "${itemTitle}" has been ${newStatus.toLowerCase()}.`;
     }
 
     // Notify the student
@@ -274,6 +302,7 @@ export class ChallengesService {
         data_json: {
           challenge_id: challengeId,
           question_id: challenge.question_id,
+          note_id: challenge.note_id,
           action: data.action,
           status: newStatus,
         },
@@ -299,6 +328,9 @@ export class ChallengesService {
         question: {
           select: { id: true, title: true },
         },
+        note: {
+          select: { id: true, title: true },
+        }
       },
     });
   }

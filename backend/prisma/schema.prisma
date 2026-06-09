@@ -137,6 +137,7 @@ model Topic {
   questions       Question[]
   responses       Response[]
   notes           Note[]
+  tests           Test[]
 
   @@unique([chapter_id, name])
   @@index([chapter_id])
@@ -155,6 +156,8 @@ model Note {
   rejection_note  String?
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt
+
+  challenges      Challenge[]
 
   @@index([topic_id])
   @@index([created_by])
@@ -223,6 +226,8 @@ model QuestionVersion {
 
 model Test {
   id              String    @id @default(cuid())
+  topic_id        String
+  topic           Topic     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
   title           String
   description     String?
   created_by      String    // User ID
@@ -241,6 +246,7 @@ model Test {
   test_series     TestSeries[]
 
   @@index([created_by])
+  @@index([topic_id])
   @@index([status])
   @@index([start_time])
   @@index([created_at])
@@ -330,9 +336,14 @@ model Response {
 
 model Challenge {
   id              String    @id @default(cuid())
-  response_id     String    // The response being challenged
-  question_id     String
-  question        Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  // Polymorphic relations: Can challenge a Question (via Response) OR a Note
+  response_id     String?   // The response being challenged (if question)
+  question_id     String?
+  question        Question? @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  
+  note_id         String?
+  note            Note?     @relation(fields: [note_id], references: [id], onDelete: Cascade)
+
   submitted_by    String    // User ID who submitted challenge
   created_by      User      @relation("challenges_created", fields: [submitted_by], references: [id], onDelete: Cascade)
   assigned_to     String    // User ID (teacher) who reviews it

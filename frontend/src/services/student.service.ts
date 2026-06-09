@@ -149,6 +149,7 @@ class StudentApiService {
 
   /* Tests (public) */
   async getTests(params?: {
+    topic_id?: string;
     search?: string;
     skip?: number;
     take?: number;

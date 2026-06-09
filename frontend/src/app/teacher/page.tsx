@@ -25,21 +25,12 @@ export default function TeacherHomePage() {
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["teacher", "dashboard"] });
-  };
+
 
   return (
     <DashboardShell activeHref="/teacher">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <SectionTitle title="Teacher Dashboard" subtitle="Central hub for question, test, and challenge workflows." />
-        <button 
-          onClick={handleRefresh}
-          disabled={isFetching}
-          className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-white transition hover:bg-white/[0.06] disabled:opacity-50"
-        >
-          {isFetching ? "Refreshing..." : "Refresh Data"}
-        </button>
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-4">

@@ -10,7 +10,7 @@ export class HierarchyController {
   constructor(private readonly hierarchyService: HierarchyService) {}
 
   @Get()
-  @Roles("TEACHER", "ADMIN", "INTERN")
+  @Roles("TEACHER", "ADMIN", "INTERN", "STUDENT")
   getFullHierarchy() {
     return this.hierarchyService.getFullHierarchy();
   }

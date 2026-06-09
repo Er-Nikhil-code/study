@@ -21,6 +21,7 @@ export class TestsService {
     creatorId: string,
     data: {
       title: string;
+      topic_id: string;
       description?: string;
       duration_minutes: number;
       total_marks: number;
@@ -32,6 +33,7 @@ export class TestsService {
     const test = await this.prisma.test.create({
       data: {
         title: data.title,
+        topic_id: data.topic_id,
         description: data.description,
         created_by: creatorId,
         duration_minutes: data.duration_minutes,
@@ -135,17 +137,21 @@ export class TestsService {
    * ════════════════════════════════════════════ */
 
   async listPublishedTests(params: {
+    topicId?: string;
     search?: string;
     skip?: number;
     take?: number;
   }) {
-    const { search, skip = 0, take = 20 } = params;
+    const { topicId, search, skip = 0, take = 20 } = params;
     const where: any = {
       status: { in: ["PUBLISHED", "ONGOING", "COMPLETED"] },
     };
 
     if (search) {
       where.title = { contains: search, mode: "insensitive" };
+    }
+    if (topicId) {
+      where.topic_id = topicId;
     }
 
     const [tests, total] = await Promise.all([

@@ -49,7 +49,8 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     case "TEACHER":
       return [
         { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
-        { label: "Hierarchy", href: "/teacher/hierarchy", icon: Network },
+        { label: "Curriculum", href: "/teacher/hierarchy", icon: Network },
+        { label: "Notes Review", href: "/teacher/notes/review", icon: FileEdit },
         { label: "Questions", href: "/teacher/questions", icon: FileQuestion },
         { label: "Tests", href: "/teacher/tests", icon: FileText },
         { label: "Challenges", href: "/teacher/challenges", icon: ShieldAlert },
@@ -59,6 +60,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     case "INTERN": {
       return [
         { label: "Dashboard", href: "/intern/dashboard", icon: LayoutDashboard },
+        { label: "Create Notes", href: "/intern/notes/create", icon: FileEdit },
         { label: "My Questions", href: "/intern/questions", icon: BookOpen },
         { label: "Create Question", href: "/teacher/questions/create", icon: PlusCircle },
         { label: "Question Statistics", href: "/intern/statistics", icon: BarChart2 },
@@ -69,7 +71,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     case "STUDENT":
       return [
         { label: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
-        { label: "Available Tests", href: "/tests", icon: Library },
+        { label: "Available Courses", href: "/courses", icon: Library },
         { label: "Previous Tests", href: "/results", icon: History },
         { label: "Notifications", href: "/notifications", icon: Bell },
       ];

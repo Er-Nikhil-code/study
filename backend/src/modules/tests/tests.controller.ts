@@ -24,11 +24,13 @@ export class TestsController {
 
   @Get()
   async listTests(
+    @Query("topic_id") topicId?: string,
     @Query("search") search?: string,
     @Query("skip") skip?: string,
     @Query("take") take?: string,
   ) {
     return this.testsService.listPublishedTests({
+      topicId,
       search,
       skip: skip ? parseInt(skip, 10) : 0,
       take: take ? parseInt(take, 10) : 20,
@@ -95,6 +97,7 @@ export class TestsController {
     @Body()
     body: {
       title: string;
+      topic_id: string;
       description?: string;
       duration_minutes: number;
       total_marks: number;

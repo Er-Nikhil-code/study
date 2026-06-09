@@ -14,28 +14,18 @@ export default function CreateNotePage() {
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
+    course_id: "",
+    section_id: "",
+    chapter_id: "",
     topic_id: "",
     title: "",
     content_html: ""
   });
 
   useEffect(() => {
-    // Extract topics from hierarchy
-    HierarchyService.getFullHierarchy().then((courses: any) => {
-      const allTopics: any[] = [];
-      courses.forEach((c: any) => {
-        c.sections?.forEach((s: any) => {
-          s.chapters?.forEach((ch: any) => {
-            ch.topics?.forEach((t: any) => {
-              allTopics.push({
-                ...t,
-                chapter: { ...ch, section: { ...s, course: c } }
-              });
-            });
-          });
-        });
-      });
-      setTopics(allTopics);
+    // Extract hierarchy for cascaded dropdowns
+    HierarchyService.getFullHierarchy().then((data: any) => {
+      setTopics(data); // 'topics' holds full hierarchy here
     });
   }, []);
 
@@ -48,7 +38,7 @@ export default function CreateNotePage() {
     try {
       await NotesService.createNote(formData);
       setSuccess(true);
-      setFormData({ topic_id: "", title: "", content_html: "" });
+      setFormData({ course_id: "", section_id: "", chapter_id: "", topic_id: "", title: "", content_html: "" });
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to submit note");
     } finally {
@@ -80,21 +70,63 @@ export default function CreateNotePage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-zinc-300">Target Topic</label>
-            <select
-              required
-              value={formData.topic_id}
-              onChange={(e) => setFormData({ ...formData, topic_id: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-white outline-none focus:border-red-500"
-            >
-              <option value="">Select a topic...</option>
-              {topics.map((t) => (
-                <option key={t.id} value={t.id} className="bg-zinc-900">
-                  {t.chapter.section.course.name} → {t.chapter.section.name} → {t.chapter.name} → {t.name}
-                </option>
-              ))}
-            </select>
+          <div className="grid gap-4 sm:grid-cols-4">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-zinc-300">Course</label>
+              <select
+                value={formData.course_id}
+                onChange={(e) => setFormData({ ...formData, course_id: e.target.value, section_id: "", chapter_id: "", topic_id: "" })}
+                className="w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500 appearance-none"
+              >
+                <option value="">Select Course</option>
+                {topics.map((c: any) => (
+                  <option key={c.id} value={c.id} className="bg-zinc-900">{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-zinc-300">Section</label>
+              <select
+                value={formData.section_id}
+                onChange={(e) => setFormData({ ...formData, section_id: e.target.value, chapter_id: "", topic_id: "" })}
+                disabled={!formData.course_id}
+                className="w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500 appearance-none disabled:opacity-50"
+              >
+                <option value="">Select Section</option>
+                {topics.find((c: any) => c.id === formData.course_id)?.sections?.map((s: any) => (
+                  <option key={s.id} value={s.id} className="bg-zinc-900">{s.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-zinc-300">Chapter</label>
+              <select
+                value={formData.chapter_id}
+                onChange={(e) => setFormData({ ...formData, chapter_id: e.target.value, topic_id: "" })}
+                disabled={!formData.section_id}
+                className="w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500 appearance-none disabled:opacity-50"
+              >
+                <option value="">Select Chapter</option>
+                {topics.find((c: any) => c.id === formData.course_id)?.sections?.find((s: any) => s.id === formData.section_id)?.chapters?.map((ch: any) => (
+                  <option key={ch.id} value={ch.id} className="bg-zinc-900">{ch.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-zinc-300">Topic</label>
+              <select
+                required
+                value={formData.topic_id}
+                onChange={(e) => setFormData({ ...formData, topic_id: e.target.value })}
+                disabled={!formData.chapter_id}
+                className="w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500 appearance-none disabled:opacity-50"
+              >
+                <option value="">Select Topic</option>
+                {topics.find((c: any) => c.id === formData.course_id)?.sections?.find((s: any) => s.id === formData.section_id)?.chapters?.find((ch: any) => ch.id === formData.chapter_id)?.topics?.map((t: any) => (
+                  <option key={t.id} value={t.id} className="bg-zinc-900">{t.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
