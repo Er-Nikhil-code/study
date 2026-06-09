@@ -224,7 +224,7 @@ export function RegisterForm() {
               type="text"
               value={formState.lastName}
               onChange={(e) => updateField("lastName", e.target.value)}
-              placeholder="Last name"
+              placeholder="Last name (Optional)"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               disabled={loading}
             />

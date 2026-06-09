@@ -24,7 +24,9 @@ export default function InternDashboardPage() {
 
 
   if (!user) return null;
-  const name = user.email.split("@")[0];
+  const name = user.firstName 
+    ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}` 
+    : user.email.split("@")[0];
 
   return (
     <DashboardShell activeHref="/intern/dashboard">

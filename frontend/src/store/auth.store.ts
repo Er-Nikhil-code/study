@@ -8,6 +8,8 @@ export type UserRole = "STUDENT" | "INTERN" | "TEACHER" | "ADMIN";
 export interface AuthUser {
   id: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
   role: UserRole;
   profile_picture?: string;
   custom_role?: {
