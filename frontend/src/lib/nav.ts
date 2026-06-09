@@ -61,7 +61,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
         { label: "Draft Questions", href: "/teacher/questions?status=draft", icon: FileEdit },
         { label: "Submitted Questions", href: "/teacher/questions?status=submitted", icon: Send },
         { label: "Rejected Questions", href: "/teacher/questions?status=rejected", icon: XCircle },
-        { label: "Question Statistics", href: "/intern/dashboard#stats", icon: BarChart2 },
+        { label: "Question Statistics", href: "/intern/statistics", icon: BarChart2 },
         { label: "Notifications", href: "/notifications", icon: Bell },
         { label: "Profile", href: "/profile", icon: User },
       ];
