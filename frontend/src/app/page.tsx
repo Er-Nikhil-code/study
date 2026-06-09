@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { authService } from "@/services/auth.service";
-import { useAuthStore } from "@/store/auth.store";
+import { useAuthStore, AuthUser } from "@/store/auth.store";
 import Logo from "@/components/ui/Logo";
 
 const QUOTES = [
@@ -419,7 +419,7 @@ function LoginFormEmbedded({
 
       // Update Zustand store so Navbar and all components see the user immediately
       if (res.user && res.accessToken) {
-        setAuth(res.user, res.accessToken);
+        setAuth(res.user as AuthUser, res.accessToken);
       }
 
       const role = res.user?.role || "STUDENT";

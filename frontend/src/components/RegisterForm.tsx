@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AlertCircle, CheckCircle, Clock, Eye, EyeOff } from "lucide-react";
 import authService from "@/services/auth.service";
-import { useAuthStore } from "@/store/auth.store";
+import { useAuthStore, AuthUser } from "@/store/auth.store";
 import { useFormState } from "@/hooks/useFormState";
 import { useOtpTimer } from "@/hooks/useOtpTimer";
 
@@ -120,7 +120,7 @@ export function RegisterForm() {
 
       // Update Zustand store so the session is established
       if (result.user && result.accessToken) {
-        setAuth(result.user, result.accessToken);
+        setAuth(result.user as AuthUser, result.accessToken);
       }
 
       setSuccessMessage("✅ Account created successfully! Redirecting...");
