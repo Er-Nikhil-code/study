@@ -41,7 +41,7 @@ export default function CoursesPage() {
         </div>
       ) : (
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
-          {courses.map((course) => (
+          {courses.map((course: any) => (
             <Link key={course.id} href={`/courses/${course.id}`}>
               <Panel className="flex h-full flex-col cursor-pointer transition-transform hover:-translate-y-1 hover:border-red-500/50">
                 <div className="flex items-center gap-3 mb-4">
