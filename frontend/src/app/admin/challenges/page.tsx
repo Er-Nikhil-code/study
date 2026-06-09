@@ -26,7 +26,7 @@ const challenges = [
 
 export default function AdminChallengesPage() {
   return (
-    <DashboardShell activeHref="/admin/challenges" navItems={adminNavItems}>
+    <DashboardShell activeHref="/admin/challenges">
       <SectionTitle
         title="Escalated challenges"
         subtitle="Admin override queue for unresolved or escalated student issues."

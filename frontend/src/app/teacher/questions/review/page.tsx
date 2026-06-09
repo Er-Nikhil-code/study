@@ -75,7 +75,7 @@ export default function ReviewQuestionsPage() {
   };
 
   return (
-    <DashboardShell activeHref="/teacher/questions" navItems={navItems}>
+    <DashboardShell activeHref="/teacher/questions">
       <SectionTitle
         title="Review Approvals"
         subtitle={`${total} question${total !== 1 ? "s" : ""} waiting for your review.`}

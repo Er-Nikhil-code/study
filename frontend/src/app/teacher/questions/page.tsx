@@ -76,7 +76,7 @@ export default function TeacherQuestionsPage() {
   };
 
   return (
-    <DashboardShell activeHref="/teacher/questions" navItems={getNavItems(userRole)}>
+    <DashboardShell activeHref="/teacher/questions">
       <SectionTitle
         title="Question Bank"
         subtitle={`${total} question${total !== 1 ? "s" : ""} in your workspace.`}

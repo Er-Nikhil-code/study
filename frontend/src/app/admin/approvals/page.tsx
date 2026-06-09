@@ -29,7 +29,7 @@ const approvals = [
 
 export default function AdminApprovalsPage() {
   return (
-    <DashboardShell activeHref="/admin/approvals" navItems={adminNavItems}>
+    <DashboardShell activeHref="/admin/approvals">
       <SectionTitle
         title="Teacher approvals"
         subtitle="Review pending teacher applications and move them through the approval flow."

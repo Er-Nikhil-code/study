@@ -63,7 +63,7 @@ export default function CreateNotePage() {
   ];
 
   return (
-    <DashboardShell activeHref="/intern/notes/create" navItems={navItems}>
+    <DashboardShell activeHref="/intern/notes/create">
       <SectionTitle title="Create Educational Note" subtitle="Submit study material for Teacher review" />
 
       <Panel className="mt-6 max-w-4xl">

@@ -1,4 +1,4 @@
-import Navbar from "@/components/layout/Navbar";
+import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 
@@ -30,9 +30,7 @@ const plan = [
 
 export default function StudyPlanPage() {
   return (
-    <div className="min-h-screen bg-black">
-      <Navbar />
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <DashboardShell activeHref="/study-plan">
         <SectionTitle
           title="Study plan"
           subtitle="A placeholder AI study-plan page that already fits the roadmap look and can be wired to Claude later."
@@ -60,7 +58,6 @@ export default function StudyPlanPage() {
             </Panel>
           ))}
         </div>
-      </main>
-    </div>
+    </DashboardShell>
   );
 }

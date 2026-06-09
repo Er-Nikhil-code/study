@@ -114,7 +114,7 @@ export default function AdminQuestionsPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <DashboardShell activeHref="/admin/questions" navItems={adminNavItems}>
+    <DashboardShell activeHref="/admin/questions">
       <SectionTitle
         title="Questions"
         subtitle={`${total} question${total !== 1 ? "s" : ""} in the bank.`}

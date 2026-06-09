@@ -232,7 +232,7 @@ export default function AdminRolesPage() {
   );
 
   return (
-    <DashboardShell activeHref="/admin/roles" navItems={adminNavItems}>
+    <DashboardShell activeHref="/admin/roles">
       <SectionTitle
         title="Roles & Hierarchy"
         subtitle={`${total} role${total !== 1 ? "s" : ""} configured with hierarchy.`}

@@ -79,7 +79,7 @@ export default function HierarchyManagerPage() {
   ];
 
   return (
-    <DashboardShell activeHref="/teacher/hierarchy" navItems={navItems}>
+    <DashboardShell activeHref="/teacher/hierarchy">
       <div className="flex items-center justify-between">
         <SectionTitle title="Academic Hierarchy" subtitle="Manage Courses, Sections, Chapters, and Topics" />
         <button

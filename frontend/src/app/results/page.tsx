@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Navbar from "@/components/layout/Navbar";
+import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import studentService, { type ResultItem } from "@/services/student.service";
@@ -25,9 +25,7 @@ export default function ResultsPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className="min-h-screen bg-black">
-      <Navbar />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <DashboardShell activeHref="/results">
         <SectionTitle title="Results" subtitle={`${total} attempt${total !== 1 ? "s" : ""} recorded.`} />
 
         <Panel className="mt-6 overflow-x-auto p-0">
@@ -88,7 +86,6 @@ export default function ResultsPage() {
             </div>
           </div>
         )}
-      </main>
-    </div>
+    </DashboardShell>
   );
 }

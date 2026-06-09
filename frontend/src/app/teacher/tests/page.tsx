@@ -38,7 +38,7 @@ const tests = [
 
 export default function TeacherTestsPage() {
   return (
-    <DashboardShell activeHref="/teacher/tests" navItems={navItems}>
+    <DashboardShell activeHref="/teacher/tests">
       <SectionTitle
         title="Tests"
         subtitle="Create, schedule, and manage test sets from the teacher panel."

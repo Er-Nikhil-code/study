@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/layout/Navbar";
+import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import StatCard from "@/components/ui/StatCard";
@@ -65,25 +65,21 @@ export default function ResultDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black">
-        <Navbar />
-        <main className="mx-auto max-w-5xl px-4 py-8">
-          <div className="h-8 w-48 animate-pulse rounded bg-white/10" />
-          <div className="mt-4 h-64 animate-pulse rounded-2xl bg-white/[0.03]" />
-        </main>
-      </div>
+      <DashboardShell activeHref="/results">
+        <div className="h-8 w-48 animate-pulse rounded bg-white/10" />
+        <div className="mt-4 h-64 animate-pulse rounded-2xl bg-white/[0.03]" />
+      </DashboardShell>
     );
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-black">
-        <Navbar />
-        <main className="mx-auto max-w-5xl px-4 py-12 text-center">
+      <DashboardShell activeHref="/results">
+        <div className="text-center py-12">
           <p className="text-zinc-500">Result not found.</p>
           <Link href="/results" className="mt-4 inline-block text-red-400 hover:text-red-300">← Back to results</Link>
-        </main>
-      </div>
+        </div>
+      </DashboardShell>
     );
   }
 
@@ -94,9 +90,7 @@ export default function ResultDetailPage() {
   const timeTaken = data.time_taken_sec ? `${Math.floor(data.time_taken_sec / 60)}m ${data.time_taken_sec % 60}s` : "—";
 
   return (
-    <div className="min-h-screen bg-black">
-      <Navbar />
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <DashboardShell activeHref="/results">
         <SectionTitle title={data.test?.title || "Test Result"} subtitle={`Attempt #${data.attempt_no} · ${data.practice_mode ? "Practice" : "Scored"}`} />
 
         {/* Score summary */}
@@ -205,7 +199,6 @@ export default function ResultDetailPage() {
         <div className="mt-6">
           <Link href="/results" className="text-sm text-zinc-400 hover:text-white transition">← Back to all results</Link>
         </div>
-      </main>
 
       {/* Challenge Modal */}
       {challengeQ && (
@@ -253,6 +246,6 @@ export default function ResultDetailPage() {
           </div>
         </div>
       )}
-    </div>
+    </DashboardShell>
   );
 }

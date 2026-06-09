@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/layout/Navbar";
+import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import studentService from "@/services/student.service";
@@ -38,27 +38,23 @@ export default function TestDetailsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black">
-        <Navbar />
-        <main className="mx-auto max-w-5xl px-4 py-8">
-          <div className="h-8 w-48 animate-pulse rounded bg-white/10" />
-          <div className="mt-4 h-64 animate-pulse rounded-2xl bg-white/[0.03]" />
-        </main>
-      </div>
+      <DashboardShell activeHref="/tests">
+        <div className="h-8 w-48 animate-pulse rounded bg-white/10" />
+        <div className="mt-4 h-64 animate-pulse rounded-2xl bg-white/[0.03]" />
+      </DashboardShell>
     );
   }
 
   if (!test) {
     return (
-      <div className="min-h-screen bg-black">
-        <Navbar />
-        <main className="mx-auto max-w-5xl px-4 py-12 text-center">
+      <DashboardShell activeHref="/tests">
+        <div className="text-center py-12">
           <p className="text-zinc-500">Test not found.</p>
           <Link href="/tests" className="mt-4 inline-block text-red-400 hover:text-red-300">
             ← Back to tests
           </Link>
-        </main>
-      </div>
+        </div>
+      </DashboardShell>
     );
   }
 
@@ -66,9 +62,7 @@ export default function TestDetailsPage() {
   const attemptCount = test._count?.attempts ?? 0;
 
   return (
-    <div className="min-h-screen bg-black">
-      <Navbar />
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <DashboardShell activeHref="/tests">
         <SectionTitle
           title={test.title}
           subtitle={test.description || "Ready when you are."}
@@ -124,7 +118,6 @@ export default function TestDetailsPage() {
             </Link>
           </div>
         </Panel>
-      </main>
-    </div>
+    </DashboardShell>
   );
 }

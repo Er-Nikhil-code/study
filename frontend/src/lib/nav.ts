@@ -1,8 +1,31 @@
 import { AuthUser } from "@/store/auth.store";
+import {
+  LayoutDashboard,
+  Users,
+  FileQuestion,
+  CheckSquare,
+  ShieldAlert,
+  Activity,
+  Network,
+  FileText,
+  PlusCircle,
+  FileEdit,
+  Send,
+  XCircle,
+  BarChart2,
+  Bell,
+  User,
+  Library,
+  Calendar,
+  History,
+  PieChart,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 export type NavItem = {
   label: string;
   href: string;
+  icon: LucideIcon;
 };
 
 export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
@@ -14,51 +37,51 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
   switch (user.role) {
     case "ADMIN":
       return [
-        { label: "Dashboard", href: "/admin" },
-        { label: "Users & Roles", href: "/admin/users" },
-        { label: "Questions", href: "/admin/questions" },
-        { label: "Approvals", href: "/admin/approvals" },
-        { label: "Challenges", href: "/admin/challenges" },
-        { label: "System Status", href: "/admin/system" },
+        { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+        { label: "Users & Roles", href: "/admin/users", icon: Users },
+        { label: "Questions", href: "/admin/questions", icon: FileQuestion },
+        { label: "Approvals", href: "/admin/approvals", icon: CheckSquare },
+        { label: "Challenges", href: "/admin/challenges", icon: ShieldAlert },
+        { label: "System Status", href: "/admin/system", icon: Activity },
       ];
 
     case "TEACHER":
       return [
-        { label: "Dashboard", href: "/teacher" },
-        { label: "Hierarchy", href: "/teacher/hierarchy" },
-        { label: "Questions", href: "/teacher/questions" },
-        { label: "Tests", href: "/teacher/tests" },
-        { label: "Challenges", href: "/teacher/challenges" },
+        { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
+        { label: "Hierarchy", href: "/teacher/hierarchy", icon: Network },
+        { label: "Questions", href: "/teacher/questions", icon: FileQuestion },
+        { label: "Tests", href: "/teacher/tests", icon: FileText },
+        { label: "Challenges", href: "/teacher/challenges", icon: ShieldAlert },
       ];
 
     case "INTERN": {
       const items: NavItem[] = [
-        { label: "Dashboard Overview", href: "/intern/dashboard" },
-        { label: "Create Question", href: "/teacher/questions/create" }, // Currently they use this endpoint
-        { label: "Draft Questions", href: "/teacher/questions?status=draft" }, // Mock links for now
-        { label: "Submitted Questions", href: "/teacher/questions?status=submitted" },
-        { label: "Rejected Questions", href: "/teacher/questions?status=rejected" },
-        { label: "Question Statistics", href: "/intern/dashboard#stats" },
-        { label: "Notifications", href: "/notifications" },
-        { label: "Profile", href: "/profile" },
+        { label: "Dashboard Overview", href: "/intern/dashboard", icon: LayoutDashboard },
+        { label: "Create Question", href: "/teacher/questions/create", icon: PlusCircle },
+        { label: "Draft Questions", href: "/teacher/questions?status=draft", icon: FileEdit },
+        { label: "Submitted Questions", href: "/teacher/questions?status=submitted", icon: Send },
+        { label: "Rejected Questions", href: "/teacher/questions?status=rejected", icon: XCircle },
+        { label: "Question Statistics", href: "/intern/dashboard#stats", icon: BarChart2 },
+        { label: "Notifications", href: "/notifications", icon: Bell },
+        { label: "Profile", href: "/profile", icon: User },
       ];
 
       // Dynamic permissions
       if (hasPerm("create_test") || hasPerm("manage_test")) {
-        items.splice(6, 0, { label: "Tests", href: "/teacher/tests" });
+        items.splice(6, 0, { label: "Tests", href: "/teacher/tests", icon: FileText });
       }
       return items;
     }
 
     case "STUDENT":
       return [
-        { label: "Dashboard Overview", href: "/student/dashboard" },
-        { label: "Available Tests", href: "/tests" },
-        { label: "Scheduled Tests", href: "/student/dashboard#scheduled" },
-        { label: "Previous Tests", href: "/results" },
-        { label: "Results & Analytics", href: "/student/dashboard#analytics" },
-        { label: "Notifications", href: "/notifications" },
-        { label: "Profile", href: "/profile" },
+        { label: "Dashboard Overview", href: "/student/dashboard", icon: LayoutDashboard },
+        { label: "Available Tests", href: "/tests", icon: Library },
+        { label: "Scheduled Tests", href: "/student/dashboard#scheduled", icon: Calendar },
+        { label: "Previous Tests", href: "/results", icon: History },
+        { label: "Results & Analytics", href: "/student/dashboard#analytics", icon: PieChart },
+        { label: "Notifications", href: "/notifications", icon: Bell },
+        { label: "Profile", href: "/profile", icon: User },
       ];
 
     default:

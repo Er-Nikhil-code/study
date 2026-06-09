@@ -27,7 +27,7 @@ export default function TeacherHomePage() {
   }, []);
 
   return (
-    <DashboardShell activeHref="/teacher" navItems={navItems}>
+    <DashboardShell activeHref="/teacher">
       <SectionTitle title="Teacher Dashboard" subtitle="Central hub for question, test, and challenge workflows." />
 
       <div className="mt-6 grid gap-4 md:grid-cols-4">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import Navbar from "@/components/layout/Navbar";
+import DashboardShell from "@/components/layout/DashboardShell";
 import SectionTitle from "@/components/ui/SectionTitle";
 import TestCard from "@/components/tests/TestCard";
 import studentService, { type TestListItem } from "@/services/student.service";
@@ -49,9 +49,7 @@ export default function TestsPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(239,68,68,0.12),_transparent_30%),linear-gradient(to_bottom,_#000,_#090909_50%,_#000)]">
-      <Navbar />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <DashboardShell activeHref="/tests">
         <SectionTitle
           title="Available Tests"
           subtitle={`${total} test${total !== 1 ? "s" : ""} available. Pick one to start a timed attempt.`}
@@ -152,7 +150,7 @@ export default function TestsPage() {
             </div>
           </div>
         )}
-      </main>
-    </div>
+      
+    </DashboardShell>
   );
 }

@@ -65,7 +65,7 @@ export default function CreateTestPage() {
   ];
 
   return (
-    <DashboardShell activeHref="/teacher/tests" navItems={navItems}>
+    <DashboardShell activeHref="/teacher/tests">
       <SectionTitle title="Create New Test" subtitle="Configure test rules and select questions from the approved bank" />
 
       <form onSubmit={handleSubmit} className="mt-8 flex flex-col lg:flex-row gap-6">

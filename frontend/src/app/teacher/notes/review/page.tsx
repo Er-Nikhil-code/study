@@ -53,7 +53,7 @@ export default function ReviewNotesPage() {
   ];
 
   return (
-    <DashboardShell activeHref="/teacher/notes/review" navItems={navItems}>
+    <DashboardShell activeHref="/teacher/notes/review">
       <SectionTitle title="Notes Review Queue" subtitle="Approve or reject study materials submitted by Interns" />
 
       {loading ? (

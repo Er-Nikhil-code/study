@@ -124,7 +124,7 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <DashboardShell activeHref="/admin/users" navItems={adminNavItems}>
+    <DashboardShell activeHref="/admin/users">
       <SectionTitle
         title="Users"
         subtitle={`${total} total user${total !== 1 ? "s" : ""} on the platform.`}

@@ -56,7 +56,7 @@ export default function AdminHomePage() {
   }, []);
 
   return (
-    <DashboardShell activeHref="/admin" navItems={adminNavItems}>
+    <DashboardShell activeHref="/admin">
       <SectionTitle
         title="Admin Dashboard"
         subtitle="Oversight, moderation, and system health in one place."

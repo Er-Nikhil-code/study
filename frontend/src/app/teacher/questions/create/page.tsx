@@ -162,7 +162,7 @@ export default function CreateQuestionPage() {
   };
 
   return (
-    <DashboardShell activeHref="/teacher/questions" navItems={getNavItems(role)}>
+    <DashboardShell activeHref="/teacher/questions">
       <div className="flex items-center justify-between">
         <SectionTitle title="Create Question" subtitle="Add a new question to the bank" />
       </div>

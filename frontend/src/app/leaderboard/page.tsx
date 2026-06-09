@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Navbar from "@/components/layout/Navbar";
+import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import studentService, { type LeaderboardRow } from "@/services/student.service";
@@ -27,9 +27,7 @@ export default function LeaderboardPage() {
   }, [period]);
 
   return (
-    <div className="min-h-screen bg-black">
-      <Navbar />
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <DashboardShell activeHref="/leaderboard">
         <SectionTitle title="Leaderboard" subtitle="See how you stack up against other students." />
 
         {/* Period tabs */}
@@ -91,7 +89,6 @@ export default function LeaderboardPage() {
           )}
         </div>
         </Panel>
-      </main>
-    </div>
+    </DashboardShell>
   );
 }

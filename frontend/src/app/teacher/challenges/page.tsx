@@ -46,7 +46,7 @@ export default function TeacherChallengesPage() {
   };
 
   return (
-    <DashboardShell activeHref="/teacher/challenges" navItems={navItems}>
+    <DashboardShell activeHref="/teacher/challenges">
       <SectionTitle
         title="Challenges"
         subtitle="Review student challenge submissions and resolve them from one place."

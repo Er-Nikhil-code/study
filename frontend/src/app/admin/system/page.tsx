@@ -22,7 +22,7 @@ export default function AdminSystemPage() {
   }, []);
 
   return (
-    <DashboardShell activeHref="/admin/system" navItems={adminNavItems}>
+    <DashboardShell activeHref="/admin/system">
       <SectionTitle
         title="System Status"
         subtitle="Monitor platform health, server metrics, and active background services."
