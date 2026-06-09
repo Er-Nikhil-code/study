@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     title: "CODIFY",
     description: "The ultimate next-generation learning platform with intelligent content management and analytics.",
     type: "website",
-    siteName: "Codify",
+    siteName: "CODIFY",
   },
 };
 
