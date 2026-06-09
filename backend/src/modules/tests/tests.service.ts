@@ -676,7 +676,12 @@ export class TestsService {
                     chapter: {
                       select: {
                         name: true,
-                        subject: { select: { name: true } },
+                        section: { 
+                          select: { 
+                            name: true,
+                            course: { select: { name: true } }
+                          } 
+                        },
                       },
                     },
                   },

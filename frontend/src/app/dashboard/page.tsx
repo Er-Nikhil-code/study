@@ -118,8 +118,12 @@ export default function DashboardPage() {
                     <div className="mt-2 text-3xl font-semibold text-white">{studentData.avg_accuracy ? `${Math.round(studentData.avg_accuracy)}%` : "—"}</div>
                   </Panel>
                   <Panel>
-                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Best Score</div>
-                    <div className="mt-2 text-3xl font-semibold text-white">{studentData.best_score ?? "—"}</div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                      {role === "INTERN" ? "Total Points" : "Best Score"}
+                    </div>
+                    <div className="mt-2 text-3xl font-semibold text-white">
+                      {role === "INTERN" ? (studentData.total_score || 0) : (studentData.best_score ?? "—")}
+                    </div>
                   </Panel>
                 </div>
 

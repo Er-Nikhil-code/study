@@ -12,6 +12,8 @@ import { HealthModule } from "./modules/health/health.module";
 import { TestsModule } from "./modules/tests/tests.module";
 import { StudentModule } from "./modules/student/student.module";
 import { ChallengesModule } from "./modules/challenges/challenges.module";
+import { HierarchyModule } from "./modules/hierarchy/hierarchy.module";
+import { NotesModule } from "./modules/notes/notes.module";
 import { CleanupService } from "./jobs/cleanup.service";
 import { KeepAliveService } from "./jobs/keep-alive.service";
 
@@ -58,6 +60,8 @@ import { KeepAliveService } from "./jobs/keep-alive.service";
     TestsModule,
     StudentModule,
     ChallengesModule,
+    HierarchyModule,
+    NotesModule,
   ],
   providers: [CleanupService, KeepAliveService],
 })

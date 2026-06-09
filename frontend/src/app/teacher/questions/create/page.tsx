@@ -48,6 +48,10 @@ export default function CreateQuestionPage() {
     type: "SINGLE_CORRECT",
     content: "",
     solution: "",
+    is_pyq: false,
+    exam_name: "",
+    exam_year: new Date().getFullYear().toString(),
+    exam_shift: "",
   });
 
   // Type-specific states
@@ -108,7 +112,13 @@ export default function CreateQuestionPage() {
         negative_marks: Number(formData.negative_marks),
         type: formData.type,
         content_json: [{ type: "TEXT", content: formData.content }],
-        solution_json: formData.solution ? [{ type: "TEXT", content: formData.solution }] : []
+        solution_json: formData.solution ? [{ type: "TEXT", content: formData.solution }] : [],
+        metadata_json: formData.is_pyq ? {
+          is_pyq: true,
+          exam_name: formData.exam_name,
+          exam_year: formData.exam_year,
+          exam_shift: formData.exam_shift
+        } : {}
       };
 
       // Construct Payload based on Question Type
@@ -191,7 +201,7 @@ export default function CreateQuestionPage() {
                 <option value="">Select a topic...</option>
                 {topics.map((t) => (
                   <option key={t.id} value={t.id} className="bg-zinc-900 text-white">
-                    {t.chapter?.subject?.name} → {t.chapter?.name} → {t.name}
+                    {t.chapter?.section?.course?.name} → {t.chapter?.section?.name} → {t.chapter?.name} → {t.name}
                   </option>
                 ))}
               </select>
@@ -284,6 +294,63 @@ export default function CreateQuestionPage() {
         {formData.type === "PASSAGE" && (
           <PassageForm data={passageData} onChange={setPassageData} />
         )}
+
+        {/* PYQ Metadata */}
+        <Panel className="space-y-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500">Previous Year Question</h2>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <span className="text-sm text-zinc-400">Is this a PYQ?</span>
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={formData.is_pyq}
+                  onChange={(e) => setFormData({ ...formData, is_pyq: e.target.checked })}
+                />
+                <div className={`block w-10 h-6 rounded-full transition ${formData.is_pyq ? 'bg-red-500' : 'bg-zinc-700'}`}></div>
+                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform ${formData.is_pyq ? 'translate-x-4' : ''}`}></div>
+              </div>
+            </label>
+          </div>
+          
+          {formData.is_pyq && (
+            <div className="grid gap-4 sm:grid-cols-3 mt-4">
+              <div>
+                <label className="mb-2 block text-sm text-zinc-300">Exam Name</label>
+                <input
+                  type="text"
+                  required={formData.is_pyq}
+                  value={formData.exam_name}
+                  onChange={(e) => setFormData({ ...formData, exam_name: e.target.value })}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
+                  placeholder="e.g. JEE Main"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm text-zinc-300">Year</label>
+                <input
+                  type="number"
+                  required={formData.is_pyq}
+                  value={formData.exam_year}
+                  onChange={(e) => setFormData({ ...formData, exam_year: e.target.value })}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
+                  placeholder="e.g. 2023"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm text-zinc-300">Shift / Paper</label>
+                <input
+                  type="text"
+                  value={formData.exam_shift}
+                  onChange={(e) => setFormData({ ...formData, exam_shift: e.target.value })}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
+                  placeholder="e.g. Shift 1"
+                />
+              </div>
+            </div>
+          )}
+        </Panel>
 
         {/* Solution */}
         <Panel className="space-y-5">

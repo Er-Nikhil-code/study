@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Delete,
   Param,
@@ -102,5 +103,58 @@ export class AdminController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteQuestion(@Param("id") id: string) {
     await this.adminService.deleteQuestion(id);
+  }
+
+  /* ─── Custom Roles ─── */
+  @Get("roles")
+  async getRoles(
+    @Query("search") search?: string,
+    @Query("skip") skip?: string,
+    @Query("take") take?: string,
+  ) {
+    return this.adminService.getRoles({
+      search,
+      skip: skip ? parseInt(skip, 10) : 0,
+      take: take ? parseInt(take, 10) : 50,
+    });
+  }
+
+  @Get("roles/hierarchy")
+  async getRoleHierarchy() {
+    return this.adminService.getRoleHierarchy();
+  }
+
+  @Post("roles")
+  async createRole(@Body() body: any) {
+    return this.adminService.createRole(body);
+  }
+
+  @Patch("roles/:id")
+  async updateRole(@Param("id") id: string, @Body() body: any) {
+    return this.adminService.updateRole(id, body);
+  }
+
+  @Delete("roles/:id")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteRole(@Param("id") id: string) {
+    await this.adminService.deleteRole(id);
+  }
+
+  @Post("roles/assign")
+  @HttpCode(HttpStatus.OK)
+  async assignRole(@Body() body: { userId: string; roleName: string }) {
+    await this.adminService.assignRole(body.userId, body.roleName);
+  }
+
+  /* ─── Audit Logs ─── */
+  @Get("audit-logs")
+  async getAuditLogs(
+    @Query("skip") skip?: string,
+    @Query("take") take?: string,
+  ) {
+    return this.adminService.getAuditLogs({
+      skip: skip ? parseInt(skip, 10) : 0,
+      take: take ? parseInt(take, 10) : 50,
+    });
   }
 }

@@ -1,9 +1,26 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { adminNavItems } from "../nav";
+import adminService from "@/services/admin.service";
 
 export default function AdminSystemPage() {
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    adminService.getAuditLogs({ take: 10 }).then(res => {
+      setLogs(res.data);
+    }).catch(err => {
+      console.error(err);
+    }).finally(() => {
+      setLoading(false);
+    });
+  }, []);
+
   return (
     <DashboardShell activeHref="/admin/system" navItems={adminNavItems}>
       <SectionTitle
@@ -48,23 +65,22 @@ export default function AdminSystemPage() {
 
       <div className="mt-6">
         <Panel className="p-5">
-          <h3 className="text-sm font-semibold text-zinc-300 mb-4">System Logs</h3>
+          <h3 className="text-sm font-semibold text-zinc-300 mb-4">System Audit Logs</h3>
           <div className="space-y-3 font-mono text-xs text-zinc-400">
-            <div className="flex items-center gap-3">
-              <span className="text-zinc-600">14:02:45</span>
-              <span className="text-emerald-400">[INFO]</span>
-              <span>Database backup completed successfully.</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-zinc-600">13:45:12</span>
-              <span className="text-emerald-400">[INFO]</span>
-              <span>New role "CONTENT_HEAD" created by Admin.</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-zinc-600">13:30:00</span>
-              <span className="text-red-400">[WARN]</span>
-              <span>High memory usage detected on worker node 2.</span>
-            </div>
+            {loading ? (
+              <p>Loading logs...</p>
+            ) : logs.length === 0 ? (
+              <p>No recent activity logs.</p>
+            ) : (
+              logs.map((log) => (
+                <div key={log.id} className="flex items-start gap-3 border-b border-white/5 pb-2">
+                  <span className="text-zinc-600 whitespace-nowrap">{new Date(log.created_at).toLocaleTimeString()}</span>
+                  <span className="text-emerald-400 whitespace-nowrap">[{log.action.toUpperCase()}]</span>
+                  <span className="text-zinc-500 whitespace-nowrap">{log.actor?.email || "System"}:</span>
+                  <span className="text-white">Modified {log.entity_type} {log.entity_id}</span>
+                </div>
+              ))
+            )}
           </div>
         </Panel>
       </div>

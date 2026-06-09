@@ -131,7 +131,7 @@ export default function TeacherQuestionsPage() {
                   <h3 className="text-lg font-semibold text-white">{q.title}</h3>
                   <div className="flex flex-wrap gap-2 text-sm text-zinc-400">
                     <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-                      {q.topic?.name || "Unknown Topic"}
+                      {q.topic ? `${q.topic.chapter?.section?.course?.name || ''} → ${q.topic.name}` : "Unknown Topic"}
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
                       {q.question_type.replace(/_/g, " ")}

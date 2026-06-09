@@ -171,6 +171,15 @@ class AdminService {
   async deleteQuestion(id: string): Promise<void> {
     await api.delete(`/admin/questions/${id}`);
   }
+
+  /* ─── Audit Logs ─── */
+  async getAuditLogs(params?: {
+    skip?: number;
+    take?: number;
+  }): Promise<PaginatedResponse<any>> {
+    const res = await api.get<PaginatedResponse<any>>("/admin/audit-logs", { params });
+    return res.data;
+  }
 }
 
 export const adminService = new AdminService();

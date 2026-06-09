@@ -278,4 +278,103 @@ export class AdminService {
       throw error;
     }
   }
+
+  /* ─── Custom Roles ─── */
+  async getRoles(params: { search?: string; skip?: number; take?: number }) {
+    const { search, skip = 0, take = 50 } = params;
+    const where = search ? { name: { contains: search, mode: "insensitive" as const } } : {};
+    
+    const [data, total] = await Promise.all([
+      this.prisma.role.findMany({
+        where,
+        skip,
+        take,
+        include: { _count: { select: { users: true } }, parent: { select: { id: true, name: true } } },
+        orderBy: { level: 'asc' },
+      }),
+      this.prisma.role.count({ where }),
+    ]);
+
+    const formattedData = data.map(role => ({
+      ...role,
+      user_count: role._count.users
+    }));
+
+    return { data: formattedData, total, skip, take };
+  }
+
+  async getRoleHierarchy() {
+    return this.prisma.role.findMany({
+      include: { children: true },
+      orderBy: { level: 'asc' }
+    });
+  }
+
+  async createRole(data: any) {
+    return this.prisma.role.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        designation: data.designation,
+        level: data.level,
+        parent_id: data.parent_id,
+        permissions_json: data.permissions || [],
+      }
+    });
+  }
+
+  async updateRole(id: string, data: any) {
+    return this.prisma.role.update({
+      where: { id },
+      data: {
+        name: data.name,
+        description: data.description,
+        designation: data.designation,
+        level: data.level,
+        parent_id: data.parent_id,
+        permissions_json: data.permissions,
+      }
+    });
+  }
+
+  async deleteRole(id: string) {
+    return this.prisma.role.delete({ where: { id } });
+  }
+
+  async assignRole(userId: string, roleName: string) {
+    // If it's a base UserRole enum
+    if (["STUDENT", "INTERN", "PENDING_TEACHER", "TEACHER", "ADMIN"].includes(roleName)) {
+      return this.prisma.user.update({
+        where: { id: userId },
+        data: { role: roleName as any, custom_role_id: null }
+      });
+    }
+
+    // Otherwise it's a custom role
+    const customRole = await this.prisma.role.findUnique({ where: { name: roleName } });
+    if (!customRole) throw new NotFoundException("Role not found");
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { custom_role_id: customRole.id }
+    });
+  }
+
+  /* ─── Audit Logs ─── */
+  async getAuditLogs(params: { skip?: number; take?: number }) {
+    const skip = params.skip || 0;
+    const take = params.take || 50;
+
+    const [data, total] = await Promise.all([
+      this.prisma.auditLog.findMany({
+        skip,
+        take,
+        orderBy: { created_at: 'desc' },
+        include: { actor: { select: { id: true, first_name: true, last_name: true, email: true } } }
+      }),
+      this.prisma.auditLog.count()
+    ]);
+
+    return { data, total, skip, take };
+  }
 }

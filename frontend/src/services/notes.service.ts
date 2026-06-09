@@ -1,0 +1,19 @@
+import { api } from "@/lib/api";
+
+export const NotesService = {
+  createNote(data: { topic_id: string; title: string; content_html: string }) {
+    return api.post("/notes", data).then(res => res.data);
+  },
+
+  getPendingNotes() {
+    return api.get("/notes/pending").then(res => res.data);
+  },
+
+  reviewNote(id: string, data: { status: "APPROVED" | "REJECTED"; rejection_note?: string }) {
+    return api.patch(`/notes/${id}/review`, data).then(res => res.data);
+  },
+
+  getApprovedNotes(topicId: string) {
+    return api.get(`/notes/topic/${topicId}`).then(res => res.data);
+  }
+};

@@ -22,9 +22,11 @@ model User {
   updated_at            DateTime     @updatedAt
   last_login_at         DateTime?
   assigned_teacher_id   String?
+  custom_role_id        String?
   
   // Relations
   assigned_teacher      User?        @relation("intern_teacher", fields: [assigned_teacher_id], references: [id])
+  custom_role           Role?        @relation("user_custom_role", fields: [custom_role_id], references: [id])
   interns               User[]       @relation("intern_teacher")
   teacher_applications  TeacherApplication[]
   attempts              Attempt[]
@@ -99,29 +101,43 @@ model TeacherApplication {
   @@index([status])
 }
 
-model Subject {
+model Course {
   id              String    @id @default(cuid())
   name            String    @unique
   code            String
   created_at      DateTime  @default(now())
 
-  chapters        Chapter[]
+  sections        Section[]
 
   @@index([code])
 }
 
+model Section {
+  id              String    @id @default(cuid())
+  course_id       String
+  course          Course    @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  name            String
+  order           Int
+  created_at      DateTime  @default(now())
+
+  chapters        Chapter[]
+
+  @@unique([course_id, name])
+  @@index([course_id])
+}
+
 model Chapter {
   id              String    @id @default(cuid())
-  subject_id      String
-  subject         Subject   @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  section_id      String
+  section         Section   @relation(fields: [section_id], references: [id], onDelete: Cascade)
   name            String
   order           Int
   created_at      DateTime  @default(now())
 
   topics          Topic[]
 
-  @@unique([subject_id, name])
-  @@index([subject_id])
+  @@unique([section_id, name])
+  @@index([section_id])
 }
 
 model Topic {
@@ -134,9 +150,29 @@ model Topic {
 
   questions       Question[]
   responses       Response[]
+  notes           Note[]
 
   @@unique([chapter_id, name])
   @@index([chapter_id])
+}
+
+model Note {
+  id              String    @id @default(cuid())
+  topic_id        String
+  topic           Topic     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  created_by      String    // User ID of creator (Intern/Teacher)
+  title           String
+  content_html    String    // Rich text content including LaTeX/images
+  approval_status QuestionApprovalStatus @default(DRAFT) // Reusing the same enum for simplicity or create a new one
+  approved_by     String?   // User ID of approver (teacher/admin)
+  approved_at     DateTime?
+  rejection_note  String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@index([topic_id])
+  @@index([created_by])
+  @@index([approval_status])
 }
 
 model Asset {
@@ -410,6 +446,7 @@ model Role {
   parent_id         String?   // ID of parent role (who this role reports to)
   parent            Role?     @relation("RoleHierarchy", fields: [parent_id], references: [id])
   children          Role[]    @relation("RoleHierarchy")
+  users             User[]    @relation("user_custom_role")
   permissions_json  Json      @default("[]")  // Array of permission strings
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt

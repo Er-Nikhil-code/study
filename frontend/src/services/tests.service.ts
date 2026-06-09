@@ -5,6 +5,10 @@ export const TestsService = {
     return api.get("/tests");
   },
 
+  create(data: any) {
+    return api.post("/tests", data).then(r => r.data);
+  },
+
   getById(id: string) {
     return api.get(`/tests/${id}`);
   },

@@ -29,8 +29,12 @@ export class QuestionsService {
           select: {
             id: true,
             name: true,
-            subject: {
-              select: { id: true, name: true }
+            section: {
+              select: { 
+                id: true, 
+                name: true,
+                course: { select: { id: true, name: true } }
+              }
             }
           }
         }
@@ -170,7 +174,7 @@ export class QuestionsService {
       },
     });
 
-    return this.prisma.question.update({
+    const updated = await this.prisma.question.update({
       where: { id: questionId },
       data: {
         approval_status: "APPROVED",
@@ -179,6 +183,17 @@ export class QuestionsService {
         rejection_note: null,
       },
     });
+
+    // Award 10 points to Intern
+    if (question.created_by) {
+      await this.prisma.userStats.upsert({
+        where: { user_id: question.created_by },
+        update: { total_score: { increment: 10 } },
+        create: { user_id: question.created_by, total_score: 10 }
+      });
+    }
+
+    return updated;
   }
 
   async rejectQuestion(questionId: string, reviewerId: string, note: string) {
@@ -217,6 +232,7 @@ export class QuestionsService {
       question_type?: string;
       difficulty?: string;
       created_by?: string;
+      intern_id?: string;
     },
     skip = 0,
     take = 20,
@@ -229,6 +245,13 @@ export class QuestionsService {
       if (filters?.question_type) where.question_type = filters.question_type;
       if (filters?.difficulty) where.difficulty = filters.difficulty;
       if (filters?.created_by) where.created_by = filters.created_by;
+      
+      if (filters?.intern_id) {
+        where.OR = [
+          { approval_status: "APPROVED" },
+          { created_by: filters.intern_id }
+        ];
+      }
 
       const [questions, total] = await Promise.all([
         this.prisma.question.findMany({
@@ -238,7 +261,23 @@ export class QuestionsService {
           orderBy: { created_at: "desc" },
           include: {
             topic: {
-              select: { id: true, name: true },
+              select: { 
+                id: true, 
+                name: true,
+                chapter: {
+                  select: {
+                    id: true,
+                    name: true,
+                    section: {
+                      select: {
+                        id: true,
+                        name: true,
+                        course: { select: { id: true, name: true } }
+                      }
+                    }
+                  }
+                }
+              },
             },
           },
         }),
