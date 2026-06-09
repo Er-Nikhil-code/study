@@ -22,6 +22,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
   const queryClient = useQueryClient();
   const { user, isAuthenticated, logout } = useAuthStore();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handlePrefetch = (href: string) => {
@@ -44,6 +45,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
 
   // Close profile dropdown on click outside
   useEffect(() => {
+    setMounted(true);
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
@@ -54,7 +56,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
   }, []);
 
   const getDashboardUrl = () => {
-    if (!isAuthenticated || !user) return "/";
+    if (!mounted || !isAuthenticated || !user) return "/";
     switch (user.role) {
       case "STUDENT": return "/student/dashboard";
       case "INTERN": return "/intern/dashboard";
@@ -171,11 +173,14 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                   )}
                 </div>
                 {!isCollapsed && (
-                  <div className="flex flex-col items-start leading-none text-left truncate">
-                    <span className="text-sm font-medium text-zinc-200 truncate w-28">{(user as any)?.firstName || user?.email?.split("@")[0]}</span>
-                    <span className="text-[10px] text-zinc-500 capitalize">{user?.role?.toLowerCase()}</span>
-                  </div>
-                )}
+                  <div className={`flex flex-col overflow-hidden transition-all duration-300 ${isCollapsed ? "w-0 opacity-0" : "w-full opacity-100"}`}>
+              <span className="truncate text-sm font-medium text-white">
+                {mounted ? (user?.firstName || user?.email || "User") : "User"}
+              </span>
+              <span className="truncate text-xs text-zinc-500">
+                {mounted ? (user?.role?.replace("_", " ") || "Member") : "Member"}
+              </span>
+            </div>    )}
               </div>
               {!isCollapsed && (
                 <ChevronDown size={16} className={`text-zinc-500 transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />

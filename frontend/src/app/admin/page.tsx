@@ -62,8 +62,8 @@ export default function AdminHomePage() {
         </div>
       )}
 
-      {/* Primary stats row */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stats Grid */}
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           label="Total Users"
           value={stats?.totalUsers ?? "—"}
@@ -80,10 +80,6 @@ export default function AdminHomePage() {
           accent={(stats?.openChallenges ?? 0) > 0}
           loading={loading}
         />
-      </div>
-
-      {/* Secondary stats row */}
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Students"
           value={stats?.totalStudents ?? "—"}
@@ -92,6 +88,11 @@ export default function AdminHomePage() {
         <StatCard
           label="Teachers"
           value={stats?.totalTeachers ?? "—"}
+          loading={loading}
+        />
+        <StatCard
+          label="User Roles"
+          value={stats?.totalRoles ?? "—"}
           loading={loading}
         />
       </div>
@@ -156,6 +157,18 @@ export default function AdminHomePage() {
           </div>
           <p className="mt-1 text-xs text-zinc-500">
             Monitor API performance, queues, and errors
+          </p>
+        </Link>
+
+        <Link
+          href="/notifications"
+          className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:bg-white/[0.06] hover:border-white/20"
+        >
+          <div className="text-sm font-medium text-white group-hover:text-white">
+            Notifications
+          </div>
+          <p className="mt-1 text-xs text-zinc-500">
+            View system alerts and global announcements
           </p>
         </Link>
       </div>
