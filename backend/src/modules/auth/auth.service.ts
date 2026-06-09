@@ -140,7 +140,7 @@ export class AuthService {
       const emailMasked = this.maskEmail(email);
       const otpValidityMinutes = this.configService.get<number>(
         "OTP_VALIDITY_MINUTES",
-        10,
+        5,
       );
 
       this.logger.log(

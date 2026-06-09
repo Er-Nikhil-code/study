@@ -1,16 +1,87 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { authService } from "@/services/auth.service";
 import Logo from "@/components/ui/Logo";
+
+const QUOTES = [
+  { greeting: "Welcome, Champion!", body: "Your journey to success starts here. Learn smarter, practice harder, and turn every challenge into an opportunity to achieve your dream score." },
+  { greeting: "Welcome to your success zone!", body: "Every question you solve, every test you attempt, and every lesson you complete brings you one step closer to your goal." },
+  { greeting: "Dream big, prepare bigger.", body: "You've arrived at the perfect place to master concepts, sharpen skills, and conquer your exams with confidence." },
+  { greeting: "Welcome, Future Achiever!", body: "Great results are built through consistent effort. Start today, stay focused, and watch your hard work transform into success." },
+  { greeting: "This is where preparation meets opportunity.", body: "Push your limits, challenge yourself daily, and unlock the potential that leads to extraordinary results." },
+  { greeting: "Welcome to the path of excellence.", body: "Every expert was once a beginner, and every topper started with a single step. Your success story begins now." },
+  { greeting: "Ready to outperform your competition?", body: "Learn efficiently, practice relentlessly, and build the confidence needed to excel in every examination." },
+  { greeting: "Success isn't a destination—it's a journey.", body: "Stay consistent, stay determined, and let every lesson bring you closer to your academic goals." },
+  { greeting: "Welcome, Champion of Tomorrow!", body: "The right guidance, focused preparation, and persistent effort can turn your ambitions into remarkable achievements." },
+  { greeting: "Your future is built by what you do today.", body: "Take control of your preparation, overcome every challenge, and create the results you've always aimed for." },
+];
 
 // Main Home Page Component
 export default function HomePage() {
   const [authView, setAuthView] = useState<
     "login" | "signup" | "forgot-password"
   >("login");
-  const [animatedText, setAnimatedText] = useState(0);
+
+  // Alien typing state
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [displayedGreeting, setDisplayedGreeting] = useState("");
+  const [displayedBody, setDisplayedBody] = useState("");
+  const [phase, setPhase] = useState<"typing-greeting" | "typing-body" | "holding" | "fading">("typing-greeting");
+  const [opacity, setOpacity] = useState(1);
+  const charIndexRef = useRef(0);
+
+  // Alien typing effect
+  useEffect(() => {
+    const quote = QUOTES[quoteIndex];
+
+    if (phase === "typing-greeting") {
+      if (charIndexRef.current < quote.greeting.length) {
+        const timer = setTimeout(() => {
+          setDisplayedGreeting(quote.greeting.slice(0, charIndexRef.current + 1));
+          charIndexRef.current++;
+        }, 40 + Math.random() * 30); // variable speed for alien feel
+        return () => clearTimeout(timer);
+      } else {
+        charIndexRef.current = 0;
+        setPhase("typing-body");
+      }
+    }
+
+    if (phase === "typing-body") {
+      if (charIndexRef.current < quote.body.length) {
+        const timer = setTimeout(() => {
+          setDisplayedBody(quote.body.slice(0, charIndexRef.current + 1));
+          charIndexRef.current++;
+        }, 18 + Math.random() * 15);
+        return () => clearTimeout(timer);
+      } else {
+        charIndexRef.current = 0;
+        setPhase("holding");
+      }
+    }
+
+    if (phase === "holding") {
+      const timer = setTimeout(() => setPhase("fading"), 4000);
+      return () => clearTimeout(timer);
+    }
+
+    if (phase === "fading") {
+      setOpacity(0);
+      const timer = setTimeout(() => {
+        setDisplayedGreeting("");
+        setDisplayedBody("");
+        charIndexRef.current = 0;
+        setQuoteIndex((prev) => (prev + 1) % QUOTES.length);
+        setOpacity(1);
+        setPhase("typing-greeting");
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, quoteIndex, displayedGreeting, displayedBody]);
+
+  // Embers - reduced for perf
   const [embers, setEmbers] = useState<
     Array<{
       id: number;
@@ -30,32 +101,15 @@ export default function HomePage() {
     }>
   >([]);
 
-  const textOptions = [
-    "Master Your Learning",
-    "Teach with Confidence",
-    "Build Your Future",
-    "Ignite Your Potential",
-  ];
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      setAnimatedText((prev) => (prev + 1) % textOptions.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    // Generate embers only on client side to avoid hydration mismatch
-    const generatedEmbers = [...Array(60)].map((_, i) => {
-      // More natural wind drift (most go slightly right or left depending on a primary wind direction)
-      const baseWind = 150; 
+    const baseWind = 150;
+    const generatedEmbers = [...Array(30)].map((_, i) => {
       const randomWind = (Math.random() - 0.5) * 400;
-      
       return {
         id: i,
         left: Math.random() * 100,
-        delay: Math.random() * 15, // more randomized start times
-        duration: 5 + Math.random() * 12, // varying speeds
+        delay: Math.random() * 15,
+        duration: 5 + Math.random() * 12,
         drift: baseWind + randomWind,
         move1Y: -100 - Math.random() * 200,
         move1X: (Math.random() - 0.5) * 150 + baseWind * 0.3,
@@ -63,9 +117,9 @@ export default function HomePage() {
         move2X: (Math.random() - 0.5) * 250 + baseWind * 0.6,
         move3Y: -600 - Math.random() * 400,
         move3X: (Math.random() - 0.5) * 350 + baseWind * 0.8,
-        startY: 50 + Math.random() * 100, // start slightly below screen
+        startY: 50 + Math.random() * 100,
         endY: -1000 - Math.random() * 500,
-        size: Math.random() * 4 + 1, // smaller and larger embers
+        size: Math.random() * 4 + 1,
       };
     });
     setEmbers(generatedEmbers);
@@ -73,7 +127,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#050505] flex flex-col md:flex-row items-center justify-center overflow-x-hidden overflow-y-auto md:overflow-hidden relative">
-      {/* Minimalist Animated Background */}
+      {/* Animated Background */}
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none z-20"
         suppressHydrationWarning
@@ -83,157 +137,109 @@ export default function HomePage() {
             0%, 100% { transform: translateY(0px) translateX(0px) scale(1); opacity: 0.12; }
             50% { transform: translateY(-40px) translateX(30px) scale(1.05); opacity: 0.08; }
           }
-          
           @keyframes float-shape-2 {
             0%, 100% { transform: translateY(0px) translateX(0px) scale(1); opacity: 0.1; }
             50% { transform: translateY(50px) translateX(-30px) scale(0.95); opacity: 0.05; }
           }
-          
           @keyframes pulse-subtle {
             0%, 100% { opacity: 0.05; }
             50% { opacity: 0.12; }
           }
-          
           @keyframes ember-roam {
-            0% { 
-              transform: translateY(var(--startY, 0px)) translateX(0px) scale(1);
-              opacity: 0;
-            }
-            10% {
-              opacity: 0.9;
-            }
-            25% { 
-              transform: translateY(var(--move1Y, -40px)) translateX(var(--move1X, 50px)) scale(0.95);
-              opacity: 0.6;
-            }
-            35% { opacity: 1; } /* flicker up */
-            50% { 
-              transform: translateY(var(--move2Y, -80px)) translateX(var(--move2X, -40px)) scale(1.1);
-              opacity: 0.4;
-            }
-            65% { opacity: 0.8; } /* flicker up */
-            75% { 
-              transform: translateY(var(--move3Y, -120px)) translateX(var(--move3X, 60px)) scale(0.9);
-              opacity: 0.2;
-            }
-            90% { opacity: 0.5; } /* last flicker */
-            100% { 
-              transform: translateY(var(--endY, -150px)) translateX(var(--drift, 0px)) scale(0.3);
-              opacity: 0;
-            }
+            0% { transform: translateY(var(--startY, 0px)) translateX(0px) scale(1); opacity: 0; }
+            10% { opacity: 0.9; }
+            25% { transform: translateY(var(--move1Y, -40px)) translateX(var(--move1X, 50px)) scale(0.95); opacity: 0.6; }
+            35% { opacity: 1; }
+            50% { transform: translateY(var(--move2Y, -80px)) translateX(var(--move2X, -40px)) scale(1.1); opacity: 0.4; }
+            65% { opacity: 0.8; }
+            75% { transform: translateY(var(--move3Y, -120px)) translateX(var(--move3X, 60px)) scale(0.9); opacity: 0.2; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(var(--endY, -150px)) translateX(var(--drift, 0px)) scale(0.3); opacity: 0; }
           }
-          
           @keyframes ember-glow {
             0%, 100% { box-shadow: 0 0 5px rgba(249, 115, 22, 0.8), 0 0 15px rgba(249, 115, 22, 0.5); opacity: 0.8; }
             30% { box-shadow: 0 0 10px rgba(249, 115, 22, 1), 0 0 25px rgba(249, 115, 22, 0.8), 0 0 40px rgba(220, 38, 38, 0.6); opacity: 1; }
             70% { box-shadow: 0 0 4px rgba(249, 115, 22, 0.6), 0 0 10px rgba(249, 115, 22, 0.3); opacity: 0.7; }
           }
-          
           .bg-float-1 {
-            position: absolute;
-            width: 500px;
-            height: 500px;
+            position: absolute; width: 500px; height: 500px;
             background: radial-gradient(circle, rgba(220, 38, 38, 0.3) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(80px);
+            border-radius: 50%; filter: blur(80px);
             animation: float-shape-1 12s ease-in-out infinite;
-            top: -150px;
-            right: -100px;
+            top: -150px; right: -100px;
           }
-          
           .bg-float-2 {
-            position: absolute;
-            width: 600px;
-            height: 600px;
+            position: absolute; width: 600px; height: 600px;
             background: radial-gradient(circle, rgba(185, 28, 28, 0.25) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(100px);
+            border-radius: 50%; filter: blur(100px);
             animation: float-shape-2 15s ease-in-out infinite;
-            bottom: -200px;
-            left: -150px;
+            bottom: -200px; left: -150px;
           }
-          
           .bg-pulse {
-            position: absolute;
-            inset: 0;
+            position: absolute; inset: 0;
             background: linear-gradient(135deg, rgba(220, 38, 38, 0.04) 0%, transparent 50%, rgba(185, 28, 28, 0.03) 100%);
             animation: pulse-subtle 6s ease-in-out infinite;
           }
-          
           @keyframes ambient-glow {
             0%, 100% { opacity: 0.1; }
             50% { opacity: 0.18; }
           }
-          
           .ambient-fire {
-            position: absolute;
-            inset: 0;
+            position: absolute; inset: 0;
             background: radial-gradient(ellipse at 50% 50%, rgba(248, 113, 113, 0.12) 0%, rgba(220, 38, 38, 0.06) 30%, transparent 70%);
             animation: ambient-glow 8s ease-in-out infinite;
             pointer-events: none;
           }
-          
-          .ember {
-            position: absolute;
-            border-radius: 50%;
-            /* Red core with orange glow */
-            background: radial-gradient(circle at 40% 40%, rgba(220, 38, 38, 0.95) 0%, rgba(239, 68, 68, 0.8) 20%, rgba(249, 115, 22, 0.6) 60%, rgba(249, 115, 22, 0.1) 100%);
-            animation: ember-roam linear infinite;
-            animation-play-state: running;
-            mix-blend-mode: screen; /* Makes them pop vibrantly on dark backgrounds */
-          }
-          
-          .ember::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation: ember-glow 3s ease-in-out infinite;
-            mix-blend-mode: screen;
-          }
-          
           @keyframes bottom-glow {
             0%, 100% { opacity: 0.3; }
             50% { opacity: 0.45; }
           }
-          
           .bottom-ambient-glow {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 300px;
+            position: absolute; bottom: 0; left: 0; right: 0; height: 300px;
             background: linear-gradient(to top, rgba(220, 38, 38, 0.3) 0%, rgba(185, 28, 28, 0.15) 40%, transparent 100%);
             animation: bottom-glow 6s ease-in-out infinite;
             pointer-events: none;
           }
+          .ember {
+            position: absolute; border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, rgba(220, 38, 38, 0.95) 0%, rgba(239, 68, 68, 0.8) 20%, rgba(249, 115, 22, 0.6) 60%, rgba(249, 115, 22, 0.1) 100%);
+            animation: ember-roam linear infinite;
+            mix-blend-mode: screen;
+          }
+          .ember::before {
+            content: ''; position: absolute; width: 100%; height: 100%;
+            background: transparent; border-radius: 50%;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            animation: ember-glow 3s ease-in-out infinite;
+            mix-blend-mode: screen;
+          }
+          @keyframes cursor-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+          }
+          .alien-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.1em;
+            background: linear-gradient(to bottom, #ef4444, #f97316);
+            margin-left: 2px;
+            vertical-align: text-bottom;
+            animation: cursor-blink 0.8s step-end infinite;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.8), 0 0 20px rgba(249, 115, 22, 0.4);
+            border-radius: 1px;
+          }
         `}</style>
 
-        {/* Floating shape 1 */}
         <div className="bg-float-1" />
-
-        {/* Floating shape 2 */}
         <div className="bg-float-2" />
-
-        {/* Subtle pulse overlay */}
         <div className="bg-pulse" />
-
-        {/* Ambient fire glow across entire screen */}
         <div className="ambient-fire" />
-
-        {/* Bottom ambient glow */}
         <div className="bottom-ambient-glow" />
 
-        {/* Fire Embers - scattered across screen */}
         {embers.map((ember, index) => (
           <div
             key={ember.id}
-            className={`ember ${index % 4 !== 0 ? 'hidden md:block' : ''}`}
+            className={`ember ${index % 3 !== 0 ? 'hidden md:block' : ''}`}
             style={
               {
                 width: `${ember.size}px`,
@@ -257,126 +263,63 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Elegant Center Divider */}
+      {/* Center Divider */}
       <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-5 hidden md:block">
         <style>{`
           @keyframes line-glow {
             0%, 100% { box-shadow: 0 0 15px rgba(220, 38, 38, 0.3); }
             50% { box-shadow: 0 0 25px rgba(248, 113, 113, 0.5); }
           }
-          
           .divider-line {
-            width: 1px;
-            height: 60vh;
+            width: 1px; height: 60vh;
             background: linear-gradient(to bottom,
-              transparent 0%,
-              rgba(220, 38, 38, 0.2) 15%,
+              transparent 0%, rgba(220, 38, 38, 0.2) 15%,
               rgba(248, 113, 113, 0.6) 50%,
-              rgba(185, 28, 28, 0.2) 85%,
-              transparent 100%);
+              rgba(185, 28, 28, 0.2) 85%, transparent 100%);
             animation: line-glow 4s ease-in-out infinite;
-            position: relative;
           }
         `}</style>
-
-        {/* Main Divider Line */}
         <div className="divider-line" />
       </div>
 
-      {/* Subtle Ambient Elements */}
+      {/* Subtle Ambient */}
       <div className="absolute right-0 top-0 bottom-0 w-96 pointer-events-none z-5">
         <div className="absolute top-1/4 right-1/4 w-40 h-40 bg-gradient-to-br from-red-500/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
         <div className="absolute bottom-1/4 right-1/3 w-32 h-32 bg-gradient-to-tl from-rose-600/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
       </div>
 
-      {/* Left Section - Platform Info */}
+      {/* Left Section - Alien Typed Quotes */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-start px-8 md:px-16 py-12 md:py-16 relative z-10">
-        {/* Logo Section */}
-        <div className="mb-12 md:mb-16">
+        {/* Logo */}
+        <div className="mb-10 md:mb-14">
           <Logo size="xl" />
-        </div>
-
-        {/* Animated Tagline */}
-        <div className="mb-12 md:mb-16 h-12 flex items-center">
-          <p className="text-2xl md:text-3xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-red-200 to-red-500 transition-all duration-1000 ease-in-out tracking-wide">
-            {textOptions[animatedText]}
+          <p className="text-zinc-500 text-sm mt-3 tracking-wide font-light">
+            Learn smarter. Score higher.
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-12 md:mb-16 w-full max-w-md relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-rose-500/5 rounded-2xl blur-xl -z-10"></div>
-          
-          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-red-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-red-400/40 hover:shadow-[0_0_20px_rgba(220,38,38,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-red-500/10 to-transparent rounded-bl-full"></div>
-            <div className="text-3xl font-bold text-red-400 mb-1 group-hover:text-red-300 transition-colors drop-shadow-sm">
-              10K+
-            </div>
-            <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">
-              Active Students
-            </div>
-          </div>
-          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-red-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-red-400/40 hover:shadow-[0_0_20px_rgba(220,38,38,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-red-500/10 to-transparent rounded-bl-full"></div>
-            <div className="text-3xl font-bold text-red-400 mb-1 group-hover:text-red-300 transition-colors drop-shadow-sm">
-              500+
-            </div>
-            <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">
-              Expert Teachers
-            </div>
-          </div>
-          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-red-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-red-400/40 hover:shadow-[0_0_20px_rgba(220,38,38,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-red-500/10 to-transparent rounded-bl-full"></div>
-            <div className="text-3xl font-bold text-red-400 mb-1 group-hover:text-red-300 transition-colors drop-shadow-sm">
-              1M+
-            </div>
-            <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">
-              Questions Attempted
-            </div>
-          </div>
-          <div className="p-5 bg-white/[0.02] backdrop-blur-sm border border-red-500/20 rounded-2xl hover:bg-white/[0.04] hover:border-red-400/40 hover:shadow-[0_0_20px_rgba(220,38,38,0.15)] transition-all duration-500 cursor-default group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-red-500/10 to-transparent rounded-bl-full"></div>
-            <div className="text-3xl font-bold text-red-400 mb-1 group-hover:text-red-300 transition-colors drop-shadow-sm">
-              100%
-            </div>
-            <div className="text-sm text-zinc-400 font-medium tracking-wide uppercase text-[10px]">Success Rate</div>
-          </div>
+        {/* Alien Typed Quote */}
+        <div
+          className="min-h-[200px] md:min-h-[240px] w-full max-w-lg"
+          style={{ opacity, transition: "opacity 0.6s ease-in-out" }}
+        >
+          <h2 className="text-2xl md:text-3xl font-bold leading-snug mb-4">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-300 via-red-400 to-orange-400">
+              {displayedGreeting}
+            </span>
+            {phase === "typing-greeting" && <span className="alien-cursor" />}
+          </h2>
+          <p className="text-zinc-400 text-base md:text-lg leading-relaxed font-light tracking-wide">
+            {displayedBody}
+            {phase === "typing-body" && <span className="alien-cursor" />}
+          </p>
         </div>
 
-        {/* Features */}
-        <div className="space-y-4 w-full max-w-md">
-          <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 group-hover:bg-red-500/20 group-hover:border-red-400/50 transition-all shadow-[0_0_10px_rgba(220,38,38,0.1)]">
-              <div className="w-2 h-2 bg-red-400 rounded-full group-hover:shadow-[0_0_8px_rgba(248,113,113,0.8)] transition-all"></div>
-            </div>
-            <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
-              Interactive live test series & mocks
-            </span>
-          </div>
-          <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 group-hover:bg-red-500/20 group-hover:border-red-400/50 transition-all shadow-[0_0_10px_rgba(220,38,38,0.1)]">
-              <div className="w-2 h-2 bg-red-400 rounded-full group-hover:shadow-[0_0_8px_rgba(248,113,113,0.8)] transition-all"></div>
-            </div>
-            <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
-              Advanced analytics & performance tracking
-            </span>
-          </div>
-          <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 group-hover:bg-red-500/20 group-hover:border-red-400/50 transition-all shadow-[0_0_10px_rgba(220,38,38,0.1)]">
-              <div className="w-2 h-2 bg-red-400 rounded-full group-hover:shadow-[0_0_8px_rgba(248,113,113,0.8)] transition-all"></div>
-            </div>
-            <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
-              Detailed step-by-step LaTeX solutions
-            </span>
-          </div>
-          <div className="flex items-center gap-4 group cursor-default p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 group-hover:bg-red-500/20 group-hover:border-red-400/50 transition-all shadow-[0_0_10px_rgba(220,38,38,0.1)]">
-              <div className="w-2 h-2 bg-red-400 rounded-full group-hover:shadow-[0_0_8px_rgba(248,113,113,0.8)] transition-all"></div>
-            </div>
-            <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors font-light text-sm tracking-wide">
-              Direct challenge workflows with teachers
-            </span>
-          </div>
+        {/* Minimalist accent line */}
+        <div className="mt-8 flex items-center gap-3 opacity-40">
+          <div className="h-px w-12 bg-gradient-to-r from-red-500 to-transparent" />
+          <span className="text-[10px] text-zinc-600 uppercase tracking-[0.3em] font-medium">codify.today</span>
+          <div className="h-px w-12 bg-gradient-to-l from-red-500 to-transparent" />
         </div>
       </div>
 

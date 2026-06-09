@@ -151,7 +151,7 @@ export class BrevoService {
         </div>
 
         <p>
-          This OTP will expire in <strong>10 minutes</strong>.
+          This OTP will expire in <strong>5 minutes</strong>.
         </p>
 
         <p>

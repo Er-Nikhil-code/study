@@ -44,7 +44,7 @@ export class OtpService {
 
     const otpValidityMinutes = this.configService.get<number>(
       "OTP_VALIDITY_MINUTES",
-      2,
+      5,
     );
     this.logger.debug(
       `⏱️  [OTP-CREATE] OTP validity: ${otpValidityMinutes} minutes`,

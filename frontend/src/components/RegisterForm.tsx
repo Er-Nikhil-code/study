@@ -17,7 +17,7 @@ export function RegisterForm() {
 
   const { formState, errors, updateField, setError, clearErrors } =
     useFormState();
-  const { formattedTime, isExpired } = useOtpTimer(600); // 10 minutes
+  const { formattedTime, isExpired } = useOtpTimer(300); // 5 minutes
 
   const validateStep1 = (): boolean => {
     clearErrors();
@@ -87,7 +87,7 @@ export function RegisterForm() {
       });
 
       setMaskedEmail(response.email_masked);
-      setSuccessMessage("OTP sent to your email! Expires in 10 minutes.");
+      setSuccessMessage("OTP sent to your email! Expires in 5 minutes.");
       setStep(2);
     } catch (error: any) {
       const message =

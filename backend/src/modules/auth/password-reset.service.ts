@@ -51,7 +51,7 @@ export class PasswordResetService {
       const { token, tokenHash } = this.generateResetToken();
       const expiryMinutes = this.configService.get<number>(
         "PASSWORD_RESET_TOKEN_EXPIRY_MINUTES",
-        2,
+        5,
       );
       const expiresAt = new Date(Date.now() + expiryMinutes * 60 * 1000);
 
