@@ -14,6 +14,9 @@ import { Logger } from '@nestjs/common';
     origin: '*', // Allows all origins. For production, limit this using process.env.CORS_ORIGINS
     credentials: true,
   },
+  transports: ['websocket', 'polling'],
+  pingTimeout: 60000,
+  pingInterval: 25000,
 })
 export class SocketGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect

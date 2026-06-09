@@ -23,7 +23,7 @@ export default function SocketProvider({ children }: Props) {
     if (!token) return;
 
     const socketInstance = io(process.env.NEXT_PUBLIC_API_URL!, {
-      transports: ["polling", "websocket"],
+      transports: ["websocket"],
 
       auth: { token },
 
