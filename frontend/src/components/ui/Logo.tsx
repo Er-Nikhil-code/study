@@ -25,7 +25,7 @@ export default function Logo({ className = "", size = "md" }: LogoProps) {
       <div
         className={`${sizeClasses[size]} font-bold tracking-tight uppercase flex items-center`}
       >
-        <span className="text-zinc-900 dark:text-white drop-shadow-md">CODI</span>
+        <span className="text-white drop-shadow-md">CODI</span>
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-rose-600 drop-shadow-[0_0_8px_rgba(225,29,72,0.4)]">
           FY
         </span>

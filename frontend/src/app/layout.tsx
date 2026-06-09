@@ -11,7 +11,10 @@ import ServerPing from "@/components/ServerPing";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Codify",
+  title: {
+    template: "%s | CODIFY",
+    default: "CODIFY",
+  },
   description: "Codify is the ultimate next-generation learning platform. Experience seamless educational content management, intelligent question banks, and powerful performance analytics designed for modern educators and students.",
   keywords: "Codify, LMS, Learning Management System, EdTech, Online Testing, Performance Analytics, Education",
   openGraph: {
