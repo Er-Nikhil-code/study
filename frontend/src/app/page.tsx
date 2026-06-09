@@ -553,6 +553,7 @@ function RegisterFormEmbedded({
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState("");
@@ -572,7 +573,7 @@ function RegisterFormEmbedded({
 
     setIsLoading(true);
     try {
-      await authService.register({ email, firstName });
+      await authService.register({ email, firstName, lastName: lastName || undefined });
       setStep(2);
       setGeneralError(null);
     } catch (error: any) {
@@ -611,6 +612,7 @@ function RegisterFormEmbedded({
         otp,
         password,
         firstName,
+        lastName: lastName || undefined,
       });
       const role = res.user?.role || "STUDENT";
       if (role === "ADMIN") router.push("/admin");
@@ -656,6 +658,19 @@ function RegisterFormEmbedded({
             {errors.firstName && (
               <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.firstName}</p>
             )}
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
+              Last Name
+            </label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Last name (Optional)"
+              className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-red-500/50 focus:ring-1 focus:ring-red-500/20 transition-all"
+            />
           </div>
 
           <div>
