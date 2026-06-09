@@ -293,7 +293,7 @@ export default function AdminQuestionsPage() {
                         <ContentBlockRenderer blocks={contentBlocks} />
                         {q.topic?.chapter && (
                           <div className="mt-3 text-xs text-zinc-500">
-                            {q.topic.chapter.subject?.name} → {q.topic.chapter.name} → {q.topic.name}
+                            {q.topic.chapter.section?.course?.name ?? "Course"} → {q.topic.chapter.name} → {q.topic.name}
                           </div>
                         )}
                       </div>

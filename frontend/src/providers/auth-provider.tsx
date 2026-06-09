@@ -29,7 +29,14 @@ export default function AuthProvider({ children }: Props) {
 
         const { data } = await api.get("/auth/me");
 
-        setAuth(data.user, token);
+        // Use the FRESH token from /auth/me which includes role in JWT payload
+        const freshToken = data.accessToken || token;
+        localStorage.setItem("accessToken", freshToken);
+        if (data.refreshToken) {
+          localStorage.setItem("refreshToken", data.refreshToken);
+        }
+
+        setAuth(data.user, freshToken);
       } catch {
         logout();
       } finally {

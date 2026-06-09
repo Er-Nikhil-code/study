@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AlertCircle, CheckCircle, Clock, Eye, EyeOff } from "lucide-react";
 import authService from "@/services/auth.service";
+import { useAuthStore } from "@/store/auth.store";
 import { useFormState } from "@/hooks/useFormState";
 import { useOtpTimer } from "@/hooks/useOtpTimer";
 
@@ -14,6 +15,7 @@ export function RegisterForm() {
   const [successMessage, setSuccessMessage] = useState("");
   const [maskedEmail, setMaskedEmail] = useState("");
   const [apiError, setApiError] = useState("");
+  const { setAuth } = useAuthStore();
 
   const { formState, errors, updateField, setError, clearErrors } =
     useFormState();
@@ -107,7 +109,7 @@ export function RegisterForm() {
     setApiError("");
 
     try {
-      await authService.verifyOtp({
+      const result = await authService.verifyOtp({
         email: formState.email,
         otp: formState.otp,
         password: formState.password,
@@ -115,6 +117,11 @@ export function RegisterForm() {
         lastName: formState.lastName || undefined,
         role: formState.role,
       });
+
+      // Update Zustand store so the session is established
+      if (result.user && result.accessToken) {
+        setAuth(result.user, result.accessToken);
+      }
 
       setSuccessMessage("✅ Account created successfully! Redirecting...");
       // Redirect to dashboard or home

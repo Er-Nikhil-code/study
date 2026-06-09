@@ -233,8 +233,14 @@ export class AdminService {
                   select: {
                     id: true,
                     name: true,
-                    subject: {
-                      select: { id: true, name: true },
+                    section: {
+                      select: {
+                        id: true,
+                        name: true,
+                        course: {
+                          select: { id: true, name: true },
+                        },
+                      },
                     },
                   },
                 },

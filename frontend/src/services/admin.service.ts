@@ -55,9 +55,13 @@ export interface AdminQuestion {
     chapter: {
       id: string;
       name: string;
-      subject: {
+      section?: {
         id: string;
         name: string;
+        course?: {
+          id: string;
+          name: string;
+        };
       };
     };
   };
