@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import studentService, { type StudentDashboard } from "@/services/student.service";
+import studentService, { type TeacherDashboard } from "@/services/student.service";
 import Panel from "@/components/ui/Panel";
 import DashboardShell from "@/components/layout/DashboardShell";
 import { useAuthStore } from "@/store/auth.store";
@@ -11,14 +11,14 @@ import { useAuthStore } from "@/store/auth.store";
 export default function InternDashboardPage() {
   const router = useRouter();
   const { user } = useAuthStore();
-  const [dashboardData, setDashboardData] = useState<StudentDashboard | null>(null);
+  const [dashboardData, setDashboardData] = useState<TeacherDashboard | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
     const fetchDashboard = async () => {
       try {
-        const data = await studentService.getDashboard();
+        const data = await studentService.getTeacherDashboard();
         if (isMounted) setDashboardData(data);
       } catch (err) {
         console.error("Failed to fetch intern dashboard", err);
@@ -50,20 +50,20 @@ export default function InternDashboardPage() {
         <>
           <div className="grid gap-4 grid-cols-2 lg:grid-cols-4" id="stats">
             <Panel accent>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Total Points</div>
-              <div className="mt-2 text-3xl font-semibold text-red-300">{dashboardData.total_score || 0}</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Questions Created</div>
+              <div className="mt-2 text-3xl font-semibold text-red-300">{dashboardData.questions_created || 0}</div>
             </Panel>
             <Panel>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Global Rank</div>
-              <div className="mt-2 text-3xl font-semibold text-white">#{dashboardData.global_rank || "—"}</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Pending Challenges</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{dashboardData.pending_challenges || 0}</div>
             </Panel>
             <Panel>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Current Streak</div>
-              <div className="mt-2 text-3xl font-semibold text-white">{dashboardData.current_streak}🔥</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Resolved Challenges</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{dashboardData.resolved_challenges || 0}</div>
             </Panel>
             <Panel>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Longest Streak</div>
-              <div className="mt-2 text-3xl font-semibold text-white">{dashboardData.longest_streak} days</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Tests Created</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{dashboardData.tests_created || 0}</div>
             </Panel>
           </div>
 

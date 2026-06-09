@@ -58,7 +58,7 @@ export class StudentController {
 
   @Get("teacher/dashboard")
   @UseGuards(RolesGuard)
-  @Roles("TEACHER", "ADMIN")
+  @Roles("TEACHER", "ADMIN", "INTERN")
   async getTeacherDashboard(@Request() req: any) {
     return this.studentService.getTeacherDashboard(req.user.sub);
   }
