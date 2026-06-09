@@ -20,6 +20,8 @@ import {
   History,
   PieChart,
   BookOpen,
+  Shield,
+  Trophy,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -40,6 +42,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
       return [
         { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
         { label: "Users & Roles", href: "/admin/users", icon: Users },
+        { label: "Custom Roles", href: "/admin/roles", icon: Shield },
         { label: "Questions", href: "/admin/questions", icon: FileQuestion },
         { label: "Challenges", href: "/admin/challenges", icon: ShieldAlert },
         { label: "System Status", href: "/admin/system", icon: Activity },
@@ -71,8 +74,10 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     case "STUDENT":
       return [
         { label: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
+        { label: "Browse Tests", href: "/tests", icon: FileText },
         { label: "Available Courses", href: "/courses", icon: Library },
-        { label: "Previous Tests", href: "/results", icon: History },
+        { label: "My Results", href: "/results", icon: History },
+        { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
         { label: "Notifications", href: "/notifications", icon: Bell },
       ];
 

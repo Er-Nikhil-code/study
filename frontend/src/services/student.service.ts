@@ -128,7 +128,31 @@ export interface TeacherDashboard {
   tests_created: number;
   pending_challenges: number;
   resolved_challenges: number;
+  students_assigned: number;
   recent_challenges: any[];
+  recent_reviews: any[];
+}
+
+export interface InternDashboard {
+  total_created: number;
+  total_approved: number;
+  total_rejected: number;
+  total_pending: number;
+  total_needs_revision: number;
+  approval_rate: number;
+  current_streak: number;
+  total_points: number;
+  global_rank: number;
+  recent_questions: {
+    id: string;
+    title: string;
+    approval_status: string;
+    question_type: string;
+    difficulty: string;
+    created_at: string;
+    updated_at: string;
+    topic: { name: string; chapter: { name: string; section?: { course?: { name: string } } } };
+  }[];
 }
 
 export interface PaginatedResponse<T> {
@@ -241,6 +265,12 @@ class StudentApiService {
   /* Teacher dashboard */
   async getTeacherDashboard(): Promise<TeacherDashboard> {
     const res = await api.get<TeacherDashboard>("/student/teacher/dashboard");
+    return res.data;
+  }
+
+  /* Intern dashboard */
+  async getInternDashboard(): Promise<InternDashboard> {
+    const res = await api.get<InternDashboard>("/student/intern/dashboard");
     return res.data;
   }
 

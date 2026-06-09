@@ -48,9 +48,12 @@ export default function AdminUsersPage() {
     },
   });
 
-  const users = usersData?.data || [];
-  const total = usersData?.total || 0;
-  const teachers = teachersData || [];
+  // Ensure arrays to prevent .map crashes if API response format changes
+  const rawUsers = usersData?.data || usersData;
+  const users = Array.isArray(rawUsers) ? rawUsers : [];
+  const total = usersData?.total || users.length || 0;
+  
+  const teachers = Array.isArray(teachersData) ? teachersData : Array.isArray((teachersData as any)?.data) ? (teachersData as any).data : [];
   const error = queryError ? (queryError as any)?.response?.data?.message || "Failed to load users" : null;
 
   // Debounced search
@@ -279,7 +282,7 @@ export default function AdminUsersPage() {
                       onChange={(e) => handleTeacherAssign(user.id, e.target.value)}
                     >
                       <option value="">No Teacher Assigned</option>
-                      {(teachers || []).map(t => (
+                      {(teachers || []).map((t: any) => (
                         <option key={t.id} value={t.id}>
                           {t.first_name || "—"} {t.last_name || ""}
                         </option>

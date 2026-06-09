@@ -62,4 +62,11 @@ export class StudentController {
   async getTeacherDashboard(@Request() req: any) {
     return this.studentService.getTeacherDashboard(req.user.sub);
   }
+
+  @Get("intern/dashboard")
+  @UseGuards(RolesGuard)
+  @Roles("INTERN", "ADMIN")
+  async getInternDashboard(@Request() req: any) {
+    return this.studentService.getInternDashboard(req.user.sub);
+  }
 }

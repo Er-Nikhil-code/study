@@ -388,12 +388,105 @@ export class StudentService {
       },
     });
 
+    // Students assigned to this teacher
+    const studentsAssigned = await this.prisma.user.count({
+      where: { assigned_teacher_id: userId, role: "INTERN" },
+    });
+
+    // Recent approved/rejected questions (last 5 reviews)
+    const recentReviews = await this.prisma.question.findMany({
+      where: {
+        approval_status: { in: ["APPROVED", "REJECTED"] },
+        topic: { chapter: { section: { is: {} } } },
+      },
+      orderBy: { updated_at: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        title: true,
+        approval_status: true,
+        updated_at: true,
+        created_by: true,
+      },
+    });
+
     return {
       questions_created: questionCount,
       tests_created: testCount,
       pending_challenges: challengeCount,
       resolved_challenges: resolvedCount,
+      students_assigned: studentsAssigned,
       recent_challenges: recentChallenges,
+      recent_reviews: recentReviews,
+    };
+  }
+
+  /* ════════════════════════════════════════════
+   *  INTERN DASHBOARD
+   * ════════════════════════════════════════════ */
+
+  async getInternDashboard(userId: string) {
+    const [
+      totalCreated,
+      totalApproved,
+      totalRejected,
+      totalPending,
+      totalNeedsRevision,
+    ] = await Promise.all([
+      this.prisma.question.count({ where: { created_by: userId } }),
+      this.prisma.question.count({ where: { created_by: userId, approval_status: "APPROVED" } }),
+      this.prisma.question.count({ where: { created_by: userId, approval_status: "REJECTED" } }),
+      this.prisma.question.count({ where: { created_by: userId, approval_status: "PENDING_REVIEW" } }),
+      this.prisma.question.count({ where: { created_by: userId, approval_status: "NEEDS_REVISION" } }),
+    ]);
+
+    // Approval rate
+    const approvalRate = totalCreated > 0
+      ? Math.round((totalApproved / totalCreated) * 100)
+      : 0;
+
+    // Recent submissions (last 8)
+    const recentQuestions = await this.prisma.question.findMany({
+      where: { created_by: userId },
+      orderBy: { updated_at: "desc" },
+      take: 8,
+      select: {
+        id: true,
+        title: true,
+        approval_status: true,
+        question_type: true,
+        difficulty: true,
+        created_at: true,
+        updated_at: true,
+        topic: {
+          select: {
+            name: true,
+            chapter: {
+              select: { name: true, section: { select: { course: { select: { name: true } } } } },
+            },
+          },
+        },
+      },
+    });
+
+    // Get intern's user stats (reuse student stats table)
+    const stats = await this.prisma.userStats.findUnique({ where: { user_id: userId } });
+    const rank = await this.prisma.userStats.count({
+      where: { total_score: { gt: stats?.total_score ?? 0 } },
+    });
+
+    return {
+      total_created: totalCreated,
+      total_approved: totalApproved,
+      total_rejected: totalRejected,
+      total_pending: totalPending,
+      total_needs_revision: totalNeedsRevision,
+      approval_rate: approvalRate,
+      current_streak: stats?.current_streak ?? 0,
+      total_points: stats?.total_score ?? 0,
+      global_rank: rank + 1,
+      recent_questions: recentQuestions,
     };
   }
 }
+

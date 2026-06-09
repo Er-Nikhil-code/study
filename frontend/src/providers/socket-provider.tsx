@@ -23,11 +23,27 @@ export default function SocketProvider({ children }: Props) {
     if (!token) return;
 
     const socketInstance = io(process.env.NEXT_PUBLIC_API_URL!, {
-      transports: ["websocket"],
+      // Start with polling so Railway can upgrade to WS properly.
+      // Using websocket-only causes repeated failures on Railway's proxy.
+      transports: ["polling", "websocket"],
 
-      auth: {
-        token,
-      },
+      auth: { token },
+
+      // Reconnection settings — stop spamming after a few attempts
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
+
+      // Timeout before giving up on a connection attempt
+      timeout: 10000,
+    });
+
+    socketInstance.on("connect_error", (err) => {
+      // Silent in production — avoids console spam
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("[Socket] Connection error:", err.message);
+      }
     });
 
     setSocket(socketInstance);

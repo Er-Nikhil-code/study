@@ -1,27 +1,29 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import authService from "@/services/auth.service";
-import studentService, { type StudentDashboard } from "@/services/student.service";
+import studentService from "@/services/student.service";
 import Panel from "@/components/ui/Panel";
 import DashboardShell from "@/components/layout/DashboardShell";
 import { useAuthStore } from "@/store/auth.store";
 
 export default function StudentDashboardPage() {
-  const router = useRouter();
   const { user } = useAuthStore();
-  const queryClient = useQueryClient();
 
-  const { data: studentData, isLoading: loading, isFetching } = useQuery({
+  const { data: studentData, isLoading: loading } = useQuery({
     queryKey: ["student", "dashboard"],
-    queryFn: async () => {
-      return await studentService.getDashboard();
-    },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    queryFn: () => studentService.getDashboard(),
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    retry: 2,
   });
 
+  const { data: upcomingTests } = useQuery({
+    queryKey: ["tests", "upcoming"],
+    queryFn: () => studentService.getTests({ take: 5 }),
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
 
 
   if (!user) return null;
@@ -143,12 +145,32 @@ export default function StudentDashboardPage() {
             </div>
           </div>
 
-          {/* Scheduled Tests (Placeholder) */}
+          {/* Upcoming Tests */}
           <div className="mt-8" id="scheduled">
-            <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Scheduled Tests</h3>
-            <Panel>
-               <p className="text-sm text-zinc-500">No upcoming scheduled tests.</p>
-            </Panel>
+            <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Upcoming Tests</h3>
+            {!upcomingTests?.data?.length ? (
+              <Panel>
+                <p className="text-sm text-zinc-500">No upcoming tests available right now.</p>
+              </Panel>
+            ) : (
+              <div className="space-y-2">
+                {upcomingTests.data.slice(0, 5).map((t) => (
+                  <Link key={t.id} href={`/tests/${t.id}`}>
+                    <Panel className="p-3 hover:bg-white/[0.04] transition cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-sm text-white">{t.title}</span>
+                          <span className="ml-2 text-xs text-zinc-500">{t.duration_minutes} min · {t._count.test_questions} Qs</span>
+                        </div>
+                        <span className="text-xs text-red-300 border border-red-500/20 bg-red-500/10 px-2 py-0.5 rounded-full">
+                          {t.total_marks} marks
+                        </span>
+                      </div>
+                    </Panel>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Quick links */}

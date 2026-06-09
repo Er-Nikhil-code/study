@@ -157,4 +157,11 @@ export class AdminController {
       take: take ? parseInt(take, 10) : 50,
     });
   }
+
+  /* ─── Notifications (all authenticated users via /api/notifications) ─── */
+  @Get("activity")
+  async getRecentActivity(@Query("take") take?: string) {
+    return this.adminService.getRecentActivity(take ? parseInt(take, 10) : 10);
+  }
 }
+

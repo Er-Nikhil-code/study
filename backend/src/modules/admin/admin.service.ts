@@ -377,4 +377,65 @@ export class AdminService {
 
     return { data, total, skip, take };
   }
+
+  /* ─── Notifications ─── */
+
+  async getNotifications(userId: string, params: { skip?: number; take?: number }) {
+    const skip = params.skip || 0;
+    const take = params.take || 30;
+
+    const [data, total, unreadCount] = await Promise.all([
+      this.prisma.notificationEvent.findMany({
+        where: { user_id: userId },
+        orderBy: { created_at: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.notificationEvent.count({ where: { user_id: userId } }),
+      this.prisma.notificationEvent.count({ where: { user_id: userId, is_read: false } }),
+    ]);
+
+    return { data, total, unread_count: unreadCount, skip, take };
+  }
+
+  async markNotificationRead(notificationId: string, userId: string) {
+    return this.prisma.notificationEvent.updateMany({
+      where: { id: notificationId, user_id: userId },
+      data: { is_read: true },
+    });
+  }
+
+  async markAllNotificationsRead(userId: string) {
+    return this.prisma.notificationEvent.updateMany({
+      where: { user_id: userId, is_read: false },
+      data: { is_read: true },
+    });
+  }
+
+  async getRecentActivity(take = 10) {
+    const [recentUsers, recentChallenges, recentQuestions] = await Promise.all([
+      this.prisma.user.findMany({
+        orderBy: { created_at: 'desc' },
+        take,
+        select: { id: true, first_name: true, last_name: true, email: true, role: true, created_at: true },
+      }),
+      this.prisma.challenge.findMany({
+        orderBy: { created_at: 'desc' },
+        take: 5,
+        select: {
+          id: true, status: true, reason: true, created_at: true,
+          question: { select: { title: true } },
+        },
+      }),
+      this.prisma.question.findMany({
+        where: { approval_status: { in: ['APPROVED', 'REJECTED'] } },
+        orderBy: { updated_at: 'desc' },
+        take: 5,
+        select: { id: true, title: true, approval_status: true, updated_at: true },
+      }),
+    ]);
+
+    return { recent_users: recentUsers, recent_challenges: recentChallenges, recent_questions: recentQuestions };
+  }
 }
+

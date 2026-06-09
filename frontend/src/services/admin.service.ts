@@ -182,6 +182,36 @@ class AdminService {
     const res = await api.get<PaginatedResponse<any>>("/admin/audit-logs", { params });
     return res.data;
   }
+
+  /* ─── Notifications ─── */
+  async getNotifications(params?: { skip?: number; take?: number }): Promise<{
+    data: any[];
+    total: number;
+    unread_count: number;
+    skip: number;
+    take: number;
+  }> {
+    const res = await api.get("/notifications", { params });
+    return res.data;
+  }
+
+  async markNotificationRead(id: string): Promise<void> {
+    await api.patch(`/notifications/${id}/read`);
+  }
+
+  async markAllNotificationsRead(): Promise<void> {
+    await api.patch("/notifications/read-all");
+  }
+
+  /* ─── Recent Activity (admin only) ─── */
+  async getRecentActivity(take = 10): Promise<{
+    recent_users: any[];
+    recent_challenges: any[];
+    recent_questions: any[];
+  }> {
+    const res = await api.get("/admin/activity", { params: { take } });
+    return res.data;
+  }
 }
 
 export const adminService = new AdminService();
