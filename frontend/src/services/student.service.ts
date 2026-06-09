@@ -31,6 +31,7 @@ export interface StudentDashboard {
     subject: string;
     wrong_count: number;
   }[];
+  enrolled_course: string | null;
 }
 
 export interface TestListItem {

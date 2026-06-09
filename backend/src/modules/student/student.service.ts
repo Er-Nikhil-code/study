@@ -17,7 +17,7 @@ export class StudentService {
    * ════════════════════════════════════════════ */
 
   async getDashboardStats(userId: string) {
-    const [stats, recentAttempts, todayActivity, weakTopics] =
+    const [stats, recentAttempts, todayActivity, weakTopics, userRec] =
       await Promise.all([
         this.prisma.userStats.findUnique({ where: { user_id: userId } }),
         this.prisma.attempt.findMany({
@@ -39,7 +39,14 @@ export class StudentService {
           },
         }),
         this.getWeakTopics(userId),
+        this.prisma.user.findUnique({ where: { id: userId }, select: { course_enrolled: true } }),
       ]);
+
+    let enrolledCourseName = userRec?.course_enrolled || null;
+    if (enrolledCourseName && enrolledCourseName.startsWith("c")) { // likely a cuid
+       const course = await this.prisma.course.findUnique({ where: { id: enrolledCourseName } });
+       if (course) enrolledCourseName = course.name;
+    }
 
     // Get rank
     const rank = await this.getUserRank(userId);
@@ -86,6 +93,7 @@ export class StudentService {
         practice_mode: a.practice_mode,
       })),
       weak_topics: weakTopics,
+      enrolled_course: enrolledCourseName,
     };
   }
 

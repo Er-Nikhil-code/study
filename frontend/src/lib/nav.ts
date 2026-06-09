@@ -73,7 +73,6 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     case "STUDENT":
       return [
         { label: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
-        { label: "Browse Tests", href: "/tests", icon: FileText },
         { label: "Available Courses", href: "/courses", icon: Library },
         { label: "My Results", href: "/results", icon: History },
         { label: "Leaderboard", href: "/leaderboard", icon: Trophy },

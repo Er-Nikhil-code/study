@@ -177,9 +177,11 @@ export default function StudentDashboardPage() {
 
           {/* Quick links */}
           <div className="mt-8 grid gap-3 grid-cols-2 lg:grid-cols-4">
-            <Link href="/tests" className="group rounded-2xl border border-red-500/20 bg-red-500/5 p-4 transition hover:bg-red-500/10">
-              <div className="text-sm font-medium text-red-300">Browse Tests</div>
-              <p className="text-xs text-zinc-500 mt-1">Find and take available tests</p>
+            <Link href="/courses" className="group rounded-2xl border border-red-500/20 bg-red-500/5 p-4 transition hover:bg-red-500/10">
+              <div className="text-sm font-medium text-red-300">Enrolled Courses</div>
+              <p className="text-xs text-red-400 mt-1 truncate">
+                {studentData.enrolled_course ? studentData.enrolled_course : "Explore available courses"}
+              </p>
             </Link>
             <Link href="/results" className="group rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition hover:bg-white/[0.06]">
               <div className="text-sm font-medium text-white">My Results</div>
