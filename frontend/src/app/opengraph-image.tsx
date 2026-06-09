@@ -1,10 +1,11 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const size = { width: 180, height: 180 };
+export const alt = "CODIFY";
+export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function Icon() {
+export default function Image() {
   return new ImageResponse(
     (
       <div
@@ -16,9 +17,9 @@ export default function Icon() {
           justifyContent: "center",
           background: "transparent",
           color: "#ef4444",
-          fontSize: "120px",
+          fontSize: "400px",
           fontWeight: "900",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: "system-ui, -apple-system, sans-serif",
         }}
       >
         C

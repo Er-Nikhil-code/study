@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const size = { width: 180, height: 180 };
+export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
 export default function Icon() {
@@ -16,9 +16,9 @@ export default function Icon() {
           justifyContent: "center",
           background: "transparent",
           color: "#ef4444",
-          fontSize: "120px",
+          fontSize: "26px",
           fontWeight: "900",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: "system-ui, -apple-system, sans-serif",
         }}
       >
         C
