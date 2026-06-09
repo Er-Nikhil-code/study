@@ -30,6 +30,7 @@ export interface VerifyOtpResponse {
     email: string;
     firstName: string;
     role: string;
+    profile_picture?: string;
   };
   accessToken: string;
   refreshToken: string;
@@ -47,6 +48,7 @@ export interface LoginResponse {
     email: string;
     firstName: string;
     role: string;
+    profile_picture?: string;
   };
   accessToken: string;
   refreshToken: string;
@@ -76,6 +78,7 @@ export interface User {
   email: string;
   firstName: string;
   role: string;
+  profile_picture?: string;
 }
 
 export interface AuthState {

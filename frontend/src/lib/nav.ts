@@ -59,7 +59,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     case "INTERN": {
       return [
         { label: "Dashboard", href: "/intern/dashboard", icon: LayoutDashboard },
-        { label: "Question Bank", href: "/teacher/questions", icon: BookOpen },
+        { label: "My Questions", href: "/intern/questions", icon: BookOpen },
         { label: "Create Question", href: "/teacher/questions/create", icon: PlusCircle },
         { label: "Question Statistics", href: "/intern/statistics", icon: BarChart2 },
         { label: "Notifications", href: "/notifications", icon: Bell },

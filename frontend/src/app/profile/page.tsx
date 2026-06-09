@@ -143,6 +143,14 @@ export default function ProfilePage() {
           token
         );
       }
+      // Update local profile data so hasChanges resets
+      setProfileData({
+        ...profileData,
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: phoneNumber,
+        profile_picture: profilePicture,
+      });
       setOldPassword("");
       setNewPassword("");
     } catch (err: any) {
@@ -161,6 +169,14 @@ export default function ProfilePage() {
       </DashboardShell>
     );
   }
+
+  const hasChanges =
+    firstName !== (profileData.first_name || profileData.firstName || "") ||
+    lastName !== (profileData.last_name || profileData.lastName || "") ||
+    phoneNumber !== (profileData.phone_number || "") ||
+    profilePicture !== (profileData.profile_picture || "") ||
+    oldPassword.length > 0 ||
+    newPassword.length > 0;
 
   return (
     <DashboardShell activeHref="/profile">
@@ -285,8 +301,8 @@ export default function ProfilePage() {
             <div className="flex justify-end pt-4">
               <button
                 type="submit"
-                disabled={loading}
-                className="rounded-xl bg-red-600 px-6 py-2.5 text-sm font-medium text-white shadow-[0_0_15px_rgba(220,38,38,0.5)] transition hover:bg-red-500 hover:shadow-[0_0_25px_rgba(220,38,38,0.6)] disabled:opacity-50"
+                disabled={loading || !hasChanges}
+                className="rounded-xl bg-red-600 px-6 py-2.5 text-sm font-medium text-white shadow-[0_0_15px_rgba(220,38,38,0.5)] transition hover:bg-red-500 hover:shadow-[0_0_25px_rgba(220,38,38,0.6)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Saving..." : "Save Changes"}
               </button>
