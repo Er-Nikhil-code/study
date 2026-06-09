@@ -27,10 +27,13 @@ export default function DashboardShell({
   }, []);
 
   const dynamicNavItems = navItems || (mounted ? getSidebarNavItems(user) : []);
-  const sidebarCollapsed = mounted ? isSidebarCollapsed : false;
+  const sidebarCollapsed = isSidebarCollapsed; // Use directly to avoid expansion flicker
 
   return (
-    <div className={`min-h-screen bg-[#050505] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(220,38,38,0.15),rgba(255,255,255,0))] text-white transition-all duration-300 ease-in-out ${sidebarCollapsed ? "pl-20" : "pl-64"}`}>
+    <div 
+      suppressHydrationWarning 
+      className={`min-h-screen bg-[#050505] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(220,38,38,0.15),rgba(255,255,255,0))] text-white ${!mounted ? "transition-none" : "transition-all duration-300 ease-in-out"} ${sidebarCollapsed ? "pl-20" : "pl-64"}`}
+    >
       <AppSidebar 
         items={dynamicNavItems} 
         activeHref={activeHref} 

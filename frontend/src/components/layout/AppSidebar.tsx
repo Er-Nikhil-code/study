@@ -73,7 +73,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-white/10 bg-black/70 backdrop-blur-xl transition-all duration-300 ease-in-out ${
+      className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-white/10 bg-black/70 backdrop-blur-xl ${!mounted ? "transition-none" : "transition-all duration-300 ease-in-out"} ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
