@@ -35,13 +35,14 @@ export class StudentController {
 
   @Get("leaderboard")
   async getLeaderboard(
+    @Request() req: any,
     @Query("period") period?: string,
     @Query("take") take?: string,
   ) {
     const p = (period === "weekly" || period === "monthly" || period === "global")
       ? period
       : "weekly";
-    return this.studentService.getLeaderboard(p, take ? parseInt(take, 10) : 50);
+    return this.studentService.getLeaderboard(p, take ? parseInt(take, 10) : 50, req.user.role);
   }
 
   @Get("test-series")

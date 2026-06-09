@@ -77,9 +77,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
       return [
         { label: "Dashboard Overview", href: "/student/dashboard", icon: LayoutDashboard },
         { label: "Available Tests", href: "/tests", icon: Library },
-        { label: "Scheduled Tests", href: "/student/dashboard#scheduled", icon: Calendar },
         { label: "Previous Tests", href: "/results", icon: History },
-        { label: "Results & Analytics", href: "/student/dashboard#analytics", icon: PieChart },
         { label: "Notifications", href: "/notifications", icon: Bell },
         { label: "Profile", href: "/profile", icon: User },
       ];

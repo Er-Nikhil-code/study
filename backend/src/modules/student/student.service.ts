@@ -209,9 +209,12 @@ export class StudentService {
   async getLeaderboard(
     period: "weekly" | "monthly" | "global",
     take: number = 50,
+    requestingRole: string = "STUDENT"
   ) {
+    const targetRole = requestingRole === "INTERN" ? "INTERN" : "STUDENT";
+
     if (period === "global") {
-      return this.getGlobalLeaderboard(take);
+      return this.getGlobalLeaderboard(take, targetRole);
     }
 
     const now = new Date();
@@ -227,6 +230,7 @@ export class StudentService {
       where: {
         status: "SCORED",
         submitted_at: { gte: startDate },
+        user: { role: targetRole as any }
       },
       select: {
         user_id: true,
@@ -282,8 +286,11 @@ export class StudentService {
     return { period, data: rows };
   }
 
-  private async getGlobalLeaderboard(take: number) {
+  private async getGlobalLeaderboard(take: number, targetRole: string) {
     const users = await this.prisma.userStats.findMany({
+      where: {
+        user: { role: targetRole as any }
+      },
       orderBy: { total_score: "desc" },
       take,
       include: {
