@@ -23,8 +23,6 @@ export default function SocketProvider({ children }: Props) {
     if (!token) return;
 
     const socketInstance = io(process.env.NEXT_PUBLIC_API_URL!, {
-      // Start with polling so Railway can upgrade to WS properly.
-      // Using websocket-only causes repeated failures on Railway's proxy.
       transports: ["polling", "websocket"],
 
       auth: { token },
