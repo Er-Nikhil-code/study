@@ -131,7 +131,9 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
 
       {/* Footer / Profile */}
       <div className="p-4 border-t border-white/10 relative" ref={dropdownRef}>
-        {isAuthenticated && user ? (
+        {!mounted ? (
+          <div className="h-12 w-full animate-pulse rounded-xl bg-white/[0.02]" />
+        ) : isAuthenticated && user ? (
           <>
             {/* Dropdown menu — shows both in collapsed and expanded mode */}
             {isProfileOpen && (
@@ -175,10 +177,10 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                 {!isCollapsed && (
                   <div className={`flex flex-col overflow-hidden transition-all duration-300 ${isCollapsed ? "w-0 opacity-0" : "w-full opacity-100"}`}>
               <span className="truncate text-sm font-medium text-white">
-                {mounted ? (user?.firstName || user?.email || "User") : "User"}
+                {user?.firstName || user?.email || "User"}
               </span>
               <span className="truncate text-xs text-zinc-500">
-                {mounted ? (user?.role?.replace("_", " ") || "Member") : "Member"}
+                {user?.role?.replace("_", " ") || "Member"}
               </span>
             </div>    )}
               </div>
