@@ -273,7 +273,7 @@ export default function CreateQuestionPage() {
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               className="w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white outline-none focus:border-red-500/30 font-mono"
-              placeholder={formData.type === "PASSAGE" ? "Write the main passage here..." : "Write the question statement here..."}
+              placeholder={formData.type === "PASSAGE" ? "Enter passage content" : "Enter question statement"}
             />
           </div>
         </Panel>
@@ -324,7 +324,7 @@ export default function CreateQuestionPage() {
                   value={formData.exam_name}
                   onChange={(e) => setFormData({ ...formData, exam_name: e.target.value })}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
-                  placeholder="e.g. JEE Main"
+                  placeholder="Exam category"
                 />
               </div>
               <div>
@@ -335,7 +335,7 @@ export default function CreateQuestionPage() {
                   value={formData.exam_year}
                   onChange={(e) => setFormData({ ...formData, exam_year: e.target.value })}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
-                  placeholder="e.g. 2023"
+                  placeholder="Year"
                 />
               </div>
               <div>
@@ -345,7 +345,7 @@ export default function CreateQuestionPage() {
                   value={formData.exam_shift}
                   onChange={(e) => setFormData({ ...formData, exam_shift: e.target.value })}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
-                  placeholder="e.g. Shift 1"
+                  placeholder="Shift/Variant"
                 />
               </div>
             </div>
@@ -361,7 +361,7 @@ export default function CreateQuestionPage() {
               value={formData.solution}
               onChange={(e) => setFormData({ ...formData, solution: e.target.value })}
               className="w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white outline-none focus:border-red-500/30"
-              placeholder="Step by step explanation..."
+              placeholder="Detailed solution or explanation"
             />
           </div>
         </Panel>

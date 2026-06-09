@@ -103,7 +103,7 @@ export default function PassageForm({ data, onChange }: PassageFormProps) {
                   value={sq.question_text}
                   onChange={(e) => updateSubQuestion(i, "question_text", e.target.value)}
                   className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-red-500/30"
-                  placeholder="Sub-question statement..."
+                  placeholder="Sub-question statement"
                 />
                 
                 <div className="flex items-center gap-3">

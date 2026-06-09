@@ -175,7 +175,7 @@ export default function ReviewQuestionsPage() {
                   Feedback (required for rejection)
                 </label>
                 <textarea value={rejectNote} onChange={(e) => setRejectNote(e.target.value)}
-                  placeholder="Explain what needs to be changed..."
+                  placeholder="Provide review comments..."
                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30 min-h-[100px]" />
               </div>
             </div>

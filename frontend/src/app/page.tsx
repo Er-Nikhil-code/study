@@ -457,7 +457,7 @@ function LoginFormEmbedded({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="name@example.com"
+            placeholder="Email address"
             className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
               errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
             } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
@@ -476,7 +476,7 @@ function LoginFormEmbedded({
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Password"
               className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
                 errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
               } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
@@ -648,7 +648,7 @@ function RegisterFormEmbedded({
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              placeholder="e.g. Alex"
+              placeholder="First name"
               className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
                 errors.firstName ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
               } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.firstName ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
@@ -666,7 +666,7 @@ function RegisterFormEmbedded({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
+              placeholder="Email address"
               className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
                 errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
               } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
@@ -696,7 +696,7 @@ function RegisterFormEmbedded({
               onChange={(e) =>
                 setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
               }
-              placeholder="000000"
+              placeholder="6-digit code"
               maxLength={6}
               className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
                 errors.otp ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
@@ -716,7 +716,7 @@ function RegisterFormEmbedded({
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Password"
                 className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
                   errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
                 } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
@@ -852,7 +852,7 @@ function ForgotPasswordFormEmbedded({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="name@example.com"
+          placeholder="Email address"
           className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
             errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
           } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}

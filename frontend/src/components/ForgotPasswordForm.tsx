@@ -151,7 +151,7 @@ export function ForgotPasswordForm() {
             type="email"
             value={formState.email}
             onChange={(e) => updateField("email", e.target.value)}
-            placeholder="you@example.com"
+            placeholder="Email address"
             className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
               errors.email
                 ? "border-red-500 focus:ring-red-500"

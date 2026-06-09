@@ -104,7 +104,7 @@ export default function ReviewNotesPage() {
                       value={rejectionNote}
                       onChange={e => setRejectionNote(e.target.value)}
                       className="block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-white outline-none focus:border-red-500"
-                      placeholder="Explain what needs to be fixed..."
+                      placeholder="Provide feedback or required changes..."
                     />
                   </div>
                   

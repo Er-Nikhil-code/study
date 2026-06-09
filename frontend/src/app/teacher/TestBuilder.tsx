@@ -12,7 +12,7 @@ export default function TestBuilder() {
         <h3 className="text-xl font-semibold text-white">Create Test</h3>
 
         <input
-          placeholder="Test Name"
+          placeholder="Test name"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white"
@@ -20,17 +20,17 @@ export default function TestBuilder() {
 
         <div className="grid gap-4 md:grid-cols-3">
           <input
-            placeholder="Duration (minutes)"
+            placeholder="Duration (in minutes)"
             className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white"
           />
 
           <input
-            placeholder="Total Marks"
+            placeholder="Total marks"
             className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white"
           />
 
           <input
-            placeholder="Questions"
+            placeholder="Number of questions"
             className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white"
           />
         </div>

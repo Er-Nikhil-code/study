@@ -228,7 +228,7 @@ export default function ResultDetailPage() {
                   <div>
                     <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">Description</label>
                     <textarea value={challengeDesc} onChange={(e) => setChallengeDesc(e.target.value)}
-                      placeholder="Explain why you think this question needs review…"
+                      placeholder="Reason for challenge..."
                       className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30 min-h-[100px]" />
                   </div>
                 </div>

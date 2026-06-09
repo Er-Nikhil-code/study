@@ -240,7 +240,7 @@ export default function ProfilePage() {
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="Phone number"
                   className="block w-full rounded-xl border border-white/10 bg-white/[0.02] py-2.5 pl-10 pr-3 text-sm text-white placeholder-zinc-500 transition focus:border-red-500/50 focus:bg-white/[0.04] focus:outline-none focus:ring-1 focus:ring-red-500/50"
                 />
               </div>
@@ -259,7 +259,7 @@ export default function ProfilePage() {
                       type="password"
                       value={oldPassword}
                       onChange={(e) => setOldPassword(e.target.value)}
-                      placeholder="••••••••"
+                      placeholder="Password"
                       className="block w-full rounded-xl border border-white/10 bg-white/[0.02] py-2.5 pl-10 pr-3 text-sm text-white placeholder-zinc-500 transition focus:border-red-500/50 focus:bg-white/[0.04] focus:outline-none focus:ring-1 focus:ring-red-500/50"
                     />
                   </div>
@@ -274,7 +274,7 @@ export default function ProfilePage() {
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="••••••••"
+                      placeholder="Password"
                       className="block w-full rounded-xl border border-white/10 bg-white/[0.02] py-2.5 pl-10 pr-3 text-sm text-white placeholder-zinc-500 transition focus:border-red-500/50 focus:bg-white/[0.04] focus:outline-none focus:ring-1 focus:ring-red-500/50"
                     />
                   </div>

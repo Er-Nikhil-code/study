@@ -97,11 +97,11 @@ export default function HierarchyManagerPage() {
           <form onSubmit={handleCreateCourse} className="flex gap-4 items-end">
             <div>
               <label className="text-xs text-zinc-400">Course Name</label>
-              <input type="text" required value={courseForm.name} onChange={e => setCourseForm({...courseForm, name: e.target.value})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" placeholder="e.g. Physics 101" />
+              <input type="text" required value={courseForm.name} onChange={e => setCourseForm({...courseForm, name: e.target.value})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" placeholder="Course name" />
             </div>
             <div>
               <label className="text-xs text-zinc-400">Course Code</label>
-              <input type="text" required value={courseForm.code} onChange={e => setCourseForm({...courseForm, code: e.target.value})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" placeholder="PHY101" />
+              <input type="text" required value={courseForm.code} onChange={e => setCourseForm({...courseForm, code: e.target.value})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" placeholder="Course code" />
             </div>
             <button type="submit" className="rounded-md bg-white px-4 py-2 text-sm font-medium text-black">Save</button>
             <button type="button" onClick={() => setShowCourseForm(false)} className="rounded-md bg-zinc-800 px-4 py-2 text-sm text-white">Cancel</button>

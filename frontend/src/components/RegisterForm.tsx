@@ -180,7 +180,7 @@ export function RegisterForm() {
               type="email"
               value={formState.email}
               onChange={(e) => updateField("email", e.target.value)}
-              placeholder="you@example.com"
+              placeholder="Email address"
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
                 errors.email
                   ? "border-red-500 focus:ring-red-500"
@@ -202,7 +202,7 @@ export function RegisterForm() {
               type="text"
               value={formState.firstName}
               onChange={(e) => updateField("firstName", e.target.value)}
-              placeholder="John"
+              placeholder="First name"
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
                 errors.firstName
                   ? "border-red-500 focus:ring-red-500"
@@ -224,7 +224,7 @@ export function RegisterForm() {
               type="text"
               value={formState.lastName}
               onChange={(e) => updateField("lastName", e.target.value)}
-              placeholder="Doe"
+              placeholder="Last name"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               disabled={loading}
             />
@@ -311,7 +311,7 @@ export function RegisterForm() {
                 const value = e.target.value.replace(/\D/g, "");
                 updateField("otp", value);
               }}
-              placeholder="000000"
+              placeholder="6-digit code"
               className={`w-full px-4 py-3 text-center text-2xl border-2 rounded-lg font-mono tracking-widest focus:outline-none transition ${
                 errors.otp
                   ? "border-red-500 focus:ring-2 focus:ring-red-500"
@@ -352,7 +352,7 @@ export function RegisterForm() {
               type={showPassword ? "text" : "password"}
               value={formState.password}
               onChange={(e) => updateField("password", e.target.value)}
-              placeholder="Min 8 characters"
+              placeholder="Minimum 8 characters"
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${
                 errors.password
                   ? "border-red-500 focus:ring-red-500"
@@ -388,7 +388,7 @@ export function RegisterForm() {
               type={showConfirmPassword ? "text" : "password"}
               value={formState.confirmPassword}
               onChange={(e) => updateField("confirmPassword", e.target.value)}
-              placeholder="Re-enter your password"
+              placeholder="Confirm password"
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${
                 errors.confirmPassword
                   ? "border-red-500 focus:ring-red-500"

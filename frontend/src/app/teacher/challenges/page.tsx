@@ -165,7 +165,7 @@ export default function TeacherChallengesPage() {
             <textarea
               value={resolutionNote}
               onChange={(e) => setResolutionNote(e.target.value)}
-              placeholder={noteModal.action === "FORWARD_TO_INTERN" ? "Please review and fix this question..." : "The answer is correct because..."}
+              placeholder={noteModal.action === "FORWARD_TO_INTERN" ? "Instructions for intern..." : "Reason for rejection..."}
               rows={4}
               className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-red-500/50 focus:outline-none focus:ring-1 focus:ring-red-500/50"
             />

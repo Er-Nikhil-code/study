@@ -105,7 +105,7 @@ export default function McqForm({ type, data, onChange }: McqFormProps) {
               value={opt.text}
               onChange={(e) => updateOptionText(i, e.target.value)}
               className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm text-white outline-none focus:border-red-500/30"
-              placeholder={`Option ${opt.id} text`}
+              placeholder={`Option ${opt.id}`}
             />
           </div>
         ))}

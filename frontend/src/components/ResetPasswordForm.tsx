@@ -237,7 +237,7 @@ export function ResetPasswordForm({
                 type={showPassword ? "text" : "password"}
                 value={formState.password}
                 onChange={(e) => updateField("password", e.target.value)}
-                placeholder="Min 8 characters"
+                placeholder="Minimum 8 characters"
                 className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border ${
                   errors.password
                     ? "border-red-500/50"
@@ -275,7 +275,7 @@ export function ResetPasswordForm({
                 onChange={(e) =>
                   updateField("confirmPassword", e.target.value)
                 }
-                placeholder="Re-enter your password"
+                placeholder="Confirm password"
                 className={`w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border ${
                   errors.confirmPassword
                     ? "border-red-500/50"

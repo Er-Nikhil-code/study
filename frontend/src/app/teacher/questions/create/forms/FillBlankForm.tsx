@@ -56,7 +56,7 @@ export default function FillBlankForm({ data, onChange }: FillBlankFormProps) {
                 value={blank.answer}
                 onChange={(e) => updateBlank(i, "answer", e.target.value)}
                 className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-red-500/30"
-                placeholder="Correct answer..."
+                placeholder="Correct answer"
               />
             </div>
             

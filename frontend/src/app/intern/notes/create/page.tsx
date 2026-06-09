@@ -117,7 +117,7 @@ export default function CreateNotePage() {
               value={formData.content_html}
               onChange={(e) => setFormData({ ...formData, content_html: e.target.value })}
               className="block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-white outline-none focus:border-red-500 font-mono text-sm"
-              placeholder="<h1>Main Heading</h1>\n<p>Start writing the content...</p>"
+              placeholder="Enter HTML content..."
             />
           </div>
 

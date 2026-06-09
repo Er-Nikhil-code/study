@@ -77,12 +77,12 @@ export default function CreateTestPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-zinc-400 mb-1">Test Title</label>
-                <input type="text" required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="e.g. Midterm Physics" />
+                <input type="text" required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="Test title" />
               </div>
 
               <div>
                 <label className="block text-sm text-zinc-400 mb-1">Description (Optional)</label>
-                <textarea rows={2} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="Instructions for students..." />
+                <textarea rows={2} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="Test instructions" />
               </div>
 
               <div className="flex gap-4">
