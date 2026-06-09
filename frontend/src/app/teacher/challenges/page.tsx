@@ -6,17 +6,12 @@ import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { ChallengesService } from "@/services/challenges.service";
 
-const navItems = [
-  { label: "Teacher home", href: "/teacher" },
-  { label: "Questions", href: "/teacher/questions" },
-  { label: "Tests", href: "/teacher/tests" },
-  { label: "Challenges", href: "/teacher/challenges" },
-];
-
 export default function TeacherChallengesPage() {
   const [challenges, setChallenges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [noteModal, setNoteModal] = useState<{ id: string; action: string } | null>(null);
+  const [resolutionNote, setResolutionNote] = useState("");
 
   const fetchChallenges = async () => {
     try {
@@ -33,11 +28,20 @@ export default function TeacherChallengesPage() {
     fetchChallenges();
   }, []);
 
-  const handleResolve = async (id: string, action: "ACCEPT" | "REJECT" | "ESCALATE") => {
+  const handleResolve = async (
+    id: string,
+    action: "ACCEPT" | "REJECT" | "ESCALATE" | "FORWARD_TO_INTERN",
+    note?: string,
+  ) => {
     setProcessingId(id);
     try {
-      await ChallengesService.resolveChallenge(id, { action, resolution_note: `Resolved via quick action: ${action}` });
+      await ChallengesService.resolveChallenge(id, {
+        action,
+        resolution_note: note || `Resolved via quick action: ${action}`,
+      });
       await fetchChallenges();
+      setNoteModal(null);
+      setResolutionNote("");
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to resolve challenge");
     } finally {
@@ -45,11 +49,16 @@ export default function TeacherChallengesPage() {
     }
   };
 
+  const openNoteModal = (id: string, action: string) => {
+    setNoteModal({ id, action });
+    setResolutionNote("");
+  };
+
   return (
     <DashboardShell activeHref="/teacher/challenges">
       <SectionTitle
         title="Challenges"
-        subtitle="Review student challenge submissions and resolve them from one place."
+        subtitle="Review student challenge submissions. You can resolve them, reject, or forward to the intern who created the question."
       />
 
       <div className="mt-6 grid gap-4">
@@ -70,14 +79,16 @@ export default function TeacherChallengesPage() {
                     {challenge.id.split("-")[0]}-{challenge.id.slice(-4)}
                   </div>
                   <h3 className="mt-2 text-lg font-semibold text-white">
-                    {challenge.student?.name || "Student"}
+                    {challenge.question?.title || "Unknown Question"}
                   </h3>
-                  <p className="mt-1 text-sm text-zinc-400">Question ID: {challenge.question_id}</p>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    Submitted by: {challenge.created_by?.first_name || challenge.created_by?.email || "Student"}
+                  </p>
                 </div>
 
                 <span
                   className={[
-                    "rounded-full border px-3 py-1 text-xs font-medium",
+                    "rounded-full border px-3 py-1 text-xs font-medium shrink-0",
                     challenge.status === "PENDING"
                       ? "border-amber-500/20 bg-amber-500/10 text-amber-300"
                       : challenge.status === "RESOLVED"
@@ -91,7 +102,7 @@ export default function TeacherChallengesPage() {
 
               <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                 <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
-                  Reason: {challenge.reason.replace(/_/g, " ")}
+                  Reason: {challenge.reason?.replace(/_/g, " ")}
                 </div>
                 <div className="mt-2 text-sm text-zinc-200">
                   {challenge.description}
@@ -100,13 +111,32 @@ export default function TeacherChallengesPage() {
 
               {challenge.status === "PENDING" && (
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <button onClick={() => handleResolve(challenge.id, "ACCEPT")} disabled={processingId === challenge.id} className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-200 transition hover:bg-emerald-500/15 disabled:opacity-50">
-                    {processingId === challenge.id ? "..." : "Accept"}
+                  <button
+                    onClick={() => handleResolve(challenge.id, "ACCEPT")}
+                    disabled={processingId === challenge.id}
+                    className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-200 transition hover:bg-emerald-500/15 disabled:opacity-50"
+                  >
+                    {processingId === challenge.id ? "..." : "Accept & Fix"}
                   </button>
-                  <button onClick={() => handleResolve(challenge.id, "REJECT")} disabled={processingId === challenge.id} className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/15 disabled:opacity-50">
-                    {processingId === challenge.id ? "..." : "Reject"}
+                  <button
+                    onClick={() => openNoteModal(challenge.id, "REJECT")}
+                    disabled={processingId === challenge.id}
+                    className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/15 disabled:opacity-50"
+                  >
+                    Reject
                   </button>
-                  <button onClick={() => handleResolve(challenge.id, "ESCALATE")} disabled={processingId === challenge.id} className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06] disabled:opacity-50">
+                  <button
+                    onClick={() => openNoteModal(challenge.id, "FORWARD_TO_INTERN")}
+                    disabled={processingId === challenge.id}
+                    className="rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-2 text-sm font-medium text-blue-200 transition hover:bg-blue-500/15 disabled:opacity-50"
+                  >
+                    Forward to Intern
+                  </button>
+                  <button
+                    onClick={() => handleResolve(challenge.id, "ESCALATE")}
+                    disabled={processingId === challenge.id}
+                    className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06] disabled:opacity-50"
+                  >
                     Escalate
                   </button>
                 </div>
@@ -115,6 +145,48 @@ export default function TeacherChallengesPage() {
           ))
         )}
       </div>
+
+      {/* Resolution note modal */}
+      {noteModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setNoteModal(null)}>
+          <div
+            className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-white mb-1">
+              {noteModal.action === "FORWARD_TO_INTERN" ? "Forward to Intern" : "Reject Challenge"}
+            </h3>
+            <p className="text-sm text-zinc-500 mb-4">
+              {noteModal.action === "FORWARD_TO_INTERN"
+                ? "Add instructions for the intern who created this question."
+                : "Explain why you're rejecting this challenge. The student will be notified."
+              }
+            </p>
+            <textarea
+              value={resolutionNote}
+              onChange={(e) => setResolutionNote(e.target.value)}
+              placeholder={noteModal.action === "FORWARD_TO_INTERN" ? "Please review and fix this question..." : "The answer is correct because..."}
+              rows={4}
+              className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-red-500/50 focus:outline-none focus:ring-1 focus:ring-red-500/50"
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                onClick={() => setNoteModal(null)}
+                className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-300 hover:text-white transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleResolve(noteModal.id, noteModal.action as any, resolutionNote)}
+                disabled={processingId === noteModal.id}
+                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 disabled:opacity-50"
+              >
+                {processingId === noteModal.id ? "Sending..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardShell>
   );
 }

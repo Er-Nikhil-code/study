@@ -223,7 +223,7 @@ export class RolesService {
     if (!role) throw new NotFoundException(`Role "${roleName}" not found`);
 
     // Validate roleName matches an enum value
-    const validRoles = ["STUDENT", "INTERN", "PENDING_TEACHER", "TEACHER", "ADMIN"];
+    const validRoles = ["STUDENT", "INTERN", "TEACHER", "ADMIN"];
     if (!validRoles.includes(roleName)) {
       throw new BadRequestException(
         `"${roleName}" is a custom role. Use a system role: ${validRoles.join(", ")}`,

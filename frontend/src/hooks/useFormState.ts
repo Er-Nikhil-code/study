@@ -7,7 +7,7 @@ export interface FormState {
   firstName: string;
   lastName: string;
   otp: string;
-  role: "STUDENT" | "PENDING_TEACHER";
+  role: "STUDENT";
 }
 
 export function useFormState(initial: Partial<FormState> = {}) {

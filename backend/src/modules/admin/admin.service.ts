@@ -21,7 +21,6 @@ export class AdminService {
         totalUsers,
         totalStudents,
         totalTeachers,
-        pendingApprovals,
         totalQuestions,
         totalTests,
         totalAttempts,
@@ -31,9 +30,6 @@ export class AdminService {
         this.prisma.user.count(),
         this.prisma.user.count({ where: { role: "STUDENT" } }),
         this.prisma.user.count({ where: { role: "TEACHER" } }),
-        this.prisma.teacherApplication.count({
-          where: { status: "PENDING" },
-        }),
         this.prisma.question.count(),
         this.prisma.test.count(),
         this.prisma.attempt.count(),
@@ -45,7 +41,7 @@ export class AdminService {
         totalUsers,
         totalStudents,
         totalTeachers,
-        pendingApprovals,
+        pendingApprovals: 0,
         totalQuestions,
         totalTests,
         totalAttempts,
@@ -349,7 +345,7 @@ export class AdminService {
 
   async assignRole(userId: string, roleName: string) {
     // If it's a base UserRole enum
-    if (["STUDENT", "INTERN", "PENDING_TEACHER", "TEACHER", "ADMIN"].includes(roleName)) {
+    if (["STUDENT", "INTERN", "TEACHER", "ADMIN"].includes(roleName)) {
       return this.prisma.user.update({
         where: { id: userId },
         data: { role: roleName as any, custom_role_id: null }

@@ -229,7 +229,6 @@ export class AuthService {
           last_name: lastName,
           role: assignedRole as
             | "STUDENT"
-            | "PENDING_TEACHER"
             | "TEACHER"
             | "ADMIN",
           email_verified_at: new Date(),

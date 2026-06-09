@@ -5,8 +5,45 @@ import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import { useAuthStore } from "@/store/auth.store";
 import authService from "@/services/auth.service";
-import { User, Lock, Phone, BookOpen, Camera } from "lucide-react";
+import { User, Lock, Phone, BookOpen, Camera, X, Upload, Eye } from "lucide-react";
 import { toast } from "sonner";
+
+/**
+ * Compress an image file using canvas.
+ * Resizes to max 256x256 and outputs as JPEG at 0.7 quality.
+ * This keeps the stored base64 string small (~20-40KB).
+ */
+function compressImage(file: File, maxSize = 256, quality = 0.7): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let w = img.width;
+      let h = img.height;
+
+      // Scale down proportionally
+      if (w > h) {
+        if (w > maxSize) { h = Math.round((h * maxSize) / w); w = maxSize; }
+      } else {
+        if (h > maxSize) { w = Math.round((w * maxSize) / h); h = maxSize; }
+      }
+
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = reject;
+  });
+}
 
 export default function ProfilePage() {
   const { user, setAuth } = useAuthStore();
@@ -22,7 +59,10 @@ export default function ProfilePage() {
   const [profilePicture, setProfilePicture] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Photo modal
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -31,11 +71,17 @@ export default function ProfilePage() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfilePicture(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file, 256, 0.7);
+      setProfilePicture(compressed);
+      setShowPhotoModal(false);
+      toast.success("Photo selected! Click 'Save Changes' to apply.");
+    } catch {
+      toast.error("Failed to process image.");
+    }
+
+    // Reset file input so re-selecting the same file works
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   useEffect(() => {
@@ -89,12 +135,11 @@ export default function ProfilePage() {
         throw new Error(errData.message || "Failed to update profile");
       }
 
-      const data = await res.json();
       toast.success("Profile updated successfully!");
       // Update global auth store with new values
       if (user) {
         setAuth(
-          { ...user, first_name: firstName, last_name: lastName, profile_picture: profilePicture } as any,
+          { ...user, profile_picture: profilePicture } as any,
           token
         );
       }
@@ -130,26 +175,21 @@ export default function ProfilePage() {
           <form onSubmit={handleUpdate} className="space-y-6">
             
             <div className="flex items-center gap-4 border-b border-white/10 pb-6">
-              <div className="relative h-20 w-20 overflow-hidden rounded-full bg-zinc-800 border-2 border-white/10 flex items-center justify-center">
+              {/* Profile photo — tap to open modal */}
+              <button
+                type="button"
+                onClick={() => setShowPhotoModal(true)}
+                className="relative h-20 w-20 overflow-hidden rounded-full bg-zinc-800 border-2 border-white/10 flex items-center justify-center shrink-0 group cursor-pointer transition hover:border-red-500/30"
+              >
                 {profilePicture ? (
                    <img src={profilePicture} alt="Profile" className="h-full w-full object-cover" />
                 ) : (
                   <User size={32} className="text-zinc-500" />
                 )}
-                <div 
-                  className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition cursor-pointer"
-                  onClick={() => fileInputRef.current?.click()}
-                >
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                   <Camera size={20} className="text-white" />
                 </div>
-                <input 
-                  type="file" 
-                  accept="image/jpeg, image/png, image/webp" 
-                  className="hidden" 
-                  ref={fileInputRef} 
-                  onChange={handleImageUpload} 
-                />
-              </div>
+              </button>
               <div>
                 <h3 className="text-lg font-medium text-white">{firstName} {lastName}</h3>
                 <p className="text-sm text-zinc-500">{user.email}</p>
@@ -201,22 +241,6 @@ export default function ProfilePage() {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="+1 (555) 000-0000"
-                  className="block w-full rounded-xl border border-white/10 bg-white/[0.02] py-2.5 pl-10 pr-3 text-sm text-white placeholder-zinc-500 transition focus:border-red-500/50 focus:bg-white/[0.04] focus:outline-none focus:ring-1 focus:ring-red-500/50"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-medium uppercase tracking-[0.1em] text-zinc-500">Profile Picture URL</label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Camera className="h-4 w-4 text-zinc-500" />
-                </div>
-                <input
-                  type="url"
-                  value={profilePicture}
-                  onChange={(e) => setProfilePicture(e.target.value)}
-                  placeholder="https://example.com/avatar.jpg"
                   className="block w-full rounded-xl border border-white/10 bg-white/[0.02] py-2.5 pl-10 pr-3 text-sm text-white placeholder-zinc-500 transition focus:border-red-500/50 focus:bg-white/[0.04] focus:outline-none focus:ring-1 focus:ring-red-500/50"
                 />
               </div>
@@ -294,6 +318,79 @@ export default function ProfilePage() {
           </Panel>
         </div>
       </div>
+
+      {/* ── Photo Modal (View / Upload) ── */}
+      {showPhotoModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowPhotoModal(false)}>
+          <div
+            className="relative w-full max-w-sm rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowPhotoModal(false)}
+              className="absolute top-3 right-3 rounded-lg p-1 text-zinc-400 hover:text-white hover:bg-white/10 transition"
+            >
+              <X size={18} />
+            </button>
+
+            <h3 className="text-lg font-semibold text-white mb-4">Profile Photo</h3>
+
+            {/* Preview */}
+            <div className="flex justify-center mb-6">
+              <div className="h-32 w-32 overflow-hidden rounded-full border-2 border-white/10 bg-zinc-800 flex items-center justify-center">
+                {profilePicture ? (
+                  <img src={profilePicture} alt="Profile" className="h-full w-full object-cover" />
+                ) : (
+                  <User size={48} className="text-zinc-500" />
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col gap-2">
+              {profilePicture && (
+                <a
+                  href={profilePicture}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-zinc-300 transition hover:bg-white/[0.06] hover:text-white"
+                >
+                  <Eye size={16} />
+                  View Full Photo
+                </a>
+              )}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-200 transition hover:bg-red-500/20"
+              >
+                <Upload size={16} />
+                Upload New Photo
+              </button>
+              {profilePicture && (
+                <button
+                  onClick={() => {
+                    setProfilePicture("");
+                    setShowPhotoModal(false);
+                    toast.success("Photo removed. Click 'Save Changes' to apply.");
+                  }}
+                  className="text-xs text-zinc-500 hover:text-red-400 transition mt-1"
+                >
+                  Remove Photo
+                </button>
+              )}
+            </div>
+
+            <input
+              type="file"
+              accept="image/jpeg, image/png, image/webp"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleImageUpload}
+            />
+          </div>
+        </div>
+      )}
     </DashboardShell>
   );
 }

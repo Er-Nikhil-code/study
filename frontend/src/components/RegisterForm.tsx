@@ -128,7 +128,7 @@ export function RegisterForm() {
       setTimeout(() => {
         const role = (formState.role as string) || "STUDENT";
         if (role === "ADMIN") window.location.href = "/admin";
-        else if (role === "TEACHER" || role === "PENDING_TEACHER") window.location.href = "/teacher";
+        else if (role === "TEACHER") window.location.href = "/teacher";
         else if (role === "INTERN") window.location.href = "/intern/dashboard";
         else window.location.href = "/student/dashboard";
       }, 2000);
@@ -230,36 +230,7 @@ export function RegisterForm() {
             />
           </div>
 
-          {/* Role Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              I am a:
-            </label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="STUDENT"
-                  checked={formState.role === "STUDENT"}
-                  onChange={(e) => updateField("role", e.target.value as any)}
-                  className="w-4 h-4"
-                  disabled={loading}
-                />
-                <span className="text-gray-700">Student</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="PENDING_TEACHER"
-                  checked={formState.role === "PENDING_TEACHER"}
-                  onChange={(e) => updateField("role", e.target.value as any)}
-                  className="w-4 h-4"
-                  disabled={loading}
-                />
-                <span className="text-gray-700">Teacher</span>
-              </label>
-            </div>
-          </div>
+
 
           {/* Submit Button */}
           <button

@@ -20,7 +20,7 @@ export interface VerifyOtpRequest {
   password: string;
   firstName: string;
   lastName?: string;
-  role?: "STUDENT" | "PENDING_TEACHER";
+  role?: "STUDENT";
 }
 
 export interface VerifyOtpResponse {

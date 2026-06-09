@@ -10,7 +10,7 @@ export function useRole() {
 
     isStudent: role === "STUDENT",
 
-    isPendingTeacher: role === "PENDING_TEACHER",
+
 
     isTeacher: role === "TEACHER",
 

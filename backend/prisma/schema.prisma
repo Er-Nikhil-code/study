@@ -31,7 +31,6 @@ model User {
   assigned_teacher      User?        @relation("intern_teacher", fields: [assigned_teacher_id], references: [id])
   custom_role           Role?        @relation("user_custom_role", fields: [custom_role_id], references: [id])
   interns               User[]       @relation("intern_teacher")
-  teacher_applications  TeacherApplication[]
   attempts              Attempt[]
   challenges_created    Challenge[]      @relation("challenges_created")
   challenges_assigned   Challenge[]      @relation("assigned_to")
@@ -86,23 +85,6 @@ model PasswordResetToken {
   @@index([expires_at])
 }
 
-model TeacherApplication {
-  id              String    @id @default(cuid())
-  user_id         String
-  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  status          ApplicationStatus @default(PENDING)
-  qualification   String?
-  subject_areas   String[]  // JSON array of subject specializations
-  bio             String?
-  applied_at      DateTime  @default(now())
-  reviewed_at     DateTime?
-  reviewed_by     String?   // Admin user ID
-  rejection_note  String?
-  verified_email_at DateTime?
-
-  @@index([user_id])
-  @@index([status])
-}
 
 model Course {
   id              String    @id @default(cuid())
@@ -462,7 +444,6 @@ model Role {
 enum UserRole {
   STUDENT
   INTERN
-  PENDING_TEACHER
   TEACHER
   ADMIN
 }
@@ -475,11 +456,6 @@ enum QuestionApprovalStatus {
   NEEDS_REVISION
 }
 
-enum ApplicationStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
 
 enum QuestionType {
   SINGLE_CORRECT

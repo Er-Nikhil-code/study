@@ -19,6 +19,7 @@ import {
   Calendar,
   History,
   PieChart,
+  BookOpen,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -40,9 +41,9 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
         { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
         { label: "Users & Roles", href: "/admin/users", icon: Users },
         { label: "Questions", href: "/admin/questions", icon: FileQuestion },
-        { label: "Approvals", href: "/admin/approvals", icon: CheckSquare },
         { label: "Challenges", href: "/admin/challenges", icon: ShieldAlert },
         { label: "System Status", href: "/admin/system", icon: Activity },
+        { label: "Notifications", href: "/notifications", icon: Bell },
       ];
 
     case "TEACHER":
@@ -52,34 +53,25 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
         { label: "Questions", href: "/teacher/questions", icon: FileQuestion },
         { label: "Tests", href: "/teacher/tests", icon: FileText },
         { label: "Challenges", href: "/teacher/challenges", icon: ShieldAlert },
+        { label: "Notifications", href: "/notifications", icon: Bell },
       ];
 
     case "INTERN": {
-      const items: NavItem[] = [
-        { label: "Dashboard Overview", href: "/intern/dashboard", icon: LayoutDashboard },
+      return [
+        { label: "Dashboard", href: "/intern/dashboard", icon: LayoutDashboard },
+        { label: "Question Bank", href: "/teacher/questions", icon: BookOpen },
         { label: "Create Question", href: "/teacher/questions/create", icon: PlusCircle },
-        { label: "Draft Questions", href: "/teacher/questions?status=draft", icon: FileEdit },
-        { label: "Submitted Questions", href: "/teacher/questions?status=submitted", icon: Send },
-        { label: "Rejected Questions", href: "/teacher/questions?status=rejected", icon: XCircle },
         { label: "Question Statistics", href: "/intern/statistics", icon: BarChart2 },
         { label: "Notifications", href: "/notifications", icon: Bell },
-        { label: "Profile", href: "/profile", icon: User },
       ];
-
-      // Dynamic permissions
-      if (hasPerm("create_test") || hasPerm("manage_test")) {
-        items.splice(6, 0, { label: "Tests", href: "/teacher/tests", icon: FileText });
-      }
-      return items;
     }
 
     case "STUDENT":
       return [
-        { label: "Dashboard Overview", href: "/student/dashboard", icon: LayoutDashboard },
+        { label: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
         { label: "Available Tests", href: "/tests", icon: Library },
         { label: "Previous Tests", href: "/results", icon: History },
         { label: "Notifications", href: "/notifications", icon: Bell },
-        { label: "Profile", href: "/profile", icon: User },
       ];
 
     default:

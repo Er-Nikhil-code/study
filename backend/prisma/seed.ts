@@ -38,11 +38,6 @@ async function main() {
         "system_health",
       ],
     },
-    {
-      name: "PENDING_TEACHER",
-      description: "Pending teacher role awaiting admin approval",
-      permissions: ["view_profile", "edit_profile"],
-    },
   ];
 
   for (const role of roles) {

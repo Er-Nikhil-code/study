@@ -109,8 +109,11 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
       <div className="p-4 border-t border-white/10 relative" ref={dropdownRef}>
         {isAuthenticated && user ? (
           <>
-            {isProfileOpen && !isCollapsed && (
-              <div className="absolute bottom-full mb-2 left-4 right-4 rounded-xl border border-white/10 bg-zinc-950 p-1 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+            {/* Dropdown menu — shows both in collapsed and expanded mode */}
+            {isProfileOpen && (
+              <div className={`absolute bottom-full mb-2 rounded-xl border border-white/10 bg-zinc-950 p-1 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none ${
+                isCollapsed ? "left-2 right-2 min-w-[160px]" : "left-4 right-4"
+              }`}>
                 <Link
                   href="/profile"
                   onClick={() => setIsProfileOpen(false)}
@@ -130,13 +133,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
             )}
 
             <button
-              onClick={() => {
-                if (isCollapsed) {
-                  router.push("/profile");
-                } else {
-                  setIsProfileOpen(!isProfileOpen);
-                }
-              }}
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
               title={isCollapsed ? "Profile" : undefined}
               className={[
                 "flex w-full items-center rounded-xl border border-white/10 bg-white/[0.03] p-2 transition hover:border-red-500/20 hover:bg-red-500/10",

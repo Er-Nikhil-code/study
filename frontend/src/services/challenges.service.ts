@@ -6,7 +6,7 @@ export const ChallengesService = {
   },
 
   resolveChallenge(id: string, data: {
-    action: "ACCEPT" | "REJECT" | "REVISE_SOLUTION" | "REVISE_ANSWER_KEY" | "ESCALATE";
+    action: "ACCEPT" | "REJECT" | "REVISE_SOLUTION" | "REVISE_ANSWER_KEY" | "ESCALATE" | "FORWARD_TO_INTERN";
     resolution_note?: string;
     revised_answer_key?: any;
     revised_solution_json?: any;

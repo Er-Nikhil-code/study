@@ -125,7 +125,7 @@ export class ChallengesService {
     challengeId: string,
     teacherId: string,
     data: {
-      action: "ACCEPT" | "REJECT" | "REVISE_SOLUTION" | "REVISE_ANSWER_KEY" | "ESCALATE";
+      action: "ACCEPT" | "REJECT" | "REVISE_SOLUTION" | "REVISE_ANSWER_KEY" | "ESCALATE" | "FORWARD_TO_INTERN";
       resolution_note?: string;
       revised_answer_key?: any;
       revised_solution_json?: any;
@@ -142,6 +142,58 @@ export class ChallengesService {
     if (challenge.status !== "PENDING")
       throw new BadRequestException("Challenge already resolved");
 
+    // ── FORWARD TO INTERN ──
+    // Re-assign the challenge to the intern who created the question
+    if (data.action === "FORWARD_TO_INTERN") {
+      const internId = challenge.question.created_by;
+
+      // Update challenge: reassign to intern
+      const updated = await this.prisma.challenge.update({
+        where: { id: challengeId },
+        data: {
+          assigned_to: internId,
+          resolution_note: data.resolution_note || "Forwarded to question creator for review",
+        },
+      });
+
+      // Notify the intern
+      await this.prisma.notificationEvent.create({
+        data: {
+          user_id: internId,
+          type: "CUSTOM",
+          title: "Challenge Forwarded to You",
+          message: `A student challenged question "${challenge.question.title}". Your teacher has forwarded this to you for review. ${data.resolution_note || ""}`.trim(),
+          data_json: {
+            challenge_id: challengeId,
+            question_id: challenge.question_id,
+            forwarded_by: teacherId,
+          },
+        },
+      });
+
+      // Notify the student that their challenge is being reviewed
+      await this.prisma.notificationEvent.create({
+        data: {
+          user_id: challenge.submitted_by,
+          type: "CHALLENGE_RESOLVED",
+          title: "Challenge Under Review",
+          message: `Your challenge for "${challenge.question.title}" is being reviewed by the question creator.`,
+          data_json: {
+            challenge_id: challengeId,
+            question_id: challenge.question_id,
+            status: "UNDER_REVIEW",
+          },
+        },
+      });
+
+      this.logger.log(
+        `↪ Challenge ${challengeId} forwarded to intern ${internId} by teacher ${teacherId}`,
+      );
+
+      return updated;
+    }
+
+    // ── Standard resolution actions ──
     let newStatus: string;
 
     switch (data.action) {
@@ -193,13 +245,32 @@ export class ChallengesService {
       },
     });
 
+    // Build a human-readable message for the student
+    let studentMessage: string;
+    switch (data.action) {
+      case "ACCEPT":
+        studentMessage = `Your challenge for "${challenge.question.title}" has been accepted. The question has been reviewed and corrected.`;
+        break;
+      case "REVISE_ANSWER_KEY":
+        studentMessage = `Your challenge for "${challenge.question.title}" has been accepted. The answer key has been updated.`;
+        break;
+      case "REVISE_SOLUTION":
+        studentMessage = `Your challenge for "${challenge.question.title}" has been accepted. The solution has been revised.`;
+        break;
+      case "REJECT":
+        studentMessage = `Your challenge for "${challenge.question.title}" has been reviewed and rejected. ${data.resolution_note || "The original answer is correct."}`;
+        break;
+      default:
+        studentMessage = `Your challenge for "${challenge.question.title}" has been ${newStatus.toLowerCase()}.`;
+    }
+
     // Notify the student
     await this.prisma.notificationEvent.create({
       data: {
         user_id: challenge.submitted_by,
         type: "CHALLENGE_RESOLVED",
-        title: "Challenge Update",
-        message: `Your challenge for "${challenge.question.title}" has been ${newStatus.toLowerCase()}.`,
+        title: data.action === "REJECT" ? "Challenge Rejected" : "Challenge Resolved ✅",
+        message: studentMessage,
         data_json: {
           challenge_id: challengeId,
           question_id: challenge.question_id,

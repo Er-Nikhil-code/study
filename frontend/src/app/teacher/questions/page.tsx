@@ -8,27 +8,13 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { QuestionsService } from "@/services/questions.service";
 import authService from "@/services/auth.service";
 
-const getNavItems = (role: string) => {
-  if (role === "INTERN") {
-    return [
-      { label: "Intern Dashboard", href: "/intern/dashboard" },
-      { label: "Question Bank", href: "/teacher/questions" },
-    ];
-  }
-  return [
-    { label: "Teacher home", href: "/teacher" },
-    { label: "Questions", href: "/teacher/questions" },
-    { label: "Tests", href: "/teacher/tests" },
-    { label: "Challenges", href: "/teacher/challenges" },
-  ];
-};
-
 export default function TeacherQuestionsPage() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
 
   // Submitting state
   const [submittingId, setSubmittingId] = useState<string | null>(null);
@@ -49,7 +35,10 @@ export default function TeacherQuestionsPage() {
 
   useEffect(() => {
     const user = authService.getUser();
-    if (user) setUserRole(user.role || "");
+    if (user) {
+      setUserRole(user.role || "");
+      setUserId(user.id || "");
+    }
     fetchQuestions();
   }, [fetchQuestions]);
 
@@ -75,6 +64,22 @@ export default function TeacherQuestionsPage() {
     }
   };
 
+  // Determine if current user can edit a question
+  const canEdit = (q: any) => {
+    if (userRole === "ADMIN") return true;
+    if (userRole === "TEACHER") return q.created_by === userId;
+    if (userRole === "INTERN") return q.created_by === userId;
+    return false;
+  };
+
+  // Determine if current user can see action buttons at all
+  const canSeeActions = (q: any) => {
+    if (userRole === "ADMIN") return true;
+    if (userRole === "TEACHER") return q.created_by === userId;
+    if (userRole === "INTERN") return q.created_by === userId;
+    return false;
+  };
+
   return (
     <DashboardShell activeHref="/teacher/questions">
       <SectionTitle
@@ -88,10 +93,12 @@ export default function TeacherQuestionsPage() {
                 Review Approvals
               </Link>
             )}
-            <Link href="/teacher/questions/create"
-              className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/20">
-              + Create Question
-            </Link>
+            {(userRole === "TEACHER" || userRole === "ADMIN" || userRole === "INTERN") && (
+              <Link href="/teacher/questions/create"
+                className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/20">
+                + Create Question
+              </Link>
+            )}
           </div>
         }
       />
@@ -144,21 +151,26 @@ export default function TeacherQuestionsPage() {
                 </span>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link href={`/teacher/questions/${q.id}/edit`}
-                  className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
-                  Edit
-                </Link>
-                {userRole === "INTERN" && (q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION") && (
-                  <button onClick={() => handleSubmitReview(q.id)} disabled={submittingId === q.id}
-                    className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/15 disabled:opacity-50">
-                    {submittingId === q.id ? "Submitting…" : "Submit for Review"}
+              {/* Action buttons — only for questions the user owns (or admin) */}
+              {canSeeActions(q) && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {canEdit(q) && (
+                    <Link href={`/teacher/questions/${q.id}/edit`}
+                      className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
+                      Edit
+                    </Link>
+                  )}
+                  {userRole === "INTERN" && q.created_by === userId && (q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION") && (
+                    <button onClick={() => handleSubmitReview(q.id)} disabled={submittingId === q.id}
+                      className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/15 disabled:opacity-50">
+                      {submittingId === q.id ? "Submitting…" : "Submit for Review"}
+                    </button>
+                  )}
+                  <button className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
+                    Preview
                   </button>
-                )}
-                <button className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
-                  Preview
-                </button>
-              </div>
+                </div>
+              )}
             </Panel>
           ))
         )}

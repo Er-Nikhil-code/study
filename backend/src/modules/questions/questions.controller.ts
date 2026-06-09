@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  ForbiddenException,
 } from "@nestjs/common";
 import { QuestionsService } from "./questions.service";
 import {
@@ -78,29 +79,34 @@ export class QuestionsController {
   }
 
   @Get(":id")
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   async getQuestion(@Param("id") id: string, @Req() req: any) {
     const question = await this.questionsService.findQuestionById(id);
+    const userId = req.user.id || req.user.sub;
 
-    // Teachers can only view their own questions
-    if (req.user.role === "TEACHER" && question.created_by !== req.user.id) {
-      throw new Error("Forbidden: You can only view your own questions");
+    // Interns can view approved questions + their own
+    if (req.user.role === "INTERN") {
+      if (question.created_by !== userId && question.approval_status !== "APPROVED") {
+        throw new ForbiddenException("You can only view approved questions or your own");
+      }
     }
 
     return question;
   }
 
   @Patch(":id")
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   async updateQuestion(
     @Param("id") id: string,
     @Body() body: any,
     @Req() req: any,
   ) {
-    // Check ownership
     const question = await this.questionsService.findQuestionById(id);
-    if (req.user.role === "TEACHER" && question.created_by !== req.user.id) {
-      throw new Error("Forbidden: You can only edit your own questions");
+    const userId = req.user.id || req.user.sub;
+
+    // Teachers and Interns can only edit their OWN questions
+    if ((req.user.role === "TEACHER" || req.user.role === "INTERN") && question.created_by !== userId) {
+      throw new ForbiddenException("You can only edit your own questions");
     }
 
     const parsed = UpdateQuestionSchema.parse(body);
@@ -112,8 +118,9 @@ export class QuestionsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteQuestion(@Param("id") id: string, @Req() req: any) {
     const question = await this.questionsService.findQuestionById(id);
-    if (req.user.role === "TEACHER" && question.created_by !== req.user.id) {
-      throw new Error("Forbidden: You can only delete your own questions");
+    const userId = req.user.id || req.user.sub;
+    if (req.user.role === "TEACHER" && question.created_by !== userId) {
+      throw new ForbiddenException("You can only delete your own questions");
     }
 
     await this.questionsService.deleteQuestion(id);
@@ -123,10 +130,9 @@ export class QuestionsController {
   @Roles("TEACHER", "ADMIN")
   async getVersions(@Param("id") id: string, @Req() req: any) {
     const question = await this.questionsService.findQuestionById(id);
-    if (req.user.role === "TEACHER" && question.created_by !== req.user.id) {
-      throw new Error(
-        "Forbidden: You can only view your own question versions",
-      );
+    const userId = req.user.id || req.user.sub;
+    if (req.user.role === "TEACHER" && question.created_by !== userId) {
+      throw new ForbiddenException("You can only view your own question versions");
     }
 
     return this.questionsService.getQuestionVersions(id);
@@ -140,10 +146,9 @@ export class QuestionsController {
     @Req() req: any,
   ) {
     const question = await this.questionsService.findQuestionById(id);
-    if (req.user.role === "TEACHER" && question.created_by !== req.user.id) {
-      throw new Error(
-        "Forbidden: You can only restore your own question versions",
-      );
+    const userId = req.user.id || req.user.sub;
+    if (req.user.role === "TEACHER" && question.created_by !== userId) {
+      throw new ForbiddenException("You can only restore your own question versions");
     }
 
     return this.questionsService.restoreQuestionVersion(
