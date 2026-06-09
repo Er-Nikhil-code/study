@@ -41,7 +41,6 @@ export class AdminService {
         totalUsers,
         totalStudents,
         totalTeachers,
-        pendingApprovals: 0,
         totalQuestions,
         totalTests,
         totalAttempts,
@@ -99,6 +98,7 @@ export class AdminService {
             created_at: true,
             last_login_at: true,
             assigned_teacher_id: true,
+            is_active: true,
           },
         }),
         this.prisma.user.count({ where }),
@@ -119,7 +119,7 @@ export class AdminService {
    */
   async updateUser(
     id: string,
-    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null },
+    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean },
   ) {
     try {
       const user = await this.prisma.user.findUnique({ where: { id } });
@@ -132,6 +132,7 @@ export class AdminService {
       if (data.first_name !== undefined) updateData.first_name = data.first_name;
       if (data.last_name !== undefined) updateData.last_name = data.last_name;
       if (data.assigned_teacher_id !== undefined) updateData.assigned_teacher_id = data.assigned_teacher_id;
+      if (data.is_active !== undefined) updateData.is_active = data.is_active;
 
       const updated = await this.prisma.user.update({
         where: { id },

@@ -4,7 +4,6 @@ export interface DashboardStats {
   totalUsers: number;
   totalStudents: number;
   totalTeachers: number;
-  pendingApprovals: number;
   totalQuestions: number;
   totalTests: number;
   totalAttempts: number;
@@ -22,6 +21,7 @@ export interface AdminUser {
   created_at: string;
   last_login_at: string | null;
   assigned_teacher_id?: string | null;
+  is_active: boolean;
 }
 
 export interface PaginatedResponse<T> {
@@ -89,7 +89,7 @@ class AdminService {
 
   async updateUser(
     id: string,
-    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null },
+    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean },
   ): Promise<AdminUser> {
     const res = await api.patch<AdminUser>(`/admin/users/${id}`, data);
     return res.data;

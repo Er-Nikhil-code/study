@@ -104,6 +104,15 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleToggleActive = async (userId: string, currentStatus: boolean) => {
+    try {
+      await adminService.updateUser(userId, { is_active: !currentStatus });
+      fetchUsers();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to update user status");
+    }
+  };
+
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const roleBadge = (role: string) => {
@@ -182,7 +191,7 @@ export default function AdminUsersPage() {
       {/* Users table */}
       <Panel className="mt-4 p-0 overflow-x-auto">
         <div className="min-w-[800px]">
-          <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_100px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
           <div>Name</div>
           <div>Role</div>
           <div>Email</div>
@@ -214,10 +223,15 @@ export default function AdminUsersPage() {
             {users.map((user) => (
               <div
                 key={user.id}
-                className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_100px] gap-3 px-5 py-4 text-sm items-center"
+                className={`grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 px-5 py-4 text-sm items-center ${!user.is_active ? 'opacity-50 grayscale' : ''}`}
               >
-                <div className="truncate text-white">
+                <div className="truncate text-white flex items-center gap-2">
                   {user.first_name || "—"} {user.last_name || ""}
+                  {!user.is_active && (
+                    <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[9px] font-bold text-red-300">
+                      INACTIVE
+                    </span>
+                  )}
                 </div>
 
                 {/* Role — editable */}
@@ -273,7 +287,7 @@ export default function AdminUsersPage() {
                 </div>
 
                 {/* Actions */}
-                <div>
+                <div className="flex items-center gap-2">
                   {deletingId === user.id ? (
                     <div className="flex items-center gap-1">
                       <button
@@ -291,12 +305,24 @@ export default function AdminUsersPage() {
                       </button>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => setDeletingId(user.id)}
-                      className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs text-red-300 transition hover:bg-red-500/20"
-                    >
-                      Delete
-                    </button>
+                    <>
+                      <button
+                        onClick={() => handleToggleActive(user.id, user.is_active)}
+                        className={`rounded-lg border px-3 py-1 text-xs transition ${
+                          user.is_active
+                            ? "border-amber-500/20 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
+                            : "border-emerald-500/20 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
+                        }`}
+                      >
+                        {user.is_active ? "Deactivate" : "Activate"}
+                      </button>
+                      <button
+                        onClick={() => setDeletingId(user.id)}
+                        className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs text-red-300 transition hover:bg-red-500/20"
+                      >
+                        Delete
+                      </button>
+                    </>
                   )}
                 </div>
               </div>

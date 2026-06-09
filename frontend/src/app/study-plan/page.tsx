@@ -2,31 +2,7 @@ import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 
-const plan = [
-  {
-    day: "Day 1",
-    focus: "Weak algebra topics",
-    tasks: [
-      "Quadratic equations",
-      "Factorisation drills",
-      "20-minute mock review",
-    ],
-  },
-  {
-    day: "Day 2",
-    focus: "Physics fundamentals",
-    tasks: ["Kinematics formulas", "Vector basics", "Timed concept quiz"],
-  },
-  {
-    day: "Day 3",
-    focus: "Mixed practice",
-    tasks: [
-      "25-question mixed test",
-      "Error log update",
-      "Revise top 5 mistakes",
-    ],
-  },
-];
+const plan: any[] = [];
 
 export default function StudyPlanPage() {
   return (
@@ -37,26 +13,32 @@ export default function StudyPlanPage() {
         />
 
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          {plan.map((item) => (
-            <Panel key={item.day} accent={item.day === "Day 1"}>
-              <div className="text-xs uppercase tracking-[0.2em] text-red-300/70">
-                {item.day}
-              </div>
-              <h3 className="mt-2 text-lg font-semibold text-white">
-                {item.focus}
-              </h3>
-              <ul className="mt-4 space-y-2 text-sm text-zinc-300">
-                {item.tasks.map((task) => (
-                  <li
-                    key={task}
-                    className="rounded-2xl bg-white/[0.03] px-3 py-2"
-                  >
-                    {task}
-                  </li>
-                ))}
-              </ul>
+          {plan.length === 0 ? (
+            <Panel className="py-12 text-center text-sm text-zinc-500 lg:col-span-3">
+              Your personalized study plan will appear here. Check back soon!
             </Panel>
-          ))}
+          ) : (
+            plan.map((item) => (
+              <Panel key={item.day} accent={item.day === "Day 1"}>
+                <div className="text-xs uppercase tracking-[0.2em] text-red-300/70">
+                  {item.day}
+                </div>
+                <h3 className="mt-2 text-lg font-semibold text-white">
+                  {item.focus}
+                </h3>
+                <ul className="mt-4 space-y-2 text-sm text-zinc-300">
+                  {item.tasks.map((task: string) => (
+                    <li
+                      key={task}
+                      className="rounded-2xl bg-white/[0.03] px-3 py-2"
+                    >
+                      {task}
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+            ))
+          )}
         </div>
     </DashboardShell>
   );

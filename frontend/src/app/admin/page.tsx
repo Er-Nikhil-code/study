@@ -76,12 +76,6 @@ export default function AdminHomePage() {
           loading={loading}
         />
         <StatCard
-          label="Pending Approvals"
-          value={stats?.pendingApprovals ?? "—"}
-          accent={(stats?.pendingApprovals ?? 0) > 0}
-          loading={loading}
-        />
-        <StatCard
           label="Total Questions"
           value={stats?.totalQuestions ?? "—"}
           loading={loading}
@@ -120,17 +114,6 @@ export default function AdminHomePage() {
 
       {/* Quick actions */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Link
-          href="/admin/approvals"
-          className="group rounded-2xl border border-red-500/20 bg-red-500/5 p-5 transition hover:bg-red-500/10 hover:border-red-500/30"
-        >
-          <div className="text-sm font-medium text-red-300 group-hover:text-red-200">
-            Review Approvals
-          </div>
-          <p className="mt-1 text-xs text-zinc-500">
-            Approve or reject pending teacher applications
-          </p>
-        </Link>
 
         <Link
           href="/admin/users"

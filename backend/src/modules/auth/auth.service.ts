@@ -318,6 +318,13 @@ export class AuthService {
         );
       }
 
+      // Check if user is active
+      if (!user.is_active) {
+        throw new UnauthorizedException(
+          "Your account has been deactivated. Please contact an administrator.",
+        );
+      }
+
       // Verify password
       const isPasswordValid = await bcrypt.compare(
         password,
