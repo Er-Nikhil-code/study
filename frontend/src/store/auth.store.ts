@@ -9,6 +9,7 @@ export interface AuthUser {
   id: string;
   email: string;
   role: UserRole;
+  profile_picture?: string;
   custom_role?: {
     name: string;
     permissions_json: any;

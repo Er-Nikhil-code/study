@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import { useAuthStore } from "@/store/auth.store";
@@ -20,6 +20,23 @@ export default function ProfilePage() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [profilePicture, setProfilePicture] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfilePicture(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     const fetchMe = async () => {
@@ -74,13 +91,13 @@ export default function ProfilePage() {
 
       const data = await res.json();
       toast.success("Profile updated successfully!");
-
-      // Update auth store with new user data
+      // Update global auth store with new values
       if (user) {
-        setAuth({ ...user, ...data.user }, token);
+        setAuth(
+          { ...user, first_name: firstName, last_name: lastName, profile_picture: profilePicture } as any,
+          token
+        );
       }
-      
-      // Reset password fields
       setOldPassword("");
       setNewPassword("");
     } catch (err: any) {
@@ -119,10 +136,19 @@ export default function ProfilePage() {
                 ) : (
                   <User size={32} className="text-zinc-500" />
                 )}
-                {/* Upload overlay - simplified for now, assuming external URL or generic avatar */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition cursor-pointer">
+                <div 
+                  className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <Camera size={20} className="text-white" />
                 </div>
+                <input 
+                  type="file" 
+                  accept="image/jpeg, image/png, image/webp" 
+                  className="hidden" 
+                  ref={fileInputRef} 
+                  onChange={handleImageUpload} 
+                />
               </div>
               <div>
                 <h3 className="text-lg font-medium text-white">{firstName} {lastName}</h3>

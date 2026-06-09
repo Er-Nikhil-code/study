@@ -144,8 +144,12 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
               ].join(" ")}
             >
               <div className="flex items-center gap-2 truncate">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-500 font-bold uppercase">
-                  {(user as any)?.firstName?.charAt(0) || user?.email?.charAt(0) || "U"}
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-500 font-bold uppercase overflow-hidden">
+                  {user?.profile_picture ? (
+                     <img src={user.profile_picture} alt="Profile" className="h-full w-full object-cover" />
+                  ) : (
+                    (user as any)?.firstName?.charAt(0) || user?.email?.charAt(0) || "U"
+                  )}
                 </div>
                 {!isCollapsed && (
                   <div className="flex flex-col items-start leading-none text-left truncate">
