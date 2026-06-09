@@ -94,16 +94,6 @@ export default function AdminHomePage() {
           value={stats?.totalTeachers ?? "—"}
           loading={loading}
         />
-        <StatCard
-          label="Total Tests"
-          value={stats?.totalTests ?? "—"}
-          loading={loading}
-        />
-        <StatCard
-          label="Total Attempts"
-          value={stats?.totalAttempts ?? "—"}
-          loading={loading}
-        />
       </div>
 
       {/* Quick actions */}

@@ -29,15 +29,15 @@ export default function DashboardShell({
   const dynamicNavItems = navItems || (mounted ? getSidebarNavItems(user) : []);
 
   return (
-    <div className={`min-h-screen bg-[radial-gradient(circle_at_top,_rgba(239,68,68,0.10),_transparent_30%),linear-gradient(to_bottom,_#000,_#090909_50%,_#000)] text-white transition-all duration-300 ease-in-out ${isSidebarCollapsed ? "pl-20" : "pl-64"}`}>
+    <div className={`min-h-screen bg-[#050505] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(220,38,38,0.15),rgba(255,255,255,0))] text-white transition-all duration-300 ease-in-out ${isSidebarCollapsed ? "pl-20" : "pl-64"}`}>
       <AppSidebar 
         items={dynamicNavItems} 
         activeHref={activeHref} 
         isCollapsed={isSidebarCollapsed} 
         setIsCollapsed={setSidebarCollapsed} 
       />
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <section>{children}</section>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <section className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">{children}</section>
       </main>
     </div>
   );

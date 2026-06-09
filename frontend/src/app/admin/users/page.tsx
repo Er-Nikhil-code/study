@@ -123,6 +123,7 @@ export default function AdminUsersPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const roleBadge = (role: string) => {
+    if (!role) return null;
     const colors: Record<string, string> = {
       ADMIN: "border-purple-500/20 bg-purple-500/10 text-purple-300",
       TEACHER: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
@@ -278,9 +279,9 @@ export default function AdminUsersPage() {
                       onChange={(e) => handleTeacherAssign(user.id, e.target.value)}
                     >
                       <option value="">No Teacher Assigned</option>
-                      {teachers.map(t => (
+                      {(teachers || []).map(t => (
                         <option key={t.id} value={t.id}>
-                          {t.first_name} {t.last_name}
+                          {t.first_name || "—"} {t.last_name || ""}
                         </option>
                       ))}
                     </select>
@@ -290,7 +291,7 @@ export default function AdminUsersPage() {
                 <div className="truncate text-zinc-400">{user.email}</div>
 
                 <div className="text-xs text-zinc-500">
-                  {new Date(user.created_at).toLocaleDateString()}
+                  {user.created_at ? new Date(user.created_at).toLocaleDateString() : "—"}
                 </div>
 
                 {/* Actions */}

@@ -22,8 +22,6 @@ export class AdminService {
         totalStudents,
         totalTeachers,
         totalQuestions,
-        totalTests,
-        totalAttempts,
         openChallenges,
         totalRoles,
       ] = await Promise.all([
@@ -31,8 +29,6 @@ export class AdminService {
         this.prisma.user.count({ where: { role: "STUDENT" } }),
         this.prisma.user.count({ where: { role: "TEACHER" } }),
         this.prisma.question.count(),
-        this.prisma.test.count(),
-        this.prisma.attempt.count(),
         this.prisma.challenge.count({ where: { status: "PENDING" } }),
         this.prisma.role.count(),
       ]);
@@ -42,8 +38,6 @@ export class AdminService {
         totalStudents,
         totalTeachers,
         totalQuestions,
-        totalTests,
-        totalAttempts,
         openChallenges,
         totalRoles,
       };
