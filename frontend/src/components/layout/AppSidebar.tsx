@@ -171,13 +171,13 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                   {user?.profile_picture ? (
                      <img src={user.profile_picture} alt="Profile" className="h-full w-full object-cover" />
                   ) : (
-                    (user as any)?.firstName?.charAt(0) || user?.email?.charAt(0) || "U"
+                    (user as any)?.first_name?.charAt(0) || user?.firstName?.charAt(0) || user?.email?.charAt(0) || "U"
                   )}
                 </div>
                 {!isCollapsed && (
                   <div className={`flex flex-col overflow-hidden transition-all duration-300 ${isCollapsed ? "w-0 opacity-0" : "w-full opacity-100"}`}>
               <span className="truncate text-sm font-medium text-white">
-                {user?.firstName || user?.email || "User"}
+                {(user as any)?.first_name || user?.firstName || user?.email || "User"}
               </span>
               <span className="truncate text-xs text-zinc-500">
                 {user?.role?.replace("_", " ") || "Member"}

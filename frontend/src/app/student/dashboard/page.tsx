@@ -27,8 +27,10 @@ export default function StudentDashboardPage() {
 
 
   if (!user) return null;
-  const name = user.firstName 
-    ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}` 
+  const firstName = (user as any).first_name || user.firstName;
+  const lastName = (user as any).last_name || user.lastName;
+  const name = firstName 
+    ? `${firstName}${lastName ? ` ${lastName}` : ""}` 
     : user.email.split("@")[0];
 
   return (
