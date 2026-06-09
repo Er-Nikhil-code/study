@@ -119,7 +119,7 @@ export function RegisterForm() {
       setSuccessMessage("✅ Account created successfully! Redirecting...");
       // Redirect to dashboard or home
       setTimeout(() => {
-        const role = formState.role || "STUDENT";
+        const role = (formState.role as string) || "STUDENT";
         if (role === "ADMIN") window.location.href = "/admin";
         else if (role === "TEACHER" || role === "PENDING_TEACHER") window.location.href = "/teacher";
         else if (role === "INTERN") window.location.href = "/intern/dashboard";
