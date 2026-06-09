@@ -115,7 +115,9 @@ export class StudentService {
             chapter: {
               select: {
                 name: true,
-                subject: { select: { name: true } },
+                section: {
+                  select: { course: { select: { name: true } } },
+                },
               },
             },
           },
@@ -140,7 +142,7 @@ export class StudentService {
         topic_id: t.topic.id,
         topic_name: t.topic.name,
         chapter: t.topic.chapter.name,
-        subject: t.topic.chapter.subject.name,
+        subject: t.topic.chapter.section?.course?.name || "Unknown Course",
         wrong_count: t.count,
       }));
   }

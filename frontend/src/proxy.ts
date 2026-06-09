@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 const PUBLIC_ROUTES = ["/", "/register", "/forgot-password", "/reset-password"];
 
-export default function proxy(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const token = request.cookies.get("accessToken")?.value;
 
   const path = request.nextUrl.pathname;

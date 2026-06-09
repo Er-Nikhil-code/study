@@ -257,6 +257,7 @@ export class AuthService {
       const { accessToken, refreshToken } = await this.generateTokens(
         user.id,
         user.email,
+        assignedRole,
       );
 
       // Log to audit
@@ -330,6 +331,7 @@ export class AuthService {
       const { accessToken, refreshToken } = await this.generateTokens(
         user.id,
         user.email,
+        user.role,
       );
 
       // Log to audit
@@ -497,11 +499,13 @@ export class AuthService {
   private async generateTokens(
     userId: string,
     email: string,
+    role: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       const accessTokenPayload = {
         sub: userId,
         email,
+        role,
         type: "access",
       };
 
