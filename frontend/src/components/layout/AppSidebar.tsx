@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import Logo from "@/components/ui/Logo";
 import { useAuthStore } from "@/store/auth.store";
+import adminService from "@/services/admin.service";
 import { LogOut, ChevronDown, ChevronLeft, ChevronRight, User } from "lucide-react";
 import type { NavItem } from "@/lib/nav";
 
@@ -17,9 +19,28 @@ type AppSidebarProps = {
 
 export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollapsed }: AppSidebarProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user, isAuthenticated, logout } = useAuthStore();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handlePrefetch = (href: string) => {
+    if (href === "/admin") {
+      queryClient.prefetchQuery({
+        queryKey: ["admin", "dashboard", "stats"],
+        queryFn: () => adminService.getDashboardStats()
+      });
+    } else if (href === "/admin/users") {
+      queryClient.prefetchQuery({
+        queryKey: ["admin", "users", { search: "", roleFilter: "ALL", page: 0 }],
+        queryFn: () => adminService.getUsers({ skip: 0, take: 15 })
+      });
+      queryClient.prefetchQuery({
+        queryKey: ["admin", "teachers"],
+        queryFn: () => adminService.getUsers({ role: "TEACHER", take: 100 })
+      });
+    }
+  };
 
   // Close profile dropdown on click outside
   useEffect(() => {
@@ -88,6 +109,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
               <Link
                 key={item.href}
                 href={item.href}
+                onMouseEnter={() => handlePrefetch(item.href)}
                 title={isCollapsed ? item.label : undefined}
                 className={[
                   "group flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",

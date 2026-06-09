@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
@@ -12,55 +13,45 @@ const ASSIGNABLE_ROLES = ["STUDENT", "INTERN", "TEACHER", "ADMIN"];
 const PAGE_SIZE = 15;
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [total, setTotal] = useState(0);
+  const queryClient = useQueryClient();
+
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRole, setEditRole] = useState("");
-  const [teachers, setTeachers] = useState<AdminUser[]>([]);
 
   // Delete confirmation
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await adminService.getUsers({
+  const { data: usersData, isLoading: loading, error: queryError } = useQuery({
+    queryKey: ["admin", "users", { search, roleFilter, page }],
+    queryFn: async () => {
+      return await adminService.getUsers({
         search: search || undefined,
         role: roleFilter !== "ALL" ? roleFilter : undefined,
         skip: page * PAGE_SIZE,
         take: PAGE_SIZE,
       });
-      setUsers(res.data);
-      setTotal(res.total);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to load users");
-    } finally {
-      setLoading(false);
-    }
-  }, [search, roleFilter, page]);
+    },
+    placeholderData: keepPreviousData,
+  });
 
-  const fetchTeachers = useCallback(async () => {
-    try {
+  const { data: teachersData } = useQuery({
+    queryKey: ["admin", "teachers"],
+    queryFn: async () => {
       const res = await adminService.getUsers({ role: "TEACHER", take: 100 });
-      setTeachers(res.data);
-    } catch (err) {
-      console.error("Failed to load teachers", err);
-    }
-  }, []);
+      return res.data;
+    },
+  });
 
-  useEffect(() => {
-    fetchUsers();
-    fetchTeachers();
-  }, [fetchUsers, fetchTeachers]);
+  const users = usersData?.data || [];
+  const total = usersData?.total || 0;
+  const teachers = teachersData || [];
+  const error = queryError ? (queryError as any)?.response?.data?.message || "Failed to load users" : null;
 
   // Debounced search
   const [searchInput, setSearchInput] = useState("");
@@ -76,7 +67,7 @@ export default function AdminUsersPage() {
     try {
       await adminService.updateUser(userId, { role: newRole });
       setEditingId(null);
-      fetchUsers();
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to update role");
     }
@@ -85,7 +76,7 @@ export default function AdminUsersPage() {
   const handleTeacherAssign = async (userId: string, teacherId: string) => {
     try {
       await adminService.updateUser(userId, { assigned_teacher_id: teacherId || null });
-      fetchUsers();
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to assign teacher");
     }
@@ -96,7 +87,7 @@ export default function AdminUsersPage() {
     try {
       await adminService.deleteUser(userId);
       setDeletingId(null);
-      fetchUsers();
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to delete user");
     } finally {
@@ -106,10 +97,26 @@ export default function AdminUsersPage() {
 
   const handleToggleActive = async (userId: string, currentStatus: boolean) => {
     try {
+      // Optimistically update the UI cache
+      queryClient.setQueryData(
+        ["admin", "users", { search, roleFilter, page }],
+        (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data.map((u: any) => 
+              u.id === userId ? { ...u, is_active: !currentStatus } : u
+            )
+          };
+        }
+      );
+      
       await adminService.updateUser(userId, { is_active: !currentStatus });
-      fetchUsers();
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to update user status");
+      // Revert cache on error
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     }
   };
 

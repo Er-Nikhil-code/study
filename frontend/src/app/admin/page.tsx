@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
@@ -38,22 +39,15 @@ function StatCard({
 }
 
 export default function AdminHomePage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: stats, isLoading: loading, error: queryError } = useQuery({
+    queryKey: ["admin", "dashboard", "stats"],
+    queryFn: async () => {
+      return await adminService.getDashboardStats();
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
 
-  useEffect(() => {
-    adminService
-      .getDashboardStats()
-      .then((data) => {
-        setStats(data);
-        setError(null);
-      })
-      .catch((err) => {
-        setError(err?.response?.data?.message || "Failed to load stats");
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const error = queryError ? (queryError as any)?.response?.data?.message || "Failed to load stats" : null;
 
   return (
     <DashboardShell activeHref="/admin">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
@@ -32,6 +33,7 @@ const getNavItems = (role: string) => {
 
 export default function CreateQuestionPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [role, setRole] = useState("");
   const [topics, setTopics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,11 +99,22 @@ export default function CreateQuestionPage() {
       })
       .finally(() => setLoading(false));
   }, []);
+  const createMutation = useMutation({
+    mutationFn: (payload: any) => QuestionsService.create(payload),
+    onSuccess: () => {
+      // Invalidate the questions cache to fetch the new question instantly
+      queryClient.invalidateQueries({ queryKey: ["questions", "list"] });
+      // Instantly route to the questions bank 
+      router.push(role === "INTERN" ? "/intern/questions" : "/teacher/questions");
+    },
+    onError: (err: any) => {
+      setError(err?.response?.data?.message || err.message || "Failed to create question");
+    }
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSaving(true);
 
     try {
       const payload: any = {
@@ -152,12 +165,10 @@ export default function CreateQuestionPage() {
           throw new Error("Unsupported question type");
       }
 
-      await QuestionsService.create(payload);
-      router.push("/teacher/questions");
+      // Fire mutation
+      createMutation.mutate(payload);
     } catch (err: any) {
-      setError(err?.response?.data?.message || err.message || "Failed to create question");
-    } finally {
-      setSaving(false);
+      setError(err?.message || "Failed to prepare question");
     }
   };
 
@@ -370,10 +381,10 @@ export default function CreateQuestionPage() {
         <div className="flex gap-4 pt-4 border-t border-white/10">
           <button
             type="submit"
-            disabled={saving || loading}
-            className="rounded-xl bg-gradient-to-r from-red-600 to-rose-500 px-6 py-2.5 text-sm font-medium text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] transition hover:from-red-500 hover:to-rose-400 disabled:opacity-50"
+            disabled={createMutation.isPending}
+            className="rounded-xl border border-red-500/30 bg-red-500/10 px-6 py-2 font-medium text-red-200 transition hover:bg-red-500/20 disabled:opacity-50"
           >
-            {saving ? "Creating..." : "Create Question"}
+            {createMutation.isPending ? "Creating..." : "Create Question"}
           </button>
           <button
             type="button"

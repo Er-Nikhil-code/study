@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
@@ -9,29 +10,25 @@ import { QuestionsService } from "@/services/questions.service";
 import authService from "@/services/auth.service";
 
 export default function TeacherQuestionsPage() {
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
   const [userRole, setUserRole] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
 
   // Submitting state
   const [submittingId, setSubmittingId] = useState<string | null>(null);
 
-  const fetchQuestions = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await QuestionsService.getAll();
-      setQuestions(res.data);
-      setTotal(res.total);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to load questions");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { data: questionsData, isLoading: loading, isFetching, error: queryError } = useQuery({
+    queryKey: ["questions", "list"],
+    queryFn: async () => {
+      return await QuestionsService.getAll();
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
+
+  const questions: any[] = questionsData?.data || [];
+  const total = questionsData?.total || 0;
+  const error = queryError ? (queryError as any)?.response?.data?.message || "Failed to load questions" : null;
 
   useEffect(() => {
     const user = authService.getUser();
@@ -39,14 +36,17 @@ export default function TeacherQuestionsPage() {
       setUserRole(user.role || "");
       setUserId(user.id || "");
     }
-    fetchQuestions();
-  }, [fetchQuestions]);
+  }, []);
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["questions", "list"] });
+  };
 
   const handleSubmitReview = async (id: string) => {
     setSubmittingId(id);
     try {
       await QuestionsService.submitForReview(id);
-      await fetchQuestions(); // Refresh
+      queryClient.invalidateQueries({ queryKey: ["questions", "list"] }); // Refresh
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to submit for review");
     } finally {
@@ -87,6 +87,13 @@ export default function TeacherQuestionsPage() {
         subtitle={`${total} question${total !== 1 ? "s" : ""} in your workspace.`}
         action={
           <div className="flex gap-2">
+            <button 
+              onClick={handleRefresh}
+              disabled={isFetching}
+              className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-300 transition hover:text-white hover:bg-white/[0.06] disabled:opacity-50 flex items-center gap-2"
+            >
+              {isFetching ? "Refreshing..." : "Refresh"}
+            </button>
             {(userRole === "TEACHER" || userRole === "ADMIN") && (
               <Link href="/teacher/questions/review"
                 className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-300 transition hover:text-white">

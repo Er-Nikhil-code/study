@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import authService from "@/services/auth.service";
 import studentService, { type StudentDashboard } from "@/services/student.service";
@@ -12,35 +12,37 @@ import { useAuthStore } from "@/store/auth.store";
 export default function StudentDashboardPage() {
   const router = useRouter();
   const { user } = useAuthStore();
-  const [studentData, setStudentData] = useState<StudentDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    let isMounted = true;
+  const { data: studentData, isLoading: loading, isFetching } = useQuery({
+    queryKey: ["student", "dashboard"],
+    queryFn: async () => {
+      return await studentService.getDashboard();
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
 
-    const initializeDashboard = async () => {
-      try {
-        const data = await studentService.getDashboard();
-        if (isMounted) setStudentData(data);
-      } catch (err) {
-        console.error("Failed to fetch student dashboard", err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    initializeDashboard();
-    return () => { isMounted = false; };
-  }, []);
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["student", "dashboard"] });
+  };
 
   if (!user) return null;
   const name = user.email.split("@")[0];
 
   return (
     <DashboardShell activeHref="/student/dashboard">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-white">Welcome back, {name}</h1>
-        <p className="text-sm text-zinc-500 mt-1">Here's your learning overview.</p>
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-white">Welcome back, {name}</h1>
+          <p className="text-sm text-zinc-500 mt-1">Here's your learning overview.</p>
+        </div>
+        <button 
+          onClick={handleRefresh}
+          disabled={isFetching}
+          className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-white transition hover:bg-white/[0.06] disabled:opacity-50"
+        >
+          {isFetching ? "Refreshing..." : "Refresh Data"}
+        </button>
       </div>
 
       {loading ? (
