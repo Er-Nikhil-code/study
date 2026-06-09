@@ -11,15 +11,15 @@ import ServerPing from "@/components/ServerPing";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Codify | Advanced Learning Management System",
-  description: "Codify is a comprehensive educational content management, question bank, testing, and learning management platform. Master your learning with automated tests, detailed performance analytics, and dynamic content creation.",
-  keywords: "Codify, LMS, Learning Management System, Question Bank, Online Testing, Education",
+  title: "Codify",
+  description: "Codify is the ultimate next-generation learning platform. Experience seamless educational content management, intelligent question banks, and powerful performance analytics designed for modern educators and students.",
+  keywords: "Codify, LMS, Learning Management System, EdTech, Online Testing, Performance Analytics, Education",
   openGraph: {
     title: "Codify",
-    description: "An advanced educational content management and testing platform.",
+    description: "The ultimate next-generation learning platform with intelligent content management and analytics.",
     type: "website",
-    siteName: "Codify"
-  }
+    siteName: "Codify",
+  },
 };
 
 export default function RootLayout({
