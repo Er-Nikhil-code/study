@@ -15,9 +15,9 @@ export default function Image() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "transparent",
-          color: "#ef4444",
-          fontSize: "400px",
+          background: "linear-gradient(to bottom right, #ef4444, #e11d48)",
+          color: "white",
+          fontSize: "650px",
           fontWeight: "900",
           fontFamily: "system-ui, -apple-system, sans-serif",
         }}

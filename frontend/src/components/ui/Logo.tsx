@@ -21,27 +21,18 @@ export default function Logo({ className = "", size = "md" }: LogoProps) {
   };
 
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
-      {/* Cute Bold C Logo */}
-      <div 
-        className={`${sizeClasses[size]} flex items-center justify-center font-black tracking-tighter text-white bg-gradient-to-br from-red-500 via-rose-500 to-red-700 shadow-[0_4px_20px_rgba(225,29,72,0.4)] rounded-2xl`}
-        style={{
-          width: size === 'sm' ? '32px' : size === 'md' ? '40px' : size === 'lg' ? '56px' : '80px',
-          height: size === 'sm' ? '32px' : size === 'md' ? '40px' : size === 'lg' ? '56px' : '80px',
-        }}
+    <div className={`flex flex-col ${className}`}>
+      <div
+        className={`${sizeClasses[size]} font-bold tracking-tight uppercase flex items-center`}
       >
-        C
+        <span className="text-white drop-shadow-md">CODI</span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-rose-600 drop-shadow-[0_0_8px_rgba(225,29,72,0.4)]">
+          FY
+        </span>
       </div>
-      
-      {/* Optional CODIFY Text - rendered differently depending on size or usage */}
-      <div className="flex flex-col">
-        <div className={`font-bold tracking-tight uppercase flex items-center ${size === 'sm' ? 'text-lg' : size === 'md' ? 'text-xl' : size === 'lg' ? 'text-3xl' : 'text-5xl'}`}>
-          <span className="text-white drop-shadow-md">CODI</span>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-rose-600 drop-shadow-[0_0_8px_rgba(225,29,72,0.4)]">
-            FY
-          </span>
-        </div>
-      </div>
+      <div
+        className={`${lineSizeClasses[size]} mt-1 bg-gradient-to-r from-red-500 to-rose-600 rounded-full shadow-[0_0_10px_rgba(220,38,38,0.5)]`}
+      />
     </div>
   );
 }
