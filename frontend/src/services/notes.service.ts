@@ -9,7 +9,7 @@ export const NotesService = {
     return api.get("/notes/pending").then(res => res.data);
   },
 
-  reviewNote(id: string, data: { status: "APPROVED" | "REJECTED"; rejection_note?: string }) {
+  reviewNote(id: string, data: { status: "APPROVED" | "REJECTED"; rejection_note?: string; content_html?: string }) {
     return api.patch(`/notes/${id}/review`, data).then(res => res.data);
   },
 

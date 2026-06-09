@@ -5,11 +5,13 @@ import DashboardShell from "@/components/layout/DashboardShell";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { NotesService } from "@/services/notes.service";
+import RichTextEditor from "@/components/ui/RichTextEditor";
 
 export default function ReviewNotesPage() {
   const [notes, setNotes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeNote, setActiveNote] = useState<any | null>(null);
+  const [editedContent, setEditedContent] = useState("");
   const [rejectionNote, setRejectionNote] = useState("");
 
   const fetchNotes = async () => {
@@ -35,8 +37,13 @@ export default function ReviewNotesPage() {
     }
 
     try {
-      await NotesService.reviewNote(activeNote.id, { status, rejection_note: rejectionNote });
+      await NotesService.reviewNote(activeNote.id, { 
+        status, 
+        rejection_note: rejectionNote,
+        content_html: editedContent !== activeNote.content_html ? editedContent : undefined
+      });
       setActiveNote(null);
+      setEditedContent("");
       setRejectionNote("");
       fetchNotes();
     } catch (err) {
@@ -68,7 +75,11 @@ export default function ReviewNotesPage() {
               notes.map(note => (
                 <div
                   key={note.id}
-                  onClick={() => setActiveNote(note)}
+                  onClick={() => {
+                    setActiveNote(note);
+                    setEditedContent(note.content_html);
+                    setRejectionNote("");
+                  }}
                   className={`p-4 rounded-lg cursor-pointer border transition-colors ${activeNote?.id === note.id ? 'bg-red-900/20 border-red-500' : 'bg-zinc-900 border-white/5 hover:border-white/20'}`}
                 >
                   <h3 className="font-semibold text-white">{note.title}</h3>
@@ -94,7 +105,13 @@ export default function ReviewNotesPage() {
                   </div>
                 </div>
 
-                <div className="prose prose-invert max-w-none bg-black/50 p-6 rounded-lg min-h-[400px]" dangerouslySetInnerHTML={{ __html: activeNote.content_html }} />
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-zinc-300 mb-2">Edit Note Content</h3>
+                  <RichTextEditor 
+                    value={editedContent}
+                    onChange={setEditedContent}
+                  />
+                </div>
 
                 <div className="mt-6 border-t border-white/10 pt-6 space-y-4">
                   <div>

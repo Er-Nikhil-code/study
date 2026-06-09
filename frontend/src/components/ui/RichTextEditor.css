@@ -1,0 +1,71 @@
+.rich-text-container .ql-toolbar.ql-snow {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.rich-text-container .ql-container.ql-snow {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  background-color: transparent;
+  color: white;
+  min-height: 200px;
+  font-family: inherit;
+}
+
+.rich-text-container .ql-editor {
+  min-height: 200px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Icons */
+.rich-text-container .ql-snow .ql-stroke {
+  stroke: #a1a1aa; /* zinc-400 */
+}
+.rich-text-container .ql-snow .ql-fill, 
+.rich-text-container .ql-snow .ql-stroke.ql-fill {
+  fill: #a1a1aa;
+}
+
+/* Hover States */
+.rich-text-container .ql-snow.ql-toolbar button:hover .ql-stroke,
+.rich-text-container .ql-snow .ql-toolbar button:hover .ql-stroke,
+.rich-text-container .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.rich-text-container .ql-snow .ql-toolbar button.ql-active .ql-stroke {
+  stroke: white;
+}
+
+.rich-text-container .ql-snow.ql-toolbar button:hover .ql-fill,
+.rich-text-container .ql-snow .ql-toolbar button:hover .ql-fill,
+.rich-text-container .ql-snow.ql-toolbar button.ql-active .ql-fill,
+.rich-text-container .ql-snow .ql-toolbar button.ql-active .ql-fill {
+  fill: white;
+}
+
+/* Picker */
+.rich-text-container .ql-snow .ql-picker {
+  color: #a1a1aa;
+}
+
+.rich-text-container .ql-snow .ql-picker-options {
+  background-color: #18181b; /* zinc-900 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rich-text-container .ql-snow .ql-picker.ql-expanded .ql-picker-label {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.rich-text-container .ql-snow .ql-picker-item:hover {
+  color: white;
+}
+
+/* Placeholders */
+.rich-text-container .ql-editor.ql-blank::before {
+  color: rgba(255, 255, 255, 0.3);
+  font-style: normal;
+}

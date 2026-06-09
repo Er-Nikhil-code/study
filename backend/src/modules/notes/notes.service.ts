@@ -47,7 +47,7 @@ export class NotesService {
     return [];
   }
 
-  async reviewNote(noteId: string, status: "APPROVED" | "REJECTED", reviewerId: string, rejectionNote?: string) {
+  async reviewNote(noteId: string, status: "APPROVED" | "REJECTED", reviewerId: string, rejectionNote?: string, contentHtml?: string) {
     const note = await this.prisma.note.findUnique({ where: { id: noteId } });
     if (!note) throw new NotFoundException("Note not found");
 
@@ -58,6 +58,7 @@ export class NotesService {
         approved_by: status === "APPROVED" ? reviewerId : null,
         approved_at: status === "APPROVED" ? new Date() : null,
         rejection_note: status === "REJECTED" ? rejectionNote : null,
+        ...(contentHtml && { content_html: contentHtml }),
       },
     });
 
@@ -77,5 +78,48 @@ export class NotesService {
       where: { topic_id: topicId, approval_status: "APPROVED" },
       orderBy: { created_at: "asc" }
     });
+  }
+
+  async listNotes(
+    filters: { intern_only?: string; teacher_id?: string; admin_search?: boolean; search?: string },
+    skip = 0,
+    take = 20
+  ) {
+    const where: any = {};
+
+    if (filters.intern_only) {
+      where.created_by = filters.intern_only;
+    }
+    
+    if (filters.teacher_id) {
+      const interns = await this.prisma.user.findMany({
+        where: { assigned_teacher_id: filters.teacher_id },
+        select: { id: true },
+      });
+      const internIds = interns.map(i => i.id);
+      where.created_by = { in: [filters.teacher_id, ...internIds] };
+    }
+
+    if (filters.search) {
+      where.OR = [
+        { title: { contains: filters.search, mode: "insensitive" } },
+        { id: filters.search }
+      ];
+    }
+
+    const [notes, total] = await Promise.all([
+      this.prisma.note.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { created_at: "desc" },
+        include: {
+          topic: { include: { chapter: { include: { section: { include: { course: true } } } } } }
+        }
+      }),
+      this.prisma.note.count({ where })
+    ]);
+
+    return { data: notes, total, skip, take };
   }
 }

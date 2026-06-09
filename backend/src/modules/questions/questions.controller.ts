@@ -63,13 +63,13 @@ export class QuestionsController {
     if (topicId) filters.topic_id = topicId;
     if (type) filters.question_type = type;
     if (difficulty) filters.difficulty = difficulty;
-    // Teachers and Admins can see all questions.
-    // Interns can only see APPROVED questions + their own questions (handled at service level or simple filter here)
+
     if (req.user.role === "INTERN") {
-      // Actually, we need an OR condition for Interns: status === APPROVED OR created_by === userId
-      // Since our service `findAllQuestions` only accepts simple AND filters right now, 
-      // let's pass a special flag to the service if needed, or update service.
-      filters.intern_id = req.user.userId;
+      filters.intern_only = req.user.id || req.user.sub;
+    } else if (req.user.role === "TEACHER") {
+      filters.teacher_id = req.user.id || req.user.sub;
+    } else if (req.user.role === "ADMIN") {
+      filters.admin_search = true;
     }
 
     const skipNum = skip ? parseInt(skip, 10) : 0;

@@ -212,7 +212,10 @@ export class AdminService {
       if (topic_id) where.topic_id = topic_id;
 
       if (search) {
-        where.title = { contains: search, mode: "insensitive" };
+        where.OR = [
+          { title: { contains: search, mode: "insensitive" } },
+          { id: search }
+        ];
       }
 
       const [questions, total] = await Promise.all([

@@ -6,6 +6,7 @@ import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { HierarchyService } from "@/services/hierarchy.service";
 import { NotesService } from "@/services/notes.service";
+import RichTextEditor from "@/components/ui/RichTextEditor";
 
 export default function CreateNotePage() {
   const [topics, setTopics] = useState<any[]>([]);
@@ -142,14 +143,11 @@ export default function CreateNotePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">Content (HTML format supported)</label>
-            <textarea
-              required
-              rows={15}
+            <label className="block text-sm font-medium text-zinc-300 mb-2">Note Content</label>
+            <RichTextEditor
               value={formData.content_html}
-              onChange={(e) => setFormData({ ...formData, content_html: e.target.value })}
-              className="block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-white outline-none focus:border-red-500 font-mono text-sm"
-              placeholder="Enter HTML content..."
+              onChange={(val) => setFormData({ ...formData, content_html: val })}
+              placeholder="Write your note here using the formatting tools above..."
             />
           </div>
 

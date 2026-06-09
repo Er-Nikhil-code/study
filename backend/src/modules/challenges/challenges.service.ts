@@ -104,7 +104,15 @@ export class ChallengesService {
     },
   ) {
     const { status, skip = 0, take = 20 } = params;
-    const where: any = { assigned_to: teacherId };
+    
+    // Fetch assigned interns to also show their challenges
+    const interns = await this.prisma.user.findMany({
+      where: { assigned_teacher_id: teacherId },
+      select: { id: true },
+    });
+    const internIds = interns.map(i => i.id);
+
+    const where: any = { assigned_to: { in: [teacherId, ...internIds] } };
     if (status && status !== "ALL") {
       where.status = status;
     }

@@ -231,8 +231,9 @@ export class QuestionsService {
       topic_id?: string;
       question_type?: string;
       difficulty?: string;
-      created_by?: string;
-      intern_id?: string;
+      intern_only?: string;
+      teacher_id?: string;
+      admin_search?: boolean;
     },
     skip = 0,
     take = 20,
@@ -244,13 +245,17 @@ export class QuestionsService {
       if (filters?.topic_id) where.topic_id = filters.topic_id;
       if (filters?.question_type) where.question_type = filters.question_type;
       if (filters?.difficulty) where.difficulty = filters.difficulty;
-      if (filters?.created_by) where.created_by = filters.created_by;
+      if (filters?.intern_only) {
+        where.created_by = filters.intern_only;
+      }
       
-      if (filters?.intern_id) {
-        where.OR = [
-          { approval_status: "APPROVED" },
-          { created_by: filters.intern_id }
-        ];
+      if (filters?.teacher_id) {
+        const interns = await this.prisma.user.findMany({
+          where: { assigned_teacher_id: filters.teacher_id },
+          select: { id: true },
+        });
+        const internIds = interns.map(i => i.id);
+        where.created_by = { in: [filters.teacher_id, ...internIds] };
       }
 
       const [questions, total] = await Promise.all([
