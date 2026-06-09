@@ -18,7 +18,7 @@ import PassageForm from "./forms/PassageForm";
 const getNavItems = (role: string) => {
   if (role === "INTERN") {
     return [
-      { label: "Intern Dashboard", href: "/dashboard" },
+      { label: "Intern Dashboard", href: "/intern/dashboard" },
       { label: "Question Bank", href: "/teacher/questions" },
     ];
   }

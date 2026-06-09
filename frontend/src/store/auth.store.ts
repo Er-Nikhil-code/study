@@ -3,12 +3,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type UserRole = "STUDENT" | "PENDING_TEACHER" | "TEACHER" | "ADMIN";
+export type UserRole = "STUDENT" | "INTERN" | "PENDING_TEACHER" | "TEACHER" | "ADMIN";
 
 export interface AuthUser {
   id: string;
   email: string;
   role: UserRole;
+  custom_role?: {
+    name: string;
+    permissions_json: any;
+  } | null;
 }
 
 interface AuthState {

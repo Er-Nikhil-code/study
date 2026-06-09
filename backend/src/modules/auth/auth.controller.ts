@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   BadRequestException,
   HttpCode,
@@ -53,6 +54,22 @@ export class AuthController {
       };
     } catch (error: any) {
       this.logger.error(`Get me endpoint error: ${error?.message || "Unknown error"}`);
+      throw error;
+    }
+  }
+
+  /**
+   * PUT /auth/profile
+   * Update current user profile
+   */
+  @Put("profile")
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(@Req() req: any, @Body() body: any) {
+    try {
+      const user = await this.authService.updateProfile(req.user.sub, body);
+      return { success: true, user };
+    } catch (error: any) {
+      this.logger.error(`Update profile error: ${error?.message || "Unknown error"}`);
       throw error;
     }
   }

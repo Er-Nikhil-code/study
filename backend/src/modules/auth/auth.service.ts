@@ -34,6 +34,7 @@ export class AuthService {
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
+      include: { custom_role: true },
     });
 
     if (!user) {
@@ -59,6 +60,38 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  /**
+   * Update current user profile
+   */
+  async updateProfile(userId: string, data: any) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException("User not found");
+
+    const updateData: any = {};
+    if (data.first_name !== undefined) updateData.first_name = data.first_name;
+    if (data.last_name !== undefined) updateData.last_name = data.last_name;
+    if (data.phone_number !== undefined) updateData.phone_number = data.phone_number;
+    if (data.profile_picture !== undefined) updateData.profile_picture = data.profile_picture;
+    if (data.course_enrolled !== undefined) updateData.course_enrolled = data.course_enrolled;
+
+    // Handle password change
+    if (data.old_password && data.new_password) {
+      const isMatch = await bcrypt.compare(data.old_password, user.password_hash);
+      if (!isMatch) {
+        throw new BadRequestException("Invalid old password");
+      }
+      updateData.password_hash = await bcrypt.hash(data.new_password, 10);
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+
+    const { password_hash, ...userWithoutPassword } = updated;
+    return userWithoutPassword;
   }
 
   /**

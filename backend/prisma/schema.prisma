@@ -23,6 +23,9 @@ model User {
   last_login_at         DateTime?
   assigned_teacher_id   String?
   custom_role_id        String?
+  phone_number          String?
+  profile_picture       String?
+  course_enrolled       String?
   
   // Relations
   assigned_teacher      User?        @relation("intern_teacher", fields: [assigned_teacher_id], references: [id])

@@ -470,8 +470,12 @@ function LoginFormEmbedded({
 
     setIsLoading(true);
     try {
-      await authService.login(email, password);
-      router.push("/dashboard");
+      const res = await authService.login(email, password);
+      const role = res.user?.role || "STUDENT";
+      if (role === "ADMIN") router.push("/admin");
+      else if (role === "TEACHER") router.push("/teacher");
+      else if (role === "INTERN") router.push("/intern/dashboard");
+      else router.push("/student/dashboard");
     } catch (error: any) {
       setGeneralError(
         error.response?.data?.message || "Login failed. Please try again.",
@@ -651,13 +655,17 @@ function RegisterFormEmbedded({
 
     setIsLoading(true);
     try {
-      await authService.verifyOtp({
+      const res = await authService.verifyOtp({
         email,
         otp,
         password,
         firstName,
       });
-      router.push("/dashboard");
+      const role = res.user?.role || "STUDENT";
+      if (role === "ADMIN") router.push("/admin");
+      else if (role === "TEACHER") router.push("/teacher");
+      else if (role === "INTERN") router.push("/intern/dashboard");
+      else router.push("/student/dashboard");
     } catch (error: any) {
       setGeneralError(error.response?.data?.message || "Verification failed");
       setIsLoading(false);

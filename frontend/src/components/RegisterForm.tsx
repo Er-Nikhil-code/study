@@ -119,7 +119,11 @@ export function RegisterForm() {
       setSuccessMessage("✅ Account created successfully! Redirecting...");
       // Redirect to dashboard or home
       setTimeout(() => {
-        window.location.href = "/dashboard";
+        const role = formState.role || "STUDENT";
+        if (role === "ADMIN") window.location.href = "/admin";
+        else if (role === "TEACHER" || role === "PENDING_TEACHER") window.location.href = "/teacher";
+        else if (role === "INTERN") window.location.href = "/intern/dashboard";
+        else window.location.href = "/student/dashboard";
       }, 2000);
     } catch (error: any) {
       const message =
