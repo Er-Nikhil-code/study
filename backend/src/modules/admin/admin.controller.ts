@@ -158,6 +158,18 @@ export class AdminController {
     });
   }
 
+  @Post("audit-logs/clear")
+  @HttpCode(HttpStatus.OK)
+  async clearAuditLogs() {
+    return this.adminService.clearAuditLogs();
+  }
+
+  @Get("system-status")
+  async getSystemStatus() {
+    return this.adminService.getSystemStatus();
+  }
+
+
   /* ─── Notifications (all authenticated users via /api/notifications) ─── */
   @Get("activity")
   async getRecentActivity(@Query("take") take?: string) {

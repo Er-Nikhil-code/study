@@ -183,6 +183,16 @@ class AdminService {
     return res.data;
   }
 
+  async clearAuditLogs() {
+    const res = await api.post("/admin/audit-logs/clear");
+    return res.data;
+  }
+
+  async getSystemStatus() {
+    const res = await api.get("/admin/system-status");
+    return res.data;
+  }
+
   /* ─── Notifications ─── */
   async getNotifications(params?: { skip?: number; take?: number }): Promise<{
     data: any[];

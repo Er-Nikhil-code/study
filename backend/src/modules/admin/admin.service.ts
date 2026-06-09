@@ -378,6 +378,47 @@ export class AdminService {
     return { data, total, skip, take };
   }
 
+  async clearAuditLogs() {
+    try {
+      await this.prisma.auditLog.deleteMany();
+      return { message: "Audit logs cleared successfully" };
+    } catch (error) {
+      throw new Error("Could not clear audit logs");
+    }
+  }
+
+  async getSystemStatus() {
+    try {
+      const startTime = Date.now();
+      await this.prisma.$queryRaw`SELECT 1`;
+      const dbLatency = Date.now() - startTime;
+
+      // This is a naive active user count. In a real system, you'd check a Redis store or socket server.
+      // Here we count users created recently or with recent activity as "active" placeholder.
+      const activeUsers = await this.prisma.user.count({
+        where: {
+          updated_at: {
+            gte: new Date(Date.now() - 1000 * 60 * 60 * 24), // Active in last 24h
+          }
+        }
+      });
+
+      return {
+        uptime: process.uptime(),
+        db_latency_ms: dbLatency,
+        active_users: activeUsers,
+        status: dbLatency < 100 ? "healthy" : "degraded",
+      };
+    } catch (error) {
+      return {
+        uptime: process.uptime(),
+        db_latency_ms: -1,
+        active_users: 0,
+        status: "down",
+      };
+    }
+  }
+
   /* ─── Notifications ─── */
 
   async getNotifications(userId: string, params: { skip?: number; take?: number }) {
