@@ -97,7 +97,7 @@ export default function StudentDashboardPage() {
           {/* Activity Graph */}
           {studentData.activity_graph && (
             <div className="mt-6">
-              <ActivityGraph data={studentData.activity_graph} theme="green" />
+              <ActivityGraph data={studentData.activity_graph} theme="emerald" />
             </div>
           )}
 
