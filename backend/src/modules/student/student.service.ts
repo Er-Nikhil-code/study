@@ -6,6 +6,16 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 
+// Helper to convert UTC Date to IST YYYY-MM-DD
+function getISTDateString(d: Date) {
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  const ist = new Date(utc + (3600000 * 5.5));
+  const year = ist.getFullYear();
+  const month = String(ist.getMonth() + 1).padStart(2, '0');
+  const day = String(ist.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 @Injectable()
 export class StudentService {
   private readonly logger = new Logger(StudentService.name);
@@ -81,7 +91,7 @@ export class StudentService {
 
     const attemptsMap: Record<string, number> = {};
     attemptsData.forEach(a => {
-      const dateStr = a.started_at.toISOString().split('T')[0];
+      const dateStr = getISTDateString(a.started_at);
       attemptsMap[dateStr] = (attemptsMap[dateStr] || 0) + 1;
     });
 
@@ -449,6 +459,42 @@ export class StudentService {
       },
     });
 
+    // Mixed Activity graph (last 365 days)
+    const oneYearAgo = new Date();
+    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+
+    const [testsData, approvalsData] = await Promise.all([
+      this.prisma.test.findMany({
+        where: { created_by: userId, created_at: { gte: oneYearAgo } },
+        select: { created_at: true },
+      }),
+      this.prisma.question.findMany({
+        where: { approved_by: userId, approved_at: { gte: oneYearAgo } },
+        select: { approved_at: true },
+      }),
+    ]);
+
+    const activityMap: Record<string, { blueCount: number; emeraldCount: number }> = {};
+    
+    testsData.forEach((t) => {
+      const dateStr = getISTDateString(t.created_at);
+      if (!activityMap[dateStr]) activityMap[dateStr] = { blueCount: 0, emeraldCount: 0 };
+      activityMap[dateStr].blueCount++;
+    });
+
+    approvalsData.forEach((q) => {
+      if (q.approved_at) {
+        const dateStr = getISTDateString(q.approved_at);
+        if (!activityMap[dateStr]) activityMap[dateStr] = { blueCount: 0, emeraldCount: 0 };
+        activityMap[dateStr].emeraldCount++;
+      }
+    });
+
+    const activity_graph = Object.keys(activityMap).map((date) => ({
+      date,
+      ...activityMap[date],
+    }));
+
     return {
       questions_created: questionCount,
       tests_created: testCount,
@@ -457,6 +503,7 @@ export class StudentService {
       students_assigned: studentsAssigned,
       recent_challenges: recentChallenges,
       recent_reviews: recentReviews,
+      activity_graph,
     };
   }
 
@@ -514,6 +561,25 @@ export class StudentService {
       where: { total_score: { gt: stats?.total_score ?? 0 } },
     });
 
+    // Activity graph (last 365 days)
+    const oneYearAgo = new Date();
+    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+    
+    const questionsData = await this.prisma.question.findMany({
+      where: { created_by: userId, created_at: { gte: oneYearAgo } },
+      select: { created_at: true }
+    });
+
+    const activityMap: Record<string, number> = {};
+    questionsData.forEach(q => {
+      const dateStr = getISTDateString(q.created_at);
+      activityMap[dateStr] = (activityMap[dateStr] || 0) + 1;
+    });
+
+    const activity_graph = Object.keys(activityMap).map(date => ({
+      date, count: activityMap[date]
+    }));
+
     return {
       total_created: totalCreated,
       total_approved: totalApproved,
@@ -525,6 +591,7 @@ export class StudentService {
       total_points: stats?.total_score ?? 0,
       global_rank: rank + 1,
       recent_questions: recentQuestions,
+      activity_graph,
     };
   }
 

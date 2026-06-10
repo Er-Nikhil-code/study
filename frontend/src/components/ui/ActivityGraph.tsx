@@ -155,36 +155,49 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
 
   return (
     <div className="w-full overflow-x-auto pb-4 hide-scrollbar">
-      <div className="min-w-max">
-        {/* Months Row */}
-        <div className="flex text-[10px] text-zinc-500 mb-1 relative h-4">
-          {months.map((m, i) => (
-            <div 
-              key={i} 
-              className="absolute top-0" 
-              style={{ left: `${m.colIndex * 16}px` }} // 12px width + 4px gap = 16px per column
-            >
-              {m.label}
-            </div>
-          ))}
+      <div className="min-w-max flex gap-2">
+        {/* Day Labels */}
+        <div className="flex flex-col gap-1 text-[10px] text-zinc-500 mt-5 pt-[2px]">
+          <div className="h-3 leading-[12px]"></div>
+          <div className="h-3 leading-[12px]">Mon</div>
+          <div className="h-3 leading-[12px]"></div>
+          <div className="h-3 leading-[12px]">Wed</div>
+          <div className="h-3 leading-[12px]"></div>
+          <div className="h-3 leading-[12px]">Fri</div>
+          <div className="h-3 leading-[12px]"></div>
         </div>
-        
-        {/* Graph Grid */}
-        <div className="flex gap-1">
-          {weeks.map((week, wIndex) => (
-            <div key={wIndex} className="flex flex-col gap-1 w-3">
-              {week.map((day, dIndex) => {
-                if (!day) return <div key={dIndex} className="w-3 h-3 rounded-sm opacity-0" />;
-                return (
-                  <div
-                    key={day.date}
-                    title={getTooltip(day)}
-                    className={`w-3 h-3 rounded-sm transition-all hover:scale-125 hover:ring-1 hover:ring-white/50 cursor-pointer ${getColor(day)}`}
-                  />
-                );
-              })}
-            </div>
-          ))}
+
+        <div>
+          {/* Months Row */}
+          <div className="flex text-[10px] text-zinc-500 mb-1 relative h-4">
+            {months.map((m, i) => (
+              <div 
+                key={i} 
+                className="absolute top-0" 
+                style={{ left: `${m.colIndex * 16}px` }} // 12px width + 4px gap = 16px per column
+              >
+                {m.label}
+              </div>
+            ))}
+          </div>
+          
+          {/* Graph Grid */}
+          <div className="flex gap-1">
+            {weeks.map((week, wIndex) => (
+              <div key={wIndex} className="flex flex-col gap-1 w-3">
+                {week.map((day, dIndex) => {
+                  if (!day) return <div key={dIndex} className="w-3 h-3 rounded-sm opacity-0" />;
+                  return (
+                    <div
+                      key={day.date}
+                      title={getTooltip(day)}
+                      className={`w-3 h-3 rounded-sm transition-all hover:scale-125 hover:ring-1 hover:ring-white/50 cursor-pointer ${getColor(day)}`}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       

@@ -6,6 +6,7 @@ import studentService from "@/services/student.service";
 import Panel from "@/components/ui/Panel";
 import { useAuthStore } from "@/store/auth.store";
 import { PlusCircle, FileCheck, Clock, XCircle, RefreshCw, TrendingUp } from "lucide-react";
+import ActivityGraph from "@/components/ui/ActivityGraph";
 
 const STATUS_COLORS: Record<string, string> = {
   APPROVED: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
@@ -124,6 +125,13 @@ export default function InternDashboardPage() {
               <div className="mt-1 text-xs text-zinc-500">{data.current_streak}🔥 day streak</div>
             </Panel>
           </div>
+
+          {/* Activity Graph */}
+          {data.activity_graph && (
+            <div className="mt-6">
+              <ActivityGraph data={data.activity_graph} theme="emerald" />
+            </div>
+          )}
 
           {/* Recent Submissions */}
           <div className="mt-8">
