@@ -85,6 +85,11 @@ class AdminService {
     return res.data;
   }
 
+  async createUser(data: any): Promise<AdminUser> {
+    const res = await api.post<AdminUser>("/admin/users", data);
+    return res.data;
+  }
+
   async updateUser(
     id: string,
     data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean },

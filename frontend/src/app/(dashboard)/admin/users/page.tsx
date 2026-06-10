@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
@@ -17,6 +18,17 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
+
+  // Create state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [newUser, setNewUser] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    role: "INTERN",
+  });
 
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -122,6 +134,25 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUser.email || !newUser.password) {
+      alert("Email and password are required.");
+      return;
+    }
+    setCreateLoading(true);
+    try {
+      await adminService.createUser(newUser);
+      setShowAddModal(false);
+      setNewUser({ first_name: "", last_name: "", email: "", password: "", role: "INTERN" });
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to create user");
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const roleBadge = (role: string) => {
@@ -143,10 +174,18 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      <SectionTitle
-        title="Users"
-        subtitle={`${total} total user${total !== 1 ? "s" : ""} on the platform.`}
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <SectionTitle
+          title="Users"
+          subtitle={`${total} total user${total !== 1 ? "s" : ""} on the platform.`}
+        />
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_15px_rgba(220,38,38,0.5)] transition hover:bg-red-500 hover:shadow-[0_0_25px_rgba(220,38,38,0.6)]"
+        >
+          Add New User
+        </button>
+      </div>
 
       {/* Filters bar */}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -236,9 +275,9 @@ export default function AdminUsersPage() {
                 className={`grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 px-5 py-4 text-sm items-center ${!user.is_active ? 'opacity-50 grayscale' : ''}`}
               >
                 <div className="truncate text-white flex items-center gap-2">
-                  <a href={`/admin/users/${user.id}`} className="hover:text-red-400 hover:underline transition">
+                  <Link href={`/admin/users/${user.id}`} className="hover:text-red-400 hover:underline transition">
                     {user.first_name || "—"} {user.last_name || ""}
-                  </a>
+                  </Link>
                   {!user.is_active && (
                     <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[9px] font-bold text-red-300">
                       INACTIVE
@@ -365,6 +404,88 @@ export default function AdminUsersPage() {
             >
               Next →
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Add User Modal ── */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-6">Add New User</h3>
+            <form onSubmit={handleCreateUser} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs uppercase tracking-[0.1em] text-zinc-500 mb-1 block">First Name</label>
+                  <input
+                    type="text"
+                    value={newUser.first_name}
+                    onChange={(e) => setNewUser({ ...newUser, first_name: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:border-red-500/50 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs uppercase tracking-[0.1em] text-zinc-500 mb-1 block">Last Name</label>
+                  <input
+                    type="text"
+                    value={newUser.last_name}
+                    onChange={(e) => setNewUser({ ...newUser, last_name: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:border-red-500/50 outline-none"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs uppercase tracking-[0.1em] text-zinc-500 mb-1 block">Email *</label>
+                <input
+                  type="email"
+                  required
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:border-red-500/50 outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs uppercase tracking-[0.1em] text-zinc-500 mb-1 block">Password *</label>
+                <input
+                  type="password"
+                  required
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:border-red-500/50 outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs uppercase tracking-[0.1em] text-zinc-500 mb-1 block">Role *</label>
+                <select
+                  required
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:border-red-500/50 outline-none cursor-pointer"
+                >
+                  <option value="STUDENT" className="bg-zinc-900">Student</option>
+                  <option value="INTERN" className="bg-zinc-900">Intern</option>
+                  <option value="TEACHER" className="bg-zinc-900">Teacher</option>
+                  <option value="ADMIN" className="bg-zinc-900">Admin</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300 transition hover:bg-white/[0.06] hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createLoading}
+                  className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 disabled:opacity-50"
+                >
+                  {createLoading ? "Creating…" : "Create User"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

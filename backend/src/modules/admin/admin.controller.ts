@@ -60,6 +60,15 @@ export class AdminController {
   }
 
   /**
+   * POST /api/admin/users
+   * Create a new user (e.g. Intern) directly from Admin panel
+   */
+  @Post("users")
+  async createUser(@Body() body: any) {
+    return this.adminService.createUser(body);
+  }
+
+  /**
    * PATCH /api/admin/users/:id
    * Update user role or details
    */

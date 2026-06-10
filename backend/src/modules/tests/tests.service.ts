@@ -706,6 +706,54 @@ export class TestsService {
     if (attempt.status === "IN_PROGRESS")
       throw new BadRequestException("Attempt not yet submitted");
 
-    return attempt;
+  }
+
+  /* ════════════════════════════════════════════
+   *  LEADERBOARD
+   * ════════════════════════════════════════════ */
+
+  async getTestLeaderboard(testId: string, currentUserId: string) {
+    const attempts = await this.prisma.attempt.findMany({
+      where: {
+        test_id: testId,
+        attempt_no: 1,
+        status: "SCORED"
+      },
+      orderBy: [
+        { score: "desc" },
+        { time_taken_sec: "asc" },
+        { submitted_at: "asc" }
+      ],
+      include: {
+        user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            profile_picture_url: true,
+          }
+        }
+      }
+    });
+
+    // Build ranking
+    const leaderboard = attempts.map((a, index) => ({
+      rank: index + 1,
+      attempt_id: a.id,
+      score: a.score,
+      max_score: a.max_score,
+      time_taken_sec: a.time_taken_sec,
+      submitted_at: a.submitted_at,
+      user: a.user
+    }));
+
+    const top50 = leaderboard.slice(0, 50);
+    const currentUserEntry = leaderboard.find(l => l.user.id === currentUserId);
+
+    return {
+      leaderboard: top50,
+      currentUserRank: currentUserEntry ? currentUserEntry.rank : null,
+      total_participants: leaderboard.length
+    };
   }
 }

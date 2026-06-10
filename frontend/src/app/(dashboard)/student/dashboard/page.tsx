@@ -5,6 +5,7 @@ import Link from "next/link";
 import studentService from "@/services/student.service";
 import Panel from "@/components/ui/Panel";
 import { useAuthStore } from "@/store/auth.store";
+import ActivityGraph from "@/components/ui/ActivityGraph";
 
 export default function StudentDashboardPage() {
   const { user } = useAuthStore();
@@ -92,6 +93,13 @@ export default function StudentDashboardPage() {
               <div className="mt-2 text-2xl font-semibold text-white">{studentData.reattempts}</div>
             </Panel>
           </div>
+
+          {/* Activity Graph */}
+          {studentData.activity_graph && (
+            <div className="mt-6">
+              <ActivityGraph data={studentData.activity_graph} theme="green" />
+            </div>
+          )}
 
           {/* Recent tests + Weak topics */}
           <div className="mt-6 grid gap-6 lg:grid-cols-2" id="analytics">

@@ -19,7 +19,7 @@ export default function InternEarningsPage() {
   return (
     <>
       <SectionTitle
-        title="My Earnings & Gamification"
+        title="My Earnings"
         subtitle="Track your approved questions and monthly rewards."
       />
 
@@ -76,7 +76,7 @@ export default function InternEarningsPage() {
           </Panel>
 
           <Panel className="bg-black border border-white/5">
-            <h3 className="text-lg font-medium text-white mb-4">Gamification Tiers</h3>
+            <h3 className="text-lg font-medium text-white mb-4">Earnings Tiers</h3>
             <div className="space-y-3 text-sm text-zinc-400">
               <div className={`flex justify-between border-b border-white/5 pb-2 ${data.currentLevel === 1 ? 'text-red-400 font-medium' : ''}`}>
                 <span>Level 1 (0 - 300 questions)</span>

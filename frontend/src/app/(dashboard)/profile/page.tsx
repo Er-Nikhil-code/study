@@ -317,10 +317,12 @@ export default function ProfilePage() {
               Course Information
             </h3>
             <div className="space-y-4">
-              <div>
-                <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Enrolled In</p>
-                <p className="text-sm text-white mt-1 font-medium">{profileData.course_enrolled || "N/A"}</p>
-              </div>
+              {user.role === "STUDENT" && (
+                <div>
+                  <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Enrolled In</p>
+                  <p className="text-sm text-white mt-1 font-medium">{profileData.course_enrolled || "N/A"}</p>
+                </div>
+              )}
               <div>
                 <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Account Type</p>
                 <p className="text-sm text-white mt-1">{user.role}</p>

@@ -70,6 +70,25 @@ export class StudentService {
       },
     });
 
+    // Activity graph (last 365 days)
+    const oneYearAgo = new Date();
+    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+    
+    const attemptsData = await this.prisma.attempt.findMany({
+      where: { user_id: userId, started_at: { gte: oneYearAgo } },
+      select: { started_at: true }
+    });
+
+    const attemptsMap: Record<string, number> = {};
+    attemptsData.forEach(a => {
+      const dateStr = a.started_at.toISOString().split('T')[0];
+      attemptsMap[dateStr] = (attemptsMap[dateStr] || 0) + 1;
+    });
+
+    const activity_graph = Object.keys(attemptsMap).map(date => ({
+      date, count: attemptsMap[date]
+    }));
+
     return {
       current_streak: stats?.current_streak ?? 0,
       longest_streak: stats?.longest_streak ?? 0,
@@ -94,6 +113,7 @@ export class StudentService {
       })),
       weak_topics: weakTopics,
       enrolled_course: enrolledCourseName,
+      activity_graph,
     };
   }
 

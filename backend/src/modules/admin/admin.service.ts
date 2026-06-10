@@ -220,10 +220,99 @@ export class AdminService {
         calculated_earnings: earnings,
         activity_graph
       };
+    } else if (user.role === "TEACHER") {
+      const oneYearAgo = new Date();
+      oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+      
+      const testsData = await this.prisma.test.findMany({
+        where: { created_by: id, created_at: { gte: oneYearAgo } },
+        select: { created_at: true }
+      });
+
+      const testsMap: Record<string, number> = {};
+      testsData.forEach(t => {
+        const dateStr = t.created_at.toISOString().split('T')[0];
+        testsMap[dateStr] = (testsMap[dateStr] || 0) + 1;
+      });
+
+      const tests_created_graph = Object.keys(testsMap).map(date => ({
+        date, count: testsMap[date]
+      }));
+
+      const approvedData = await this.prisma.question.findMany({
+        where: { approved_by: id, approval_status: "APPROVED", approved_at: { gte: oneYearAgo } },
+        select: { approved_at: true }
+      });
+
+      const approvedMap: Record<string, number> = {};
+      approvedData.forEach(q => {
+        if (q.approved_at) {
+          const dateStr = q.approved_at.toISOString().split('T')[0];
+          approvedMap[dateStr] = (approvedMap[dateStr] || 0) + 1;
+        }
+      });
+
+      const questions_approved_graph = Object.keys(approvedMap).map(date => ({
+        date, count: approvedMap[date]
+      }));
+
+      extraStats = { tests_created_graph, questions_approved_graph };
+
+    } else if (user.role === "STUDENT") {
+      const oneYearAgo = new Date();
+      oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+      
+      const attemptsData = await this.prisma.attempt.findMany({
+        where: { user_id: id, started_at: { gte: oneYearAgo } },
+        select: { started_at: true }
+      });
+
+      const attemptsMap: Record<string, number> = {};
+      attemptsData.forEach(a => {
+        const dateStr = a.started_at.toISOString().split('T')[0];
+        attemptsMap[dateStr] = (attemptsMap[dateStr] || 0) + 1;
+      });
+
+      const activity_graph = Object.keys(attemptsMap).map(date => ({
+        date, count: attemptsMap[date]
+      }));
+
+      extraStats = { activity_graph };
     }
 
     const { password_hash, ...safeUser } = user as any;
     return { ...safeUser, ...extraStats };
+  }
+
+  /**
+   * Create user (e.g. Intern) directly from Admin panel
+   */
+  async createUser(data: any) {
+    const { email, password, first_name, last_name, role, phone_number } = data;
+    
+    // Check if user exists
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      throw new BadRequestException("User with this email already exists");
+    }
+
+    const bcrypt = require("bcrypt");
+    const hashedPassword = await bcrypt.hash(password || "password123", 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email,
+        password_hash: hashedPassword,
+        first_name,
+        last_name,
+        role: role || "INTERN",
+        phone_number,
+        is_active: true,
+      },
+    });
+
+    const { password_hash, ...safeUser } = user as any;
+    return safeUser;
   }
 
   /**
@@ -281,7 +370,7 @@ export class AdminService {
       if (search) {
         where.OR = [
           { title: { contains: search, mode: "insensitive" } },
-          { id: search }
+          { id: { equals: search } }
         ];
       }
 

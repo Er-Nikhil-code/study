@@ -138,7 +138,7 @@ export default function AdminQuestionsPage() {
           </svg>
           <input
             type="text"
-            placeholder="Search by title…"
+            placeholder="Search by title or ID…"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-2 pl-9 pr-4 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-red-500/30 focus:ring-1 focus:ring-red-500/20"

@@ -42,6 +42,15 @@ export class TestsController {
     return this.testsService.getTestDetails(id);
   }
 
+  @Get(":id/leaderboard")
+  @UseGuards(JwtAuthGuard)
+  async getTestLeaderboard(
+    @Param("id") id: string,
+    @Request() req: any
+  ) {
+    return this.testsService.getTestLeaderboard(id, req.user.sub);
+  }
+
   /* ── Attempt flow (authenticated students) ── */
 
   @Post(":id/start")

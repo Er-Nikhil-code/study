@@ -32,6 +32,7 @@ export interface StudentDashboard {
     wrong_count: number;
   }[];
   enrolled_course: string | null;
+  activity_graph?: { date: string; count: number }[];
 }
 
 export interface TestListItem {
@@ -187,6 +188,11 @@ class StudentApiService {
 
   async getTestDetails(testId: string): Promise<any> {
     const res = await api.get(`/tests/${testId}`);
+    return res.data;
+  }
+
+  async getTestLeaderboard(testId: string): Promise<{ leaderboard: any[]; currentUserRank: number | null; total_participants: number }> {
+    const res = await api.get(`/tests/${testId}/leaderboard`);
     return res.data;
   }
 
