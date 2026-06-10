@@ -91,6 +91,18 @@ export class AdminController {
   }
 
   /**
+   * POST /api/admin/notifications
+   * Send a manual custom notification to a specific user
+   */
+  @Post("notifications")
+  async sendNotification(
+    @Request() req: any,
+    @Body() body: { user_id: string; title: string; message: string }
+  ) {
+    return this.adminService.sendNotification(body.user_id, body.title, body.message);
+  }
+
+  /**
    * GET /api/admin/questions
    * Paginated questions with search and filters
    */

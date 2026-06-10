@@ -60,6 +60,14 @@ export class ChallengesController {
     });
   }
 
+  /* ── Teacher: get escalation targets ── */
+  @Get("escalation-targets")
+  @UseGuards(RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  async getEscalationTargets(@Request() req: any) {
+    return this.challengesService.getEscalationTargets(req.user.sub);
+  }
+
   /* ── Teacher: resolve challenge ── */
   @Post(":id/resolve")
   @UseGuards(RolesGuard)
@@ -70,10 +78,12 @@ export class ChallengesController {
     @Request() req: any,
     @Body()
     body: {
-      action: "ACCEPT" | "REJECT" | "REVISE_SOLUTION" | "REVISE_ANSWER_KEY" | "ESCALATE" | "FORWARD_TO_INTERN";
+      action: "ACCEPT" | "REJECT" | "REVISE_CONTENT" | "REVISE_SOLUTION" | "REVISE_ANSWER_KEY" | "ESCALATE" | "FORWARD_TO_INTERN";
       resolution_note?: string;
       revised_answer_key?: any;
       revised_solution_json?: any;
+      revised_content_json?: any;
+      forward_to_user_id?: string;
     },
   ) {
     return this.challengesService.resolveChallenge(id, req.user.sub, body);

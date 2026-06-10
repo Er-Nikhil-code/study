@@ -72,7 +72,7 @@ export class ChallengesService {
     await this.prisma.notificationEvent.create({
       data: {
         user_id: creatorId,
-        type: "CHALLENGE_RESOLVED",
+        type: "CUSTOM",
         title: `New ${data.note_id ? "Note" : "Question"} Challenge`,
         message: `A student has challenged your ${data.note_id ? "note" : "question"}: "${itemTitle}" — Reason: ${data.reason}`,
         data_json: {
@@ -144,6 +144,28 @@ export class ChallengesService {
     ]);
 
     return { data: challenges, total, skip, take };
+  }
+
+  /* ════════════════════════════════════════════
+   *  TEACHER: Get escalation targets
+   * ════════════════════════════════════════════ */
+
+  async getEscalationTargets(teacherId: string) {
+    const [interns, admins] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { assigned_teacher_id: teacherId, role: { name: "INTERN" } },
+        select: { id: true, first_name: true, last_name: true, email: true, role: { select: { name: true } } }
+      }),
+      this.prisma.user.findMany({
+        where: { role: { name: "ADMIN" } },
+        select: { id: true, first_name: true, last_name: true, email: true, role: { select: { name: true } } }
+      })
+    ]);
+
+    return {
+      interns,
+      admins
+    };
   }
 
   /* ════════════════════════════════════════════
@@ -234,6 +256,7 @@ export class ChallengesService {
 
     switch (data.action) {
       case "ACCEPT":
+      case "REVISE_CONTENT":
       case "REVISE_SOLUTION":
       case "REVISE_ANSWER_KEY":
         newStatus = "RESOLVED";
@@ -246,6 +269,60 @@ export class ChallengesService {
         break;
       default:
         throw new BadRequestException("Invalid action");
+    }
+
+    // Handle Escalation separately (assigns to someone else, doesn't resolve)
+    if (data.action === "ESCALATE") {
+      if (!data.forward_to_user_id) throw new BadRequestException("forward_to_user_id is required for ESCALATE");
+
+      // Verify the target user is an ADMIN or an Intern assigned to this teacher
+      const targetUser = await this.prisma.user.findUnique({
+        where: { id: data.forward_to_user_id },
+        select: { id: true, role: true, assigned_teacher_id: true }
+      });
+
+      if (!targetUser) throw new NotFoundException("Target user not found");
+
+      const isTargetAdmin = targetUser.role?.name === "ADMIN";
+      const isTargetIntern = targetUser.role?.name === "INTERN" && targetUser.assigned_teacher_id === teacherId;
+
+      if (!isTargetAdmin && !isTargetIntern) {
+        throw new ForbiddenException("Can only escalate to Admins or your assigned Interns");
+      }
+
+      const updated = await this.prisma.challenge.update({
+        where: { id: challengeId },
+        data: {
+          assigned_to: targetUser.id,
+          status: "ESCALATED",
+          resolution_note: data.resolution_note || "Escalated for further review",
+        },
+      });
+
+      // Notify the target user
+      await this.prisma.notificationEvent.create({
+        data: {
+          user_id: targetUser.id,
+          type: "CUSTOM",
+          title: "Challenge Escalated to You",
+          message: `A teacher escalated a challenge for "${itemTitle}" to you for review. ${data.resolution_note || ""}`.trim(),
+          data_json: { challenge_id: challengeId },
+        },
+      });
+
+      this.logger.log(`↗️ Challenge ${challengeId} escalated to ${targetUser.id} by teacher ${teacherId}`);
+      return updated;
+    }
+
+    // If revising question content, update the question
+    if (data.action === "REVISE_CONTENT" && data.revised_content_json && challenge.question_id) {
+      await this.prisma.question.update({
+        where: { id: challenge.question_id },
+        data: {
+          content_json: data.revised_content_json,
+          version: { increment: 1 },
+        },
+      });
     }
 
     // If revising answer key, update the question

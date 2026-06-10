@@ -52,8 +52,9 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
         { label: "Review Notes", href: "/teacher/notes/review", icon: FileEdit },
         { label: "Manage Tests", href: "/teacher/tests", icon: FileText },
         { label: "Create Question", href: "/teacher/questions/create", icon: FilePlus2 },
-        { label: "Notifications", href: "/notifications", icon: Bell },
         { label: "Notes", href: "/intern/notes/create", icon: FileEdit },
+        { label: "My Notifications", href: "/notifications", icon: Bell },
+        { label: "Send Notification", href: "/admin/notifications", icon: Send },
       ];
 
     case "TEACHER":

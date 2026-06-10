@@ -155,6 +155,24 @@ export class AdminService {
   }
 
   /**
+   * Admin manual notification sender
+   */
+  async sendNotification(targetUserId: string, title: string, message: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!user) throw new NotFoundException("Target user not found");
+
+    return this.prisma.notificationEvent.create({
+      data: {
+        user_id: targetUserId,
+        type: "CUSTOM",
+        title,
+        message,
+        data_json: { sender: "admin_manual" }
+      }
+    });
+  }
+
+  /**
    * Get User by ID with stats
    */
   async getUserById(id: string) {

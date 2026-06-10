@@ -41,6 +41,7 @@ model User {
   password_reset_tokens PasswordResetToken[] @relation("password_reset_tokens")
   audit_logs            AuditLog[]        @relation("actor")
   notification_events   NotificationEvent[]
+  course_enrollments    CourseEnrollment[]
 
   @@index([email])
   @@index([role])
@@ -91,9 +92,11 @@ model Course {
   id              String    @id @default(cuid())
   name            String    @unique
   code            String
+  created_by      String?   // User ID of the teacher/admin who created it
   created_at      DateTime  @default(now())
 
   sections        Section[]
+  enrollments     CourseEnrollment[]
 
   @@index([code])
 }
@@ -131,6 +134,7 @@ model Topic {
   chapter_id      String
   chapter         Chapter   @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
   name            String
+  description     String?   // Brief description of the topic
   order           Int
   created_at      DateTime  @default(now())
 
@@ -301,10 +305,22 @@ model Attempt {
   responses       Response[]
 
   @@unique([user_id, test_id, attempt_no])
-  @@index([user_id])
-  @@index([test_id])
-  @@index([status])
+  @@index([user_id, status])
+  @@index([test_id, status])
   @@index([started_at])
+}
+
+model CourseEnrollment {
+  id              String    @id @default(cuid())
+  user_id         String
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  course_id       String
+  course          Course    @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  enrolled_at     DateTime  @default(now())
+
+  @@unique([user_id, course_id])
+  @@index([user_id])
+  @@index([course_id])
 }
 
 model Response {

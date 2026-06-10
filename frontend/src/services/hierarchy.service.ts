@@ -17,7 +17,27 @@ export const HierarchyService = {
     return api.post("/admin/hierarchy/chapters", data).then((r) => r.data);
   },
 
-  createTopic(data: { chapter_id: string; name: string; order: number }) {
+  createTopic(data: { chapter_id: string; name: string; description?: string; order: number }) {
     return api.post("/admin/hierarchy/topics", data).then((r) => r.data);
+  },
+
+  updateCourse(id: string, data: { name?: string; code?: string }) {
+    return api.patch(`/admin/hierarchy/courses/${id}`, data).then((r) => r.data);
+  },
+
+  enrollCourse(courseId: string) {
+    return api.post(`/admin/hierarchy/courses/${courseId}/enroll`).then((r) => r.data);
+  },
+
+  updateSection(id: string, data: { name?: string; order?: number }) {
+    return api.patch(`/admin/hierarchy/sections/${id}`, data).then((r) => r.data);
+  },
+
+  updateChapter(id: string, data: { name?: string; order?: number }) {
+    return api.patch(`/admin/hierarchy/chapters/${id}`, data).then((r) => r.data);
+  },
+
+  updateTopic(id: string, data: { name?: string; description?: string; order?: number }) {
+    return api.patch(`/admin/hierarchy/topics/${id}`, data).then((r) => r.data);
   }
 };

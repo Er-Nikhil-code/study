@@ -193,6 +193,14 @@ class AdminService {
     return res.data;
   }
 
+  async updateSystemSettings(data: any) {
+    return api.post("/admin/system/settings", data).then((r) => r.data);
+  }
+
+  async sendNotification(userId: string, title: string, message: string) {
+    return api.post("/admin/notifications", { user_id: userId, title, message }).then((r) => r.data);
+  }
+
   async getSystemStatus() {
     const res = await api.get("/admin/system-status");
     return res.data;
