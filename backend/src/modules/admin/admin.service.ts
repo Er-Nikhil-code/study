@@ -70,6 +70,7 @@ export class AdminService {
 
       if (search) {
         where.OR = [
+          { id: search },
           { email: { contains: search, mode: "insensitive" } },
           { first_name: { contains: search, mode: "insensitive" } },
           { last_name: { contains: search, mode: "insensitive" } },
@@ -157,7 +158,7 @@ export class AdminService {
   /**
    * Admin manual notification sender
    */
-  async sendNotification(targetUserId: string, title: string, message: string) {
+  async sendNotification(targetUserId: string, title: string, message: string, senderId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: targetUserId } });
     if (!user) throw new NotFoundException("Target user not found");
 
@@ -167,9 +168,40 @@ export class AdminService {
         type: "CUSTOM",
         title,
         message,
-        data_json: { sender: "admin_manual" }
+        data_json: { sender: "admin_manual", sender_id: senderId }
       }
     });
+  }
+
+  /**
+   * Get sent notifications
+   */
+  async getSentNotifications(adminId: string) {
+    const notifications = await this.prisma.notificationEvent.findMany({
+      where: {
+        type: "CUSTOM",
+        data_json: {
+          path: ["sender_id"],
+          equals: adminId
+        }
+      },
+      orderBy: { created_at: "desc" },
+      include: {
+        user: { select: { first_name: true, last_name: true, email: true } }
+      }
+    });
+    return notifications;
+  }
+
+  /**
+   * Get received notifications
+   */
+  async getReceivedNotifications(adminId: string) {
+    const notifications = await this.prisma.notificationEvent.findMany({
+      where: { user_id: adminId },
+      orderBy: { created_at: "desc" }
+    });
+    return notifications;
   }
 
   /**

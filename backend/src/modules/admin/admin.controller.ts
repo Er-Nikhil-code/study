@@ -100,7 +100,17 @@ export class AdminController {
     @Request() req: any,
     @Body() body: { user_id: string; title: string; message: string }
   ) {
-    return this.adminService.sendNotification(body.user_id, body.title, body.message);
+    return this.adminService.sendNotification(body.user_id, body.title, body.message, req.user.sub);
+  }
+
+  @Get("notifications/sent")
+  async getSentNotifications(@Request() req: any) {
+    return this.adminService.getSentNotifications(req.user.sub);
+  }
+
+  @Get("notifications/received")
+  async getReceivedNotifications(@Request() req: any) {
+    return this.adminService.getReceivedNotifications(req.user.sub);
   }
 
   /**

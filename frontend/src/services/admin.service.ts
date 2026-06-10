@@ -198,7 +198,17 @@ class AdminService {
   }
 
   async sendNotification(userId: string, title: string, message: string) {
-    return api.post("/admin/notifications", { user_id: userId, title, message }).then((r) => r.data);
+    await api.post("/admin/notifications", { user_id: userId, title, message });
+  }
+
+  async getSentNotifications() {
+    const res = await api.get("/admin/notifications/sent");
+    return res.data;
+  }
+
+  async getReceivedNotifications() {
+    const res = await api.get("/admin/notifications/received");
+    return res.data;
   }
 
   async getSystemStatus() {
