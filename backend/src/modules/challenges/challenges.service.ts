@@ -153,12 +153,12 @@ export class ChallengesService {
   async getEscalationTargets(teacherId: string) {
     const [interns, admins] = await Promise.all([
       this.prisma.user.findMany({
-        where: { assigned_teacher_id: teacherId, role: { name: "INTERN" } },
-        select: { id: true, first_name: true, last_name: true, email: true, role: { select: { name: true } } }
+        where: { assigned_teacher_id: teacherId, role: "INTERN" },
+        select: { id: true, first_name: true, last_name: true, email: true, role: true }
       }),
       this.prisma.user.findMany({
-        where: { role: { name: "ADMIN" } },
-        select: { id: true, first_name: true, last_name: true, email: true, role: { select: { name: true } } }
+        where: { role: "ADMIN" },
+        select: { id: true, first_name: true, last_name: true, email: true, role: true }
       })
     ]);
 
@@ -176,10 +176,12 @@ export class ChallengesService {
     challengeId: string,
     teacherId: string,
     data: {
-      action: "ACCEPT" | "REJECT" | "REVISE_SOLUTION" | "REVISE_ANSWER_KEY" | "ESCALATE" | "FORWARD_TO_INTERN";
+      action: "ACCEPT" | "REJECT" | "REVISE_CONTENT" | "REVISE_SOLUTION" | "REVISE_ANSWER_KEY" | "ESCALATE" | "FORWARD_TO_INTERN";
       resolution_note?: string;
       revised_answer_key?: any;
       revised_solution_json?: any;
+      revised_content_json?: any;
+      forward_to_user_id?: string;
     },
   ) {
     const challenge = await this.prisma.challenge.findUnique({
@@ -283,8 +285,8 @@ export class ChallengesService {
 
       if (!targetUser) throw new NotFoundException("Target user not found");
 
-      const isTargetAdmin = targetUser.role?.name === "ADMIN";
-      const isTargetIntern = targetUser.role?.name === "INTERN" && targetUser.assigned_teacher_id === teacherId;
+      const isTargetAdmin = targetUser.role === "ADMIN";
+      const isTargetIntern = targetUser.role === "INTERN" && targetUser.assigned_teacher_id === teacherId;
 
       if (!isTargetAdmin && !isTargetIntern) {
         throw new ForbiddenException("Can only escalate to Admins or your assigned Interns");
