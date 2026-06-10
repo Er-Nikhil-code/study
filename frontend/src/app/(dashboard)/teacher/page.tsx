@@ -114,7 +114,7 @@ export default function TeacherHomePage() {
       {/* Activity Graph */}
       {data?.activity_graph && (
         <div className="mt-6">
-          <ActivityGraph mixedData={data.activity_graph} theme="mixed" />
+          <ActivityGraph mixedData={data.activity_graph} theme="mixed" userName={`${user?.first_name || ""} ${user?.last_name || ""}`.trim() || user?.email} />
         </div>
       )}
 

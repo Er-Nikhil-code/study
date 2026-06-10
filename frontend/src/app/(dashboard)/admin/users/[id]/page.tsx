@@ -249,7 +249,7 @@ export default function AdminUserProfilePage() {
 
                   <div>
                     <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">365-Day Activity Graph</h4>
-                    <ActivityGraph data={user.activity_graph || []} />
+                    <ActivityGraph data={user.activity_graph || []} userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
                   </div>
                 </Panel>
               </>
@@ -275,7 +275,7 @@ export default function AdminUserProfilePage() {
                   <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">Teacher Contributions</h3>
                   <div>
                     <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">365-Day Activity Graph</h4>
-                    <ActivityGraph mixedData={mixedData} theme="mixed" />
+                    <ActivityGraph mixedData={mixedData} theme="mixed" userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
                   </div>
                 </Panel>
               );
@@ -286,7 +286,7 @@ export default function AdminUserProfilePage() {
                 <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider mb-4 border-b border-emerald-500/10 pb-2">Student Activity</h3>
                 <div>
                   <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">Test Attempts (Last 365 Days)</h4>
-                  <ActivityGraph data={user.activity_graph || []} theme="emerald" />
+                  <ActivityGraph data={user.activity_graph || []} theme="emerald" userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
                 </div>
               </Panel>
             )}

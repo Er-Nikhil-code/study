@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 interface ActivityGraphProps {
   data?: { date: string; count: number }[];
   mixedData?: { date: string; blueCount: number; emeraldCount: number }[];
   theme?: 'emerald' | 'blue' | 'mixed';
+  userName?: string;
 }
 
 // Helper to format Date as "YYYY-MM-DD" in IST
@@ -21,9 +22,9 @@ const getISTDateString = (d: Date) => {
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-export default function ActivityGraph({ data = [], mixedData = [], theme = 'emerald' }: ActivityGraphProps) {
+export default function ActivityGraph({ data = [], mixedData = [], theme = 'emerald', userName }: ActivityGraphProps) {
   // Generate last 365 days in IST
-  const { days, months } = useMemo(() => {
+  const days = useMemo(() => {
     const todayLocal = new Date();
     // Start by finding today in IST
     const utcToday = todayLocal.getTime() + (todayLocal.getTimezoneOffset() * 60000);
@@ -38,22 +39,9 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
     mixedData.forEach(d => mixedMap.set(d.date, { blueCount: d.blueCount, emeraldCount: d.emeraldCount }));
 
     const result = [];
-    const monthLabels: { label: string; colIndex: number }[] = [];
-    let currentMonth = -1;
-    let colIndex = 0;
-
-    // We'll pad the beginning of the first week so it starts on Sunday
-    const startDay = lastYearIST.getDay();
-    let currentWeekLen = startDay;
 
     for (let d = new Date(lastYearIST); d <= todayIST; d.setDate(d.getDate() + 1)) {
-      const { dateStr, monthObj } = getISTDateString(d);
-      
-      // If it's a new month and it's near the start of the week, or the very first item, track the month
-      if (monthObj !== currentMonth) {
-        monthLabels.push({ label: MONTH_NAMES[monthObj], colIndex });
-        currentMonth = monthObj;
-      }
+      const { dateStr } = getISTDateString(d);
 
       if (theme === 'mixed') {
         const m = mixedMap.get(dateStr) || { blueCount: 0, emeraldCount: 0 };
@@ -71,42 +59,54 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
           emeraldCount: 0,
         });
       }
-
-      currentWeekLen++;
-      if (currentWeekLen === 7) {
-        currentWeekLen = 0;
-        colIndex++;
-      }
     }
-    return { days: result, months: monthLabels };
+    return result;
   }, [data, mixedData, theme]);
 
-  // Group into weeks for the CSS grid
-  const weeks = useMemo(() => {
-    const wks = [];
+  // Group into months, then weeks
+  const monthBlocks = useMemo(() => {
+    const blocks: { monthLabel: string; weeks: (any | null)[][] }[] = [];
+    let currentMonthStr = "";
+    let currentWeeks: (any | null)[][] = [];
     let currentWeek: (any | null)[] = [];
-    
-    // Pad the first week to start on Sunday
-    const startDay = new Date(days[0].date).getDay();
-    for (let i = 0; i < startDay; i++) {
-      currentWeek.push(null);
-    }
 
-    days.forEach(day => {
+    days.forEach((day) => {
+      const d = new Date(day.date);
+      const mStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      
+      if (mStr !== currentMonthStr) {
+        if (currentWeek.length > 0) {
+          while (currentWeek.length < 7) currentWeek.push(null);
+          currentWeeks.push(currentWeek);
+        }
+        if (currentMonthStr !== "") {
+          const monthIndex = parseInt(currentMonthStr.split('-')[1], 10) - 1;
+          blocks.push({ monthLabel: MONTH_NAMES[monthIndex], weeks: currentWeeks });
+        }
+        currentMonthStr = mStr;
+        currentWeeks = [];
+        currentWeek = [];
+        const startDay = d.getDay();
+        for (let i = 0; i < startDay; i++) currentWeek.push(null);
+      }
+
       currentWeek.push(day);
       if (currentWeek.length === 7) {
-        wks.push(currentWeek);
+        currentWeeks.push(currentWeek);
         currentWeek = [];
       }
     });
 
     if (currentWeek.length > 0) {
-      while (currentWeek.length < 7) {
-        currentWeek.push(null);
-      }
-      wks.push(currentWeek);
+      while (currentWeek.length < 7) currentWeek.push(null);
+      currentWeeks.push(currentWeek);
     }
-    return wks;
+    if (currentMonthStr !== "") {
+      const monthIndex = parseInt(currentMonthStr.split('-')[1], 10) - 1;
+      blocks.push({ monthLabel: MONTH_NAMES[monthIndex], weeks: currentWeeks });
+    }
+
+    return blocks;
   }, [days]);
 
   // Determine color intensity based on count
@@ -142,15 +142,29 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
     }
   };
 
+  const [hoveredDay, setHoveredDay] = useState<any | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+
+  const handleMouseEnter = (e: React.MouseEvent, day: any) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top - 8 });
+    setHoveredDay(day);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredDay(null);
+  };
+
   const getTooltip = (day: any) => {
+    const prefix = userName ? `${userName}: ` : "";
     if (theme === 'mixed') {
       const parts = [];
       if (day.blueCount > 0) parts.push(`${day.blueCount} tests`);
       if (day.emeraldCount > 0) parts.push(`${day.emeraldCount} questions`);
-      if (parts.length === 0) return `0 activities on ${day.date}`;
-      return `${parts.join(' and ')} on ${day.date}`;
+      if (parts.length === 0) return `${prefix}0 activities on ${day.date}`;
+      return `${prefix}${parts.join(' and ')} on ${day.date}`;
     }
-    return `${day.count} activities on ${day.date}`;
+    return `${prefix}${day.count} activities on ${day.date}`;
   };
 
   return (
@@ -158,46 +172,46 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
       <div className="min-w-max flex gap-2">
         {/* Day Labels */}
         <div className="flex flex-col gap-1 text-[10px] text-zinc-500 mt-5 pt-[2px]">
-          <div className="h-3 leading-[12px]"></div>
-          <div className="h-3 leading-[12px]">Mon</div>
-          <div className="h-3 leading-[12px]"></div>
-          <div className="h-3 leading-[12px]">Wed</div>
-          <div className="h-3 leading-[12px]"></div>
-          <div className="h-3 leading-[12px]">Fri</div>
-          <div className="h-3 leading-[12px]"></div>
+          <div className="h-4 leading-[16px]"></div>
+          <div className="h-4 leading-[16px]">Mon</div>
+          <div className="h-4 leading-[16px]"></div>
+          <div className="h-4 leading-[16px]">Wed</div>
+          <div className="h-4 leading-[16px]"></div>
+          <div className="h-4 leading-[16px]">Fri</div>
+          <div className="h-4 leading-[16px]"></div>
         </div>
 
-        <div>
-          {/* Months Row */}
-          <div className="flex text-[10px] text-zinc-500 mb-1 relative h-4">
-            {months.map((m, i) => (
-              <div 
-                key={i} 
-                className="absolute top-0" 
-                style={{ left: `${m.colIndex * 16}px` }} // 12px width + 4px gap = 16px per column
-              >
-                {m.label}
+        <div className="flex gap-4">
+          {monthBlocks.map((block, bIndex) => (
+            <div key={bIndex} className="flex flex-col">
+              {/* Month Label */}
+              <div className="text-[10px] text-zinc-500 mb-1 h-4 pl-1">
+                {block.monthLabel}
               </div>
-            ))}
-          </div>
-          
-          {/* Graph Grid */}
-          <div className="flex gap-1">
-            {weeks.map((week, wIndex) => (
-              <div key={wIndex} className="flex flex-col gap-1 w-3">
-                {week.map((day, dIndex) => {
-                  if (!day) return <div key={dIndex} className="w-3 h-3 rounded-sm opacity-0" />;
-                  return (
-                    <div
-                      key={day.date}
-                      title={getTooltip(day)}
-                      className={`w-3 h-3 rounded-sm transition-all hover:scale-125 hover:ring-1 hover:ring-white/50 cursor-pointer ${getColor(day)}`}
-                    />
-                  );
-                })}
+              
+              {/* Graph Grid for this month */}
+              <div className="flex gap-1">
+                {block.weeks.map((week, wIndex) => (
+                  <div key={wIndex} className="flex flex-col gap-1 w-4">
+                    {week.map((day, dIndex) => {
+                      if (!day) return <div key={dIndex} className="w-4 h-4 rounded-sm opacity-0" />;
+                      const dayNum = parseInt(day.date.split('-')[2], 10);
+                      return (
+                        <div
+                          key={day.date}
+                          onMouseEnter={(e) => handleMouseEnter(e, day)}
+                          onMouseLeave={handleMouseLeave}
+                          className={`group w-4 h-4 rounded-sm transition-all hover:scale-125 hover:ring-1 hover:ring-white/50 cursor-pointer flex items-center justify-center ${getColor(day)}`}
+                        >
+                          <span className="text-[8px] font-medium opacity-60 group-hover:opacity-100 mix-blend-plus-lighter">{dayNum}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
       
@@ -206,15 +220,15 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
         {theme === 'mixed' ? (
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-sm bg-blue-500 border border-blue-400" />
+              <div className="w-4 h-4 rounded-sm bg-blue-500 border border-blue-400" />
               <span>Tests</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-sm bg-emerald-500 border border-emerald-400" />
+              <div className="w-4 h-4 rounded-sm bg-emerald-500 border border-emerald-400" />
               <span>Questions</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-sm bg-gradient-to-br from-blue-500 to-emerald-500 border border-emerald-400/50" />
+              <div className="w-4 h-4 rounded-sm bg-gradient-to-br from-blue-500 to-emerald-500 border border-emerald-400/50" />
               <span>Both</span>
             </div>
           </div>
@@ -222,16 +236,30 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
           <div className="flex items-center gap-1.5">
             <span>Less</span>
             <div className="flex gap-1">
-              <div className="w-3 h-3 rounded-sm bg-white/5 border border-white/5" />
-              <div className={`w-3 h-3 rounded-sm ${theme === 'blue' ? 'bg-blue-900 border-blue-800' : 'bg-emerald-900 border-emerald-800'} border`} />
-              <div className={`w-3 h-3 rounded-sm ${theme === 'blue' ? 'bg-blue-700 border-blue-600' : 'bg-emerald-700 border-emerald-600'} border`} />
-              <div className={`w-3 h-3 rounded-sm ${theme === 'blue' ? 'bg-blue-500 border-blue-400' : 'bg-emerald-500 border-emerald-400'} border`} />
-              <div className={`w-3 h-3 rounded-sm ${theme === 'blue' ? 'bg-blue-400 border-blue-300' : 'bg-emerald-400 border-emerald-300'} border`} />
+              <div className="w-4 h-4 rounded-sm bg-white/5 border border-white/5" />
+              <div className={`w-4 h-4 rounded-sm ${theme === 'blue' ? 'bg-blue-900 border-blue-800' : 'bg-emerald-900 border-emerald-800'} border`} />
+              <div className={`w-4 h-4 rounded-sm ${theme === 'blue' ? 'bg-blue-700 border-blue-600' : 'bg-emerald-700 border-emerald-600'} border`} />
+              <div className={`w-4 h-4 rounded-sm ${theme === 'blue' ? 'bg-blue-500 border-blue-400' : 'bg-emerald-500 border-emerald-400'} border`} />
+              <div className={`w-4 h-4 rounded-sm ${theme === 'blue' ? 'bg-blue-400 border-blue-300' : 'bg-emerald-400 border-emerald-300'} border`} />
             </div>
             <span>More</span>
           </div>
         )}
       </div>
+
+      {/* Floating Tooltip */}
+      {hoveredDay && (
+        <div 
+          className="fixed z-50 pointer-events-none px-3 py-2 text-xs font-medium text-white bg-zinc-800 border border-white/10 rounded shadow-xl whitespace-nowrap"
+          style={{ 
+            left: `${tooltipPos.x}px`, 
+            top: `${tooltipPos.y}px`,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          {getTooltip(hoveredDay)}
+        </div>
+      )}
     </div>
   );
 }
