@@ -7,6 +7,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import studentService from "@/services/student.service";
 import { useAuthStore } from "@/store/auth.store";
 import { Users, FileQuestion, ClipboardCheck, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import ActivityGraph from "@/components/ui/ActivityGraph";
 
 const CHALLENGE_STATUS_STYLES: Record<string, string> = {
   PENDING: "border-red-500/20 bg-red-500/10 text-red-300",
@@ -109,6 +110,13 @@ export default function TeacherHomePage() {
           <p className="mt-1 text-xs text-zinc-500">Challenge resolution</p>
         </Panel>
       </div>
+
+      {/* Activity Graph */}
+      {data?.activity_graph && (
+        <div className="mt-6">
+          <ActivityGraph mixedData={data.activity_graph} theme="mixed" />
+        </div>
+      )}
 
       {/* Two-column: Recent Challenges + Recent Reviews */}
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
