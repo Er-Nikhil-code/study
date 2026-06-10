@@ -236,7 +236,7 @@ export default function AdminUsersPage() {
                 className={`grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 px-5 py-4 text-sm items-center ${!user.is_active ? 'opacity-50 grayscale' : ''}`}
               >
                 <div className="truncate text-white flex items-center gap-2">
-                  <a href={`/admin/users/${user.id}`} target="_blank" rel="noopener noreferrer" className="hover:text-red-400 hover:underline transition">
+                  <a href={`/admin/users/${user.id}`} className="hover:text-red-400 hover:underline transition">
                     {user.first_name || "—"} {user.last_name || ""}
                   </a>
                   {!user.is_active && (

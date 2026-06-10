@@ -65,8 +65,10 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     case "INTERN": {
       const items: NavItem[] = [
         { label: "Dashboard", href: "/intern/dashboard", icon: LayoutDashboard },
+        { label: "My Questions", href: "/intern/questions", icon: BookOpen },
+        { label: "Create Questions", href: "/teacher/questions/create", icon: FilePlus2 },
+        { label: "Question Statistics", href: "/intern/statistics", icon: BarChart2 },
         { label: "My Earnings", href: "/intern/earnings", icon: Wallet },
-        { label: "Create Questions", href: "/intern/questions/create", icon: FilePlus2 }
       ];
       if (hasPerm("CREATE_NOTES")) {
         items.push({ label: "Create Notes", href: "/intern/notes/create", icon: FileEdit });

@@ -341,6 +341,12 @@ export class AuthService {
         user.role,
       );
 
+      // Update last_login_at
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { last_login_at: new Date() }
+      });
+
       // Log to audit
       await this.logAudit(user.id, "user_login", "user", user.id, null, null);
 

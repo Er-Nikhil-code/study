@@ -175,6 +175,8 @@ export class AdminService {
       const approvedCount = await this.prisma.question.count({
         where: { created_by: id, approval_status: "APPROVED" },
       });
+
+      // Calculate earnings
       let earnings = 0;
       let remaining = approvedCount;
       let batch = Math.min(remaining, 300);
@@ -189,7 +191,35 @@ export class AdminService {
           if (remaining > 0) currentReward++;
         }
       }
-      extraStats = { approved_questions: approvedCount, calculated_earnings: earnings };
+
+      // Generate activity graph (last 365 days)
+      const oneYearAgo = new Date();
+      oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+      
+      const questionsData = await this.prisma.question.findMany({
+        where: { 
+          created_by: id,
+          created_at: { gte: oneYearAgo }
+        },
+        select: { created_at: true }
+      });
+
+      const dateMap: Record<string, number> = {};
+      questionsData.forEach(q => {
+        const dateStr = q.created_at.toISOString().split('T')[0];
+        dateMap[dateStr] = (dateMap[dateStr] || 0) + 1;
+      });
+
+      const activity_graph = Object.keys(dateMap).map(date => ({
+        date,
+        count: dateMap[date]
+      }));
+
+      extraStats = { 
+        approved_questions: approvedCount, 
+        calculated_earnings: earnings,
+        activity_graph
+      };
     }
 
     const { password_hash, ...safeUser } = user as any;
