@@ -51,6 +51,15 @@ export class AdminController {
   }
 
   /**
+   * GET /api/admin/users/:id
+   * Get detailed profile of a user
+   */
+  @Get("users/:id")
+  async getUserById(@Param("id") id: string) {
+    return this.adminService.getUserById(id);
+  }
+
+  /**
    * PATCH /api/admin/users/:id
    * Update user role or details
    */

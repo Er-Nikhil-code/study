@@ -496,5 +496,58 @@ export class StudentService {
       recent_questions: recentQuestions,
     };
   }
+
+  /* ════════════════════════════════════════════
+   *  INTERN EARNINGS & GAMIFICATION
+   * ════════════════════════════════════════════ */
+  async getInternEarnings(userId: string) {
+    // Count total approved questions for this intern
+    const approvedCount = await this.prisma.question.count({
+      where: {
+        created_by: userId,
+        approval_status: "APPROVED",
+      },
+    });
+
+    // Calculate level and earnings
+    let earnings = 0;
+    let level = 1;
+    let remaining = approvedCount;
+
+    // Level 1: 0 - 300 questions (₹3)
+    let batch = Math.min(remaining, 300);
+    earnings += batch * 3;
+    remaining -= batch;
+
+    let progressToNextLevel = batch;
+    let maxForCurrentLevel = 300;
+
+    if (remaining > 0) {
+      level = 2;
+      let currentReward = 4;
+      
+      while (remaining > 0) {
+        batch = Math.min(remaining, 500);
+        earnings += batch * currentReward;
+        remaining -= batch;
+        
+        progressToNextLevel = batch;
+        maxForCurrentLevel = 500;
+
+        if (remaining > 0) {
+          level++;
+          currentReward++;
+        }
+      }
+    }
+
+    return {
+      totalApprovedQuestions: approvedCount,
+      currentLevel: level,
+      totalEarnings: earnings,
+      progress: progressToNextLevel,
+      levelMax: maxForCurrentLevel,
+    };
+  }
 }
 

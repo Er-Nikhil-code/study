@@ -154,6 +154,49 @@ export class AdminService {
   }
 
   /**
+   * Get User by ID with stats
+   */
+  async getUserById(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        custom_role: true,
+        assigned_teacher: { select: { id: true, first_name: true, last_name: true, email: true } },
+        user_stats: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" not found`);
+    }
+
+    let extraStats: any = {};
+    if (user.role === "INTERN") {
+      const approvedCount = await this.prisma.question.count({
+        where: { created_by: id, approval_status: "APPROVED" },
+      });
+      let earnings = 0;
+      let remaining = approvedCount;
+      let batch = Math.min(remaining, 300);
+      earnings += batch * 3;
+      remaining -= batch;
+      if (remaining > 0) {
+        let currentReward = 4;
+        while (remaining > 0) {
+          batch = Math.min(remaining, 500);
+          earnings += batch * currentReward;
+          remaining -= batch;
+          if (remaining > 0) currentReward++;
+        }
+      }
+      extraStats = { approved_questions: approvedCount, calculated_earnings: earnings };
+    }
+
+    const { password_hash, ...safeUser } = user as any;
+    return { ...safeUser, ...extraStats };
+  }
+
+  /**
    * Delete user
    */
   async deleteUser(id: string) {

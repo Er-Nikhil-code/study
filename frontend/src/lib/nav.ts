@@ -22,6 +22,8 @@ import {
   BookOpen,
   Shield,
   Trophy,
+  Wallet,
+  FilePlus2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -61,13 +63,16 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
       ];
 
     case "INTERN": {
-      return [
+      const items: NavItem[] = [
         { label: "Dashboard", href: "/intern/dashboard", icon: LayoutDashboard },
-        { label: "My Questions", href: "/intern/questions", icon: BookOpen },
-        { label: "Create Question", href: "/teacher/questions/create", icon: PlusCircle },
-        { label: "Question Statistics", href: "/intern/statistics", icon: BarChart2 },
-        { label: "Notifications", href: "/notifications", icon: Bell },
+        { label: "My Earnings", href: "/intern/earnings", icon: Wallet },
+        { label: "Create Questions", href: "/intern/questions/create", icon: FilePlus2 }
       ];
+      if (hasPerm("CREATE_NOTES")) {
+        items.push({ label: "Create Notes", href: "/intern/notes/create", icon: FileEdit });
+      }
+      items.push({ label: "Notifications", href: "/notifications", icon: Bell });
+      return items;
     }
 
     case "STUDENT":
