@@ -34,7 +34,12 @@ export class AuthService {
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { custom_role: true },
+      include: { 
+        custom_role: true,
+        course_enrollments: {
+          include: { course: true }
+        }
+      },
     });
 
     if (!user) {
@@ -53,10 +58,20 @@ export class AuthService {
       }),
     ]);
 
-    const { password_hash, ...userWithoutPassword } = user;
+    const { password_hash, course_enrollments, ...userWithoutPassword } = user;
+    
+    // Map the actual enrolled course name to the legacy string field for frontend compatibility
+    let courseEnrolledStr = userWithoutPassword.course_enrolled;
+    if (course_enrollments && course_enrollments.length > 0) {
+      // If enrolled in multiple, just show the first one or join them. We'll show the first one.
+      courseEnrolledStr = course_enrollments.map(e => e.course.name).join(", ");
+    }
 
     return {
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        course_enrolled: courseEnrolledStr,
+      },
       accessToken,
       refreshToken,
     };
