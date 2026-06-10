@@ -49,4 +49,8 @@ export const QuestionsService = {
   reject(id: string, note: string) {
     return api.post(`/admin/questions/${id}/reject`, { note }).then((r) => r.data);
   },
+
+  escalate(id: string) {
+    return api.patch(`/admin/questions/${id}/escalate`).then((r) => r.data);
+  },
 };

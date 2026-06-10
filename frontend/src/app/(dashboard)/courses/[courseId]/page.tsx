@@ -5,11 +5,14 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import Panel from "@/components/ui/Panel";
 import { HierarchyService } from "@/services/hierarchy.service";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, FileText, BookOpen } from "lucide-react";
+import { ChevronDown, ChevronRight, FileText, BookOpen, ChevronLeft } from "lucide-react";
+import CourseLeaderboard from "@/components/ui/CourseLeaderboard";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function CourseDetailPage({ params }: { params: Promise<{ courseId: string }> }) {
   const unwrappedParams = use(params);
   const { courseId } = unwrappedParams;
+  const user = useAuthStore((s) => s.user);
   
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -117,6 +120,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               </Panel>
             )}
           </div>
+
+          {(user?.role === "ADMIN" || user?.role === "STUDENT") && (
+            <CourseLeaderboard courseId={courseId} />
+          )}
         </>
       )}
     </>

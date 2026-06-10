@@ -151,10 +151,14 @@ export class QuestionsController {
       throw new ForbiddenException("You can only restore your own question versions");
     }
 
-    return this.questionsService.restoreQuestionVersion(
-      id,
-      parseInt(version, 10),
-    );
+    const versionNum = parseInt(version, 10);
+    return this.questionsService.restoreQuestionVersion(id, versionNum);
+  }
+
+  @Patch(":id/escalate")
+  @Roles("TEACHER")
+  async escalateQuestion(@Param("id") id: string, @Req() req: any) {
+    return this.questionsService.escalateQuestion(id, req.user.id || req.user.sub);
   }
 
   /* ── Approval workflow ── */

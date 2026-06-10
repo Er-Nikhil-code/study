@@ -237,12 +237,13 @@ export class StudentService {
   async getLeaderboard(
     period: "weekly" | "monthly" | "global",
     take: number = 50,
-    requestingRole: string = "STUDENT"
+    requestingRole: string = "STUDENT",
+    courseId?: string
   ) {
     const targetRole = requestingRole === "INTERN" ? "INTERN" : "STUDENT";
 
     if (period === "global") {
-      return this.getGlobalLeaderboard(take, targetRole);
+      return this.getGlobalLeaderboard(take, targetRole, courseId);
     }
 
     const now = new Date();
@@ -254,12 +255,17 @@ export class StudentService {
     }
 
     // Aggregate scores from attempts in the period
+    const whereClause: any = {
+      status: "SCORED",
+      submitted_at: { gte: startDate },
+      user: { role: targetRole as any },
+    };
+    if (courseId) {
+      whereClause.user.course_enrolled = courseId;
+    }
+
     const attempts = await this.prisma.attempt.findMany({
-      where: {
-        status: "SCORED",
-        submitted_at: { gte: startDate },
-        user: { role: targetRole as any }
-      },
+      where: whereClause,
       select: {
         user_id: true,
         score: true,
@@ -314,11 +320,16 @@ export class StudentService {
     return { period, data: rows };
   }
 
-  private async getGlobalLeaderboard(take: number, targetRole: string) {
+  private async getGlobalLeaderboard(take: number, targetRole: string, courseId?: string) {
+    const whereClause: any = {
+      user: { role: targetRole as any }
+    };
+    if (courseId) {
+      whereClause.user.course_enrolled = courseId;
+    }
+
     const users = await this.prisma.userStats.findMany({
-      where: {
-        user: { role: targetRole as any }
-      },
+      where: whereClause,
       orderBy: { total_score: "desc" },
       take,
       include: {

@@ -466,6 +466,7 @@ enum QuestionApprovalStatus {
   APPROVED
   REJECTED
   NEEDS_REVISION
+  ESCALATED
 }
 
 

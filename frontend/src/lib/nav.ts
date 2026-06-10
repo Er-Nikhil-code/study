@@ -46,16 +46,14 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
         { label: "Users & Roles", href: "/admin/users", icon: Users },
         { label: "Custom Roles", href: "/admin/roles", icon: Shield },
         { label: "Question Bank", href: "/admin/questions", icon: FileQuestion },
-        { label: "Challenges", href: "/admin/challenges", icon: ShieldAlert },
         { label: "System Status", href: "/admin/system", icon: Activity },
-        // Expanded Capabilities
         { label: "Courses", href: "/courses", icon: BookOpen },
-        { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
         { label: "Curriculum", href: "/teacher/hierarchy", icon: Network },
         { label: "Review Notes", href: "/teacher/notes/review", icon: FileEdit },
         { label: "Manage Tests", href: "/teacher/tests", icon: FileText },
-        { label: "Submit Question", href: "/intern/questions/create", icon: FilePlus2 },
+        { label: "Create Question", href: "/teacher/questions/create", icon: FilePlus2 },
         { label: "Notifications", href: "/notifications", icon: Bell },
+        { label: "Notes", href: "/intern/notes/create", icon: FileEdit },
       ];
 
     case "TEACHER":

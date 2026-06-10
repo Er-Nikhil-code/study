@@ -6,11 +6,30 @@ interface ActivityGraphProps {
   theme?: 'emerald' | 'blue' | 'mixed';
 }
 
+// Helper to format Date as "YYYY-MM-DD" in IST
+const getISTDateString = (d: Date) => {
+  // Add 5 hours and 30 minutes to UTC to get IST
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  const ist = new Date(utc + (3600000 * 5.5));
+  
+  const year = ist.getFullYear();
+  const month = String(ist.getMonth() + 1).padStart(2, '0');
+  const day = String(ist.getDate()).padStart(2, '0');
+  
+  return { dateStr: `${year}-${month}-${day}`, monthObj: ist.getMonth(), yearObj: ist.getFullYear() };
+};
+
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 export default function ActivityGraph({ data = [], mixedData = [], theme = 'emerald' }: ActivityGraphProps) {
-  // Generate last 365 days
-  const days = useMemo(() => {
-    const today = new Date();
-    const lastYear = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 364);
+  // Generate last 365 days in IST
+  const { days, months } = useMemo(() => {
+    const todayLocal = new Date();
+    // Start by finding today in IST
+    const utcToday = todayLocal.getTime() + (todayLocal.getTimezoneOffset() * 60000);
+    const todayIST = new Date(utcToday + (3600000 * 5.5));
+    
+    const lastYearIST = new Date(todayIST.getFullYear(), todayIST.getMonth(), todayIST.getDate() - 364);
     
     const dataMap = new Map<string, number>();
     data.forEach(d => dataMap.set(d.date, d.count));
@@ -19,13 +38,28 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
     mixedData.forEach(d => mixedMap.set(d.date, { blueCount: d.blueCount, emeraldCount: d.emeraldCount }));
 
     const result = [];
-    for (let d = new Date(lastYear); d <= today; d.setDate(d.getDate() + 1)) {
-      const dateStr = d.toISOString().split('T')[0];
+    const monthLabels: { label: string; colIndex: number }[] = [];
+    let currentMonth = -1;
+    let colIndex = 0;
+
+    // We'll pad the beginning of the first week so it starts on Sunday
+    const startDay = lastYearIST.getDay();
+    let currentWeekLen = startDay;
+
+    for (let d = new Date(lastYearIST); d <= todayIST; d.setDate(d.getDate() + 1)) {
+      const { dateStr, monthObj } = getISTDateString(d);
+      
+      // If it's a new month and it's near the start of the week, or the very first item, track the month
+      if (monthObj !== currentMonth) {
+        monthLabels.push({ label: MONTH_NAMES[monthObj], colIndex });
+        currentMonth = monthObj;
+      }
+
       if (theme === 'mixed') {
         const m = mixedMap.get(dateStr) || { blueCount: 0, emeraldCount: 0 };
         result.push({
           date: dateStr,
-          count: m.blueCount + m.emeraldCount, // dummy for compatibility
+          count: m.blueCount + m.emeraldCount,
           blueCount: m.blueCount,
           emeraldCount: m.emeraldCount,
         });
@@ -37,9 +71,43 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
           emeraldCount: 0,
         });
       }
+
+      currentWeekLen++;
+      if (currentWeekLen === 7) {
+        currentWeekLen = 0;
+        colIndex++;
+      }
     }
-    return result;
+    return { days: result, months: monthLabels };
   }, [data, mixedData, theme]);
+
+  // Group into weeks for the CSS grid
+  const weeks = useMemo(() => {
+    const wks = [];
+    let currentWeek: (any | null)[] = [];
+    
+    // Pad the first week to start on Sunday
+    const startDay = new Date(days[0].date).getDay();
+    for (let i = 0; i < startDay; i++) {
+      currentWeek.push(null);
+    }
+
+    days.forEach(day => {
+      currentWeek.push(day);
+      if (currentWeek.length === 7) {
+        wks.push(currentWeek);
+        currentWeek = [];
+      }
+    });
+
+    if (currentWeek.length > 0) {
+      while (currentWeek.length < 7) {
+        currentWeek.push(null);
+      }
+      wks.push(currentWeek);
+    }
+    return wks;
+  }, [days]);
 
   // Determine color intensity based on count
   const getColor = (day: any) => {
@@ -85,53 +153,42 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
     return `${day.count} activities on ${day.date}`;
   };
 
-  // Group into weeks for the CSS grid
-  // A standard Github graph has 52 weeks (columns) and 7 days (rows)
-  const weeks = useMemo(() => {
-    const wks = [];
-    let currentWeek: (any | null)[] = [];
-    
-    // Pad the first week to start on Sunday
-    const startDay = new Date(days[0].date).getDay();
-    for (let i = 0; i < startDay; i++) {
-      currentWeek.push(null);
-    }
-
-    days.forEach(day => {
-      currentWeek.push(day);
-      if (currentWeek.length === 7) {
-        wks.push(currentWeek);
-        currentWeek = [];
-      }
-    });
-
-    if (currentWeek.length > 0) {
-      while (currentWeek.length < 7) {
-        currentWeek.push(null);
-      }
-      wks.push(currentWeek);
-    }
-    return wks;
-  }, [days]);
-
   return (
     <div className="w-full overflow-x-auto pb-4 hide-scrollbar">
-      <div className="flex gap-1 min-w-max">
-        {weeks.map((week, wIndex) => (
-          <div key={wIndex} className="flex flex-col gap-1">
-            {week.map((day, dIndex) => {
-              if (!day) return <div key={dIndex} className="w-3 h-3 rounded-sm opacity-0" />;
-              return (
-                <div
-                  key={day.date}
-                  title={getTooltip(day)}
-                  className={`w-3 h-3 rounded-sm transition-all hover:scale-125 hover:ring-1 hover:ring-white/50 cursor-pointer ${getColor(day)}`}
-                />
-              );
-            })}
-          </div>
-        ))}
+      <div className="min-w-max">
+        {/* Months Row */}
+        <div className="flex text-[10px] text-zinc-500 mb-1 relative h-4">
+          {months.map((m, i) => (
+            <div 
+              key={i} 
+              className="absolute top-0" 
+              style={{ left: `${m.colIndex * 16}px` }} // 12px width + 4px gap = 16px per column
+            >
+              {m.label}
+            </div>
+          ))}
+        </div>
+        
+        {/* Graph Grid */}
+        <div className="flex gap-1">
+          {weeks.map((week, wIndex) => (
+            <div key={wIndex} className="flex flex-col gap-1 w-3">
+              {week.map((day, dIndex) => {
+                if (!day) return <div key={dIndex} className="w-3 h-3 rounded-sm opacity-0" />;
+                return (
+                  <div
+                    key={day.date}
+                    title={getTooltip(day)}
+                    className={`w-3 h-3 rounded-sm transition-all hover:scale-125 hover:ring-1 hover:ring-white/50 cursor-pointer ${getColor(day)}`}
+                  />
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
+      
+      {/* Legend */}
       <div className="mt-4 flex items-center justify-end gap-2 text-xs text-zinc-500">
         {theme === 'mixed' ? (
           <div className="flex items-center gap-3">
@@ -149,7 +206,7 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
             </div>
           </div>
         ) : (
-          <>
+          <div className="flex items-center gap-1.5">
             <span>Less</span>
             <div className="flex gap-1">
               <div className="w-3 h-3 rounded-sm bg-white/5 border border-white/5" />
@@ -159,7 +216,7 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
               <div className={`w-3 h-3 rounded-sm ${theme === 'blue' ? 'bg-blue-400 border-blue-300' : 'bg-emerald-400 border-emerald-300'} border`} />
             </div>
             <span>More</span>
-          </>
+          </div>
         )}
       </div>
     </div>

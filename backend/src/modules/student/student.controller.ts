@@ -38,11 +38,12 @@ export class StudentController {
     @Request() req: any,
     @Query("period") period?: string,
     @Query("take") take?: string,
+    @Query("course_id") courseId?: string,
   ) {
     const p = (period === "weekly" || period === "monthly" || period === "global")
       ? period
       : "weekly";
-    return this.studentService.getLeaderboard(p, take ? parseInt(take, 10) : 50, req.user.role);
+    return this.studentService.getLeaderboard(p, take ? parseInt(take, 10) : 50, req.user.role, courseId);
   }
 
   @Get("test-series")

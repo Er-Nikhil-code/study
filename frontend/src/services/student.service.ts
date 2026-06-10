@@ -253,9 +253,10 @@ class StudentApiService {
   /* Leaderboard */
   async getLeaderboard(
     period: "weekly" | "monthly" | "global" = "weekly",
+    courseId?: string
   ): Promise<{ period: string; data: LeaderboardRow[] }> {
     const res = await api.get("/student/leaderboard", {
-      params: { period },
+      params: { period, ...(courseId && { course_id: courseId }) },
     });
     return res.data;
   }

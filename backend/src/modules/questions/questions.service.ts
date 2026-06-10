@@ -223,6 +223,23 @@ export class QuestionsService {
     });
   }
 
+  async escalateQuestion(questionId: string, teacherId: string) {
+    const question = await this.prisma.question.findUnique({ where: { id: questionId } });
+    if (!question) throw new NotFoundException("Question not found");
+    if (question.approval_status !== "PENDING_REVIEW") {
+      throw new BadRequestException("Only pending questions can be escalated");
+    }
+
+    this.logger.log(`⚠️ [QUESTIONS] Question ${questionId} escalated by teacher ${teacherId}`);
+
+    return this.prisma.question.update({
+      where: { id: questionId },
+      data: {
+        approval_status: "ESCALATED",
+      },
+    });
+  }
+
   /**
    * Find all questions with filters and pagination
    */

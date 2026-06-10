@@ -58,6 +58,20 @@ export default function ReviewQuestionsPage() {
     }
   };
 
+  const handleEscalate = async () => {
+    if (!reviewQ) return;
+    setActionLoading(true);
+    try {
+      await QuestionsService.escalate(reviewQ.id);
+      setReviewQ(null);
+      fetchPending();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to escalate question");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleReject = async () => {
     if (!reviewQ || !rejectNote.trim()) return;
     setActionLoading(true);
@@ -185,6 +199,10 @@ export default function ReviewQuestionsPage() {
                 Cancel
               </button>
               <div className="flex gap-3">
+                <button onClick={handleEscalate} disabled={actionLoading}
+                  className="rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/20 disabled:opacity-50">
+                  {actionLoading ? "Processing…" : "Escalate to Admin"}
+                </button>
                 <button onClick={handleReject} disabled={actionLoading || !rejectNote.trim()}
                   className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300 transition hover:bg-rose-500/20 disabled:opacity-50">
                   {actionLoading ? "Processing…" : "Reject & Require Changes"}
