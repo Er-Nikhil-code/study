@@ -129,7 +129,7 @@ export default function InternDashboardPage() {
           {/* Activity Graph */}
           {data.activity_graph && (
             <div className="mt-6">
-              <ActivityGraph data={data.activity_graph} theme="emerald" userName={`${user?.first_name || ""} ${user?.last_name || ""}`.trim() || user?.email} />
+              <ActivityGraph data={data.activity_graph} theme="emerald" userName={name} />
             </div>
           )}
 
