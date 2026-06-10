@@ -129,6 +129,3 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
     </>
   );
 }
-
-// Ensure ChevronLeft is available
-import { ChevronLeft } from "lucide-react";
