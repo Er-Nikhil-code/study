@@ -113,7 +113,7 @@ export class AdminService {
    */
   async updateUser(
     id: string,
-    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean },
+    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean; custom_role_id?: string | null },
   ) {
     try {
       const user = await this.prisma.user.findUnique({ where: { id } });
@@ -127,6 +127,7 @@ export class AdminService {
       if (data.last_name !== undefined) updateData.last_name = data.last_name;
       if (data.assigned_teacher_id !== undefined) updateData.assigned_teacher_id = data.assigned_teacher_id;
       if (data.is_active !== undefined) updateData.is_active = data.is_active;
+      if (data.custom_role_id !== undefined) updateData.custom_role_id = data.custom_role_id;
 
       const updated = await this.prisma.user.update({
         where: { id },

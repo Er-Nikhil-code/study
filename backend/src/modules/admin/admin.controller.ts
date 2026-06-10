@@ -75,7 +75,7 @@ export class AdminController {
   @Patch("users/:id")
   async updateUser(
     @Param("id") id: string,
-    @Body() body: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean },
+    @Body() body: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean; custom_role_id?: string | null },
   ) {
     return this.adminService.updateUser(id, body);
   }

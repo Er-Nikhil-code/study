@@ -7,6 +7,7 @@ import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import ActivityGraph from "@/components/ui/ActivityGraph";
 import { api } from "@/lib/api";
+import adminService from "@/services/admin.service";
 
 export default function AdminUserProfilePage() {
   const params = useParams();
@@ -15,6 +16,14 @@ export default function AdminUserProfilePage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<any>({});
+
+  const { data: rolesData } = useQuery({
+    queryKey: ["admin", "roles"],
+    queryFn: async () => {
+      const res = await adminService.getRoles({ take: 100 });
+      return res.data;
+    },
+  });
 
   const { data: user, isLoading, error } = useQuery({
     queryKey: ["admin", "users", userId],
@@ -47,6 +56,7 @@ export default function AdminUserProfilePage() {
         phone_number: user.phone_number || "",
         role: user.role,
         is_active: user.is_active,
+        custom_role_id: user.custom_role_id || "",
       });
     }
     setIsEditing(!isEditing);
@@ -148,6 +158,19 @@ export default function AdminUserProfilePage() {
                       <option value="INTERN">INTERN</option>
                       <option value="TEACHER">TEACHER</option>
                       <option value="ADMIN">ADMIN</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Custom Role</label>
+                    <select
+                      value={editForm.custom_role_id || ""}
+                      onChange={e => setEditForm({ ...editForm, custom_role_id: e.target.value || null })}
+                      className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-red-500/50"
+                    >
+                      <option value="">No Custom Role</option>
+                      {(rolesData || []).map((r: any) => (
+                        <option key={r.id} value={r.id}>{r.name}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="flex items-center gap-2 pt-2">

@@ -239,8 +239,9 @@ export default function AdminUsersPage() {
 
       {/* Users table */}
       <Panel className="mt-4 p-0 overflow-x-auto">
-        <div className="min-w-[800px]">
-          <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+        <div className="min-w-[900px]">
+          <div className="grid grid-cols-[200px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div>ID</div>
           <div>Name</div>
           <div>Role</div>
           <div>Email</div>
@@ -253,8 +254,9 @@ export default function AdminUsersPage() {
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_100px] gap-3 px-5 py-4"
+                className="grid grid-cols-[200px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_100px] gap-3 px-5 py-4"
               >
+                <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
                 <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
                 <div className="h-4 w-20 animate-pulse rounded bg-white/10" />
                 <div className="h-4 w-40 animate-pulse rounded bg-white/10" />
@@ -272,8 +274,9 @@ export default function AdminUsersPage() {
             {users.map((user) => (
               <div
                 key={user.id}
-                className={`grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 px-5 py-4 text-sm items-center ${!user.is_active ? 'opacity-50 grayscale' : ''}`}
+                className={`grid grid-cols-[200px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 px-5 py-4 text-sm items-center ${!user.is_active ? 'opacity-50 grayscale' : ''}`}
               >
+                <div className="text-xs text-zinc-500 font-mono truncate" title={user.id}>{user.id}</div>
                 <div className="truncate text-white flex items-center gap-2">
                   <Link href={`/admin/users/${user.id}`} className="hover:text-red-400 hover:underline transition">
                     {user.first_name || "—"} {user.last_name || ""}

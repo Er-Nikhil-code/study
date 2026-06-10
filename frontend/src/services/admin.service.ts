@@ -92,7 +92,7 @@ class AdminService {
 
   async updateUser(
     id: string,
-    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean },
+    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean; custom_role_id?: string | null },
   ): Promise<AdminUser> {
     const res = await api.patch<AdminUser>(`/admin/users/${id}`, data);
     return res.data;
