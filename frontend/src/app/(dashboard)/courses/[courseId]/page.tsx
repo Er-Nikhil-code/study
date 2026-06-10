@@ -380,7 +380,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                             </Link>
                                             {topic.has_attempted_tests ? (
                                               <>
-                                                <Link href={topic.test_id ? `/tests/${topic.test_id}` : `/topics/${topic.id}/tests`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors">
+                                                <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors">
                                                   <CheckCircle size={14} /> Re-attempt
                                                 </Link>
                                                 {topic.latest_attempt_id && (
@@ -390,9 +390,21 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                                 )}
                                               </>
                                             ) : (
-                                              <Link href={topic.test_id ? `/tests/${topic.test_id}` : `/topics/${topic.id}/tests`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-medium text-white shadow-lg shadow-red-500/20 transition-all">
-                                                <CheckCircle size={14} /> Take Test
-                                              </Link>
+                                              <>
+                                                {topic.test_id ? (
+                                                  <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-medium text-white shadow-lg shadow-red-500/20 transition-all">
+                                                    <CheckCircle size={14} /> Take Test
+                                                  </Link>
+                                                ) : isCreatorOrAdmin ? (
+                                                  <Link href={`/teacher/tests/create?topic_id=${topic.id}&topic_name=${encodeURIComponent(topic.name)}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-medium text-white shadow-lg shadow-emerald-500/20 transition-all">
+                                                    <Plus size={14} /> Create Test
+                                                  </Link>
+                                                ) : (
+                                                  <span className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 text-xs font-medium text-zinc-500">
+                                                    No Test Yet
+                                                  </span>
+                                                )}
+                                              </>
                                             )}
                                           </div>
                                         )}

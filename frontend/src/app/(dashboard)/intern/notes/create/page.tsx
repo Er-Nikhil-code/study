@@ -6,12 +6,16 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { HierarchyService } from "@/services/hierarchy.service";
 import { NotesService } from "@/services/notes.service";
 import RichTextEditor from "@/components/ui/RichTextEditor";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function CreateNotePage() {
   const [topics, setTopics] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const { user } = useAuthStore();
+  const isPrivileged = user?.role === "ADMIN" || user?.role === "TEACHER";
 
   const [formData, setFormData] = useState({
     course_id: "",
@@ -54,12 +58,12 @@ export default function CreateNotePage() {
 
   return (
     <>
-      <SectionTitle title="Create Educational Note" subtitle="Submit study material for Teacher review" />
+      <SectionTitle title="Create Educational Note" subtitle={isPrivileged ? "Create study material directly" : "Submit study material for Teacher review"} />
 
       <Panel className="mt-6 max-w-4xl">
         {success && (
           <div className="mb-6 rounded bg-green-900/50 border border-green-500/50 p-4 text-green-400">
-            Note submitted successfully! It is now pending teacher review.
+            {isPrivileged ? "Note created and published successfully!" : "Note submitted successfully! It is now pending teacher review."}
           </div>
         )}
 
@@ -155,7 +159,7 @@ export default function CreateNotePage() {
             disabled={loading}
             className="w-full rounded-lg bg-red-600 py-3 font-semibold text-white hover:bg-red-500 disabled:opacity-50"
           >
-            {loading ? "Submitting..." : "Submit for Review"}
+            {loading ? (isPrivileged ? "Creating..." : "Submitting...") : (isPrivileged ? "Create Note" : "Submit for Review")}
           </button>
         </form>
       </Panel>

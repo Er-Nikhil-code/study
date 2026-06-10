@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { TestsService } from "@/services/tests.service";
@@ -9,9 +9,20 @@ import { QuestionsService } from "@/services/questions.service";
 
 export default function CreateTestPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const topicId = searchParams.get("topic_id");
+  const topicName = searchParams.get("topic_name");
+  
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!topicId) {
+      alert("No topic selected. Please start from the Course Curriculum to create a test.");
+      router.push("/teacher/tests");
+    }
+  }, [topicId, router]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -47,9 +58,10 @@ export default function CreateTestPage() {
     try {
       await TestsService.create({
         ...formData,
+        topic_id: topicId as string,
         question_ids: Array.from(selectedQuestionIds),
       });
-      router.push("/teacher/tests");
+      router.back();
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to create test");
     } finally {
@@ -65,7 +77,7 @@ export default function CreateTestPage() {
 
   return (
     <>
-      <SectionTitle title="Create New Test" subtitle="Configure test rules and select questions from the approved bank" />
+      <SectionTitle title={`Create New Test ${topicName ? `for: ${topicName}` : ""}`} subtitle="Configure test rules and select questions from the approved bank" />
 
       <form onSubmit={handleSubmit} className="mt-8 flex flex-col lg:flex-row gap-6">
         {/* Left Col: Test Settings */}
