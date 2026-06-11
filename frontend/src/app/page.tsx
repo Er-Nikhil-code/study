@@ -48,7 +48,7 @@ export default function HomePage() {
         const timer = setTimeout(() => {
           setDisplayedGreeting(quote.greeting.slice(0, charIndexRef.current + 1));
           charIndexRef.current++;
-        }, 40 + Math.random() * 30); // variable speed for alien feel
+        }, 30); // smooth, elegant typing speed
         return () => clearTimeout(timer);
       } else {
         charIndexRef.current = 0;
@@ -61,7 +61,7 @@ export default function HomePage() {
         const timer = setTimeout(() => {
           setDisplayedBody(quote.body.slice(0, charIndexRef.current + 1));
           charIndexRef.current++;
-        }, 18 + Math.random() * 15);
+        }, 15); // slightly faster for body text
         return () => clearTimeout(timer);
       } else {
         charIndexRef.current = 0;
@@ -224,16 +224,15 @@ export default function HomePage() {
             0%, 100% { opacity: 1; }
             50% { opacity: 0; }
           }
-          .alien-cursor {
+          .elegant-cursor {
             display: inline-block;
             width: 2px;
             height: 1.1em;
-            background: linear-gradient(to bottom, #ef4444, #f97316);
-            margin-left: 2px;
+            background: rgba(255, 255, 255, 0.7);
+            margin-left: 4px;
             vertical-align: text-bottom;
-            animation: cursor-blink 0.8s step-end infinite;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.8), 0 0 20px rgba(249, 115, 22, 0.4);
-            border-radius: 1px;
+            animation: cursor-blink 1s step-end infinite;
+            border-radius: 2px;
           }
         `}</style>
 
@@ -323,20 +322,20 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Alien Typed Quote */}
+        {/* Elegant Typed Quote */}
         <div
-          className="min-h-[200px] md:min-h-[240px] w-full max-w-lg"
-          style={{ opacity, transition: "opacity 0.6s ease-in-out" }}
+          className="min-h-[200px] md:min-h-[240px] w-full max-w-lg mt-4"
+          style={{ opacity, transition: "opacity 0.8s ease-in-out" }}
         >
-          <h2 className="text-2xl md:text-3xl font-bold leading-snug mb-4">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-300 via-red-400 to-orange-400">
+          <h2 className={`text-2xl md:text-3xl font-medium leading-snug mb-5 ${quicksand.className}`}>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-300">
               {displayedGreeting}
             </span>
-            {phase === "typing-greeting" && <span className="alien-cursor" />}
+            {phase === "typing-greeting" && <span className="elegant-cursor" />}
           </h2>
           <p className="text-zinc-400 text-base md:text-lg leading-relaxed font-light tracking-wide">
             {displayedBody}
-            {phase === "typing-body" && <span className="alien-cursor" />}
+            {phase === "typing-body" && <span className="elegant-cursor" />}
           </p>
         </div>
 
