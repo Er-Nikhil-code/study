@@ -13,6 +13,21 @@ module.exports = {
         danger: "#EF4444",
         warning: "#F59E0B",
       },
+      animation: {
+        'gradient': 'gradient 8s linear infinite',
+      },
+      keyframes: {
+        gradient: {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'left center'
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center'
+          },
+        },
+      },
       fontFamily: {
         sans: [
           "-apple-system",

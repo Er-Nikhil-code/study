@@ -71,7 +71,7 @@ export default function AdminHomePage() {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-6 mb-8 bg-gradient-to-r from-red-500/10 to-transparent p-6 rounded-2xl border border-red-500/20 overflow-hidden relative">
+      <div className="flex items-center justify-between gap-6 mb-8 bg-gradient-to-r from-red-500/10 to-transparent p-6 rounded-2xl border border-red-500/20 overflow-hidden relative min-h-[160px]">
         <div className="z-10">
           <h1 className="text-3xl font-bold text-white mb-2">King Dashboard</h1>
           <p className="text-zinc-400">Oversight, moderation, and system health in one place.</p>
