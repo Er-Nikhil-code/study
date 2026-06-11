@@ -146,9 +146,10 @@ export default function EditQuestionPage() {
             { id: "A", text: "True" },
             { id: "B", text: "False" }
           ];
+          const hasOptions = q.options_json?.options && q.options_json.options.length > 0;
           setTfData({ 
             answer: q.answer_key?.answer ?? true,
-            options: q.options_json?.options || defaultTfOptions,
+            options: hasOptions ? q.options_json.options : defaultTfOptions,
             correct_option: q.answer_key?.correct_option || (q.answer_key?.answer ? "A" : "B")
           });
         } else if (q.question_type === "FILL_BLANK") {
@@ -158,9 +159,10 @@ export default function EditQuestionPage() {
             { id: "C", text: "" },
             { id: "D", text: "" }
           ];
+          const hasOptions = q.options_json?.options && q.options_json.options.length > 0;
           setFibData({ 
             blanks: q.answer_key?.blanks || [{ position: 1, answer: "", case_sensitive: false }],
-            options: q.options_json?.options || defaultFibOptions,
+            options: hasOptions ? q.options_json.options : defaultFibOptions,
             correct_option: q.answer_key?.correct_option || "A"
           });
         } else if (q.question_type === "MATCHING") {
