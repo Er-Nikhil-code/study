@@ -135,7 +135,7 @@ export default function ResultDetailPage() {
                       {r.is_correct === true ? "✓" : r.is_correct === false ? "✗" : "—"}
                     </span>
                     <div className="truncate">
-                      <span className="text-sm text-white">{q?.title || `Q${idx + 1}`}</span>
+                      <span className="text-sm text-white">{`Q${idx + 1}`}</span>
                       <span className="ml-2 text-xs text-zinc-500">{q?.difficulty} · {q?.marks} marks</span>
                     </div>
                   </div>
@@ -212,7 +212,7 @@ export default function ResultDetailPage() {
             ) : (
               <>
                 <h3 className="text-lg font-semibold text-white mb-1">Challenge Question</h3>
-                <p className="text-sm text-zinc-400 mb-4">"{challengeQ.title}"</p>
+                <p className="text-sm text-zinc-400 mb-4">Are you sure you want to challenge this question?</p>
 
                 <div className="space-y-4">
                   <div>

@@ -75,7 +75,6 @@ export interface AttemptQuestion {
   order: number;
   section: number;
   id: string;
-  title: string;
   question_type: string;
   content_json: any[];
   options_json: any;

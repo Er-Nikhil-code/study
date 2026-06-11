@@ -100,6 +100,13 @@ export class TestsController {
 
   /* ── Teacher / Admin endpoints ── */
 
+  @Get(":id/preview")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  async getTestPreview(@Param("id") id: string, @Request() req: any) {
+    return this.testsService.getTestPreview(id, req.user.sub, req.user.role);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("TEACHER", "ADMIN")

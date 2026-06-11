@@ -240,7 +240,6 @@ export default function AttemptPage() {
                 </span>
               </div>
               <div className="mt-4">
-                <h2 className="text-lg font-medium text-white mb-3">{q.title}</h2>
                 <ContentBlockRenderer blocks={q.content_json || []} />
               </div>
               <div className="mt-6">{renderAnswerInput(q, answers[q.id], setAnswer)}</div>

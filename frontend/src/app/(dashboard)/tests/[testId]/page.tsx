@@ -8,8 +8,12 @@ import { User as UserIcon } from "lucide-react";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import studentService from "@/services/student.service";
+import { useAuthStore } from "@/store/auth.store";
+import { api } from "@/lib/api";
+import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 
 export default function TestDetailsPage() {
+  const { user } = useAuthStore();
   const params = useParams();
   const router = useRouter();
   const testId = params.testId as string;
@@ -21,8 +25,14 @@ export default function TestDetailsPage() {
   const [leaderboardData, setLeaderboardData] = useState<any>(null);
 
   useEffect(() => {
+    if (!user) return; // Wait for auth
+    const isTeacher = user.role === "TEACHER" || user.role === "ADMIN";
+    const fetchTestDetails = isTeacher 
+      ? api.get(`/tests/${testId}/preview`).then(res => res.data)
+      : studentService.getTestDetails(testId);
+
     Promise.all([
-      studentService.getTestDetails(testId),
+      fetchTestDetails,
       studentService.getTestLeaderboard(testId).catch(() => null)
     ])
       .then(([testData, lbData]) => {
@@ -31,7 +41,7 @@ export default function TestDetailsPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [testId]);
+  }, [testId, user]);
 
   const handleStart = async () => {
     setStarting(true);
@@ -111,19 +121,21 @@ export default function TestDetailsPage() {
           )}
 
           <div className="mt-6 flex flex-wrap gap-3">
+            {user?.role !== "TEACHER" && user?.role !== "ADMIN" && (
+              <button
+                onClick={handleStart}
+                disabled={starting}
+                className="rounded-full border border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm font-medium text-red-200 transition hover:bg-red-500/15 disabled:opacity-50"
+              >
+                {starting ? "Starting…" : "Start Attempt"}
+              </button>
+            )}
             <button
-              onClick={handleStart}
-              disabled={starting}
-              className="rounded-full border border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm font-medium text-red-200 transition hover:bg-red-500/15 disabled:opacity-50"
-            >
-              {starting ? "Starting…" : "Start Attempt"}
-            </button>
-            <Link
-              href="/tests"
+              onClick={() => router.back()}
               className="rounded-full border border-white/10 bg-white/[0.03] px-6 py-2.5 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]"
             >
-              Back to tests
-            </Link>
+              Back
+            </button>
           </div>
         </Panel>
 
@@ -193,6 +205,50 @@ export default function TestDetailsPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </Panel>
+        )}
+
+        {test.test_questions && test.test_questions.length > 0 && (
+          <Panel className="mt-8 border-white/10 bg-white/[0.02]">
+            <h3 className="text-lg font-bold text-white mb-6">Test Questions (Preview)</h3>
+            <div className="space-y-6">
+              {test.test_questions.map((tq: any, idx: number) => (
+                <div key={tq.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/20 text-xs font-bold text-red-400">
+                        Q{idx + 1}
+                      </span>
+                      <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-zinc-400">
+                        {tq.question.question_type.replace(/_/g, " ")} · {tq.question.difficulty} · {tq.question.marks} marks
+                        {tq.question.negative_marks > 0 && <span className="text-red-400 ml-1">(−{tq.question.negative_marks})</span>}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <ContentBlockRenderer blocks={tq.question.content_json || []} />
+                  </div>
+                  
+                  {/* Correct Answer */}
+                  {tq.question.answer_key && (
+                    <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                      <div className="text-xs uppercase tracking-wide text-emerald-400 mb-2">Answer Key</div>
+                      <div className="text-sm text-emerald-200">
+                        {JSON.stringify(tq.question.answer_key)}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Solution */}
+                  {tq.question.solution_json && (
+                    <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                      <div className="text-xs uppercase tracking-wide text-zinc-500 mb-2">Solution Explanation</div>
+                      <ContentBlockRenderer blocks={Array.isArray(tq.question.solution_json) ? tq.question.solution_json : []} />
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </Panel>
         )}

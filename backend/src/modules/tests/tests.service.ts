@@ -209,6 +209,36 @@ export class TestsService {
     return test;
   }
 
+  async getTestPreview(testId: string, userId: string, role: string) {
+    const test = await this.prisma.test.findUnique({
+      where: { id: testId },
+      include: {
+        test_questions: {
+          orderBy: { order: "asc" },
+          include: {
+            question: {
+              select: {
+                id: true,
+                question_type: true,
+                content_json: true,
+                options_json: true,
+                answer_key: true,
+                solution_json: true,
+                difficulty: true,
+                marks: true,
+                negative_marks: true,
+                topic_id: true,
+              }
+            }
+          },
+        },
+        _count: { select: { test_questions: true, attempts: true } },
+      },
+    });
+    if (!test) throw new NotFoundException("Test not found");
+    return test;
+  }
+
   /* ════════════════════════════════════════════
    *  ATTEMPT FLOW (Student)
    * ════════════════════════════════════════════ */
@@ -223,7 +253,6 @@ export class TestsService {
             question: {
               select: {
                 id: true,
-                title: true,
                 question_type: true,
                 content_json: true,
                 options_json: true,
@@ -699,7 +728,6 @@ export class TestsService {
             question: {
               select: {
                 id: true,
-                title: true,
                 question_type: true,
                 content_json: true,
                 options_json: true,
