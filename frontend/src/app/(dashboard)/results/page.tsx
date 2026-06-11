@@ -15,7 +15,7 @@ export default function ResultsPage() {
 
   useEffect(() => {
     studentService
-      .getResults({ skip: page * PAGE_SIZE, take: PAGE_SIZE })
+      .getResults({ page: page + 1, limit: PAGE_SIZE })
       .then((res) => { setResults(res.data); setTotal(res.total); })
       .catch(() => {})
       .finally(() => setLoading(false));

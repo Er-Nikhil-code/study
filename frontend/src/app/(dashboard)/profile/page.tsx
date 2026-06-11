@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import NextImage from "next/image";
 import Panel from "@/components/ui/Panel";
 import { useAuthStore } from "@/store/auth.store";
 import authService from "@/services/auth.service";
@@ -199,7 +200,7 @@ export default function ProfilePage() {
                 className="relative h-20 w-20 overflow-hidden rounded-full bg-zinc-800 border-2 border-white/10 flex items-center justify-center shrink-0 group cursor-pointer transition hover:border-red-500/30"
               >
                 {profilePicture ? (
-                   <img src={profilePicture} alt="Profile" className="h-full w-full object-cover" />
+                   <NextImage src={profilePicture} alt="Profile" width={80} height={80} className="h-full w-full object-cover" />
                 ) : (
                   <User size={32} className="text-zinc-500" />
                 )}
@@ -368,7 +369,7 @@ export default function ProfilePage() {
             <div className="flex justify-center mb-6">
               <div className="h-32 w-32 overflow-hidden rounded-full border-2 border-white/10 bg-zinc-800 flex items-center justify-center">
                 {profilePicture ? (
-                  <img src={profilePicture} alt="Profile" className="h-full w-full object-cover" />
+                  <NextImage src={profilePicture} alt="Profile" width={128} height={128} className="h-full w-full object-cover" />
                 ) : (
                   <User size={48} className="text-zinc-500" />
                 )}

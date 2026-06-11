@@ -53,7 +53,7 @@ export default function NotificationsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["notifications"],
-    queryFn: () => adminService.getNotifications({ take: 50 }),
+    queryFn: () => adminService.getNotifications({ limit: 50 }),
     staleTime: 1000 * 60 * 2,
     gcTime: 1000 * 60 * 5,
     retry: 2,

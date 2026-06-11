@@ -72,8 +72,8 @@ export class QuestionsController {
     @Query("course_id") courseId?: string,
     @Query("type") type?: string,
     @Query("difficulty") difficulty?: string,
-    @Query("skip") skip?: string,
-    @Query("take") take?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
     @Query("created_by_me") createdByMe?: string,
     @Req() req?: any,
   ) {
@@ -97,10 +97,10 @@ export class QuestionsController {
       filters.admin_search = true;
     }
 
-    const skipNum = skip ? parseInt(skip, 10) : 0;
-    const takeNum = take ? parseInt(take, 10) : 20;
+    const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
 
-    return this.questionsService.findAllQuestions(filters, skipNum, takeNum);
+    return this.questionsService.findAllQuestions(filters, (pageNum - 1) * limitNum, limitNum);
   }
 
   @Get(":id")

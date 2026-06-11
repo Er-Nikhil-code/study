@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import ActivityGraph from "@/components/ui/ActivityGraph";
@@ -21,7 +22,7 @@ export default function AdminUserProfilePage() {
   const { data: rolesData } = useQuery({
     queryKey: ["admin", "roles"],
     queryFn: async () => {
-      const res = await adminService.getRoles({ take: 100 });
+      const res = await adminService.getRoles({ limit: 100 });
       return res.data;
     },
   });
@@ -122,7 +123,7 @@ export default function AdminUserProfilePage() {
             <Panel className="flex flex-col items-center p-6 text-center">
               <div className="flex h-24 w-24 items-center justify-center rounded-full bg-red-500/20 text-red-500 text-3xl font-bold uppercase mb-4 overflow-hidden border-2 border-red-500/30">
                 {user.profile_picture ? (
-                   <img src={user.profile_picture} alt="Profile" className="h-full w-full object-cover" />
+                   <Image src={user.profile_picture} alt="Profile" width={96} height={96} className="h-full w-full object-cover" />
                 ) : (
                   user.first_name?.charAt(0) || user.email?.charAt(0) || "U"
                 )}

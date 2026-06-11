@@ -18,7 +18,7 @@ export default function AdminSystemPage() {
 
   const { data: logsData, isLoading: loadingLogs } = useQuery({
     queryKey: ["admin", "audit-logs"],
-    queryFn: () => adminService.getAuditLogs({ take: 20 }),
+    queryFn: () => adminService.getAuditLogs({ limit: 20 }),
   });
 
   const clearLogsMutation = useMutation({

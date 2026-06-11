@@ -45,8 +45,8 @@ export default function AdminUsersPage() {
       return await adminService.getUsers({
         search: search || undefined,
         role: roleFilter !== "ALL" ? roleFilter : undefined,
-        skip: page * PAGE_SIZE,
-        take: PAGE_SIZE,
+        page: page + 1,
+        limit: PAGE_SIZE,
       });
     },
     placeholderData: keepPreviousData,
@@ -55,7 +55,7 @@ export default function AdminUsersPage() {
   const { data: teachersData } = useQuery({
     queryKey: ["admin", "teachers"],
     queryFn: async () => {
-      const res = await adminService.getUsers({ role: "TEACHER", take: 100 });
+      const res = await adminService.getUsers({ role: "TEACHER", limit: 100 });
       return res.data;
     },
   });

@@ -26,14 +26,16 @@ export class TestsController {
   async listTests(
     @Query("topic_id") topicId?: string,
     @Query("search") search?: string,
-    @Query("skip") skip?: string,
-    @Query("take") take?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
+    const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
     return this.testsService.listPublishedTests({
       topicId,
       search,
-      skip: skip ? parseInt(skip, 10) : 0,
-      take: take ? parseInt(take, 10) : 20,
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
     });
   }
 

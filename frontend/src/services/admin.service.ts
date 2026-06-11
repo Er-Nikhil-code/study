@@ -81,8 +81,8 @@ class AdminService {
   async getUsers(params?: {
     search?: string;
     role?: string;
-    skip?: number;
-    take?: number;
+    page?: number;
+    limit?: number;
   }): Promise<PaginatedResponse<AdminUser>> {
     const res = await api.get<PaginatedResponse<AdminUser>>("/admin/users", {
       params,
@@ -110,8 +110,8 @@ class AdminService {
   /* ─── Roles ─── */
   async getRoles(params?: {
     search?: string;
-    skip?: number;
-    take?: number;
+    page?: number;
+    limit?: number;
   }): Promise<PaginatedResponse<AdminRole>> {
     const res = await api.get<PaginatedResponse<AdminRole>>(
       "/admin/roles",
@@ -173,8 +173,8 @@ class AdminService {
     section_id?: string;
     chapter_id?: string;
     topic_id?: string;
-    skip?: number;
-    take?: number;
+    page?: number;
+    limit?: number;
   }): Promise<PaginatedResponse<AdminQuestion>> {
     const res = await api.get<PaginatedResponse<AdminQuestion>>(
       "/admin/questions",
@@ -189,8 +189,8 @@ class AdminService {
 
   /* ─── Audit Logs ─── */
   async getAuditLogs(params?: {
-    skip?: number;
-    take?: number;
+    page?: number;
+    limit?: number;
   }): Promise<PaginatedResponse<any>> {
     const res = await api.get<PaginatedResponse<any>>("/admin/audit-logs", { params });
     return res.data;
@@ -229,12 +229,12 @@ class AdminService {
   }
 
   /* ─── Notifications ─── */
-  async getNotifications(params?: { skip?: number; take?: number }): Promise<{
+  async getNotifications(params?: { page?: number; limit?: number }): Promise<{
     data: any[];
     total: number;
     unread_count: number;
-    skip: number;
-    take: number;
+    page: number;
+    limit: number;
   }> {
     const res = await api.get("/notifications", { params });
     return res.data;

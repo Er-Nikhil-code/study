@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import Logo from "@/components/ui/Logo";
@@ -35,11 +36,11 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
     } else if (href === "/admin/users") {
       queryClient.prefetchQuery({
         queryKey: ["admin", "users", { search: "", roleFilter: "ALL", page: 0 }],
-        queryFn: () => adminService.getUsers({ skip: 0, take: 15 })
+        queryFn: () => adminService.getUsers({ page: 1, limit: 15 })
       });
       queryClient.prefetchQuery({
         queryKey: ["admin", "teachers"],
-        queryFn: () => adminService.getUsers({ role: "TEACHER", take: 100 })
+        queryFn: () => adminService.getUsers({ role: "TEACHER", limit: 100 })
       });
     }
   };
@@ -170,7 +171,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
               <div className="flex items-center gap-2 min-w-0 overflow-hidden w-full text-left">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-500 font-bold uppercase overflow-hidden">
                   {user?.profile_picture ? (
-                     <img src={user.profile_picture} alt="Profile" className="h-full w-full object-cover" />
+                     <Image src={user.profile_picture} alt="Profile" width={32} height={32} className="h-full w-full object-cover" />
                   ) : (
                     (user as any)?.first_name?.charAt(0) || user?.firstName?.charAt(0) || user?.email?.charAt(0) || "U"
                   )}

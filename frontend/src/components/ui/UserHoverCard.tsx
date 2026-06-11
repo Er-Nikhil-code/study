@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { api } from "@/lib/api";
 import { User, Calendar, ShieldCheck } from "lucide-react";
 
@@ -81,7 +82,7 @@ export default function UserHoverCard({ userId, children }: UserHoverCardProps) 
             <div className="flex gap-4">
               <div className="shrink-0">
                 {userInfo.profile_picture ? (
-                  <img src={userInfo.profile_picture} alt="Profile" className="w-12 h-12 rounded-full object-cover bg-zinc-800 border border-zinc-700" />
+                  <Image src={userInfo.profile_picture} alt="Profile" width={48} height={48} className="w-12 h-12 rounded-full object-cover bg-zinc-800 border border-zinc-700" />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400">
                     <User size={24} />

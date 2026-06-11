@@ -59,7 +59,7 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
     // 2. Fetch Notes & Tests concurrently
     Promise.all([
       NotesService.getApprovedNotes(topicId).catch(() => []),
-      studentService.getTests({ topic_id: topicId, take: 50 }).catch(() => ({ data: [] }))
+      studentService.getTests({ topic_id: topicId, limit: 50 }).catch(() => ({ data: [] }))
     ]).then(([notesData, testsData]) => {
       setNotes(notesData);
       setTests(testsData.data || []);

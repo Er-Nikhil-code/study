@@ -98,8 +98,8 @@ export default function AdminQuestionsPage() {
         section_id: sectionId || undefined,
         chapter_id: chapterId || undefined,
         topic_id: topicId || undefined,
-        skip: page * PAGE_SIZE,
-        take: PAGE_SIZE,
+        page: page + 1,
+        limit: PAGE_SIZE,
       });
       setQuestions(res.data);
       setTotal(res.total);

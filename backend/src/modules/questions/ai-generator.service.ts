@@ -1,6 +1,18 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { GoogleGenAI, Type } from '@google/genai';
+import { z } from 'zod';
+
+const AiQuestionOutputSchema = z.array(z.object({
+  questionText: z.string(),
+  options: z.array(z.object({
+    id: z.string(),
+    text: z.string()
+  })),
+  answerKey: z.string(),
+  solutionText: z.string().optional(),
+  difficulty: z.string()
+}));
 
 @Injectable()
 export class AiGeneratorService {
@@ -106,7 +118,7 @@ Task: Generate ${count} ${difficulty} difficulty ${questionType} questions speci
 ${useNotes && contextNotesStr ? `Use the following notes as context/reference:\n${contextNotesStr}\n` : ''}
 ${customInstructions ? `Custom Instructions: ${customInstructions}\n` : ''}
 Ensure the questions vary appropriately within the specified difficulty and are relevant to the provided course hierarchy context. ${optionsInstruction}
-CRITICAL: The options array MUST use string IDs starting from "1" ("1", "2", "3", "4" etc). Do NOT use "0".`;
+CRITICAL: The options array MUST use string IDs exactly as follows: "A", "B", "C", "D". Do NOT use numbers.`;
 
     try {
       const response = await this.ai.models.generateContent({
@@ -144,7 +156,28 @@ CRITICAL: The options array MUST use string IDs starting from "1" ("1", "2", "3"
       if (!rawText) throw new Error("No output from model");
       
       const parsedQuestions = JSON.parse(rawText);
-      return parsedQuestions;
+      const validatedQuestions = AiQuestionOutputSchema.parse(parsedQuestions);
+
+      // Normalization step to ensure A, B, C, D mapping just in case the AI hallucinates numbers
+      const idMap: Record<string, string> = { "1": "A", "2": "B", "3": "C", "4": "D", "5": "E", "6": "F" };
+      
+      const normalizedQuestions = validatedQuestions.map(q => {
+        const newOptions = q.options.map(opt => ({
+          ...opt,
+          id: idMap[opt.id] || opt.id
+        }));
+        
+        let newAnswerKey = q.answerKey;
+        if (newAnswerKey.includes(",")) {
+           newAnswerKey = newAnswerKey.split(",").map(k => idMap[k.trim()] || k.trim()).join(",");
+        } else {
+           newAnswerKey = idMap[newAnswerKey] || newAnswerKey;
+        }
+
+        return { ...q, options: newOptions, answerKey: newAnswerKey };
+      });
+
+      return normalizedQuestions;
 
     } catch (error: any) {
       this.logger.error(`AI Generation failed: ${error.message}`);

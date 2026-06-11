@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { User as UserIcon } from "lucide-react";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
@@ -173,7 +174,7 @@ export default function TestDetailsPage() {
                         <td className="px-4 py-3 flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden">
                             {row.user?.profile_picture_url ? (
-                              <img src={row.user.profile_picture_url} alt="" className="w-full h-full object-cover" />
+                              <Image src={row.user.profile_picture_url} alt="" width={24} height={24} className="w-full h-full object-cover" />
                             ) : (
                               <UserIcon size={14} className="text-zinc-500" />
                             )}

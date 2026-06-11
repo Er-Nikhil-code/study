@@ -20,7 +20,7 @@ export default function StudentDashboardPage() {
 
   const { data: upcomingTests } = useQuery({
     queryKey: ["tests", "upcoming"],
-    queryFn: () => studentService.getTests({ take: 5 }),
+    queryFn: () => studentService.getTests({ limit: 5 }),
     staleTime: 1000 * 60 * 5,
     retry: 1,
   });

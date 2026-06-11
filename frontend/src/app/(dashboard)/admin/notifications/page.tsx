@@ -74,7 +74,7 @@ export default function AdminNotificationsPage() {
     const timer = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const res = await adminService.getUsers({ search: searchQuery, take: 5 });
+        const res = await adminService.getUsers({ search: searchQuery, limit: 5 });
         setSearchResults(res.data);
       } catch (e) {
         console.error("Search failed", e);

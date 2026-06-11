@@ -168,8 +168,8 @@ export interface InternDashboard {
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
-  skip: number;
-  take: number;
+  page?: number;
+  limit?: number;
 }
 
 /* ─── Service ─── */
@@ -185,8 +185,8 @@ class StudentApiService {
   async getTests(params?: {
     topic_id?: string;
     search?: string;
-    skip?: number;
-    take?: number;
+    page?: number;
+    limit?: number;
   }): Promise<PaginatedResponse<TestListItem>> {
     const res = await api.get<PaginatedResponse<TestListItem>>("/tests", {
       params,
@@ -248,8 +248,8 @@ class StudentApiService {
 
   /* Results */
   async getResults(params?: {
-    skip?: number;
-    take?: number;
+    page?: number;
+    limit?: number;
   }): Promise<PaginatedResponse<ResultItem>> {
     const res = await api.get<PaginatedResponse<ResultItem>>(
       "/student/results",
@@ -271,8 +271,8 @@ class StudentApiService {
 
   /* Test series */
   async getTestSeries(params?: {
-    skip?: number;
-    take?: number;
+    page?: number;
+    limit?: number;
   }): Promise<PaginatedResponse<any>> {
     const res = await api.get("/student/test-series", { params });
     return res.data;

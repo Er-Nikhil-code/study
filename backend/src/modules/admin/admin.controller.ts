@@ -40,14 +40,16 @@ export class AdminController {
   async getUsers(
     @Query("search") search?: string,
     @Query("role") role?: string,
-    @Query("skip") skip?: string,
-    @Query("take") take?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
+    const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
     return this.adminService.getUsers({
       search,
       role,
-      skip: skip ? parseInt(skip, 10) : 0,
-      take: take ? parseInt(take, 10) : 20,
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
     });
   }
 
@@ -131,16 +133,18 @@ export class AdminController {
     @Query("type") type?: string,
     @Query("difficulty") difficulty?: string,
     @Query("topic_id") topicId?: string,
-    @Query("skip") skip?: string,
-    @Query("take") take?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
+    const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
     return this.adminService.getQuestions({
       search,
       type,
       difficulty,
       topic_id: topicId,
-      skip: skip ? parseInt(skip, 10) : 0,
-      take: take ? parseInt(take, 10) : 20,
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
     });
   }
 
@@ -158,13 +162,15 @@ export class AdminController {
   @Get("roles")
   async getRoles(
     @Query("search") search?: string,
-    @Query("skip") skip?: string,
-    @Query("take") take?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
+    const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 50;
     return this.adminService.getRoles({
       search,
-      skip: skip ? parseInt(skip, 10) : 0,
-      take: take ? parseInt(take, 10) : 50,
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
     });
   }
 
@@ -198,12 +204,14 @@ export class AdminController {
   /* ─── Audit Logs ─── */
   @Get("audit-logs")
   async getAuditLogs(
-    @Query("skip") skip?: string,
-    @Query("take") take?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
+    const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 50;
     return this.adminService.getAuditLogs({
-      skip: skip ? parseInt(skip, 10) : 0,
-      take: take ? parseInt(take, 10) : 50,
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
     });
   }
 

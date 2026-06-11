@@ -24,12 +24,14 @@ export class NotificationsController {
   @Get()
   async getMyNotifications(
     @Request() req: any,
-    @Query("skip") skip?: string,
-    @Query("take") take?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
+    const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 30;
     return this.adminService.getNotifications(req.user.sub, {
-      skip: skip ? parseInt(skip, 10) : 0,
-      take: take ? parseInt(take, 10) : 30,
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
     });
   }
 

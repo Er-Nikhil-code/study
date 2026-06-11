@@ -16,6 +16,9 @@ const BaseQuestionSchema = z.object({
   solution_json: z.array(ContentBlockSchema).optional(),
 });
 
+// Valid Option ID format (A, B, C, D, E, F)
+const OptionIdSchema = z.enum(["A", "B", "C", "D", "E", "F"]);
+
 // Single correct MCQ (supports 4 or 5 option variants)
 export const SingleCorrectMCQSchema = BaseQuestionSchema.extend({
   type: z.literal("SINGLE_CORRECT"),
@@ -25,7 +28,7 @@ export const SingleCorrectMCQSchema = BaseQuestionSchema.extend({
     options: z
       .array(
         z.object({
-          id: z.string(),
+          id: OptionIdSchema,
           text: z.string(),
         }),
       )
@@ -33,7 +36,7 @@ export const SingleCorrectMCQSchema = BaseQuestionSchema.extend({
       .max(6),
   }),
   answer_key: z.object({
-    correct_option: z.string(),
+    correct_option: OptionIdSchema,
   }),
 });
 
@@ -46,7 +49,7 @@ export const MultipleCorrectMCQSchema = BaseQuestionSchema.extend({
     options: z
       .array(
         z.object({
-          id: z.string(),
+          id: OptionIdSchema,
           text: z.string(),
         }),
       )
@@ -54,7 +57,7 @@ export const MultipleCorrectMCQSchema = BaseQuestionSchema.extend({
       .max(6),
   }),
   answer_key: z.object({
-    correct_options: z.array(z.string()).min(1),
+    correct_options: z.array(OptionIdSchema).min(1),
   }),
 });
 
@@ -66,7 +69,7 @@ export const AssertionReasonSchema = BaseQuestionSchema.extend({
     options: z
       .array(
         z.object({
-          id: z.string(),
+          id: OptionIdSchema,
           text: z.string(),
         }),
       )
@@ -74,7 +77,7 @@ export const AssertionReasonSchema = BaseQuestionSchema.extend({
       .max(4),
   }),
   answer_key: z.object({
-    correct_option: z.string(),
+    correct_option: OptionIdSchema,
   }),
 });
 
@@ -106,7 +109,9 @@ export const NumericalSchema = BaseQuestionSchema.extend({
 export const TrueFalseSchema = BaseQuestionSchema.extend({
   type: z.literal("TRUE_FALSE"),
   content_json: z.array(ContentBlockSchema).min(1),
-  options_json: z.any().optional(),
+  options_json: z.object({
+    options: z.array(z.object({ id: OptionIdSchema, text: z.string() })).optional()
+  }).optional(),
   answer_key: z.object({
     answer: z.boolean(),
   }),
@@ -116,7 +121,9 @@ export const TrueFalseSchema = BaseQuestionSchema.extend({
 export const FillBlankSchema = BaseQuestionSchema.extend({
   type: z.literal("FILL_BLANK"),
   content_json: z.array(ContentBlockSchema).min(1),
-  options_json: z.any().optional(),
+  options_json: z.object({
+    options: z.array(z.object({ id: OptionIdSchema, text: z.string() })).optional()
+  }).optional(),
   answer_key: z.object({
     blanks: z
       .array(
