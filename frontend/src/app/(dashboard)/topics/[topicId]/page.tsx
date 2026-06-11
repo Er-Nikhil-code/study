@@ -7,8 +7,10 @@ import { HierarchyService } from "@/services/hierarchy.service";
 import { NotesService } from "@/services/notes.service";
 import studentService, { type TestListItem } from "@/services/student.service";
 import Link from "next/link";
-import { ChevronLeft, FileText, BookOpen, Clock, ShieldAlert } from "lucide-react";
+import { ChevronLeft, FileText, BookOpen, Clock, ShieldAlert, Edit2 } from "lucide-react";
 import TestCard from "@/components/tests/TestCard";
+import { useAuthStore } from "@/store/auth.store";
+import RichTextEditor from "@/components/ui/RichTextEditor";
 
 export default function TopicViewerPage({ params }: { params: Promise<{ topicId: string }> }) {
   const unwrappedParams = use(params);
@@ -27,6 +29,11 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
   const [selectedNote, setSelectedNote] = useState<any>(null);
   const [challengeReason, setChallengeReason] = useState("INCORRECT");
   const [challengeDesc, setChallengeDesc] = useState("");
+
+  const { user } = useAuthStore();
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editNoteForm, setEditNoteForm] = useState({ title: "", content_html: "" });
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     // 1. Fetch hierarchy to get Topic Name
@@ -84,6 +91,20 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
     }
   };
 
+  const handleEditNote = async (e: React.FormEvent, noteId: string) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await NotesService.updateNote(noteId, editNoteForm);
+      setNotes(notes.map(n => n.id === noteId ? { ...n, ...editNoteForm } : n));
+      setEditingNoteId(null);
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to update note");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <>
       <div className="mb-6">
@@ -127,24 +148,56 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
           {notes.length === 0 ? (
             <Panel><p className="text-zinc-500">No notes available for this topic yet.</p></Panel>
           ) : (
-            notes.map((note) => (
-              <Panel key={note.id} className="relative group">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-                  <h3 className="text-xl font-bold text-white">{note.title}</h3>
-                  <button
-                    onClick={() => setSelectedNote(note)}
-                    className="flex items-center gap-2 text-xs text-zinc-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Challenge Note"
-                  >
-                    <ShieldAlert size={14} /> Report Issue
-                  </button>
-                </div>
-                <div 
-                  className="prose prose-invert max-w-none text-zinc-300"
-                  dangerouslySetInnerHTML={{ __html: note.content_html }} 
-                />
-              </Panel>
-            ))
+            notes.map((note) => {
+              const canEdit = user?.role === "ADMIN" || (user?.role === "TEACHER" && note.created_by === user?.id);
+              return (
+                <Panel key={note.id} className="relative group">
+                  {editingNoteId === note.id ? (
+                    <form onSubmit={(e) => handleEditNote(e, note.id)} className="space-y-4">
+                      <div>
+                        <label className="text-sm text-zinc-400">Title</label>
+                        <input required type="text" value={editNoteForm.title} onChange={e => setEditNoteForm({...editNoteForm, title: e.target.value})} className="mt-1 w-full rounded bg-black border border-white/20 px-3 py-2 text-white outline-none focus:border-red-500" />
+                      </div>
+                      <div>
+                        <label className="text-sm text-zinc-400 mb-1 block">Content</label>
+                        <RichTextEditor value={editNoteForm.content_html} onChange={val => setEditNoteForm({...editNoteForm, content_html: val})} placeholder="Edit note content..." />
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <button type="button" onClick={() => setEditingNoteId(null)} className="px-4 py-2 text-sm text-zinc-400 hover:text-white">Cancel</button>
+                        <button type="submit" disabled={isSaving} className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-500 disabled:opacity-50">Save Changes</button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                        <h3 className="text-xl font-bold text-white">{note.title}</h3>
+                        <div className="flex gap-2">
+                          {canEdit && (
+                            <button
+                              onClick={() => { setEditingNoteId(note.id); setEditNoteForm({ title: note.title, content_html: note.content_html }); }}
+                              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
+                            >
+                              <Edit2 size={12} /> Edit
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setSelectedNote(note)}
+                            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
+                            title="Challenge Note"
+                          >
+                            <ShieldAlert size={14} /> Report
+                          </button>
+                        </div>
+                      </div>
+                      <div 
+                        className="prose prose-invert max-w-none text-zinc-300"
+                        dangerouslySetInnerHTML={{ __html: note.content_html }} 
+                      />
+                    </>
+                  )}
+                </Panel>
+              );
+            })
           )}
         </div>
       ) : (

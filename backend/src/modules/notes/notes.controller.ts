@@ -46,6 +46,16 @@ export class NotesController {
     return this.notesService.getPendingNotes(req.user.userId || req.user.sub, req.user.role);
   }
 
+  @Patch(":id")
+  @Roles("TEACHER", "ADMIN")
+  updateNote(
+    @Param("id") id: string,
+    @Body() data: { title?: string; content_html?: string },
+    @Req() req: any
+  ) {
+    return this.notesService.updateNote(id, data, req.user.userId || req.user.sub, req.user.role);
+  }
+
   @Patch(":id/review")
   @Roles("TEACHER", "ADMIN")
   reviewNote(

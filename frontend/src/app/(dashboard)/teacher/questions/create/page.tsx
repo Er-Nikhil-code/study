@@ -296,10 +296,11 @@ export default function CreateQuestionPage() {
               <label className="mb-2 block text-sm text-zinc-300">Marks</label>
               <input
                 type="number"
-                min="1"
+                min="0"
+                step="any"
                 required
                 value={formData.marks}
-                onChange={(e) => setFormData({ ...formData, marks: Number(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, marks: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
               />
             </div>
@@ -308,9 +309,10 @@ export default function CreateQuestionPage() {
               <input
                 type="number"
                 min="0"
+                step="any"
                 required
                 value={formData.negative_marks}
-                onChange={(e) => setFormData({ ...formData, negative_marks: Number(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, negative_marks: e.target.value === '' ? '' : Number(e.target.value) })}
                 className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
               />
             </div>

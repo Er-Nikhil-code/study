@@ -111,7 +111,12 @@ export class HierarchyService {
           include: {
             chapters: {
               include: {
-                topics: true
+                topics: {
+                  include: {
+                    _count: { select: { notes: { where: { approval_status: 'APPROVED' } } } }
+                  },
+                  orderBy: { order: 'asc' }
+                }
               },
               orderBy: { order: 'asc' }
             }
@@ -194,7 +199,8 @@ export class HierarchyService {
               latest_attempt_id: firstTest ? firstTest.latest_attempt_id : null,
               is_completed: prog?.is_completed || false,
               notes_viewed: prog?.notes_viewed || false,
-              tests_completed: prog?.tests_completed || false
+              tests_completed: prog?.tests_completed || false,
+              has_notes: (topic._count?.notes || 0) > 0
             };
           });
           return { ...chapter, topics: mappedTopics };

@@ -19,6 +19,23 @@ export class NotesService {
     });
   }
 
+  async updateNote(noteId: string, data: { title?: string; content_html?: string }, userId: string, role: string) {
+    const note = await this.prisma.note.findUnique({ where: { id: noteId } });
+    if (!note) throw new NotFoundException("Note not found");
+
+    if (role === "TEACHER" && note.created_by !== userId) {
+      throw new BadRequestException("You can only edit notes that you have created");
+    }
+
+    return this.prisma.note.update({
+      where: { id: noteId },
+      data: {
+        ...(data.title && { title: data.title }),
+        ...(data.content_html && { content_html: data.content_html }),
+      }
+    });
+  }
+
   async getPendingNotes(userId: string, role: string) {
     if (role === "TEACHER") {
       // Get interns assigned to this teacher

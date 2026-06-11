@@ -317,7 +317,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                     </div>
                     <div className="w-24">
                       <label className="text-xs text-zinc-400 block mb-1">Order</label>
-                      <input type="number" required value={sectionForm.order} onChange={e => setSectionForm({...sectionForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
+                      <input type="number" min="1" required value={sectionForm.order} onChange={e => setSectionForm({...sectionForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
                     </div>
                   </div>
                   <div>
@@ -411,7 +411,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           </div>
                           <div className="w-24">
                             <label className="text-xs text-zinc-400 block mb-1">Order</label>
-                            <input type="number" required value={chapterForm.order} onChange={e => setChapterForm({...chapterForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
+                            <input type="number" min="1" required value={chapterForm.order} onChange={e => setChapterForm({...chapterForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
                           </div>
                           <div className="flex gap-2">
                             <button type="submit" className="rounded bg-zinc-200 text-black px-4 py-2 text-sm hover:bg-white font-medium">Save</button>
@@ -498,7 +498,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                           <input type="text" placeholder="Topic Name" required value={topicForm.name} onChange={e => setTopicForm({...topicForm, name: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
                                         </div>
                                         <div className="w-24">
-                                          <input type="number" placeholder="Order" required value={topicForm.order} onChange={e => setTopicForm({...topicForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
+                                          <input type="number" min="1" placeholder="Order" required value={topicForm.order} onChange={e => setTopicForm({...topicForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
                                         </div>
                                       </div>
                                       <div>
@@ -582,9 +582,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                         
                                         {!editingTopic && (
                                           <div className="flex items-center gap-2 mt-auto pt-3 border-t border-white/5">
-                                            <Link href={`/topics/${topic.id}/notes`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition-colors">
-                                              <FileText size={14} /> Notes
-                                            </Link>
+                                            {(topic.has_notes || user?.role !== "STUDENT") && (
+                                              <Link href={`/topics/${topic.id}/notes`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition-colors">
+                                                <FileText size={14} /> Notes
+                                              </Link>
+                                            )}
                                             {topic.has_attempted_tests ? (
                                               <>
                                                 <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors">

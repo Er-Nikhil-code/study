@@ -13,6 +13,10 @@ export const NotesService = {
     return api.patch(`/notes/${id}/review`, data).then(res => res.data);
   },
 
+  updateNote(id: string, data: { title?: string; content_html?: string }) {
+    return api.patch(`/notes/${id}`, data).then(res => res.data);
+  },
+
   getApprovedNotes(topicId: string) {
     return api.get(`/notes/topic/${topicId}`).then(res => res.data);
   }
