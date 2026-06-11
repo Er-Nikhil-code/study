@@ -58,6 +58,14 @@ export const MultipleCorrectMCQSchema = BaseQuestionSchema.extend({
   }),
 });
 
+// Numerical
+export const NumericalSchema = BaseQuestionSchema.extend({
+  type: z.literal("NUMERICAL"),
+  content_json: z.array(ContentBlockSchema).min(1),
+  options_json: z.any().optional(),
+  answer_key: z.any().optional(),
+});
+
 // True/False
 export const TrueFalseSchema = BaseQuestionSchema.extend({
   type: z.literal("TRUE_FALSE"),
@@ -158,6 +166,7 @@ export const CreateQuestionSchema = z.discriminatedUnion("type", [
   FillBlankSchema,
   MatchingSchema,
   PassageSchema,
+  NumericalSchema,
 ]);
 
 export type CreateQuestionType = z.infer<typeof CreateQuestionSchema>;
