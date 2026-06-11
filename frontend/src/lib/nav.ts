@@ -44,19 +44,25 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     case "ADMIN":
       return [
         { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-        { label: "Users & Roles", href: "/admin/users", icon: Users },
-        { label: "Custom Roles", href: "/admin/roles", icon: Shield },
-        { label: "Question Bank", href: "/admin/questions", icon: FileQuestion },
-        { label: "System Status", href: "/admin/system", icon: Activity },
+        
         { label: "Courses", href: "/courses", icon: BookOpen },
         { label: "Curriculum", href: "/teacher/hierarchy", icon: Network },
-        { label: "Review Notes", href: "/teacher/notes/review", icon: FileEdit },
         { label: "Manage Tests", href: "/teacher/tests", icon: FileText },
-        { label: "Create Question", href: "/teacher/questions/create", icon: FilePlus2 },
+        
         { label: "AI Generator", href: "/teacher/ai-generation", icon: BrainCircuit },
+        { label: "Create Question", href: "/teacher/questions/create", icon: FilePlus2 },
+        { label: "Question Bank", href: "/admin/questions", icon: FileQuestion },
+        
         { label: "Notes", href: "/intern/notes/create", icon: FileEdit },
-        { label: "My Notifications", href: "/notifications", icon: Bell },
+        { label: "Review Notes", href: "/teacher/notes/review", icon: FileEdit },
+        
+        { label: "Users & Roles", href: "/admin/users", icon: Users },
+        { label: "Custom Roles", href: "/admin/roles", icon: Shield },
+        
         { label: "Send Notification", href: "/admin/notifications", icon: Send },
+        { label: "My Notifications", href: "/notifications", icon: Bell },
+        
+        { label: "System Status", href: "/admin/system", icon: Activity },
       ];
 
     case "TEACHER":

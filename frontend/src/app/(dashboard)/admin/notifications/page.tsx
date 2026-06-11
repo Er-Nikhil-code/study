@@ -97,6 +97,17 @@ export default function AdminNotificationsPage() {
     }
   };
 
+  const handleDeleteSent = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this notification? It will also be removed from the receiver's inbox.")) return;
+    try {
+      await adminService.deleteSentNotification(id);
+      setSent((prev) => prev.filter((n) => n.id !== id));
+      setStatus({ type: "success", text: "Notification deleted successfully." });
+    } catch (err: any) {
+      setStatus({ type: "error", text: err.response?.data?.message || "Failed to delete notification." });
+    }
+  };
+
   return (
     <>
       <SectionTitle
@@ -317,9 +328,17 @@ export default function AdminNotificationsPage() {
                           </span>
                         </div>
                       </div>
-                      <span className="text-[10px] text-zinc-600 whitespace-nowrap ml-4">
-                        {new Date(n.created_at).toLocaleDateString()}
-                      </span>
+                      <div className="flex flex-col items-end gap-2 ml-4">
+                        <span className="text-[10px] text-zinc-600 whitespace-nowrap">
+                          {new Date(n.created_at).toLocaleDateString()}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteSent(n.id)}
+                          className="text-xs text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 px-2 py-1 rounded transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </Panel>
                 ))

@@ -166,7 +166,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                 isCollapsed ? "justify-center" : "justify-between gap-2"
               ].join(" ")}
             >
-              <div className="flex items-center gap-2 truncate">
+              <div className="flex items-center gap-2 min-w-0 overflow-hidden w-full text-left">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-red-500 font-bold uppercase overflow-hidden">
                   {user?.profile_picture ? (
                      <img src={user.profile_picture} alt="Profile" className="h-full w-full object-cover" />
@@ -175,11 +175,11 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                   )}
                 </div>
                 {!isCollapsed && (
-                  <div className={`flex flex-col min-w-0 overflow-hidden transition-all duration-300 ${isCollapsed ? "w-0 opacity-0" : "w-full opacity-100"}`}>
-                    <span className="truncate text-sm font-medium text-white">
+                  <div className={`flex flex-col min-w-0 overflow-hidden transition-all duration-300 w-full`}>
+                    <span className="truncate text-sm font-medium text-white block">
                       {(user as any)?.first_name || user?.firstName || user?.email || "User"}
                     </span>
-                    <span className="truncate text-xs text-zinc-500">
+                    <span className="truncate text-xs text-zinc-500 block">
                       {user?.role?.replace("_", " ") || "Member"}
                     </span>
                   </div>

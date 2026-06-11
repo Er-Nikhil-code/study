@@ -101,7 +101,6 @@ export default function RichTextEditor({ value, onChange, placeholder, readOnly 
     "color",
     "background",
     "list",
-    "bullet",
     "blockquote",
     "code-block",
     "link",

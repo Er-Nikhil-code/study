@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   Logger,
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
@@ -191,6 +192,31 @@ export class AdminService {
       }
     });
     return notifications;
+  }
+
+  /**
+   * Delete sent notification
+   */
+  async deleteSentNotification(adminId: string, notificationId: string) {
+    // Verify it exists and was sent by this admin
+    const notification = await this.prisma.notificationEvent.findUnique({
+      where: { id: notificationId }
+    });
+
+    if (!notification) {
+      throw new NotFoundException("Notification not found");
+    }
+
+    const dataJson: any = notification.data_json;
+    if (dataJson?.sender_id !== adminId) {
+      throw new ForbiddenException("You can only delete notifications you sent");
+    }
+
+    await this.prisma.notificationEvent.delete({
+      where: { id: notificationId }
+    });
+
+    return { success: true };
   }
 
   /**

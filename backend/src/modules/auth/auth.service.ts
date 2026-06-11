@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   UnauthorizedException,
+  NotFoundException,
   Logger,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -75,6 +76,30 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  /**
+   * Fetch public info for hover cards
+   */
+  async getUserHoverInfo(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        role: true,
+        profile_picture: true,
+        created_at: true,
+        custom_role: { select: { name: true } }
+      }
+    });
+
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    return user;
   }
 
   /**
@@ -320,6 +345,12 @@ export class AuthService {
       // Find user
       const user = await this.prisma.user.findUnique({
         where: { email },
+        include: { 
+          custom_role: true,
+          course_enrollments: {
+            include: { course: true }
+          }
+        },
       });
 
       if (!user) {
@@ -371,10 +402,12 @@ export class AuthService {
         user: {
           id: user.id,
           email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name,
+          first_name: user.first_name,
+          last_name: user.last_name,
           role: user.role,
           profile_picture: user.profile_picture,
+          custom_role: user.custom_role,
+          enrolled_courses: user.course_enrollments.map(e => e.course)
         },
         accessToken,
         refreshToken,

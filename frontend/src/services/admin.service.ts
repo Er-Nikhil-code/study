@@ -206,6 +206,10 @@ class AdminService {
     return res.data;
   }
 
+  async deleteSentNotification(id: string) {
+    await api.delete(`/admin/notifications/sent/${id}`);
+  }
+
   async getReceivedNotifications() {
     const res = await api.get("/admin/notifications/received");
     return res.data;

@@ -16,9 +16,9 @@ export class CleanupService {
   ) {}
 
   /**
-   * Delete expired OTP records every hour
+   * Delete expired OTP records every minute
    */
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_MINUTE)
   async cleanupExpiredOtps(): Promise<void> {
     try {
       const deletedCount = await this.otpService.deleteExpiredOtps();
@@ -32,9 +32,9 @@ export class CleanupService {
   }
 
   /**
-   * Delete expired password reset tokens daily at 2 AM UTC
+   * Delete expired password reset tokens every minute
    */
-  @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  @Cron(CronExpression.EVERY_MINUTE)
   async cleanupExpiredTokens(): Promise<void> {
     try {
       const deletedCount =

@@ -10,6 +10,7 @@ import {
   Logger,
   UseGuards,
   Req,
+  Param,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
@@ -54,6 +55,21 @@ export class AuthController {
       };
     } catch (error: any) {
       this.logger.error(`Get me endpoint error: ${error?.message || "Unknown error"}`);
+      throw error;
+    }
+  }
+
+  /**
+   * GET /auth/users/:id/hover
+   * Fetch public user info for hover cards
+   */
+  @Get("users/:id/hover")
+  @UseGuards(JwtAuthGuard)
+  async getUserHoverInfo(@Req() req: any, @Param("id") id: string) {
+    try {
+      return await this.authService.getUserHoverInfo(id);
+    } catch (error: any) {
+      this.logger.error(`Hover info error for ${id}: ${error?.message}`);
       throw error;
     }
   }

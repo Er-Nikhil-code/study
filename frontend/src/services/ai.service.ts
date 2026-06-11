@@ -1,7 +1,15 @@
 import { api } from "@/lib/api";
 
 export const AiService = {
-  generateQuestions(data: { topicName: string; count: number; contextNotes?: string }) {
+  generateQuestions(data: { 
+    topicId: string;
+    topicName: string; 
+    count: number; 
+    questionType: string;
+    difficulty: string;
+    useNotes: boolean;
+    customInstructions?: string; 
+  }) {
     return api.post("/admin/questions/ai/generate", data).then((r) => r.data);
   },
 

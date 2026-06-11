@@ -211,9 +211,27 @@ export class QuestionsController {
 
   @Post("ai/generate")
   @Roles("TEACHER", "ADMIN")
-  async generateQuestions(@Body() body: { topicName: string; count: number; contextNotes?: string }, @Req() req: any) {
+  async generateQuestions(@Body() body: { 
+    topicId: string;
+    topicName: string; 
+    count: number; 
+    questionType: string;
+    difficulty: string;
+    useNotes: boolean;
+    customInstructions?: string;
+  }, @Req() req: any) {
     const userId = req.user.id || req.user.sub;
-    return this.aiGeneratorService.generateQuestions(userId, req.user.role, body.topicName, body.count, body.contextNotes);
+    return this.aiGeneratorService.generateQuestions(
+      userId, 
+      req.user.role, 
+      body.topicId,
+      body.topicName, 
+      body.count, 
+      body.questionType,
+      body.difficulty,
+      body.useNotes,
+      body.customInstructions
+    );
   }
 
   @Post("ai/similarity")

@@ -108,6 +108,14 @@ export class AdminController {
     return this.adminService.getSentNotifications(req.user.sub);
   }
 
+  @Delete("notifications/sent/:id")
+  async deleteSentNotification(
+    @Request() req: any,
+    @Param("id") notificationId: string
+  ) {
+    return this.adminService.deleteSentNotification(req.user.sub, notificationId);
+  }
+
   @Get("notifications/received")
   async getReceivedNotifications(@Request() req: any) {
     return this.adminService.getReceivedNotifications(req.user.sub);

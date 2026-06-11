@@ -16,13 +16,23 @@ export class AiGeneratorService {
     }
   }
 
-  async generateQuestions(userId: string, role: string, topicName: string, count: number, contextNotes?: string) {
+  async generateQuestions(
+    userId: string, 
+    role: string, 
+    topicId: string, 
+    topicName: string, 
+    count: number, 
+    questionType: string,
+    difficulty: string,
+    useNotes: boolean,
+    customInstructions?: string
+  ) {
     if (!this.ai) {
       throw new HttpException('AI generation is not configured on the server', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    if (count > 20) {
-      throw new HttpException('Cannot generate more than 20 questions at a time', HttpStatus.BAD_REQUEST);
+    if (count > 5) {
+      throw new HttpException('Cannot generate more than 5 questions at a time', HttpStatus.BAD_REQUEST);
     }
 
     // Rate Limiting
@@ -43,9 +53,22 @@ export class AiGeneratorService {
       }
     }
 
-    const prompt = `Generate ${count} multiple-choice questions for the topic "${topicName}".
-${contextNotes ? `Use the following notes as context:\n${contextNotes}\n` : ''}
-Ensure the questions vary in difficulty. Provide 4 options per question.`;
+    let contextNotesStr = '';
+    if (useNotes) {
+      const note = await this.prisma.note.findFirst({
+        where: { topic_id: topicId },
+        orderBy: { created_at: 'desc' }
+      });
+      if (!note) {
+        throw new HttpException('notes unavailable', HttpStatus.BAD_REQUEST);
+      }
+      contextNotesStr = note.content_html; // strip tags or send as is
+    }
+
+    const prompt = `Generate ${count} ${difficulty} difficulty ${questionType} questions for the topic "${topicName}".
+${useNotes && contextNotesStr ? `Use the following notes as context/reference:\n${contextNotesStr}\n` : ''}
+${customInstructions ? `Custom Instructions: ${customInstructions}\n` : ''}
+Ensure the questions vary appropriately within the specified difficulty. Provide 4 options per question.`;
 
     try {
       const response = await this.ai.models.generateContent({
