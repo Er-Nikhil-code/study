@@ -68,6 +68,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     case "TEACHER":
       return [
         { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
+        { label: "Courses", href: "/courses", icon: BookOpen },
         { label: "Curriculum", href: "/teacher/hierarchy", icon: Network },
         { label: "Create Notes", href: "/intern/notes/create", icon: FileEdit },
         { label: "Notes Review", href: "/teacher/notes/review", icon: FileEdit },
@@ -77,6 +78,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
         { label: "Tests", href: "/teacher/tests", icon: FileText },
         { label: "Challenges", href: "/teacher/challenges", icon: ShieldAlert },
         { label: "Notifications", href: "/notifications", icon: Bell },
+        { label: "My Interns", href: "/teacher/interns", icon: Users },
       ];
 
     case "INTERN": {

@@ -71,6 +71,7 @@ export class QuestionsController {
     @Query("difficulty") difficulty?: string,
     @Query("skip") skip?: string,
     @Query("take") take?: string,
+    @Query("created_by_me") createdByMe?: string,
     @Req() req?: any,
   ) {
     const filters: any = {};
@@ -81,7 +82,11 @@ export class QuestionsController {
     if (req.user.role === "INTERN") {
       filters.intern_only = req.user.id || req.user.sub;
     } else if (req.user.role === "TEACHER") {
-      filters.teacher_id = req.user.id || req.user.sub;
+      if (createdByMe === "true") {
+        filters.teacher_id = req.user.id || req.user.sub;
+      } else {
+        filters.admin_search = true; // Teachers can see all questions just like admins
+      }
     } else if (req.user.role === "ADMIN") {
       filters.admin_search = true;
     }

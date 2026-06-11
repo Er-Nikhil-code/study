@@ -1,18 +1,26 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class HierarchyService {
   constructor(private prisma: PrismaService) {}
 
+  private async checkCoursePermission(courseId: string, userId: string, role: string) {
+    if (role === "ADMIN") return;
+    const course = await this.prisma.course.findUnique({ where: { id: courseId } });
+    if (course?.created_by !== userId) throw new ForbiddenException("Only the course creator can perform this action");
+  }
+
   // Course
   createCourse(data: { name: string; code: string; description: string; created_by?: string }) {
     return this.prisma.course.create({ data });
   }
-  updateCourse(id: string, data: { name?: string; code?: string; description?: string }) {
+  async updateCourse(id: string, userId: string, role: string, data: { name?: string; code?: string; description?: string }) {
+    await this.checkCoursePermission(id, userId, role);
     return this.prisma.course.update({ where: { id }, data });
   }
-  deleteCourse(id: string) {
+  async deleteCourse(id: string, userId: string, role: string) {
+    await this.checkCoursePermission(id, userId, role);
     return this.prisma.course.delete({ where: { id } });
   }
   getCourses() {
@@ -20,10 +28,14 @@ export class HierarchyService {
   }
 
   // Section
-  createSection(data: { course_id: string; name: string; description: string; order: number }) {
+  async createSection(userId: string, role: string, data: { course_id: string; name: string; description: string; order: number }) {
+    await this.checkCoursePermission(data.course_id, userId, role);
     return this.prisma.section.create({ data });
   }
-  updateSection(id: string, data: { name?: string; description?: string; order?: number }) {
+  async updateSection(id: string, userId: string, role: string, data: { name?: string; description?: string; order?: number }) {
+    const section = await this.prisma.section.findUnique({ where: { id } });
+    if (!section) throw new NotFoundException();
+    await this.checkCoursePermission(section.course_id, userId, role);
     return this.prisma.section.update({ where: { id }, data });
   }
   getSections(courseId: string) {
@@ -31,20 +43,32 @@ export class HierarchyService {
   }
 
   // Chapter
-  createChapter(data: { section_id: string; name: string; description: string; order: number }) {
+  async createChapter(userId: string, role: string, data: { section_id: string; name: string; description: string; order: number }) {
+    const section = await this.prisma.section.findUnique({ where: { id: data.section_id } });
+    if (!section) throw new NotFoundException();
+    await this.checkCoursePermission(section.course_id, userId, role);
     return this.prisma.chapter.create({ data });
   }
-  updateChapter(id: string, data: { name?: string; description?: string; order?: number }) {
+  async updateChapter(id: string, userId: string, role: string, data: { name?: string; description?: string; order?: number }) {
+    const chapter = await this.prisma.chapter.findUnique({ where: { id }, include: { section: true } });
+    if (!chapter) throw new NotFoundException();
+    await this.checkCoursePermission(chapter.section.course_id, userId, role);
     return this.prisma.chapter.update({ where: { id }, data });
   }
   getChapters(sectionId: string) {
     return this.prisma.chapter.findMany({ where: { section_id: sectionId }, include: { topics: true }, orderBy: { order: 'asc' } });
   }
 
-  createTopic(data: { chapter_id: string; name: string; description: string; order: number }) {
+  async createTopic(userId: string, role: string, data: { chapter_id: string; name: string; description: string; order: number }) {
+    const chapter = await this.prisma.chapter.findUnique({ where: { id: data.chapter_id }, include: { section: true } });
+    if (!chapter) throw new NotFoundException();
+    await this.checkCoursePermission(chapter.section.course_id, userId, role);
     return this.prisma.topic.create({ data });
   }
-  updateTopic(id: string, data: { name?: string; description?: string; order?: number }) {
+  async updateTopic(id: string, userId: string, role: string, data: { name?: string; description?: string; order?: number }) {
+    const topic = await this.prisma.topic.findUnique({ where: { id }, include: { chapter: { include: { section: true } } } });
+    if (!topic) throw new NotFoundException();
+    await this.checkCoursePermission(topic.chapter.section.course_id, userId, role);
     return this.prisma.topic.update({ where: { id }, data });
   }
   getTopics(chapterId: string) {

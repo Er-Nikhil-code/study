@@ -19,6 +19,7 @@ export class TestsService {
 
   async createTest(
     creatorId: string,
+    role: string,
     data: {
       title: string;
       topic_id: string;
@@ -32,6 +33,17 @@ export class TestsService {
       question_ids?: string[];
     },
   ) {
+    if (role !== "ADMIN") {
+      const topic = await this.prisma.topic.findUnique({
+        where: { id: data.topic_id },
+        include: { chapter: { include: { section: { include: { course: true } } } } }
+      });
+      if (!topic) throw new NotFoundException("Topic not found");
+      if (topic.chapter.section.course.created_by !== creatorId) {
+        throw new ForbiddenException("You can only create tests for courses you created.");
+      }
+    }
+
     const test = await this.prisma.test.create({
       data: {
         title: data.title,
@@ -67,6 +79,7 @@ export class TestsService {
   async updateTest(
     testId: string,
     userId: string,
+    role: string,
     data: {
       title?: string;
       description?: string;
@@ -80,7 +93,7 @@ export class TestsService {
   ) {
     const test = await this.prisma.test.findUnique({ where: { id: testId } });
     if (!test) throw new NotFoundException("Test not found");
-    if (test.created_by !== userId)
+    if (role !== "ADMIN" && test.created_by !== userId)
       throw new ForbiddenException("Not the test creator");
     if (test.status !== "DRAFT")
       throw new BadRequestException("Can only edit draft tests");

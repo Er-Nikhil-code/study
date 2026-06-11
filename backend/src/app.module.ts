@@ -18,6 +18,7 @@ import { ChallengesModule } from "./modules/challenges/challenges.module";
 import { HierarchyModule } from "./modules/hierarchy/hierarchy.module";
 import { NotesModule } from "./modules/notes/notes.module";
 import { SocketModule } from "./modules/socket/socket.module";
+import { TeacherModule } from "./modules/teacher/teacher.module";
 import { CleanupService } from "./jobs/cleanup.service";
 import { KeepAliveService } from "./jobs/keep-alive.service";
 
@@ -67,6 +68,7 @@ import { KeepAliveService } from "./jobs/keep-alive.service";
     HierarchyModule,
     NotesModule,
     SocketModule,
+    TeacherModule,
   ],
   providers: [
     CleanupService, 

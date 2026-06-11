@@ -117,7 +117,7 @@ export class TestsController {
       question_ids?: string[];
     },
   ) {
-    return this.testsService.createTest(req.user.sub, body);
+    return this.testsService.createTest(req.user.sub, req.user.role, body);
   }
 
   @Patch(":id")
@@ -137,7 +137,7 @@ export class TestsController {
       negative_marks?: number;
     },
   ) {
-    return this.testsService.updateTest(id, req.user.sub, body);
+    return this.testsService.updateTest(id, req.user.sub, req.user.role, body);
   }
 
   @Post(":id/publish")

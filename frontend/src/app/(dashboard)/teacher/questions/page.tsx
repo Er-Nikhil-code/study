@@ -14,13 +14,15 @@ export default function TeacherQuestionsPage() {
   const [userRole, setUserRole] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
 
+  const [createdOnly, setCreatedOnly] = useState(false);
+
   // Submitting state
   const [submittingId, setSubmittingId] = useState<string | null>(null);
 
   const { data: questionsData, isLoading: loading, isFetching, error: queryError } = useQuery({
-    queryKey: ["questions", "list"],
+    queryKey: ["questions", "list", createdOnly],
     queryFn: async () => {
-      return await QuestionsService.getAll();
+      return await QuestionsService.getAll(createdOnly ? { created_by_me: true } : {});
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
@@ -85,7 +87,18 @@ export default function TeacherQuestionsPage() {
         title="Question Bank"
         subtitle={`${total} question${total !== 1 ? "s" : ""} in your workspace.`}
         action={
-          <div className="flex gap-2">
+          <div className="flex items-center gap-4">
+            {userRole === "TEACHER" && (
+              <label className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={createdOnly}
+                  onChange={(e) => setCreatedOnly(e.target.checked)}
+                  className="rounded border-zinc-700 bg-black/50 text-red-500 focus:ring-red-500/50"
+                />
+                Created by me
+              </label>
+            )}
             <button 
               onClick={handleRefresh}
               disabled={isFetching}

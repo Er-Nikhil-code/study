@@ -35,49 +35,49 @@ export class HierarchyController {
 
   @Patch("courses/:id")
   @Roles("TEACHER", "ADMIN")
-  updateCourse(@Param("id") id: string, @Body() data: { name?: string; code?: string; description?: string }) {
-    return this.hierarchyService.updateCourse(id, data);
+  updateCourse(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; code?: string; description?: string }) {
+    return this.hierarchyService.updateCourse(id, req.user.sub, req.user.role, data);
   }
 
   @Delete("courses/:id")
   @Roles("ADMIN")
-  deleteCourse(@Param("id") id: string) {
-    return this.hierarchyService.deleteCourse(id);
+  deleteCourse(@Param("id") id: string, @Request() req: any) {
+    return this.hierarchyService.deleteCourse(id, req.user.sub, req.user.role);
   }
 
   @Post("sections")
   @Roles("TEACHER", "ADMIN")
-  createSection(@Body() data: { course_id: string; name: string; description: string; order: number }) {
-    return this.hierarchyService.createSection(data);
+  createSection(@Request() req: any, @Body() data: { course_id: string; name: string; description: string; order: number }) {
+    return this.hierarchyService.createSection(req.user.sub, req.user.role, data);
   }
 
   @Patch("sections/:id")
   @Roles("TEACHER", "ADMIN")
-  updateSection(@Param("id") id: string, @Body() data: { name?: string; description?: string; order?: number }) {
-    return this.hierarchyService.updateSection(id, data);
+  updateSection(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; description?: string; order?: number }) {
+    return this.hierarchyService.updateSection(id, req.user.sub, req.user.role, data);
   }
 
   @Post("chapters")
   @Roles("TEACHER", "ADMIN")
-  createChapter(@Body() data: { section_id: string; name: string; description: string; order: number }) {
-    return this.hierarchyService.createChapter(data);
+  createChapter(@Request() req: any, @Body() data: { section_id: string; name: string; description: string; order: number }) {
+    return this.hierarchyService.createChapter(req.user.sub, req.user.role, data);
   }
 
   @Patch("chapters/:id")
   @Roles("TEACHER", "ADMIN")
-  updateChapter(@Param("id") id: string, @Body() data: { name?: string; description?: string; order?: number }) {
-    return this.hierarchyService.updateChapter(id, data);
+  updateChapter(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; description?: string; order?: number }) {
+    return this.hierarchyService.updateChapter(id, req.user.sub, req.user.role, data);
   }
 
   @Post("topics")
   @Roles("TEACHER", "ADMIN")
-  createTopic(@Body() data: { chapter_id: string; name: string; description: string; order: number }) {
-    return this.hierarchyService.createTopic(data);
+  createTopic(@Request() req: any, @Body() data: { chapter_id: string; name: string; description: string; order: number }) {
+    return this.hierarchyService.createTopic(req.user.sub, req.user.role, data);
   }
 
   @Patch("topics/:id")
   @Roles("TEACHER", "ADMIN")
-  updateTopic(@Param("id") id: string, @Body() data: { name?: string; description?: string; order?: number }) {
-    return this.hierarchyService.updateTopic(id, data);
+  updateTopic(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; description?: string; order?: number }) {
+    return this.hierarchyService.updateTopic(id, req.user.sub, req.user.role, data);
   }
 }
