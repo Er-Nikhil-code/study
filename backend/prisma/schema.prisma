@@ -95,6 +95,7 @@ model Course {
   id              String    @id @default(cuid())
   name            String    @unique
   code            String
+  description     String
   created_by      String?   // User ID of the teacher/admin who created it
   created_at      DateTime  @default(now())
 
@@ -109,6 +110,7 @@ model Section {
   course_id       String
   course          Course    @relation(fields: [course_id], references: [id], onDelete: Cascade)
   name            String
+  description     String
   order           Int
   created_at      DateTime  @default(now())
 
@@ -123,6 +125,7 @@ model Chapter {
   section_id      String
   section         Section   @relation(fields: [section_id], references: [id], onDelete: Cascade)
   name            String
+  description     String
   order           Int
   created_at      DateTime  @default(now())
 
@@ -137,7 +140,7 @@ model Topic {
   chapter_id      String
   chapter         Chapter   @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
   name            String
-  description     String?   // Brief description of the topic
+  description     String    // Brief description of the topic
   order           Int
   created_at      DateTime  @default(now())
 

@@ -17,11 +17,20 @@ export class AiGeneratorService {
   }
 
   async generateQuestions(
-    userId: string, 
-    role: string, 
-    topicId: string, 
-    topicName: string, 
-    count: number, 
+    userId: string,
+    role: string,
+    context: {
+      topicId: string;
+      topicName: string;
+      topicDesc?: string;
+      courseName?: string;
+      courseDesc?: string;
+      sectionName?: string;
+      sectionDesc?: string;
+      chapterName?: string;
+      chapterDesc?: string;
+    },
+    count: number,
     questionType: string,
     difficulty: string,
     useNotes: boolean,
@@ -56,7 +65,7 @@ export class AiGeneratorService {
     let contextNotesStr = '';
     if (useNotes) {
       const note = await this.prisma.note.findFirst({
-        where: { topic_id: topicId },
+        where: { topic_id: context.topicId },
         orderBy: { created_at: 'desc' }
       });
       if (!note) {
@@ -65,10 +74,20 @@ export class AiGeneratorService {
       contextNotesStr = note.content_html; // strip tags or send as is
     }
 
-    const prompt = `Generate ${count} ${difficulty} difficulty ${questionType} questions for the topic "${topicName}".
+    let hierarchyContextStr = `You are an expert educator creating high-quality assessment questions.
+Below is the curriculum context for the questions you need to generate:
+- Course: ${context.courseName || "Unknown"} ${context.courseDesc ? `(${context.courseDesc})` : ""}
+- Section: ${context.sectionName || "Unknown"} ${context.sectionDesc ? `(${context.sectionDesc})` : ""}
+- Chapter: ${context.chapterName || "Unknown"} ${context.chapterDesc ? `(${context.chapterDesc})` : ""}
+- Topic: ${context.topicName || "Unknown"} ${context.topicDesc ? `(${context.topicDesc})` : ""}
+`;
+
+    const prompt = `${hierarchyContextStr}
+
+Task: Generate ${count} ${difficulty} difficulty ${questionType} questions specifically for the Topic "${context.topicName}".
 ${useNotes && contextNotesStr ? `Use the following notes as context/reference:\n${contextNotesStr}\n` : ''}
 ${customInstructions ? `Custom Instructions: ${customInstructions}\n` : ''}
-Ensure the questions vary appropriately within the specified difficulty. Provide 4 options per question.
+Ensure the questions vary appropriately within the specified difficulty and are relevant to the provided course hierarchy context. Provide 4 options per question.
 CRITICAL: The options array MUST use the strings "1", "2", "3", "4" for the 'id' fields (do NOT use "0"). Section numbers, chapter numbers, list items, or anything like this MUST all start from 1, never 0.`;
 
     try {

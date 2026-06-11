@@ -26,23 +26,22 @@ const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
 
 export default function AIGenerationPage() {
   const [hierarchy, setHierarchy] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Cascading Selection State
-  const [selectedCourse, setSelectedCourse] = useState("");
-  const [selectedSection, setSelectedSection] = useState("");
-  const [selectedChapter, setSelectedChapter] = useState("");
-
-  const [form, setForm] = useState<any>({
+  const [selectedCourse, setSelectedCourse] = useState<string>("");
+  const [selectedSection, setSelectedSection] = useState<string>("");
+  const [selectedChapter, setSelectedChapter] = useState<string>("");
+  
+  const [form, setForm] = useState({
     topicId: "",
-    count: "",
-    questionType: "SINGLE_CORRECT",
+    count: "" as any,
+    questionType: "MULTIPLE_CHOICE",
     difficulty: "MEDIUM",
     useNotes: false,
-    customInstructions: "",
+    customInstructions: ""
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notesWarning, setNotesWarning] = useState<string | null>(null);
   const [generatedQuestions, setGeneratedQuestions] = useState<any[]>([]);
   const [savingIdx, setSavingIdx] = useState<number | null>(null);
   const [savedStatus, setSavedStatus] = useState<Record<number, boolean>>({});
@@ -73,11 +72,18 @@ export default function AIGenerationPage() {
     setSavedStatus({});
 
     try {
-      const selectedTopicName = getSelectedTopicName();
+      const context = getSelectedContext();
       
       const res = await AiService.generateQuestions({
         topicId: form.topicId,
-        topicName: selectedTopicName,
+        topicName: context?.topicName || "",
+        topicDesc: context?.topicDesc,
+        courseName: context?.courseName,
+        courseDesc: context?.courseDesc,
+        sectionName: context?.sectionName,
+        sectionDesc: context?.sectionDesc,
+        chapterName: context?.chapterName,
+        chapterDesc: context?.chapterDesc,
         count: form.count,
         questionType: form.questionType,
         difficulty: form.difficulty,
@@ -97,16 +103,27 @@ export default function AIGenerationPage() {
     }
   };
 
-  const getSelectedTopicName = () => {
+  const getSelectedContext = () => {
     for (const course of hierarchy) {
       for (const sec of course.sections) {
         for (const chap of sec.chapters) {
           const top = chap.topics.find((t: any) => t.id === form.topicId);
-          if (top) return top.name;
+          if (top) {
+            return {
+              courseName: course.name,
+              courseDesc: course.description,
+              sectionName: sec.name,
+              sectionDesc: sec.description,
+              chapterName: chap.name,
+              chapterDesc: chap.description,
+              topicName: top.name,
+              topicDesc: top.description
+            };
+          }
         }
       }
     }
-    return "";
+    return null;
   };
 
   const handleSaveQuestion = async (idx: number, q: any) => {
@@ -246,36 +263,43 @@ export default function AIGenerationPage() {
             {/* AI Parameters */}
             {form.topicId && (
               <div className="pt-4 border-t border-white/10 space-y-4">
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="checkbox" 
-                    id="useNotes"
-                    checked={form.useNotes}
-                    onChange={async e => {
-                      const checked = e.target.checked;
-                      if (checked) {
-                        try {
-                          const notes = await NotesService.getApprovedNotes(form.topicId);
-                          if (!notes || notes.length === 0) {
-                            setError("Notes unavailable for this topic. Uncheck 'Use Topic Notes' or upload notes first.");
+                <div className="flex flex-col gap-1 relative">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      id="useNotes"
+                      checked={form.useNotes}
+                      onChange={async e => {
+                        const checked = e.target.checked;
+                        if (checked) {
+                          try {
+                            const notes = await NotesService.getApprovedNotes(form.topicId);
+                            if (!notes || notes.length === 0) {
+                              setNotesWarning("Notes unavailable for this topic.");
+                              setForm({...form, useNotes: false});
+                              setTimeout(() => setNotesWarning(null), 2000);
+                            } else {
+                              setForm({...form, useNotes: true});
+                            }
+                          } catch (err) {
+                            setNotesWarning("Failed to check notes availability.");
                             setForm({...form, useNotes: false});
-                            setTimeout(() => setError(null), 3000);
-                          } else {
-                            setForm({...form, useNotes: true});
+                            setTimeout(() => setNotesWarning(null), 2000);
                           }
-                        } catch (err) {
-                          setError("Failed to check notes availability.");
+                        } else {
                           setForm({...form, useNotes: false});
-                          setTimeout(() => setError(null), 3000);
+                          setNotesWarning(null);
                         }
-                      } else {
-                        setForm({...form, useNotes: false});
-                        setError(null);
-                      }
-                    }}
-                    className="rounded border-zinc-700 bg-zinc-900 text-purple-600 focus:ring-purple-600/20"
-                  />
-                  <label htmlFor="useNotes" className="text-sm text-zinc-300">Use Topic Notes for Reference</label>
+                      }}
+                      className="rounded border-zinc-700 bg-zinc-900 text-purple-600 focus:ring-purple-600/20"
+                    />
+                    <label htmlFor="useNotes" className="text-sm text-zinc-300">Use Topic Notes for Reference</label>
+                  </div>
+                  {notesWarning && (
+                    <div className="absolute top-full mt-1 left-0 z-50 bg-red-600/90 text-white text-xs px-3 py-1.5 rounded shadow-lg animate-in fade-in slide-in-from-top-1 duration-200">
+                      {notesWarning}
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">

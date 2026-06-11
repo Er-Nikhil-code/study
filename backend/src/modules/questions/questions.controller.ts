@@ -213,7 +213,14 @@ export class QuestionsController {
   @Roles("TEACHER", "ADMIN")
   async generateQuestions(@Body() body: { 
     topicId: string;
-    topicName: string; 
+    topicName: string;
+    topicDesc?: string;
+    courseName?: string;
+    courseDesc?: string;
+    sectionName?: string;
+    sectionDesc?: string;
+    chapterName?: string;
+    chapterDesc?: string;
     count: number; 
     questionType: string;
     difficulty: string;
@@ -224,8 +231,7 @@ export class QuestionsController {
     return this.aiGeneratorService.generateQuestions(
       userId, 
       req.user.role, 
-      body.topicId,
-      body.topicName, 
+      body,
       body.count, 
       body.questionType,
       body.difficulty,

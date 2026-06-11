@@ -3,7 +3,14 @@ import { api } from "@/lib/api";
 export const AiService = {
   generateQuestions(data: { 
     topicId: string;
-    topicName: string; 
+    topicName: string;
+    topicDesc?: string;
+    courseName?: string;
+    courseDesc?: string;
+    sectionName?: string;
+    sectionDesc?: string;
+    chapterName?: string;
+    chapterDesc?: string;
     count: number; 
     questionType: string;
     difficulty: string;

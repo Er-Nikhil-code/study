@@ -6,10 +6,10 @@ export class HierarchyService {
   constructor(private prisma: PrismaService) {}
 
   // Course
-  createCourse(data: { name: string; code: string; created_by?: string }) {
+  createCourse(data: { name: string; code: string; description: string; created_by?: string }) {
     return this.prisma.course.create({ data });
   }
-  updateCourse(id: string, data: { name?: string; code?: string }) {
+  updateCourse(id: string, data: { name?: string; code?: string; description?: string }) {
     return this.prisma.course.update({ where: { id }, data });
   }
   deleteCourse(id: string) {
@@ -20,10 +20,10 @@ export class HierarchyService {
   }
 
   // Section
-  createSection(data: { course_id: string; name: string; order: number }) {
+  createSection(data: { course_id: string; name: string; description: string; order: number }) {
     return this.prisma.section.create({ data });
   }
-  updateSection(id: string, data: { name?: string; order?: number }) {
+  updateSection(id: string, data: { name?: string; description?: string; order?: number }) {
     return this.prisma.section.update({ where: { id }, data });
   }
   getSections(courseId: string) {
@@ -31,18 +31,17 @@ export class HierarchyService {
   }
 
   // Chapter
-  createChapter(data: { section_id: string; name: string; order: number }) {
+  createChapter(data: { section_id: string; name: string; description: string; order: number }) {
     return this.prisma.chapter.create({ data });
   }
-  updateChapter(id: string, data: { name?: string; order?: number }) {
+  updateChapter(id: string, data: { name?: string; description?: string; order?: number }) {
     return this.prisma.chapter.update({ where: { id }, data });
   }
   getChapters(sectionId: string) {
     return this.prisma.chapter.findMany({ where: { section_id: sectionId }, include: { topics: true }, orderBy: { order: 'asc' } });
   }
 
-  // Topic
-  createTopic(data: { chapter_id: string; name: string; description?: string; order: number }) {
+  createTopic(data: { chapter_id: string; name: string; description: string; order: number }) {
     return this.prisma.topic.create({ data });
   }
   updateTopic(id: string, data: { name?: string; description?: string; order?: number }) {

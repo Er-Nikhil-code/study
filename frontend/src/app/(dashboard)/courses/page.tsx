@@ -14,7 +14,8 @@ export default function CoursesPage() {
   const user = useAuthStore((s) => s.user);
 
   const [editingCourse, setEditingCourse] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ name: "", code: "" });
+  const [editForm, setEditForm] = useState({ name: "", code: "", description: "" });
+  const countWords = (str: string) => str.trim() ? str.trim().split(/\s+/).length : 0;
   const [saving, setSaving] = useState(false);
   const { data: courses = [], isLoading: loading, error: queryError } = useQuery({
     queryKey: ["courses", "hierarchy"],
@@ -54,13 +55,31 @@ export default function CoursesPage() {
                 <label className="text-xs text-zinc-500 mb-1 block">Course Code</label>
                 <input 
                   type="text" 
+                  required
                   value={editForm.code} 
                   onChange={e => setEditForm({...editForm, code: e.target.value})} 
                   className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
                 />
               </div>
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs text-zinc-500 block">Description (Max 30 words)</label>
+                  <span className={`text-[10px] ${countWords(editForm.description) > 30 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(editForm.description)} / 30</span>
+                </div>
+                <textarea 
+                  required
+                  value={editForm.description} 
+                  onChange={e => setEditForm({...editForm, description: e.target.value})} 
+                  className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50 min-h-[80px]" 
+                  placeholder="Enter course description..."
+                />
+              </div>
               <button 
                 onClick={async () => {
+                  if (countWords(editForm.description) > 30) {
+                    alert("Course description cannot exceed 30 words.");
+                    return;
+                  }
                   setSaving(true);
                   try {
                     await HierarchyService.updateCourse(editingCourse.id, editForm);
@@ -113,7 +132,7 @@ export default function CoursesPage() {
                     onClick={(e) => {
                       e.preventDefault();
                       setEditingCourse(course);
-                      setEditForm({ name: course.name, code: course.code });
+                      setEditForm({ name: course.name, code: course.code, description: course.description || "" });
                     }}
                     className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-zinc-400 hover:text-white hover:bg-white/20 opacity-0 group-hover:opacity-100 transition-all z-10 backdrop-blur-sm"
                     title="Edit Course"

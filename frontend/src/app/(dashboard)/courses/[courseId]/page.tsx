@@ -28,19 +28,21 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   const [addingChapterTo, setAddingChapterTo] = useState<string | null>(null);
   const [addingTopicTo, setAddingTopicTo] = useState<string | null>(null);
   
-  const [sectionForm, setSectionForm] = useState({ name: "", order: 1 });
-  const [chapterForm, setChapterForm] = useState({ name: "", order: 1 });
+  const [sectionForm, setSectionForm] = useState({ name: "", description: "", order: 1 });
+  const [chapterForm, setChapterForm] = useState({ name: "", description: "", order: 1 });
   const [topicForm, setTopicForm] = useState({ name: "", description: "", order: 1 });
 
   // Forms for editing
   const [editingSection, setEditingSection] = useState<string | null>(null);
-  const [editSectionForm, setEditSectionForm] = useState({ name: "" });
+  const [editSectionForm, setEditSectionForm] = useState({ name: "", description: "" });
 
   const [editingChapter, setEditingChapter] = useState<string | null>(null);
-  const [editChapterForm, setEditChapterForm] = useState({ name: "" });
+  const [editChapterForm, setEditChapterForm] = useState({ name: "", description: "" });
 
   const [editingTopic, setEditingTopic] = useState<string | null>(null);
   const [editTopicForm, setEditTopicForm] = useState({ name: "", description: "" });
+
+  const countWords = (str: string) => str.trim() ? str.trim().split(/\s+/).length : 0;
 
   // Drag and Drop state
   const [draggedItem, setDraggedItem] = useState<{ id: string; type: "SECTION" | "CHAPTER" | "TOPIC"; sourceParentId: string | null; index: number } | null>(null);
@@ -82,23 +84,35 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   // --- Add Handlers ---
   const handleCreateSection = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (countWords(sectionForm.description) > 80) {
+      alert("Section description cannot exceed 80 words.");
+      return;
+    }
     await HierarchyService.createSection({ ...sectionForm, course_id: course.id });
     setAddingSection(false);
-    setSectionForm({ name: "", order: 1 });
+    setSectionForm({ name: "", description: "", order: 1 });
     fetchCourse();
   };
 
   const handleCreateChapter = async (e: React.FormEvent, sectionId: string) => {
     e.preventDefault();
+    if (countWords(chapterForm.description) > 50) {
+      alert("Chapter description cannot exceed 50 words.");
+      return;
+    }
     await HierarchyService.createChapter({ ...chapterForm, section_id: sectionId });
     setAddingChapterTo(null);
-    setChapterForm({ name: "", order: 1 });
+    setChapterForm({ name: "", description: "", order: 1 });
     setExpandedSections(prev => ({ ...prev, [sectionId]: true }));
     fetchCourse();
   };
 
   const handleCreateTopic = async (e: React.FormEvent, chapterId: string) => {
     e.preventDefault();
+    if (countWords(topicForm.description) > 20) {
+      alert("Topic description cannot exceed 20 words.");
+      return;
+    }
     await HierarchyService.createTopic({ ...topicForm, chapter_id: chapterId });
     setAddingTopicTo(null);
     setTopicForm({ name: "", description: "", order: 1 });
@@ -109,6 +123,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   // --- Edit Handlers ---
   const handleEditSection = async (e: React.FormEvent, sectionId: string) => {
     e.preventDefault();
+    if (countWords(editSectionForm.description) > 80) {
+      alert("Section description cannot exceed 80 words.");
+      return;
+    }
     await HierarchyService.updateSection(sectionId, editSectionForm);
     setEditingSection(null);
     fetchCourse();
@@ -116,6 +134,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   const handleEditChapter = async (e: React.FormEvent, chapterId: string) => {
     e.preventDefault();
+    if (countWords(editChapterForm.description) > 50) {
+      alert("Chapter description cannot exceed 50 words.");
+      return;
+    }
     await HierarchyService.updateChapter(chapterId, editChapterForm);
     setEditingChapter(null);
     fetchCourse();
@@ -123,6 +145,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   const handleEditTopic = async (e: React.FormEvent, topicId: string) => {
     e.preventDefault();
+    if (countWords(editTopicForm.description) > 20) {
+      alert("Topic description cannot exceed 20 words.");
+      return;
+    }
     await HierarchyService.updateTopic(topicId, editTopicForm);
     setEditingTopic(null);
     fetchCourse();
@@ -283,14 +309,23 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             <div className="space-y-8 max-w-5xl">
             {addingSection && (
               <Panel className="border border-red-500/30 bg-black/50">
-                <form onSubmit={handleCreateSection} className="flex flex-col sm:flex-row gap-4 items-end">
-                  <div className="flex-1 w-full">
-                    <label className="text-xs text-zinc-400 block mb-1">Section Name</label>
-                    <input type="text" required value={sectionForm.name} onChange={e => setSectionForm({...sectionForm, name: e.target.value})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
+                <form onSubmit={handleCreateSection} className="flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4 items-end w-full">
+                    <div className="flex-1 w-full">
+                      <label className="text-xs text-zinc-400 block mb-1">Section Name</label>
+                      <input type="text" required value={sectionForm.name} onChange={e => setSectionForm({...sectionForm, name: e.target.value})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
+                    </div>
+                    <div className="w-24">
+                      <label className="text-xs text-zinc-400 block mb-1">Order</label>
+                      <input type="number" required value={sectionForm.order} onChange={e => setSectionForm({...sectionForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
+                    </div>
                   </div>
-                  <div className="w-24">
-                    <label className="text-xs text-zinc-400 block mb-1">Order</label>
-                    <input type="number" required value={sectionForm.order} onChange={e => setSectionForm({...sectionForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-xs text-zinc-400 block">Description (Max 80 words)</label>
+                      <span className={`text-[10px] ${countWords(sectionForm.description) > 80 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(sectionForm.description)} / 80</span>
+                    </div>
+                    <textarea required value={sectionForm.description} onChange={e => setSectionForm({...sectionForm, description: e.target.value})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white min-h-[60px]" placeholder="Enter section description..." />
                   </div>
                   <div className="flex gap-2">
                     <button type="submit" className="rounded bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-500">Save</button>
@@ -324,17 +359,26 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       <BookOpen size={20} />
                     </div>
                     {editingSection === section.id ? (
-                      <form onSubmit={(e) => handleEditSection(e, section.id)} onClick={(e) => e.stopPropagation()} className="flex gap-2 flex-1 max-w-sm">
-                        <input autoFocus type="text" value={editSectionForm.name} onChange={e => setEditSectionForm({name: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" />
-                        <button type="submit" className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
-                        <button type="button" onClick={() => setEditingSection(null)} className="px-2 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
+                      <form onSubmit={(e) => handleEditSection(e, section.id)} onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2 flex-1 max-w-lg">
+                        <div className="flex gap-2 w-full">
+                          <input autoFocus type="text" value={editSectionForm.name} onChange={e => setEditSectionForm({...editSectionForm, name: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Section name" />
+                          <button type="submit" className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
+                          <button type="button" onClick={() => setEditingSection(null)} className="px-3 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
+                        </div>
+                        <div>
+                          <div className="flex justify-between items-center mb-1 px-1">
+                            <label className="text-[10px] text-zinc-500">Description (Max 80 words)</label>
+                            <span className={`text-[10px] ${countWords(editSectionForm.description) > 80 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(editSectionForm.description)} / 80</span>
+                          </div>
+                          <textarea required value={editSectionForm.description} onChange={e => setEditSectionForm({...editSectionForm, description: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white min-h-[40px]" placeholder="Section description..." />
+                        </div>
                       </form>
                     ) : (
                       <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
                         {section.name}
                         {isCreatorOrAdmin && (
                           <button 
-                            onClick={(e) => { e.stopPropagation(); setEditingSection(section.id); setEditSectionForm({ name: section.name }); }}
+                            onClick={(e) => { e.stopPropagation(); setEditingSection(section.id); setEditSectionForm({ name: section.name, description: section.description || "" }); }}
                             className="p-1.5 rounded-full hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
                           >
                             <Edit2 size={14} />
@@ -402,10 +446,19 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                   </div>
                                 )}
                                 {editingChapter === chapter.id ? (
-                                  <form onSubmit={(e) => handleEditChapter(e, chapter.id)} onClick={(e) => e.stopPropagation()} className="flex gap-2 flex-1 max-w-sm">
-                                    <input autoFocus type="text" value={editChapterForm.name} onChange={e => setEditChapterForm({name: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" />
-                                    <button type="submit" className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
-                                    <button type="button" onClick={() => setEditingChapter(null)} className="px-2 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
+                                  <form onSubmit={(e) => handleEditChapter(e, chapter.id)} onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2 flex-1 max-w-sm">
+                                    <div className="flex gap-2 w-full">
+                                      <input autoFocus type="text" value={editChapterForm.name} onChange={e => setEditChapterForm({...editChapterForm, name: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Chapter name" />
+                                      <button type="submit" className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
+                                      <button type="button" onClick={() => setEditingChapter(null)} className="px-2 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
+                                    </div>
+                                    <div>
+                                      <div className="flex justify-between items-center mb-1 px-1">
+                                        <label className="text-[10px] text-zinc-500">Description (Max 50 words)</label>
+                                        <span className={`text-[10px] ${countWords(editChapterForm.description) > 50 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(editChapterForm.description)} / 50</span>
+                                      </div>
+                                      <textarea required value={editChapterForm.description} onChange={e => setEditChapterForm({...editChapterForm, description: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white min-h-[40px]" placeholder="Chapter description..." />
+                                    </div>
                                   </form>
                                 ) : (
                                   <h4 className="text-lg font-semibold text-zinc-200 flex items-center gap-2">
@@ -413,7 +466,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                     {chapter.name}
                                     {isCreatorOrAdmin && (
                                       <button 
-                                        onClick={(e) => { e.stopPropagation(); setEditingChapter(chapter.id); setEditChapterForm({ name: chapter.name }); }}
+                                        onClick={(e) => { e.stopPropagation(); setEditingChapter(chapter.id); setEditChapterForm({ name: chapter.name, description: chapter.description || "" }); }}
                                         className="p-1 rounded-full hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
                                       >
                                         <Edit2 size={12} />
@@ -449,7 +502,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                         </div>
                                       </div>
                                       <div>
-                                        <textarea placeholder="Brief description of the topic (optional)" value={topicForm.description} onChange={e => setTopicForm({...topicForm, description: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white min-h-[60px]" />
+                                        <div className="flex justify-between items-center mb-1">
+                                          <label className="text-[10px] text-zinc-500">Description (Max 20 words)</label>
+                                          <span className={`text-[10px] ${countWords(topicForm.description) > 20 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(topicForm.description)} / 20</span>
+                                        </div>
+                                        <textarea required placeholder="Brief description of the topic" value={topicForm.description} onChange={e => setTopicForm({...topicForm, description: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white min-h-[60px]" />
                                       </div>
                                       <div className="flex gap-2 justify-end">
                                         <button type="button" onClick={() => setAddingTopicTo(null)} className="rounded px-3 py-1.5 text-xs text-zinc-400 hover:text-white">Cancel</button>
@@ -486,7 +543,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                         {editingTopic === topic.id ? (
                                           <form onSubmit={(e) => handleEditTopic(e, topic.id)} className="flex flex-col gap-2 flex-1 z-20">
                                             <input autoFocus type="text" value={editTopicForm.name} onChange={e => setEditTopicForm({...editTopicForm, name: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" />
-                                            <textarea value={editTopicForm.description} onChange={e => setEditTopicForm({...editTopicForm, description: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-xs text-zinc-300 min-h-[50px]" />
+                                            <div>
+                                              <div className="flex justify-between items-center mb-1 px-1">
+                                                <label className="text-[10px] text-zinc-500">Description (Max 20 words)</label>
+                                                <span className={`text-[10px] ${countWords(editTopicForm.description) > 20 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(editTopicForm.description)} / 20</span>
+                                              </div>
+                                              <textarea required value={editTopicForm.description} onChange={e => setEditTopicForm({...editTopicForm, description: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-xs text-zinc-300 min-h-[50px]" />
+                                            </div>
                                             <div className="flex gap-2 justify-end mt-1">
                                               <button type="button" onClick={() => setEditingTopic(null)} className="px-2 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
                                               <button type="submit" className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
