@@ -582,7 +582,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                         
                                         {!editingTopic && (
                                           <div className="flex items-center gap-2 mt-auto pt-3 border-t border-white/5">
-                                            {(topic.has_notes || user?.role !== "STUDENT") && (
+                                            {topic.has_notes && (
                                               <Link href={`/topics/${topic.id}/notes`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition-colors">
                                                 <FileText size={14} /> Notes
                                               </Link>
