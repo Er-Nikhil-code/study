@@ -54,7 +54,7 @@ export default function AdminHomePage() {
   const { data: stats, isLoading: loading, error: queryError } = useQuery({
     queryKey: ["admin", "dashboard", "stats"],
     queryFn: () => adminService.getDashboardStats(),
-    staleTime: 0,
+    staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,
     retry: 2,
   });

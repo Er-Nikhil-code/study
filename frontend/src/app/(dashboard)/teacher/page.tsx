@@ -29,7 +29,7 @@ export default function TeacherHomePage() {
   const { data, isLoading: loading } = useQuery({
     queryKey: ["teacher", "dashboard"],
     queryFn: () => studentService.getTeacherDashboard(),
-    staleTime: 0,
+    staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,
     retry: 2,
   });
