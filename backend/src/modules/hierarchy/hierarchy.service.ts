@@ -205,4 +205,29 @@ export class HierarchyService {
       return { ...course, is_enrolled: isEnrolled, sections: mappedSections };
     });
   }
+
+  // Bulk Reorder
+  async reorderHierarchy(items: { id: string; type: 'SECTION' | 'CHAPTER' | 'TOPIC'; order: number }[]) {
+    return this.prisma.$transaction(
+      items.map((item) => {
+        if (item.type === 'SECTION') {
+          return this.prisma.section.update({
+            where: { id: item.id },
+            data: { order: item.order }
+          });
+        } else if (item.type === 'CHAPTER') {
+          return this.prisma.chapter.update({
+            where: { id: item.id },
+            data: { order: item.order }
+          });
+        } else if (item.type === 'TOPIC') {
+          return this.prisma.topic.update({
+            where: { id: item.id },
+            data: { order: item.order }
+          });
+        }
+        throw new NotFoundException(`Invalid item type: ${item.type}`);
+      })
+    );
+  }
 }

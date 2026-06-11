@@ -5,7 +5,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import Panel from "@/components/ui/Panel";
 import { HierarchyService } from "@/services/hierarchy.service";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical } from "lucide-react";
 import CourseLeaderboard from "@/components/ui/CourseLeaderboard";
 import { useAuthStore } from "@/store/auth.store";
 import { useQueryClient } from "@tanstack/react-query";
@@ -41,6 +41,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   const [editingTopic, setEditingTopic] = useState<string | null>(null);
   const [editTopicForm, setEditTopicForm] = useState({ name: "", description: "" });
+
+  // Drag and Drop state
+  const [draggedItem, setDraggedItem] = useState<{ id: string; type: "SECTION" | "CHAPTER" | "TOPIC"; sourceParentId: string | null; index: number } | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [dragOverParentId, setDragOverParentId] = useState<string | null>(null);
 
   const fetchCourse = () => {
     setLoading(true);
@@ -123,6 +128,99 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
     fetchCourse();
   };
 
+  // --- Drag and Drop Handlers ---
+  const handleDragStart = (e: React.DragEvent, id: string, type: "SECTION" | "CHAPTER" | "TOPIC", parentId: string | null, index: number) => {
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedItem({ id, type, sourceParentId: parentId, index });
+  };
+
+  const handleDragOver = (e: React.DragEvent, type: "SECTION" | "CHAPTER" | "TOPIC", parentId: string | null, index: number) => {
+    e.preventDefault();
+    if (!draggedItem) return;
+    if (draggedItem.type !== type || draggedItem.sourceParentId !== parentId) return;
+    if (dragOverIndex !== index || dragOverParentId !== parentId) {
+      setDragOverIndex(index);
+      setDragOverParentId(parentId);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent, type: "SECTION" | "CHAPTER" | "TOPIC", parentId: string | null, dropIndex: number) => {
+    e.preventDefault();
+    if (!draggedItem) return;
+    if (draggedItem.type !== type || draggedItem.sourceParentId !== parentId) {
+      setDraggedItem(null);
+      setDragOverIndex(null);
+      setDragOverParentId(null);
+      return;
+    }
+
+    const { index: dragIndex } = draggedItem;
+    if (dragIndex === dropIndex) {
+      setDraggedItem(null);
+      setDragOverIndex(null);
+      setDragOverParentId(null);
+      return;
+    }
+
+    const newCourse = { ...course };
+    let listToReorder: any[] = [];
+    
+    if (type === "SECTION") {
+      listToReorder = Array.from(newCourse.sections);
+    } else if (type === "CHAPTER") {
+      const secIdx = newCourse.sections.findIndex((s: any) => s.id === parentId);
+      if (secIdx > -1) listToReorder = Array.from(newCourse.sections[secIdx].chapters);
+    } else if (type === "TOPIC") {
+      for (let s of newCourse.sections) {
+        const cIdx = s.chapters.findIndex((c: any) => c.id === parentId);
+        if (cIdx > -1) {
+          listToReorder = Array.from(s.chapters[cIdx].topics);
+          break;
+        }
+      }
+    }
+
+    if (!listToReorder || listToReorder.length === 0) return;
+
+    // Swap items
+    const [movedItem] = listToReorder.splice(dragIndex, 1);
+    listToReorder.splice(dropIndex, 0, movedItem);
+
+    // Prepare updated array
+    const updatedItemsPayload: any[] = [];
+    listToReorder.forEach((item, idx) => {
+      item.order = idx + 1;
+      updatedItemsPayload.push({ id: item.id, type, order: item.order });
+    });
+
+    if (type === "SECTION") {
+      newCourse.sections = listToReorder;
+    } else if (type === "CHAPTER") {
+      const secIdx = newCourse.sections.findIndex((s: any) => s.id === parentId);
+      if (secIdx > -1) newCourse.sections[secIdx].chapters = listToReorder;
+    } else if (type === "TOPIC") {
+      for (let s of newCourse.sections) {
+        const cIdx = s.chapters.findIndex((c: any) => c.id === parentId);
+        if (cIdx > -1) {
+          s.chapters[cIdx].topics = listToReorder;
+          break;
+        }
+      }
+    }
+
+    setCourse(newCourse);
+    setDraggedItem(null);
+    setDragOverIndex(null);
+    setDragOverParentId(null);
+
+    try {
+      await HierarchyService.reorder(updatedItemsPayload);
+    } catch (err) {
+      alert("Failed to save new order.");
+      fetchCourse();
+    }
+  };
+
   return (
     <>
       {loading ? (
@@ -202,13 +300,26 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               </Panel>
             )}
 
-            {course.sections?.map((section: any) => (
-              <Panel key={section.id} className="p-0 overflow-hidden border border-white/5 bg-zinc-950/50 shadow-md">
+            {course.sections?.map((section: any, idx: number) => (
+              <Panel 
+                key={section.id} 
+                className={`p-0 overflow-hidden border ${draggedItem?.id === section.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === null && draggedItem?.type === "SECTION" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-950/50 shadow-md relative`}
+                draggable={isCreatorOrAdmin}
+                onDragStart={(e) => handleDragStart(e, section.id, "SECTION", null, idx)}
+                onDragOver={(e) => handleDragOver(e, "SECTION", null, idx)}
+                onDrop={(e) => handleDrop(e, "SECTION", null, idx)}
+                onDragEnd={() => { setDraggedItem(null); setDragOverIndex(null); setDragOverParentId(null); }}
+              >
                 <div 
                   onClick={() => toggleSection(section.id)}
                   className="w-full flex items-center justify-between p-5 bg-gradient-to-r from-zinc-900 to-zinc-900/50 hover:from-zinc-800 hover:to-zinc-800/50 transition-colors cursor-pointer border-b border-white/5"
                 >
                   <div className="flex items-center gap-4 flex-1">
+                    {isCreatorOrAdmin && (
+                      <div className="cursor-grab hover:text-white text-zinc-500 px-1 py-4 flex items-center">
+                        <GripVertical size={16} />
+                      </div>
+                    )}
                     <div className={`p-2 rounded-lg transition-colors ${expandedSections[section.id] ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-zinc-400'}`}>
                       <BookOpen size={20} />
                     </div>
@@ -270,13 +381,26 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       <p className="text-sm text-zinc-500 text-center py-4">No chapters in this section.</p>
                     ) : (
                       <div className="space-y-4">
-                        {section.chapters?.map((chapter: any) => (
-                          <div key={chapter.id} className="rounded-xl border border-white/10 overflow-hidden bg-zinc-900/30">
+                        {section.chapters?.map((chapter: any, idx: number) => (
+                          <div 
+                            key={chapter.id} 
+                            className={`rounded-xl border overflow-hidden ${draggedItem?.id === chapter.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === section.id && draggedItem?.type === "CHAPTER" ? 'border-t-2 border-t-red-500 border-white/10' : 'border-white/10'} bg-zinc-900/30 relative`}
+                            draggable={isCreatorOrAdmin}
+                            onDragStart={(e) => handleDragStart(e, chapter.id, "CHAPTER", section.id, idx)}
+                            onDragOver={(e) => handleDragOver(e, "CHAPTER", section.id, idx)}
+                            onDrop={(e) => handleDrop(e, "CHAPTER", section.id, idx)}
+                            onDragEnd={() => { setDraggedItem(null); setDragOverIndex(null); setDragOverParentId(null); }}
+                          >
                             <div 
                               onClick={() => toggleChapter(chapter.id)}
                               className="w-full flex items-center justify-between p-4 bg-white/[0.02] hover:bg-white/[0.04] transition-colors cursor-pointer border-b border-white/5"
                             >
-                              <div className="flex-1">
+                              <div className="flex-1 flex items-center gap-3">
+                                {isCreatorOrAdmin && (
+                                  <div className="cursor-grab hover:text-white text-zinc-600 px-1 py-1">
+                                    <GripVertical size={14} />
+                                  </div>
+                                )}
                                 {editingChapter === chapter.id ? (
                                   <form onSubmit={(e) => handleEditChapter(e, chapter.id)} onClick={(e) => e.stopPropagation()} className="flex gap-2 flex-1 max-w-sm">
                                     <input autoFocus type="text" value={editChapterForm.name} onChange={e => setEditChapterForm({name: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" />
@@ -285,7 +409,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                   </form>
                                 ) : (
                                   <h4 className="text-lg font-semibold text-zinc-200 flex items-center gap-2">
-                                    <span className="text-zinc-500 text-sm font-normal">Ch {chapter.order}.</span> 
+                                    <span className="text-zinc-500 text-sm font-normal">Ch {idx + 1}.</span> 
                                     {chapter.name}
                                     {isCreatorOrAdmin && (
                                       <button 
@@ -339,8 +463,16 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                   <p className="text-sm text-zinc-500 text-center py-2">No topics in this chapter.</p>
                                 ) : (
                                   <div className="grid gap-3 sm:grid-cols-2">
-                                    {chapter.topics?.map((topic: any) => (
-                                      <div key={topic.id} className="p-4 rounded-xl border border-white/5 bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col h-full group relative">
+                                    {chapter.topics?.map((topic: any, idx: number) => (
+                                      <div 
+                                        key={topic.id} 
+                                        className={`p-4 rounded-xl border ${draggedItem?.id === topic.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === chapter.id && draggedItem?.type === "TOPIC" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col h-full group relative cursor-default`}
+                                        draggable={isCreatorOrAdmin}
+                                        onDragStart={(e) => handleDragStart(e, topic.id, "TOPIC", chapter.id, idx)}
+                                        onDragOver={(e) => handleDragOver(e, "TOPIC", chapter.id, idx)}
+                                        onDrop={(e) => handleDrop(e, "TOPIC", chapter.id, idx)}
+                                        onDragEnd={() => { setDraggedItem(null); setDragOverIndex(null); setDragOverParentId(null); }}
+                                      >
                                         {isCreatorOrAdmin && editingTopic !== topic.id && (
                                           <button 
                                             onClick={(e) => { e.preventDefault(); setEditingTopic(topic.id); setEditTopicForm({ name: topic.name, description: topic.description || "" }); }}
@@ -364,6 +496,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                           <div className="flex-1">
                                             <div className="flex justify-between items-start mb-2 pr-6">
                                               <div className="flex items-center gap-2">
+                                                {isCreatorOrAdmin && (
+                                                  <div className="cursor-grab hover:text-white text-zinc-600">
+                                                    <GripVertical size={14} />
+                                                  </div>
+                                                )}
                                                 {topic.is_completed ? (
                                                   <CheckCircle size={16} className="text-emerald-500 fill-emerald-500/20" />
                                                 ) : (

@@ -15,6 +15,12 @@ export class HierarchyController {
     return this.hierarchyService.getFullHierarchy(req.user.sub);
   }
 
+  @Post("reorder")
+  @Roles("TEACHER", "ADMIN")
+  reorderHierarchy(@Body() items: { id: string; type: 'SECTION' | 'CHAPTER' | 'TOPIC'; order: number }[]) {
+    return this.hierarchyService.reorderHierarchy(items);
+  }
+
   @Post("courses")
   @Roles("TEACHER", "ADMIN")
   createCourse(@Request() req: any, @Body() data: { name: string; code: string }) {

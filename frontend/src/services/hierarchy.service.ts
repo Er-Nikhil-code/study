@@ -5,6 +5,10 @@ export const HierarchyService = {
     return api.get("/admin/hierarchy").then((r) => r.data);
   },
 
+  reorder(items: { id: string; type: 'SECTION' | 'CHAPTER' | 'TOPIC'; order: number }[]) {
+    return api.post("/admin/hierarchy/reorder", items).then((r) => r.data);
+  },
+
   createCourse(data: { name: string; code: string }) {
     return api.post("/admin/hierarchy/courses", data).then((r) => r.data);
   },

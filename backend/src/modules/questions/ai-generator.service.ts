@@ -68,7 +68,8 @@ export class AiGeneratorService {
     const prompt = `Generate ${count} ${difficulty} difficulty ${questionType} questions for the topic "${topicName}".
 ${useNotes && contextNotesStr ? `Use the following notes as context/reference:\n${contextNotesStr}\n` : ''}
 ${customInstructions ? `Custom Instructions: ${customInstructions}\n` : ''}
-Ensure the questions vary appropriately within the specified difficulty. Provide 4 options per question.`;
+Ensure the questions vary appropriately within the specified difficulty. Provide 4 options per question.
+CRITICAL: The options array MUST use the strings "1", "2", "3", "4" for the 'id' fields (do NOT use "0"). Section numbers, chapter numbers, list items, or anything like this MUST all start from 1, never 0.`;
 
     try {
       const response = await this.ai.models.generateContent({

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-type PanelProps = {
+type PanelProps = React.HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;
   className?: string;
   accent?: boolean;
@@ -10,6 +10,7 @@ export default function Panel({
   children,
   className = "",
   accent = false,
+  ...props
 }: PanelProps) {
   return (
     <div
@@ -21,6 +22,7 @@ export default function Panel({
           : "",
         className,
       ].join(" ")}
+      {...props}
     >
       {children}
     </div>
