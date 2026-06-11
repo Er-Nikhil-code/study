@@ -9,6 +9,7 @@ import { QuestionsService } from "@/services/questions.service";
 import { NotesService } from "@/services/notes.service";
 import { Brain, Save, Check, AlertTriangle, Loader2, Edit2, Trash2 } from "lucide-react";
 import UserHoverCard from "@/components/ui/UserHoverCard";
+import { useAuthStore } from "@/store/auth.store";
 
 const QUESTION_TYPES = [
   "SINGLE_CORRECT",
@@ -25,6 +26,9 @@ const QUESTION_TYPES = [
 const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
 
 export default function AIGenerationPage() {
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === "ADMIN";
+
   const [hierarchy, setHierarchy] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>("");
   const [selectedSection, setSelectedSection] = useState<string>("");
@@ -327,15 +331,17 @@ export default function AIGenerationPage() {
 
                 <div>
                   <div className="flex justify-between">
-                    <label className="text-xs text-zinc-400">Number of Questions (Max 5)</label>
+                    <label className="text-xs text-zinc-400">
+                      Number of Questions {isAdmin ? "" : "(Max 5)"}
+                    </label>
                   </div>
                   <input 
                     type="number" 
                     min="1" 
-                    max="5" 
+                    max={isAdmin ? undefined : "5"}
                     required
                     value={form.count} 
-                    placeholder="1-5"
+                    placeholder={isAdmin ? "e.g. 20" : "1-5"}
                     onChange={e => setForm({...form, count: e.target.value ? Number(e.target.value) : ""})}
                     className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500" 
                   />

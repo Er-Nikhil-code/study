@@ -40,7 +40,7 @@ export class AiGeneratorService {
       throw new HttpException('AI generation is not configured on the server', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    if (count > 5) {
+    if (role !== 'ADMIN' && count > 5) {
       throw new HttpException('Cannot generate more than 5 questions at a time', HttpStatus.BAD_REQUEST);
     }
 
