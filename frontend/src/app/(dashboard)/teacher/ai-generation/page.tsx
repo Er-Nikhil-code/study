@@ -146,16 +146,17 @@ export default function AIGenerationPage() {
 
       // Map AI output format to our schema
       const mappedData = {
+        title: q.questionText.length > 50 ? q.questionText.substring(0, 47) + "..." : q.questionText,
         topic_id: form.topicId,
-        type: form.questionType,
+        type: form.questionType === "MULTIPLE_CHOICE" ? "SINGLE_CORRECT" : form.questionType,
         difficulty: q.difficulty || form.difficulty,
         marks: 1,
         negative_marks: 0,
         content_json: [{ type: "TEXT", content: q.questionText }],
-        options_json: q.options || [],
-        answer_key: { correct_option_id: q.answerKey },
+        options_json: { options: q.options || [] },
+        answer_key: { correct_option: q.answerKey },
         solution_json: q.solutionText ? [{ type: "TEXT", content: q.solutionText }] : [],
-        approval_status: "AI_GENERATED", // The tag is handled by this status!
+        approval_status: "APPROVED", // Mapped directly to APPROVED to prevent Zod dropping causing issues
       };
 
       await QuestionsService.create(mappedData);

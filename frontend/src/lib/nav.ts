@@ -69,7 +69,10 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
       return [
         { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
         { label: "Curriculum", href: "/teacher/hierarchy", icon: Network },
+        { label: "Create Notes", href: "/intern/notes/create", icon: FileEdit },
         { label: "Notes Review", href: "/teacher/notes/review", icon: FileEdit },
+        { label: "AI Generator", href: "/teacher/ai-generation", icon: BrainCircuit },
+        { label: "Create Question", href: "/teacher/questions/create", icon: FilePlus2 },
         { label: "Questions", href: "/teacher/questions", icon: FileQuestion },
         { label: "Tests", href: "/teacher/tests", icon: FileText },
         { label: "Challenges", href: "/teacher/challenges", icon: ShieldAlert },

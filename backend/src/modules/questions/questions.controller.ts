@@ -12,6 +12,7 @@ import {
   HttpStatus,
   Req,
   ForbiddenException,
+  BadRequestException,
 } from "@nestjs/common";
 import { QuestionsService } from "./questions.service";
 import { AiGeneratorService } from "./ai-generator.service";
@@ -35,16 +36,23 @@ export class QuestionsController {
   @Roles("INTERN", "TEACHER", "ADMIN")
   @HttpCode(HttpStatus.CREATED)
   async createQuestion(@Body() body: any, @Req() req: any) {
-    const parsed = CreateQuestionRequestSchema.parse(body);
-    const dataForService = {
-      ...parsed,
-      question_type: parsed.type,
-    };
-    return this.questionsService.createQuestion(
-      req.user.id || req.user.sub,
-      dataForService as any,
-      req.user.role,
-    );
+    try {
+      const parsed = CreateQuestionRequestSchema.parse(body);
+      const dataForService = {
+        ...parsed,
+        question_type: parsed.type,
+      };
+      return await this.questionsService.createQuestion(
+        req.user.id || req.user.sub,
+        dataForService as any,
+        req.user.role,
+      );
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        throw new BadRequestException(error.errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', '));
+      }
+      throw error;
+    }
   }
 
   @Get("topics")
