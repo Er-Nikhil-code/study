@@ -152,8 +152,11 @@ CRITICAL: The options array MUST use string IDs starting from "1" ("1", "2", "3"
     }
     try {
       const response = await this.ai.models.embedContent({
-        model: 'gemini-embedding-001',
-        contents: text
+        model: 'gemini-embedding-001', // Use active embedding model
+        contents: text,
+        config: {
+          outputDimensionality: 768,
+        }
       });
       return response.embeddings?.[0]?.values || [];
     } catch (e: any) {
