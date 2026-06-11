@@ -73,9 +73,9 @@ export class QuestionsService {
         const questionData: any = {
           topic_id: data.topic_id,
           content_json: data.content_json,
-          options_json: (data as any).options_json ?? null,
+          options_json: (data as any).options_json ?? undefined,
           answer_key: (data as any).answer_key,
-          solution_json: data.solution_json ?? null,
+          solution_json: data.solution_json ?? undefined,
           difficulty: data.difficulty,
           question_type: (data as any).question_type || data.type,
           marks: data.marks ?? 1,
