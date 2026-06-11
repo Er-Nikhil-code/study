@@ -40,7 +40,7 @@ export interface AdminRole {
 
 export interface AdminQuestion {
   id: string;
-  title: string;
+  content_json?: any;
   question_type: string;
   difficulty: string;
   marks: number;
