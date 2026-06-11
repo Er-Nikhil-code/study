@@ -144,22 +144,50 @@ export default function AIGenerationPage() {
       }
 
       // Map AI output format to our schema
+      const mappedType = form.questionType === "MULTIPLE_CHOICE" ? "SINGLE_CORRECT" : form.questionType;
+
+      let answerKey: any = { correct_option: q.answerKey };
+      let optionsJson: any = { 
+        options: (q.options || []).map((opt: any, i: number) => {
+          if (typeof opt === 'object' && opt !== null) {
+            return { id: opt.id || `opt${i + 1}`, text: opt.text || '' };
+          }
+          return { id: `opt${i + 1}`, text: String(opt) };
+        })
+      };
+
+      if (mappedType === "TRUE_FALSE") {
+        const isTrue = String(q.answerKey) === "1" || String(q.answerKey).toLowerCase() === "true";
+        answerKey = { answer: isTrue };
+        optionsJson = undefined; // True/False schema doesn't use options_json strictly
+      } else if (mappedType === "MULTIPLE_CORRECT") {
+        answerKey = { correct_options: String(q.answerKey).split(',').map(s => s.trim()).filter(Boolean) };
+      } else if (mappedType === "FILL_BLANK") {
+        let ansText = String(q.answerKey);
+        if (q.options && q.options.length > 0) {
+          const firstOpt = q.options[0];
+          ansText = typeof firstOpt === 'object' ? firstOpt.text : String(firstOpt);
+        }
+        answerKey = {
+          blanks: [{ position: 1, answer: ansText, case_sensitive: false }]
+        };
+        optionsJson = undefined;
+      } else if (mappedType === "NUMERICAL" || mappedType === "ESSAY" || mappedType === "IMAGE_BASED") {
+        answerKey = { answer: String(q.answerKey) };
+        if (!q.options || q.options.length === 0) {
+          optionsJson = undefined;
+        }
+      }
+
       const mappedData = {
         topic_id: form.topicId,
-        type: form.questionType === "MULTIPLE_CHOICE" ? "SINGLE_CORRECT" : form.questionType,
+        type: mappedType,
         difficulty: q.difficulty || form.difficulty,
         marks: 1,
         negative_marks: 0,
         content_json: [{ type: "TEXT", content: q.questionText }],
-        options_json: { 
-          options: (q.options || []).map((opt: any, i: number) => {
-            if (typeof opt === 'object' && opt !== null) {
-              return { id: opt.id || `opt${i + 1}`, text: opt.text || '' };
-            }
-            return { id: `opt${i + 1}`, text: String(opt) };
-          })
-        },
-        answer_key: { correct_option: q.answerKey },
+        options_json: optionsJson,
+        answer_key: answerKey,
         solution_json: q.solutionText ? [{ type: "TEXT", content: q.solutionText }] : [],
         approval_status: "APPROVED", // Mapped directly to APPROVED to prevent Zod dropping causing issues
       };

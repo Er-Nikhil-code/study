@@ -58,6 +58,22 @@ export const MultipleCorrectMCQSchema = BaseQuestionSchema.extend({
   }),
 });
 
+// Essay
+export const EssaySchema = BaseQuestionSchema.extend({
+  type: z.literal("ESSAY"),
+  content_json: z.array(ContentBlockSchema).min(1),
+  options_json: z.any().optional(),
+  answer_key: z.any().optional(),
+});
+
+// Image Based
+export const ImageBasedSchema = BaseQuestionSchema.extend({
+  type: z.literal("IMAGE_BASED"),
+  content_json: z.array(ContentBlockSchema).min(1),
+  options_json: z.any().optional(),
+  answer_key: z.any().optional(),
+});
+
 // Numerical
 export const NumericalSchema = BaseQuestionSchema.extend({
   type: z.literal("NUMERICAL"),
@@ -167,6 +183,8 @@ export const CreateQuestionSchema = z.discriminatedUnion("type", [
   MatchingSchema,
   PassageSchema,
   NumericalSchema,
+  EssaySchema,
+  ImageBasedSchema,
 ]);
 
 export type CreateQuestionType = z.infer<typeof CreateQuestionSchema>;
