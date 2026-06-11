@@ -39,10 +39,14 @@ export class QuestionsController {
   async createQuestion(@Body() body: any, @Req() req: any) {
     try {
       const parsed = CreateQuestionRequestSchema.parse(body);
-      const dataForService = {
+      const dataForService: any = {
         ...parsed,
         question_type: parsed.type,
       };
+      if (body.metadata_json) {
+        if (!dataForService.options_json) dataForService.options_json = {};
+        dataForService.options_json.metadata = body.metadata_json;
+      }
       return await this.questionsService.createQuestion(
         req.user.id || req.user.sub,
         dataForService as any,
@@ -72,6 +76,8 @@ export class QuestionsController {
     @Query("course_id") courseId?: string,
     @Query("type") type?: string,
     @Query("difficulty") difficulty?: string,
+    @Query("is_pyq") isPyq?: string,
+    @Query("exam_year") examYear?: string,
     @Query("page") page?: string,
     @Query("limit") limit?: string,
     @Query("created_by_me") createdByMe?: string,
@@ -84,6 +90,8 @@ export class QuestionsController {
     if (courseId) filters.course_id = courseId;
     if (type) filters.question_type = type;
     if (difficulty) filters.difficulty = difficulty;
+    if (isPyq === "true") filters.is_pyq = true;
+    if (examYear) filters.exam_year = examYear;
 
     if (req.user.role === "INTERN") {
       filters.intern_only = req.user.id || req.user.sub;
@@ -135,7 +143,12 @@ export class QuestionsController {
     }
 
     const parsed = UpdateQuestionSchema.parse(body);
-    return this.questionsService.updateQuestion(id, parsed);
+    const dataForService: any = { ...parsed };
+    if (body.metadata_json) {
+      if (!dataForService.options_json) dataForService.options_json = question.options_json || {};
+      dataForService.options_json.metadata = body.metadata_json;
+    }
+    return this.questionsService.updateQuestion(id, dataForService);
   }
 
   @Delete(":id")

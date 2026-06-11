@@ -9,6 +9,12 @@ import { QuestionsService } from "@/services/questions.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import authService from "@/services/auth.service";
 
+const QUESTION_TYPES = [
+  "ALL", "SINGLE_CORRECT", "MULTIPLE_CORRECT", "NUMERICAL", "TRUE_FALSE", "MATCHING", "PASSAGE", "ESSAY", "FILL_BLANK", "IMAGE_BASED", "DRAG_DROP", "CODE", "ASSERTION_REASON"
+];
+const DIFFICULTIES = ["ALL", "EASY", "MEDIUM", "HARD"];
+const typeLabel = (t: string) => t.replace(/_/g, " ");
+
 export default function TeacherQuestionsPage() {
   const queryClient = useQueryClient();
 
@@ -16,6 +22,11 @@ export default function TeacherQuestionsPage() {
   const [userId, setUserId] = useState<string>("");
 
   const [createdOnly, setCreatedOnly] = useState(false);
+
+  const [typeFilter, setTypeFilter] = useState("ALL");
+  const [diffFilter, setDiffFilter] = useState("ALL");
+  const [pyqFilter, setPyqFilter] = useState("ALL");
+  const [yearFilter, setYearFilter] = useState("");
 
   // Submitting state
   const [submittingId, setSubmittingId] = useState<string | null>(null);
@@ -39,7 +50,7 @@ export default function TeacherQuestionsPage() {
   const allTopics = allChapters.flatMap((c: any) => c.topics || []);
 
   const { data: questionsData, isLoading: loading, isFetching, error: queryError } = useQuery({
-    queryKey: ["questions", "list", createdOnly, courseId, sectionId, chapterId, topicId],
+    queryKey: ["questions", "list", createdOnly, courseId, sectionId, chapterId, topicId, typeFilter, diffFilter, pyqFilter, yearFilter],
     queryFn: async () => {
       const filters: any = {};
       if (createdOnly) filters.created_by_me = true;
@@ -47,6 +58,10 @@ export default function TeacherQuestionsPage() {
       if (sectionId) filters.section_id = sectionId;
       if (chapterId) filters.chapter_id = chapterId;
       if (topicId) filters.topic_id = topicId;
+      if (typeFilter !== "ALL") filters.type = typeFilter;
+      if (diffFilter !== "ALL") filters.difficulty = diffFilter;
+      if (pyqFilter !== "ALL") filters.is_pyq = pyqFilter === "YES";
+      if (yearFilter) filters.exam_year = yearFilter;
       
       return await QuestionsService.getAll(filters);
     },
@@ -191,6 +206,54 @@ export default function TeacherQuestionsPage() {
           <option value="">All Topics</option>
           {allTopics.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
+        
+        {/* Type filter */}
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 appearance-none cursor-pointer"
+        >
+          {QUESTION_TYPES.map((t) => (
+            <option key={t} value={t} className="bg-zinc-900 text-white">
+              {t === "ALL" ? "All Types" : typeLabel(t)}
+            </option>
+          ))}
+        </select>
+
+        {/* Difficulty filter */}
+        <select
+          value={diffFilter}
+          onChange={(e) => setDiffFilter(e.target.value)}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 appearance-none cursor-pointer"
+        >
+          {DIFFICULTIES.map((d) => (
+            <option key={d} value={d} className="bg-zinc-900 text-white">
+              {d === "ALL" ? "All Difficulties" : d}
+            </option>
+          ))}
+        </select>
+
+        {/* PYQ filter */}
+        <select
+          value={pyqFilter}
+          onChange={(e) => setPyqFilter(e.target.value)}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 appearance-none cursor-pointer"
+        >
+          <option value="ALL" className="bg-zinc-900 text-white">All PYQ Status</option>
+          <option value="YES" className="bg-zinc-900 text-white">Only PYQs</option>
+          <option value="NO" className="bg-zinc-900 text-white">Non-PYQs</option>
+        </select>
+
+        {/* Year filter */}
+        <div className="relative flex-1 sm:max-w-[120px]">
+          <input
+            type="text"
+            placeholder="Year (e.g. 2023)"
+            value={yearFilter}
+            onChange={(e) => setYearFilter(e.target.value)}
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-red-500/30"
+          />
+        </div>
       </div>
 
       <div className="mt-4 grid gap-4">

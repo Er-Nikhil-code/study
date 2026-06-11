@@ -52,6 +52,8 @@ export default function CreateTestPage() {
   const [bankChapterId, setBankChapterId] = useState("");
   const [bankQuestionType, setBankQuestionType] = useState("");
   const [bankDifficulty, setBankDifficulty] = useState("");
+  const [bankPyq, setBankPyq] = useState("ALL");
+  const [bankYear, setBankYear] = useState("");
 
   const allCourses = hierarchy;
   const allSections = hierarchy.flatMap(c => c.sections || []);
@@ -64,6 +66,8 @@ export default function CreateTestPage() {
     if (bankChapterId) params.chapter_id = bankChapterId;
     if (bankQuestionType) params.type = bankQuestionType;
     if (bankDifficulty) params.difficulty = bankDifficulty;
+    if (bankPyq !== "ALL") params.is_pyq = bankPyq === "YES";
+    if (bankYear) params.exam_year = bankYear;
     
     if (!bankCourseId && !bankSectionId && !bankChapterId && topicId) {
       params.topic_id = topicId;
@@ -73,7 +77,7 @@ export default function CreateTestPage() {
       const approvedOnly = res.data.filter((q: any) => q.approval_status === "APPROVED");
       setQuestions(approvedOnly);
     });
-  }, [topicId, bankCourseId, bankSectionId, bankChapterId, bankQuestionType, bankDifficulty]);
+  }, [topicId, bankCourseId, bankSectionId, bankChapterId, bankQuestionType, bankDifficulty, bankPyq, bankYear]);
 
   const toggleQuestion = (id: string) => {
     const newSet = new Set(selectedQuestionIds);
@@ -204,20 +208,20 @@ export default function CreateTestPage() {
             </div>
             
             {/* Filters */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <select value={bankCourseId} onChange={e => setBankCourseId(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500">
+            <div className="flex flex-wrap gap-3">
+              <select value={bankCourseId} onChange={e => setBankCourseId(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500 min-w-[120px]">
                 <option value="">All Courses</option>
                 {allCourses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-              <select value={bankSectionId} onChange={e => setBankSectionId(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500">
+              <select value={bankSectionId} onChange={e => setBankSectionId(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500 min-w-[120px]">
                 <option value="">All Sections</option>
                 {allSections.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
-              <select value={bankChapterId} onChange={e => setBankChapterId(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500">
+              <select value={bankChapterId} onChange={e => setBankChapterId(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500 min-w-[120px]">
                 <option value="">All Chapters</option>
                 {allChapters.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-              <select value={bankQuestionType} onChange={e => setBankQuestionType(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500">
+              <select value={bankQuestionType} onChange={e => setBankQuestionType(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500 min-w-[120px]">
                 <option value="">All Types</option>
                 <option value="SINGLE_CORRECT">Single Correct</option>
                 <option value="MULTIPLE_CORRECT">Multi Correct</option>
@@ -226,12 +230,18 @@ export default function CreateTestPage() {
                 <option value="NUMERICAL">Numerical</option>
                 <option value="ASSERTION_REASON">Assertion/Reason</option>
               </select>
-              <select value={bankDifficulty} onChange={e => setBankDifficulty(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500">
+              <select value={bankDifficulty} onChange={e => setBankDifficulty(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500 min-w-[120px]">
                 <option value="">All Diff.</option>
                 <option value="EASY">Easy</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="HARD">Hard</option>
               </select>
+              <select value={bankPyq} onChange={e => setBankPyq(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500 min-w-[120px]">
+                <option value="ALL">All PYQ Status</option>
+                <option value="YES">Only PYQs</option>
+                <option value="NO">Non-PYQs</option>
+              </select>
+              <input type="text" placeholder="Year (e.g. 2023)" value={bankYear} onChange={e => setBankYear(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500 w-24" />
             </div>
           </Panel>
 

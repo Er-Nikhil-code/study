@@ -14,6 +14,7 @@ const BaseQuestionSchema = z.object({
   marks: z.number().default(1),
   negative_marks: z.number().default(0),
   solution_json: z.array(ContentBlockSchema).optional(),
+  metadata_json: z.any().optional(),
 });
 
 // Valid Option ID format (A, B, C, D, E, F)
@@ -234,6 +235,7 @@ export const UpdateQuestionSchema = z.object({
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]).optional(),
   marks: z.number().optional(),
   negative_marks: z.number().optional(),
+  metadata_json: z.any().optional(),
 });
 
 export type UpdateQuestionType = z.infer<typeof UpdateQuestionSchema>;

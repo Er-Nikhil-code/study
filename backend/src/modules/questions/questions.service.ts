@@ -288,6 +288,8 @@ export class QuestionsService {
       intern_only?: string;
       teacher_id?: string;
       admin_search?: boolean;
+      is_pyq?: boolean;
+      exam_year?: string;
     },
     skip = 0,
     take = 20,
@@ -310,6 +312,18 @@ export class QuestionsService {
 
       if (filters?.question_type) where.question_type = filters.question_type;
       if (filters?.difficulty) where.difficulty = filters.difficulty;
+      
+      if (filters?.is_pyq) {
+        where.options_json = { path: ['metadata', 'is_pyq'], equals: true };
+      }
+      if (filters?.exam_year) {
+        if (!where.options_json) where.options_json = {};
+        where.options_json = {
+          ...where.options_json,
+          path: ['metadata', 'exam_year'],
+          equals: filters.exam_year
+        };
+      }
       if (filters?.intern_only) {
         where.created_by = filters.intern_only;
       }

@@ -173,6 +173,8 @@ class AdminService {
     section_id?: string;
     chapter_id?: string;
     topic_id?: string;
+    is_pyq?: boolean;
+    exam_year?: string;
     page?: number;
     limit?: number;
   }): Promise<PaginatedResponse<AdminQuestion>> {

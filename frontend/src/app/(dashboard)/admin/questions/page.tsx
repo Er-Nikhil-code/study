@@ -59,6 +59,8 @@ export default function AdminQuestionsPage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [diffFilter, setDiffFilter] = useState("ALL");
+  const [pyqFilter, setPyqFilter] = useState("ALL");
+  const [yearFilter, setYearFilter] = useState("");
 
   // Hierarchy Filters
   const [hierarchy, setHierarchy] = useState<any[]>([]);
@@ -98,6 +100,8 @@ export default function AdminQuestionsPage() {
         section_id: sectionId || undefined,
         chapter_id: chapterId || undefined,
         topic_id: topicId || undefined,
+        is_pyq: pyqFilter === "YES" ? true : pyqFilter === "NO" ? false : undefined,
+        exam_year: yearFilter || undefined,
         page: page + 1,
         limit: PAGE_SIZE,
       });
@@ -253,6 +257,34 @@ export default function AdminQuestionsPage() {
             </option>
           ))}
         </select>
+
+        {/* PYQ filter */}
+        <select
+          value={pyqFilter}
+          onChange={(e) => {
+            setPyqFilter(e.target.value);
+            setPage(0);
+          }}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 appearance-none cursor-pointer"
+        >
+          <option value="ALL" className="bg-zinc-900 text-white">All PYQ Status</option>
+          <option value="YES" className="bg-zinc-900 text-white">Only PYQs</option>
+          <option value="NO" className="bg-zinc-900 text-white">Non-PYQs</option>
+        </select>
+
+        {/* Year filter */}
+        <div className="relative flex-1 sm:max-w-[120px]">
+          <input
+            type="text"
+            placeholder="Year (e.g. 2023)"
+            value={yearFilter}
+            onChange={(e) => {
+              setYearFilter(e.target.value);
+              setPage(0);
+            }}
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-red-500/30"
+          />
+        </div>
       </div>
 
       {error && (
