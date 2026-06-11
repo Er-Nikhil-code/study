@@ -71,7 +71,6 @@ export class QuestionsService {
       
       return await this.prisma.$transaction(async (prisma) => {
         const questionData: any = {
-          title: data.title,
           topic_id: data.topic_id,
           content_json: data.content_json,
           options_json: (data as any).options_json ?? null,
@@ -204,7 +203,7 @@ export class QuestionsService {
         user_id: question.created_by,
         type: "CUSTOM",
         title: "Question Approved ✅",
-        message: `Your question "${question.title}" has been approved.`,
+        message: `Your question (ID: ${question.id}) has been approved.`,
         data_json: { question_id: questionId },
       },
     });
@@ -244,7 +243,7 @@ export class QuestionsService {
         user_id: question.created_by,
         type: "CUSTOM",
         title: "Question Needs Revision",
-        message: `Your question "${question.title}" needs changes: ${note}`,
+        message: `Your question (ID: ${question.id}) needs changes: ${note}`,
         data_json: { question_id: questionId, note },
       },
     });

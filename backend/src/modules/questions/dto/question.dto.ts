@@ -9,7 +9,6 @@ const ContentBlockSchema = z.object({
 
 // Base schema for all question types
 const BaseQuestionSchema = z.object({
-  title: z.string().min(1, "Question title required"),
   topic_id: z.string(),
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]).default("MEDIUM"),
   marks: z.number().default(1),
@@ -169,7 +168,6 @@ export type CreateQuestionRequestType = CreateQuestionType;
 
 // Update question schema (all fields optional)
 export const UpdateQuestionSchema = z.object({
-  title: z.string().optional(),
   content_json: z.array(ContentBlockSchema).optional(),
   options_json: z.any().optional(),
   answer_key: z.any().optional(),

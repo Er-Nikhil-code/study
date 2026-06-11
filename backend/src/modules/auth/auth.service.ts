@@ -59,6 +59,12 @@ export class AuthService {
       }),
     ]);
 
+    // Update last_login_at since they are resuming their session
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { last_login_at: new Date() }
+    });
+
     const { password_hash, course_enrollments, ...userWithoutPassword } = user;
     
     // Map the actual enrolled course name to the legacy string field for frontend compatibility
@@ -272,6 +278,7 @@ export class AuthService {
             | "TEACHER"
             | "ADMIN",
           email_verified_at: new Date(),
+          last_login_at: new Date(),
         },
       });
       this.logger.log(`✨ [VERIFY-OTP] User created: ${user.id}`);

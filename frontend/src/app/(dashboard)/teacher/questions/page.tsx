@@ -141,7 +141,10 @@ export default function TeacherQuestionsPage() {
                       </span>
                     )}
                   </div>
-                  <h3 className="text-lg font-semibold text-white">{q.title}</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    {q.content_json?.[0]?.content?.substring(0, 50) || "Question Content"}
+                    {q.content_json?.[0]?.content?.length > 50 ? "..." : ""}
+                  </h3>
                   <div className="flex flex-wrap gap-2 text-sm text-zinc-400">
                     <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
                       {q.topic ? `${q.topic.chapter?.section?.course?.name || ''} → ${q.topic.name}` : "Unknown Topic"}

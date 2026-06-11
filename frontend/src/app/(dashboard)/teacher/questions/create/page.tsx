@@ -42,7 +42,6 @@ export default function CreateQuestionPage() {
 
   // General Data
   const [formData, setFormData] = useState({
-    title: "",
     course_id: "",
     section_id: "",
     chapter_id: "",
@@ -121,7 +120,6 @@ export default function CreateQuestionPage() {
 
     try {
       const payload: any = {
-        title: formData.title,
         topic_id: formData.topic_id,
         difficulty: formData.difficulty,
         marks: Number(formData.marks),
@@ -192,26 +190,14 @@ export default function CreateQuestionPage() {
         <Panel className="space-y-5">
           <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500">General Info</h2>
           
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-4">
             <div>
-              <label className="mb-2 block text-sm text-zinc-300">Title</label>
-              <input
-                type="text"
-                required
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
-                placeholder="e.g. Newton's Second Law"
-              />
-            </div>
-            <div className="sm:col-span-2 grid gap-4 sm:grid-cols-4">
-              <div>
-                <label className="mb-2 block text-sm text-zinc-300">Course</label>
-                <select
-                  value={formData.course_id}
-                  onChange={(e) => setFormData({ ...formData, course_id: e.target.value, section_id: "", chapter_id: "", topic_id: "" })}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none"
-                >
+              <label className="mb-2 block text-sm text-zinc-300">Course</label>
+              <select
+                value={formData.course_id}
+                onChange={(e) => setFormData({ ...formData, course_id: e.target.value, section_id: "", chapter_id: "", topic_id: "" })}
+                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none"
+              >
                   <option value="">Select Course</option>
                   {topics.map((c: any) => (
                     <option key={c.id} value={c.id} className="bg-zinc-900">{c.name}</option>
@@ -261,7 +247,6 @@ export default function CreateQuestionPage() {
                   ))}
                 </select>
               </div>
-            </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

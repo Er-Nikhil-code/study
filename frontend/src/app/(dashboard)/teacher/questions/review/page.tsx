@@ -144,7 +144,10 @@ export default function ReviewQuestionsPage() {
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
                     Intern: {q.created_by.slice(0, 8)}...
                   </div>
-                  <h3 className="text-lg font-semibold text-white">{q.title}</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    {q.content_json?.[0]?.content?.substring(0, 50) || "Question Content"}
+                    {q.content_json?.[0]?.content?.length > 50 ? "..." : ""}
+                  </h3>
                   <div className="flex flex-wrap gap-2 text-sm text-zinc-400">
                     <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
                       {q.topic?.name || "Unknown Topic"}
@@ -169,7 +172,9 @@ export default function ReviewQuestionsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className="w-full max-w-3xl rounded-3xl border border-white/10 bg-zinc-950 p-6 shadow-2xl max-h-[90vh] flex flex-col">
             <h3 className="text-lg font-semibold text-white mb-2">Review Question</h3>
-            <p className="text-sm text-zinc-400 mb-4">{reviewQ.title}</p>
+            <p className="text-sm text-zinc-400 mb-4">
+              {reviewQ.content_json?.[0]?.content?.substring(0, 100)}...
+            </p>
 
             <div className="flex-1 overflow-y-auto pr-2 space-y-6">
               {/* Question Content */}

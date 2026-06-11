@@ -147,7 +147,6 @@ export default function AIGenerationPage() {
 
       // Map AI output format to our schema
       const mappedData = {
-        title: q.questionText.length > 50 ? q.questionText.substring(0, 47) + "..." : q.questionText,
         topic_id: form.topicId,
         type: form.questionType === "MULTIPLE_CHOICE" ? "SINGLE_CORRECT" : form.questionType,
         difficulty: q.difficulty || form.difficulty,
