@@ -53,9 +53,9 @@ export default function CreateTestPage() {
   const [bankQuestionType, setBankQuestionType] = useState("");
   const [bankDifficulty, setBankDifficulty] = useState("");
 
-  const bankCurrentCourse = hierarchy.find(c => c.id === bankCourseId);
-  const bankCurrentSection = bankCurrentCourse?.sections?.find((s: any) => s.id === bankSectionId);
-  const bankCurrentChapter = bankCurrentSection?.chapters?.find((c: any) => c.id === bankChapterId);
+  const allCourses = hierarchy;
+  const allSections = hierarchy.flatMap(c => c.sections || []);
+  const allChapters = allSections.flatMap((s: any) => s.chapters || []);
 
   useEffect(() => {
     const params: any = {};
@@ -205,17 +205,17 @@ export default function CreateTestPage() {
             
             {/* Filters */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <select value={bankCourseId} onChange={e => { setBankCourseId(e.target.value); setBankSectionId(""); setBankChapterId(""); }} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500">
+              <select value={bankCourseId} onChange={e => setBankCourseId(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500">
                 <option value="">All Courses</option>
-                {hierarchy.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {allCourses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-              <select value={bankSectionId} disabled={!bankCourseId} onChange={e => { setBankSectionId(e.target.value); setBankChapterId(""); }} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500 disabled:opacity-50">
+              <select value={bankSectionId} onChange={e => setBankSectionId(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500">
                 <option value="">All Sections</option>
-                {bankCurrentCourse?.sections?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                {allSections.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
-              <select value={bankChapterId} disabled={!bankSectionId} onChange={e => setBankChapterId(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500 disabled:opacity-50">
+              <select value={bankChapterId} onChange={e => setBankChapterId(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500">
                 <option value="">All Chapters</option>
-                {bankCurrentSection?.chapters?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {allChapters.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
               <select value={bankQuestionType} onChange={e => setBankQuestionType(e.target.value)} className="rounded bg-black border border-white/10 px-2 py-1.5 text-xs text-white outline-none focus:border-red-500">
                 <option value="">All Types</option>

@@ -33,10 +33,10 @@ export default function TeacherQuestionsPage() {
       .catch(err => console.error("Failed to load hierarchy", err));
   }, []);
 
-  const currentCourse = hierarchy.find(c => c.id === courseId);
-  const currentSection = currentCourse?.sections?.find((s: any) => s.id === sectionId);
-  const currentChapter = currentSection?.chapters?.find((c: any) => c.id === chapterId);
-  const topicsList = currentChapter?.topics || [];
+  const allCourses = hierarchy;
+  const allSections = hierarchy.flatMap(c => c.sections || []);
+  const allChapters = allSections.flatMap((s: any) => s.chapters || []);
+  const allTopics = allChapters.flatMap((c: any) => c.topics || []);
 
   const { data: questionsData, isLoading: loading, isFetching, error: queryError } = useQuery({
     queryKey: ["questions", "list", createdOnly, courseId, sectionId, chapterId, topicId],
@@ -158,53 +158,38 @@ export default function TeacherQuestionsPage() {
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <select
           value={courseId}
-          onChange={e => {
-            setCourseId(e.target.value);
-            setSectionId("");
-            setChapterId("");
-            setTopicId("");
-          }}
+          onChange={e => setCourseId(e.target.value)}
           className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30"
         >
           <option value="">All Courses</option>
-          {hierarchy.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          {allCourses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
 
         <select
           value={sectionId}
-          disabled={!courseId}
-          onChange={e => {
-            setSectionId(e.target.value);
-            setChapterId("");
-            setTopicId("");
-          }}
-          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 disabled:opacity-50"
+          onChange={e => setSectionId(e.target.value)}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30"
         >
           <option value="">All Sections</option>
-          {currentCourse?.sections?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          {allSections.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
 
         <select
           value={chapterId}
-          disabled={!sectionId}
-          onChange={e => {
-            setChapterId(e.target.value);
-            setTopicId("");
-          }}
-          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 disabled:opacity-50"
+          onChange={e => setChapterId(e.target.value)}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30"
         >
           <option value="">All Chapters</option>
-          {currentSection?.chapters?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          {allChapters.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
 
         <select
           value={topicId}
-          disabled={!chapterId}
           onChange={e => setTopicId(e.target.value)}
-          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 disabled:opacity-50"
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30"
         >
           <option value="">All Topics</option>
-          {topicsList.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+          {allTopics.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
       </div>
 

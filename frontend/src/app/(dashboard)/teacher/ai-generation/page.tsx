@@ -297,11 +297,10 @@ export default function AIGenerationPage() {
 
   const wordCount = form.customInstructions.trim() ? form.customInstructions.trim().split(/\s+/).length : 0;
 
-  // Cascading lists
-  const currentCourse = hierarchy.find(c => c.id === selectedCourse);
-  const currentSection = currentCourse?.sections.find((s: any) => s.id === selectedSection);
-  const currentChapter = currentSection?.chapters.find((c: any) => c.id === selectedChapter);
-  const topicsList = currentChapter?.topics || [];
+  const allCourses = hierarchy;
+  const allSections = hierarchy.flatMap(c => c.sections || []);
+  const allChapters = allSections.flatMap((s: any) => s.chapters || []);
+  const allTopics = allChapters.flatMap((c: any) => c.topics || []);
 
   return (
     <>
@@ -322,76 +321,55 @@ export default function AIGenerationPage() {
           </h3>
 
           <form onSubmit={handleGenerate} className="space-y-4 relative z-10">
-            {/* Cascading Selects */}
+            {/* Independent Selects */}
             <div>
               <label className="text-xs text-zinc-400">Course</label>
               <select 
-                required
                 value={selectedCourse} 
-                onChange={e => {
-                  setSelectedCourse(e.target.value);
-                  setSelectedSection("");
-                  setSelectedChapter("");
-                  setForm({...form, topicId: ""});
-                }}
+                onChange={e => setSelectedCourse(e.target.value)}
                 className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
               >
-                <option value="">-- Choose Course --</option>
-                {hierarchy.map(c => <option key={c.id} value={c.id}>{c.code} - {c.name}</option>)}
+                <option value="">-- All Courses --</option>
+                {allCourses.map(c => <option key={c.id} value={c.id}>{c.code} - {c.name}</option>)}
               </select>
             </div>
 
-            {selectedCourse && (
-              <div>
-                <label className="text-xs text-zinc-400">Section</label>
-                <select 
-                  required
-                  value={selectedSection} 
-                  onChange={e => {
-                    setSelectedSection(e.target.value);
-                    setSelectedChapter("");
-                    setForm({...form, topicId: ""});
-                  }}
-                  className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
-                >
-                  <option value="">-- Choose Section --</option>
-                  {currentCourse?.sections.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-              </div>
-            )}
+            <div>
+              <label className="text-xs text-zinc-400">Section</label>
+              <select 
+                value={selectedSection} 
+                onChange={e => setSelectedSection(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
+              >
+                <option value="">-- All Sections --</option>
+                {allSections.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+            </div>
 
-            {selectedSection && (
-              <div>
-                <label className="text-xs text-zinc-400">Chapter</label>
-                <select 
-                  required
-                  value={selectedChapter} 
-                  onChange={e => {
-                    setSelectedChapter(e.target.value);
-                    setForm({...form, topicId: ""});
-                  }}
-                  className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
-                >
-                  <option value="">-- Choose Chapter --</option>
-                  {currentSection?.chapters.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-            )}
+            <div>
+              <label className="text-xs text-zinc-400">Chapter</label>
+              <select 
+                value={selectedChapter} 
+                onChange={e => setSelectedChapter(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
+              >
+                <option value="">-- All Chapters --</option>
+                {allChapters.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
 
-            {selectedChapter && (
-              <div>
-                <label className="text-xs text-zinc-400">Topic</label>
-                <select 
-                  required
-                  value={form.topicId} 
-                  onChange={e => setForm({...form, topicId: e.target.value})}
-                  className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
-                >
-                  <option value="">-- Choose Topic --</option>
-                  {topicsList.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                </select>
-              </div>
-            )}
+            <div>
+              <label className="text-xs text-zinc-400">Topic</label>
+              <select 
+                required
+                value={form.topicId} 
+                onChange={e => setForm({...form, topicId: e.target.value})}
+                className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
+              >
+                <option value="">-- Choose Topic --</option>
+                {allTopics.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </div>
 
             {/* AI Parameters */}
             {form.topicId && (
@@ -706,7 +684,7 @@ export default function AIGenerationPage() {
                 <div key={sim.id} className="bg-white/5 border border-white/10 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-mono bg-white/10 px-2 py-1 rounded text-zinc-400">Match #{i + 1}</span>
-                    <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 rounded">Distance: {(sim.distance * 100).toFixed(1)}%</span>
+                    <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 rounded">Similarity: {((1 - sim.distance) * 100).toFixed(1)}%</span>
                   </div>
                   <p className="text-sm text-zinc-300 font-medium">
                     {sim.content_json?.[0]?.content || "No text preview"}
