@@ -58,6 +58,26 @@ export const MultipleCorrectMCQSchema = BaseQuestionSchema.extend({
   }),
 });
 
+// Assertion-Reasoning (behaves like single correct MCQ with fixed options)
+export const AssertionReasonSchema = BaseQuestionSchema.extend({
+  type: z.literal("ASSERTION_REASON"),
+  content_json: z.array(ContentBlockSchema).min(1),
+  options_json: z.object({
+    options: z
+      .array(
+        z.object({
+          id: z.string(),
+          text: z.string(),
+        }),
+      )
+      .min(4)
+      .max(4),
+  }),
+  answer_key: z.object({
+    correct_option: z.string(),
+  }),
+});
+
 // Essay
 export const EssaySchema = BaseQuestionSchema.extend({
   type: z.literal("ESSAY"),
@@ -178,6 +198,7 @@ export const PassageSchema = BaseQuestionSchema.extend({
 export const CreateQuestionSchema = z.discriminatedUnion("type", [
   SingleCorrectMCQSchema,
   MultipleCorrectMCQSchema,
+  AssertionReasonSchema,
   TrueFalseSchema,
   FillBlankSchema,
   MatchingSchema,
