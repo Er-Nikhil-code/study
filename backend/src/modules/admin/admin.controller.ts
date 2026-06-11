@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   Request,
+  Header,
 } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
@@ -28,6 +29,7 @@ export class AdminController {
    * Live dashboard statistics
    */
   @Get("dashboard/stats")
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
   async getDashboardStats() {
     return this.adminService.getDashboardStats();
   }

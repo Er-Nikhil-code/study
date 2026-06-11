@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { AiService } from "@/services/ai.service";
@@ -25,6 +26,7 @@ const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
 export default function AIGenerationPage() {
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.role === "ADMIN";
+  const queryClient = useQueryClient();
 
   const [hierarchy, setHierarchy] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>("");
@@ -267,6 +269,11 @@ export default function AIGenerationPage() {
 
       await QuestionsService.create(mappedData);
       setSavedStatus(prev => ({ ...prev, [idx]: true }));
+      
+      // Invalidate caches so dashboards update instantly
+      queryClient.invalidateQueries({ queryKey: ["questions", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["teacher", "dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "dashboard", "stats"] });
     } catch (err: any) {
       console.error(err);
       setError(err?.response?.data?.message || err.message || "Failed to save question");

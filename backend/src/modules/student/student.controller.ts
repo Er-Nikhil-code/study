@@ -5,6 +5,7 @@ import {
   Param,
   UseGuards,
   Request,
+  Header,
 } from "@nestjs/common";
 import { StudentService } from "./student.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
@@ -17,6 +18,7 @@ export class StudentController {
   constructor(private studentService: StudentService) {}
 
   @Get("dashboard")
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
   async getDashboard(@Request() req: any) {
     return this.studentService.getDashboardStats(req.user.sub);
   }
@@ -58,6 +60,7 @@ export class StudentController {
   }
 
   @Get("teacher/dashboard")
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
   @UseGuards(RolesGuard)
   @Roles("TEACHER", "ADMIN", "INTERN")
   async getTeacherDashboard(@Request() req: any) {
@@ -65,6 +68,7 @@ export class StudentController {
   }
 
   @Get("intern/dashboard")
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
   @UseGuards(RolesGuard)
   @Roles("INTERN", "ADMIN")
   async getInternDashboard(@Request() req: any) {
