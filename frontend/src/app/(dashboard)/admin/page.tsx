@@ -54,7 +54,7 @@ export default function AdminHomePage() {
   const { data: stats, isLoading: loading, error: queryError } = useQuery({
     queryKey: ["admin", "dashboard", "stats"],
     queryFn: () => adminService.getDashboardStats(),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
     gcTime: 1000 * 60 * 10,
     retry: 2,
   });
@@ -62,7 +62,7 @@ export default function AdminHomePage() {
   const { data: activity } = useQuery({
     queryKey: ["admin", "activity"],
     queryFn: () => adminService.getRecentActivity(8),
-    staleTime: 1000 * 60 * 2,
+    staleTime: 0,
     gcTime: 1000 * 60 * 5,
     retry: 1,
   });

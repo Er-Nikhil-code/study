@@ -14,7 +14,7 @@ export default function QueryProvider({ children }: QueryProviderProps) {
         defaultOptions: {
           queries: {
             // Serve instantly from cache, but consider data stale after 1 minute to ensure background updates
-            staleTime: 1000 * 60 * 1, // 1 min
+            staleTime: 0, // Disable caching so data is always fresh
 
             gcTime: 1000 * 60 * 30, // 30 min
 

@@ -50,7 +50,7 @@ export default function TeacherQuestionsPage() {
       
       return await QuestionsService.getAll(filters);
     },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    staleTime: 0,
   });
 
   const questions: any[] = questionsData?.data || [];
