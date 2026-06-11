@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { adminNavItems } from "../nav";
@@ -188,7 +189,7 @@ export default function AdminQuestionsPage() {
       {/* Questions list */}
       <Panel className="mt-4 p-0 overflow-x-auto">
         <div className="min-w-[800px]">
-          <div className="grid grid-cols-[80px_minmax(0,2fr)_minmax(0,1fr)_80px_80px_minmax(150px,2fr)_120px_90px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div className="grid grid-cols-[80px_minmax(0,2fr)_minmax(0,1fr)_80px_80px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
             <div>ID</div>
             <div>Title</div>
             <div>Type</div>
@@ -204,7 +205,7 @@ export default function AdminQuestionsPage() {
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className="grid grid-cols-[80px_minmax(0,2fr)_minmax(0,1fr)_80px_80px_minmax(150px,2fr)_120px_90px] gap-3 px-5 py-4"
+                  className="grid grid-cols-[80px_minmax(0,2fr)_minmax(0,1fr)_80px_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4"
                 >
                   <div className="h-4 w-12 animate-pulse rounded bg-white/10" />
                   <div className="h-4 w-48 animate-pulse rounded bg-white/10" />
@@ -230,7 +231,7 @@ export default function AdminQuestionsPage() {
 
                 return (
                   <div key={q.id}>
-                    <div className="grid grid-cols-[80px_minmax(0,2fr)_minmax(0,1fr)_80px_80px_minmax(150px,2fr)_120px_90px] gap-3 px-5 py-4 text-sm items-center">
+                    <div className="grid grid-cols-[80px_minmax(0,2fr)_minmax(0,1fr)_80px_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center">
                       <div className="font-mono text-[10px] text-zinc-500" title={q.id}>
                         ...{q.id.slice(-6)}
                       </div>
@@ -278,9 +279,9 @@ export default function AdminQuestionsPage() {
                         {q.creator ? `${q.creator.first_name || ""} ${q.creator.last_name || ""}`.trim() || "Admin" : q.created_by}
                       </div>
 
-                      <div>
+                      <div className="flex items-center gap-1">
                         {deletingId === q.id ? (
-                          <div className="flex items-center gap-1">
+                          <>
                             <button
                               onClick={() => handleDelete(q.id)}
                               disabled={deleteLoading}
@@ -294,14 +295,22 @@ export default function AdminQuestionsPage() {
                             >
                               No
                             </button>
-                          </div>
+                          </>
                         ) : (
-                          <button
-                            onClick={() => setDeletingId(q.id)}
-                            className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs text-red-300 transition hover:bg-red-500/20"
-                          >
-                            Delete
-                          </button>
+                          <>
+                            <Link
+                              href={`/admin/questions/${q.id}/edit`}
+                              className="rounded-lg border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs text-purple-300 transition hover:bg-purple-500/20"
+                            >
+                              Edit
+                            </Link>
+                            <button
+                              onClick={() => setDeletingId(q.id)}
+                              className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs text-red-300 transition hover:bg-red-500/20"
+                            >
+                              Delete
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>

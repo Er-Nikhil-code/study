@@ -168,6 +168,8 @@ export type CreateQuestionRequestType = CreateQuestionType;
 
 // Update question schema (all fields optional)
 export const UpdateQuestionSchema = z.object({
+  topic_id: z.string().optional(),
+  type: z.string().optional(),
   content_json: z.array(ContentBlockSchema).optional(),
   options_json: z.any().optional(),
   answer_key: z.any().optional(),

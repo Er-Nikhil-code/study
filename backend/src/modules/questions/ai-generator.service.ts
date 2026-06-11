@@ -82,13 +82,24 @@ Below is the curriculum context for the questions you need to generate:
 - Topic: ${context.topicName || "Unknown"} ${context.topicDesc ? `(${context.topicDesc})` : ""}
 `;
 
+    let optionsInstruction = 'Provide exactly 4 options per question.';
+    if (questionType === 'TRUE_FALSE') {
+      optionsInstruction = 'Provide exactly 2 options per question: "True" (id: "1") and "False" (id: "2").';
+    } else if (questionType === 'FILL_BLANK') {
+      optionsInstruction = 'Provide exactly 1 option containing the correct fill-in-the-blank answer (id: "1").';
+    } else if (questionType === 'MULTIPLE_CORRECT') {
+      optionsInstruction = 'Provide exactly 4 options per question, where multiple options might be correct (but output a single string of correct ids separated by commas for the answerKey, e.g. "1,3").';
+    } else if (questionType === 'NUMERICAL') {
+      optionsInstruction = 'Provide exactly 1 option containing the numeric answer (id: "1").';
+    }
+
     const prompt = `${hierarchyContextStr}
 
 Task: Generate ${count} ${difficulty} difficulty ${questionType} questions specifically for the Topic "${context.topicName}".
 ${useNotes && contextNotesStr ? `Use the following notes as context/reference:\n${contextNotesStr}\n` : ''}
 ${customInstructions ? `Custom Instructions: ${customInstructions}\n` : ''}
-Ensure the questions vary appropriately within the specified difficulty and are relevant to the provided course hierarchy context. Provide 4 options per question.
-CRITICAL: The options array MUST use the strings "1", "2", "3", "4" for the 'id' fields (do NOT use "0"). Section numbers, chapter numbers, list items, or anything like this MUST all start from 1, never 0.`;
+Ensure the questions vary appropriately within the specified difficulty and are relevant to the provided course hierarchy context. ${optionsInstruction}
+CRITICAL: The options array MUST use string IDs starting from "1" ("1", "2", "3", "4" etc). Do NOT use "0".`;
 
     try {
       const response = await this.ai.models.generateContent({

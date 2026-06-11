@@ -24,8 +24,10 @@ export class TestsService {
       topic_id: string;
       description?: string;
       duration_minutes: number;
-      total_marks: number;
+      total_marks?: number;
       passing_marks?: number;
+      positive_marks: number;
+      negative_marks: number;
       section_config?: any;
       question_ids?: string[];
     },
@@ -37,8 +39,10 @@ export class TestsService {
         description: data.description,
         created_by: creatorId,
         duration_minutes: data.duration_minutes,
-        total_marks: data.total_marks,
+        total_marks: data.question_ids ? data.question_ids.length * data.positive_marks : (data.total_marks || 0),
         passing_marks: data.passing_marks,
+        positive_marks: data.positive_marks,
+        negative_marks: data.negative_marks,
         section_config: data.section_config,
         status: "DRAFT",
       },
@@ -69,6 +73,8 @@ export class TestsService {
       duration_minutes?: number;
       total_marks?: number;
       passing_marks?: number;
+      positive_marks?: number;
+      negative_marks?: number;
       section_config?: any;
     },
   ) {

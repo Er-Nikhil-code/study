@@ -10,11 +10,11 @@ import { HierarchyService } from "@/services/hierarchy.service";
 import authService from "@/services/auth.service";
 
 // Sub-components
-import McqForm from "./forms/McqForm";
-import TrueFalseForm from "./forms/TrueFalseForm";
-import FillBlankForm from "./forms/FillBlankForm";
-import MatchingForm from "./forms/MatchingForm";
-import PassageForm from "./forms/PassageForm";
+import McqForm from "../../../../teacher/questions/create/forms/McqForm";
+import TrueFalseForm from "../../../../teacher/questions/create/forms/TrueFalseForm";
+import FillBlankForm from "../../../../teacher/questions/create/forms/FillBlankForm";
+import MatchingForm from "../../../../teacher/questions/create/forms/MatchingForm";
+import PassageForm from "../../../../teacher/questions/create/forms/PassageForm";
 
 const getNavItems = (role: string) => {
   if (role === "INTERN") {
@@ -31,7 +31,7 @@ const getNavItems = (role: string) => {
   ];
 };
 
-export default function CreateQuestionPage() {
+export default function EditQuestionPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [role, setRole] = useState("");
@@ -96,11 +96,61 @@ export default function CreateQuestionPage() {
       .catch((err) => {
         console.error("Failed to load hierarchy:", err);
         setError("Failed to load hierarchy for dropdown.");
+      });
+
+    QuestionsService.getById(params.id)
+      .then((q: any) => {
+        setFormData({
+          course_id: q.topic?.chapter?.section?.course?.id || "",
+          section_id: q.topic?.chapter?.section?.id || "",
+          chapter_id: q.topic?.chapter?.id || "",
+          topic_id: q.topic_id || "",
+          difficulty: q.difficulty || "MEDIUM",
+          type: q.question_type || "SINGLE_CORRECT",
+          content: q.content_json?.[0]?.content || "",
+          solution: q.solution_json?.[0]?.content || "",
+          is_pyq: !!q.metadata_json?.is_pyq,
+          exam_name: q.metadata_json?.exam_name || "",
+          exam_year: q.metadata_json?.exam_year || new Date().getFullYear().toString(),
+          exam_shift: q.metadata_json?.exam_shift || "",
+        });
+
+        if (q.question_type === "SINGLE_CORRECT") {
+          setMcqData({
+            options: q.options_json?.options || [{ id: "A", text: "" }],
+            correct_option: q.answer_key?.correct_option || "A",
+            correct_options: [q.answer_key?.correct_option || "A"],
+          });
+        } else if (q.question_type === "MULTIPLE_CORRECT") {
+          setMcqData({
+            options: q.options_json?.options || [{ id: "A", text: "" }],
+            correct_option: "A",
+            correct_options: q.answer_key?.correct_options || ["A"],
+          });
+        } else if (q.question_type === "TRUE_FALSE") {
+          setTfData({ answer: q.answer_key?.answer ?? true });
+        } else if (q.question_type === "FILL_BLANK") {
+          setFibData({ blanks: q.answer_key?.blanks || [{ position: 1, answer: "", case_sensitive: false }] });
+        } else if (q.question_type === "MATCHING") {
+          setMatchingData({
+            left_column: q.options_json?.left_column || [{ id: "L1", text: "" }],
+            right_column: q.options_json?.right_column || [{ id: "R1", text: "" }],
+            pairs: q.answer_key?.pairs || [{ left_id: "L1", right_id: "R1" }]
+          });
+        } else if (q.question_type === "PASSAGE") {
+          setPassageData({
+            sub_questions: q.options_json?.sub_questions || [],
+            answers: q.answer_key?.answers || {}
+          });
+        }
+      })
+      .catch((err) => {
+        setError("Failed to load question details");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [params.id]);
   const createMutation = useMutation({
-    mutationFn: (payload: any) => QuestionsService.create(payload),
+    mutationFn: (payload: any) => QuestionsService.update(params.id, payload),
     onSuccess: () => {
       // Invalidate the questions cache to fetch the new question instantly
       queryClient.invalidateQueries({ queryKey: ["questions", "list"] });
@@ -172,7 +222,7 @@ export default function CreateQuestionPage() {
   return (
     <>
       <div className="flex items-center justify-between">
-        <SectionTitle title="Create Question" subtitle="Add a new question to the bank" />
+        <SectionTitle title="Edit Question" subtitle={`Update question ${params.id}`} />
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-6 max-w-4xl pb-16">
@@ -388,11 +438,11 @@ export default function CreateQuestionPage() {
             disabled={createMutation.isPending}
             className="rounded-xl border border-red-500/30 bg-red-500/10 px-6 py-2 font-medium text-red-200 transition hover:bg-red-500/20 disabled:opacity-50"
           >
-            {createMutation.isPending ? "Creating..." : "Create Question"}
+            {createMutation.isPending ? "Saving..." : "Save Changes"}
           </button>
           <button
             type="button"
-            onClick={() => router.push("/teacher/questions")}
+            onClick={() => router.push(role === "INTERN" ? "/intern/questions" : role === "ADMIN" ? "/admin/questions" : "/teacher/questions")}
             className="rounded-xl border border-white/10 px-6 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/5"
           >
             Cancel

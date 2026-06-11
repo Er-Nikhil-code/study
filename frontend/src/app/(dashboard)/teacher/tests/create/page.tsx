@@ -28,7 +28,8 @@ export default function CreateTestPage() {
     title: "",
     description: "",
     duration_minutes: 60,
-    total_marks: 100,
+    positive_marks: 4,
+    negative_marks: 1,
     passing_marks: 40,
   });
 
@@ -58,6 +59,7 @@ export default function CreateTestPage() {
     try {
       await TestsService.create({
         ...formData,
+        total_marks: selectedQuestionIds.size * formData.positive_marks,
         topic_id: topicId as string,
         question_ids: Array.from(selectedQuestionIds),
       });
@@ -103,7 +105,18 @@ export default function CreateTestPage() {
                 </div>
                 <div className="flex-1">
                   <label className="block text-sm text-zinc-400 mb-1">Total Marks</label>
-                  <input type="number" required min="1" value={formData.total_marks} onChange={e => setFormData({...formData, total_marks: Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" />
+                  <input type="number" readOnly value={selectedQuestionIds.size * formData.positive_marks} className="w-full rounded bg-black/50 border border-white/5 px-3 py-2 text-zinc-500 outline-none cursor-not-allowed" />
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm text-zinc-400 mb-1">Marks per Question (+)</label>
+                  <input type="number" required min="0" max="5" step="any" value={formData.positive_marks === 0 ? '' : formData.positive_marks} onChange={e => setFormData({...formData, positive_marks: e.target.value === '' ? 0 : Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="0 to 5" />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm text-zinc-400 mb-1">Negative Marks (-)</label>
+                  <input type="number" required min="0" max="5" step="any" value={formData.negative_marks === 0 ? '' : formData.negative_marks} onChange={e => setFormData({...formData, negative_marks: e.target.value === '' ? 0 : Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="0 to 5" />
                 </div>
               </div>
 
@@ -140,8 +153,6 @@ export default function CreateTestPage() {
                       <h3 className="font-semibold text-white">{q.title}</h3>
                       <div className="flex flex-wrap gap-2 mt-2 text-xs text-zinc-400">
                         <span className="bg-black px-2 py-1 rounded">Type: {q.question_type}</span>
-                        <span className="bg-black px-2 py-1 rounded">Marks: {q.marks}</span>
-                        <span className="bg-black px-2 py-1 rounded text-red-400">Neg: {q.negative_marks}</span>
                       </div>
                     </div>
                   </div>

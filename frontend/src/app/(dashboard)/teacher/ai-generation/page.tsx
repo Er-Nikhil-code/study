@@ -7,7 +7,7 @@ import { AiService } from "@/services/ai.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import { QuestionsService } from "@/services/questions.service";
 import { NotesService } from "@/services/notes.service";
-import { Brain, Sparkles, AlertTriangle, Loader2, Save, Trash2, Check, Info, Edit2 } from "lucide-react";
+import { Brain, Sparkles, AlertTriangle, Loader2, Save, Trash2, Check, Info, Edit2, PlusCircle } from "lucide-react";
 import UserHoverCard from "@/components/ui/UserHoverCard";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -16,8 +16,6 @@ const QUESTION_TYPES = [
   "MULTIPLE_CORRECT",
   "TRUE_FALSE",
   "FILL_BLANK",
-  "MATCHING",
-  "PASSAGE",
   "NUMERICAL",
   "ESSAY",
   "IMAGE_BASED",
@@ -445,9 +443,21 @@ export default function AIGenerationPage() {
                             newOpts[optIdx].text = e.target.value;
                             setEditForm({...editForm, options: newOpts});
                           }} className="w-full bg-black border border-white/10 rounded px-3 py-2 text-sm text-white outline-none focus:border-purple-500" />
+                          <button onClick={() => {
+                            const newOpts = editForm.options.filter((_: any, i: number) => i !== optIdx);
+                            setEditForm({...editForm, options: newOpts});
+                          }} className="text-zinc-500 hover:text-red-400 transition" title="Remove Option">
+                            <Trash2 size={14} />
+                          </button>
                         </div>
                       ))}
                     </div>
+                    <button onClick={() => {
+                      const newId = String(editForm.options?.length ? Math.max(...editForm.options.map((o: any) => parseInt(o.id) || 0)) + 1 : 1);
+                      setEditForm({...editForm, options: [...(editForm.options || []), { id: newId, text: "" }]});
+                    }} className="mt-2 text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 transition">
+                      <PlusCircle size={12} /> Add Option
+                    </button>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>

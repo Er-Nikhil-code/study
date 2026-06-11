@@ -247,6 +247,8 @@ model Test {
   duration_minutes Int      @default(180)
   total_marks     Float
   passing_marks   Float?
+  positive_marks  Float     @default(4)
+  negative_marks  Float     @default(1)
   status          TestStatus @default(DRAFT)
   start_time      DateTime?
   end_time        DateTime?

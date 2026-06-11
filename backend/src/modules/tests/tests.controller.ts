@@ -111,6 +111,8 @@ export class TestsController {
       duration_minutes: number;
       total_marks: number;
       passing_marks?: number;
+      positive_marks: number;
+      negative_marks: number;
       section_config?: any;
       question_ids?: string[];
     },
@@ -131,6 +133,8 @@ export class TestsController {
       duration_minutes?: number;
       total_marks?: number;
       passing_marks?: number;
+      positive_marks?: number;
+      negative_marks?: number;
     },
   ) {
     return this.testsService.updateTest(id, req.user.sub, body);

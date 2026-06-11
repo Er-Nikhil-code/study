@@ -428,6 +428,8 @@ export class QuestionsService {
       const updated = await this.prisma.question.update({
         where: { id: questionId },
         data: {
+          topic_id: data.topic_id ?? question.topic_id,
+          question_type: (data.type ?? question.question_type) as any,
           content_json: (data.content_json ?? question.content_json) as any,
           options_json: (data as any).options_json ?? (question as any).options_json ?? undefined,
           answer_key: (data as any).answer_key ?? (question as any).answer_key,
