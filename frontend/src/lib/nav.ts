@@ -32,6 +32,7 @@ export type NavItem = {
   label: string;
   href: string;
   icon: LucideIcon;
+  subItems?: NavItem[];
 };
 
 export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
@@ -53,8 +54,15 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
         { label: "Create Question", href: "/teacher/questions/create", icon: FilePlus2 },
         { label: "Question Bank", href: "/admin/questions", icon: FileQuestion },
         
-        { label: "Notes", href: "/intern/notes/create", icon: FileEdit },
-        { label: "Review Notes", href: "/teacher/notes/review", icon: FileEdit },
+        { 
+          label: "Notes", 
+          href: "#", 
+          icon: FileEdit,
+          subItems: [
+            { label: "Create Notes", href: "/intern/notes/create", icon: PlusCircle },
+            { label: "Review Notes", href: "/teacher/notes/review", icon: CheckSquare },
+          ]
+        },
         
         { label: "Users & Roles", href: "/admin/users", icon: Users },
         { label: "Custom Roles", href: "/admin/roles", icon: Shield },
@@ -70,10 +78,16 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
         { label: "Knight Dashboard", href: "/teacher", icon: LayoutDashboard },
         { label: "Courses", href: "/courses", icon: BookOpen },
         { label: "Curriculum", href: "/teacher/hierarchy", icon: Network },
-        { label: "Create Notes", href: "/intern/notes/create", icon: FileEdit },
-        { label: "Notes Review", href: "/teacher/notes/review", icon: FileEdit },
+        { 
+          label: "Notes", 
+          href: "#", 
+          icon: FileEdit,
+          subItems: [
+            { label: "Create Notes", href: "/intern/notes/create", icon: PlusCircle },
+            { label: "Review Notes", href: "/teacher/notes/review", icon: CheckSquare },
+          ]
+        },
         { label: "AI Generator", href: "/teacher/ai-generation", icon: BrainCircuit },
-        { label: "Create Question", href: "/teacher/questions/create", icon: FilePlus2 },
         { label: "Questions", href: "/teacher/questions", icon: FileQuestion },
         { label: "Tests", href: "/teacher/tests", icon: FileText },
         { label: "Challenges", href: "/teacher/challenges", icon: ShieldAlert },

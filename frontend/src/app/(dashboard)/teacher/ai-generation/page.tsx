@@ -307,7 +307,7 @@ export default function AIGenerationPage() {
     <>
       <SectionTitle 
         title="AI Question Generator" 
-        subtitle="Generate intelligent questions customized to your curriculum using Gemini 2.5 Flash."
+        subtitle="Generate intelligent questions customized to your curriculum using AI."
       />
 
       <div className="grid gap-6 md:grid-cols-3 items-start mt-6">
@@ -536,7 +536,7 @@ export default function AIGenerationPage() {
                 <div className="absolute inset-0 border-t-2 border-purple-500 rounded-full animate-spin" />
               </div>
               <h4 className="text-lg font-medium text-white mt-4">Generating Questions...</h4>
-              <p className="text-sm text-zinc-500 mt-2">Gemini 2.5 Flash is analyzing your curriculum context.</p>
+              <p className="text-sm text-zinc-500 mt-2">The AI is analyzing your curriculum context.</p>
             </Panel>
           )}
 

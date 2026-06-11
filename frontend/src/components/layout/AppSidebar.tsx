@@ -25,7 +25,14 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
   const { user, isAuthenticated, logout } = useAuthStore();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const toggleMenu = (label: string) => {
+    setExpandedMenus((prev) =>
+      prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]
+    );
+  };
 
   const handlePrefetch = (href: string) => {
     if (href === "/admin") {
@@ -106,26 +113,71 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
       <div className="flex-1 overflow-y-auto py-4 hide-scrollbar">
         <nav className="flex flex-col space-y-1 px-3">
           {items.map((item) => {
-            const active = activeHref === item.href || (activeHref && activeHref.startsWith(item.href) && item.href !== "/");
+            const active = activeHref === item.href || (activeHref && activeHref.startsWith(item.href) && item.href !== "/" && item.href !== "#");
+            const isExpanded = expandedMenus.includes(item.label);
             const Icon = item.icon;
             
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onMouseEnter={() => handlePrefetch(item.href)}
-                title={isCollapsed ? item.label : undefined}
-                className={[
-                  "group flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                  active
-                    ? "bg-red-500/10 text-red-400"
-                    : "text-zinc-400 hover:bg-white/[0.04] hover:text-white",
-                  isCollapsed ? "justify-center" : "justify-start gap-3",
-                ].join(" ")}
-              >
+            const itemContent = (
+              <>
                 <Icon size={20} className={active ? "text-red-400" : "text-zinc-500 group-hover:text-zinc-300"} />
-                {!isCollapsed && <span className="truncate">{item.label}</span>}
-              </Link>
+                {!isCollapsed && <span className="truncate flex-1 text-left">{item.label}</span>}
+                {!isCollapsed && item.subItems && (
+                  <ChevronDown size={14} className={`text-zinc-500 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                )}
+              </>
+            );
+
+            const itemClass = [
+              "group flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+              active ? "bg-red-500/10 text-red-400" : "text-zinc-400 hover:bg-white/[0.04] hover:text-white",
+              isCollapsed ? "justify-center" : "justify-start gap-3",
+            ].join(" ");
+
+            return (
+              <div key={item.label} className="flex flex-col space-y-1">
+                {item.subItems ? (
+                  <button
+                    onClick={() => {
+                      if (isCollapsed) setIsCollapsed(false);
+                      toggleMenu(item.label);
+                    }}
+                    title={isCollapsed ? item.label : undefined}
+                    className={itemClass}
+                  >
+                    {itemContent}
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href}
+                    onMouseEnter={() => handlePrefetch(item.href)}
+                    title={isCollapsed ? item.label : undefined}
+                    className={itemClass}
+                  >
+                    {itemContent}
+                  </Link>
+                )}
+
+                {item.subItems && isExpanded && !isCollapsed && (
+                  <div className="ml-4 pl-3 border-l border-white/10 flex flex-col space-y-1 mt-1">
+                    {item.subItems.map((subItem) => {
+                      const subActive = activeHref === subItem.href || (activeHref && activeHref.startsWith(subItem.href) && subItem.href !== "/" && subItem.href !== "#");
+                      const SubIcon = subItem.icon;
+                      return (
+                        <Link
+                          key={subItem.label}
+                          href={subItem.href}
+                          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 ${
+                            subActive ? "bg-red-500/10 text-red-400" : "text-zinc-400 hover:bg-white/[0.04] hover:text-white"
+                          }`}
+                        >
+                          <SubIcon size={16} className={subActive ? "text-red-400" : "text-zinc-500"} />
+                          <span className="truncate">{subItem.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>

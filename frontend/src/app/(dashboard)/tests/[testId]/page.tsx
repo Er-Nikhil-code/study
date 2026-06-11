@@ -229,6 +229,20 @@ export default function TestDetailsPage() {
                   <div className="mt-4">
                     <ContentBlockRenderer blocks={tq.question.content_json || []} />
                   </div>
+
+                  {/* Options */}
+                  {tq.question.options_json?.options && tq.question.options_json.options.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      {tq.question.options_json.options.map((opt: any) => (
+                        <div key={opt.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300 flex items-start">
+                          <span className="flex-shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full border border-zinc-600 text-xs mr-3 mt-0.5">
+                            {opt.id}
+                          </span>
+                          <span>{opt.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   
                   {/* Correct Answer */}
                   {tq.question.answer_key && (
