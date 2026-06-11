@@ -91,6 +91,13 @@ Below is the curriculum context for the questions you need to generate:
       optionsInstruction = 'Provide exactly 4 options per question, where multiple options might be correct (but output a single string of correct ids separated by commas for the answerKey, e.g. "1,3").';
     } else if (questionType === 'NUMERICAL') {
       optionsInstruction = 'Provide exactly 1 option containing the numeric answer (id: "1").';
+    } else if (questionType === 'ASSERTION_REASON') {
+      optionsInstruction = `This is an Assertion-Reasoning question. The questionText MUST clearly state both the "Assertion (A): [statement]" and "Reason (R): [statement]".
+Provide exactly 4 standard options with these exact texts:
+1: "Both Assertion (A) and Reason (R) are true and R is the correct explanation of A."
+2: "Both Assertion (A) and Reason (R) are true but R is NOT the correct explanation of A."
+3: "Assertion (A) is true but Reason (R) is false."
+4: "Assertion (A) is false but Reason (R) is true."`;
     }
 
     const prompt = `${hierarchyContextStr}

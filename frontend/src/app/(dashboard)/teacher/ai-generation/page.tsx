@@ -14,6 +14,10 @@ import { useAuthStore } from "@/store/auth.store";
 const QUESTION_TYPES = [
   "SINGLE_CORRECT",
   "MULTIPLE_CORRECT",
+  "TRUE_FALSE",
+  "FILL_BLANK",
+  "NUMERICAL",
+  "ASSERTION_REASON",
 ];
 
 const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
@@ -174,8 +178,8 @@ export default function AIGenerationPage() {
         }
       }
       
-      // Force 4 options for MCQ/MSQ as requested
-      if (mappedType === "SINGLE_CORRECT" || mappedType === "MULTIPLE_CORRECT") {
+      // Force 4 options for MCQ/MSQ/Assertion as requested
+      if (mappedType === "SINGLE_CORRECT" || mappedType === "MULTIPLE_CORRECT" || mappedType === "ASSERTION_REASON") {
          if (!optionsJson || !optionsJson.options || optionsJson.options.length === 0) {
             optionsJson = {
               options: [
