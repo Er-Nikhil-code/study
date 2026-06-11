@@ -145,22 +145,39 @@ export default function AIGenerationPage() {
       // Map AI output format to our schema
       const mappedType = form.questionType === "MULTIPLE_CHOICE" ? "SINGLE_CORRECT" : form.questionType;
 
-      let answerKey: any = { correct_option: q.answerKey };
       let optionsJson: any = { 
         options: (q.options || []).map((opt: any, i: number) => {
+          const defaultId = String.fromCharCode(65 + i); // A, B, C, D
           if (typeof opt === 'object' && opt !== null) {
-            return { id: opt.id || `opt${i + 1}`, text: opt.text || '' };
+            return { id: opt.id || defaultId, text: opt.text || '' };
           }
-          return { id: `opt${i + 1}`, text: String(opt) };
+          return { id: defaultId, text: String(opt) };
         })
       };
+
+      // Normalize answerKey to match option IDs (A, B, C, D)
+      let ansStr = String(q.answerKey).trim();
+      if (ansStr === "1") ansStr = "A";
+      if (ansStr === "2") ansStr = "B";
+      if (ansStr === "3") ansStr = "C";
+      if (ansStr === "4") ansStr = "D";
+      
+      let answerKey: any = { correct_option: ansStr };
 
       if (mappedType === "TRUE_FALSE") {
         const isTrue = String(q.answerKey) === "1" || String(q.answerKey).toLowerCase() === "true";
         answerKey = { answer: isTrue };
         optionsJson = undefined; // True/False schema doesn't use options_json strictly
       } else if (mappedType === "MULTIPLE_CORRECT") {
-        answerKey = { correct_options: String(q.answerKey).split(',').map(s => s.trim()).filter(Boolean) };
+        const correctArray = String(q.answerKey).split(',').map(s => {
+          let v = s.trim();
+          if (v === "1") return "A";
+          if (v === "2") return "B";
+          if (v === "3") return "C";
+          if (v === "4") return "D";
+          return v;
+        }).filter(Boolean);
+        answerKey = { correct_options: correctArray };
       } else if (mappedType === "FILL_BLANK") {
         let ansText = String(q.answerKey);
         if (q.options && q.options.length > 0) {
@@ -183,13 +200,25 @@ export default function AIGenerationPage() {
          if (!optionsJson || !optionsJson.options || optionsJson.options.length === 0) {
             optionsJson = {
               options: [
-                { id: "1", text: "Option A" },
-                { id: "2", text: "Option B" },
-                { id: "3", text: "Option C" },
-                { id: "4", text: "Option D" },
+                { id: "A", text: "Option A" },
+                { id: "B", text: "Option B" },
+                { id: "C", text: "Option C" },
+                { id: "D", text: "Option D" },
               ]
             };
          }
+      }
+
+      // For ASSERTION_REASON, enforce standard options text just in case AI deviated
+      if (mappedType === "ASSERTION_REASON") {
+        optionsJson = {
+          options: [
+            { id: "A", text: "Both Assertion (A) and Reason (R) are true and R is the correct explanation of A." },
+            { id: "B", text: "Both Assertion (A) and Reason (R) are true but R is NOT the correct explanation of A." },
+            { id: "C", text: "Assertion (A) is true but Reason (R) is false." },
+            { id: "D", text: "Assertion (A) is false but Reason (R) is true." }
+          ]
+        };
       }
 
       const mappedData = {
