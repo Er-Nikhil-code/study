@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
@@ -31,7 +31,8 @@ const getNavItems = (role: string) => {
   ];
 };
 
-export default function EditQuestionPage({ params }: { params: { id: string } }) {
+export default function EditQuestionPage() {
+  const unwrappedParams = useParams();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [role, setRole] = useState("");
@@ -98,7 +99,7 @@ export default function EditQuestionPage({ params }: { params: { id: string } })
         setError("Failed to load hierarchy for dropdown.");
       });
 
-    QuestionsService.getById(params.id)
+    QuestionsService.getById(unwrappedParams.id as string)
       .then((q: any) => {
         setFormData({
           course_id: q.topic?.chapter?.section?.course?.id || "",
@@ -148,9 +149,9 @@ export default function EditQuestionPage({ params }: { params: { id: string } })
         setError("Failed to load question details");
       })
       .finally(() => setLoading(false));
-  }, [params.id]);
+  }, [unwrappedParams.id]);
   const createMutation = useMutation({
-    mutationFn: (payload: any) => QuestionsService.update(params.id, payload),
+    mutationFn: (payload: any) => QuestionsService.update(unwrappedParams.id as string, payload),
     onSuccess: () => {
       // Invalidate the questions cache to fetch the new question instantly
       queryClient.invalidateQueries({ queryKey: ["questions", "list"] });
@@ -222,7 +223,7 @@ export default function EditQuestionPage({ params }: { params: { id: string } })
   return (
     <>
       <div className="flex items-center justify-between">
-        <SectionTitle title="Edit Question" subtitle={`Update question ${params.id}`} />
+        <SectionTitle title="Edit Question" subtitle={`Update question ${unwrappedParams.id}`} />
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-6 max-w-4xl pb-16">

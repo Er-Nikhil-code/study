@@ -496,12 +496,22 @@ export default function AIGenerationPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-zinc-400">Answer Key</label>
-                      <select value={editForm.answerKey} onChange={e => setEditForm({...editForm, answerKey: e.target.value})} className="mt-1 w-full bg-black border border-white/10 rounded px-3 py-2 text-sm text-white outline-none focus:border-purple-500">
-                        {editForm.options?.map((opt: any) => (
-                          <option key={opt.id} value={opt.id}>{opt.id}</option>
-                        ))}
-                      </select>
+                      <label className="text-xs text-zinc-400">Answer Key {form.questionType === 'MULTIPLE_CORRECT' && "(comma-separated)"}</label>
+                      {form.questionType === 'MULTIPLE_CORRECT' ? (
+                        <input 
+                          type="text" 
+                          value={editForm.answerKey} 
+                          onChange={e => setEditForm({...editForm, answerKey: e.target.value})} 
+                          className="mt-1 w-full bg-black border border-white/10 rounded px-3 py-2 text-sm text-white outline-none focus:border-purple-500" 
+                          placeholder="e.g. 1,3"
+                        />
+                      ) : (
+                        <select value={editForm.answerKey} onChange={e => setEditForm({...editForm, answerKey: e.target.value})} className="mt-1 w-full bg-black border border-white/10 rounded px-3 py-2 text-sm text-white outline-none focus:border-purple-500">
+                          {editForm.options?.map((opt: any) => (
+                            <option key={opt.id} value={opt.id}>{opt.id}</option>
+                          ))}
+                        </select>
+                      )}
                     </div>
                     <div>
                       <label className="text-xs text-zinc-400">Difficulty</label>
