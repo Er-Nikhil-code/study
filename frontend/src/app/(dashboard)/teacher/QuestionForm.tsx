@@ -45,10 +45,6 @@ export default function QuestionForm() {
           <button className="rounded-full bg-red-600 px-5 py-2 text-white">
             Save Question
           </button>
-
-          <button className="rounded-full border border-white/10 px-5 py-2 text-zinc-300">
-            Preview
-          </button>
         </div>
       </div>
     </Panel>

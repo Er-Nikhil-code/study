@@ -39,7 +39,7 @@ export default function TeacherHomePage() {
   const lastName = (user as any).last_name || user?.lastName;
   const name = firstName
     ? `${firstName}${lastName ? ` ${lastName}` : ""}`
-    : user?.email?.split("@")[0] || "Teacher";
+    : user?.email?.split("@")[0] || "Knight";
 
   return (
     <>
@@ -80,7 +80,7 @@ export default function TeacherHomePage() {
         <Panel>
           <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-zinc-500">
             <Users size={12} />
-            Interns
+            Pawns
           </div>
           <div className="mt-2 text-3xl font-semibold text-white">
             {loading ? <span className="inline-block h-8 w-14 animate-pulse rounded bg-white/10" /> : data?.students_assigned ?? 0}

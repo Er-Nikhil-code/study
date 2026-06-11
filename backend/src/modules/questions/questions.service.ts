@@ -280,6 +280,9 @@ export class QuestionsService {
   async findAllQuestions(
     filters?: {
       topic_id?: string;
+      chapter_id?: string;
+      section_id?: string;
+      course_id?: string;
       question_type?: string;
       difficulty?: string;
       intern_only?: string;
@@ -293,7 +296,18 @@ export class QuestionsService {
       this.logger.debug(`🔍 [QUESTIONS] Fetching questions with filters`);
 
       const where: any = {};
-      if (filters?.topic_id) where.topic_id = filters.topic_id;
+      
+      // Topic hierarchy filtering
+      if (filters?.topic_id) {
+        where.topic_id = filters.topic_id;
+      } else if (filters?.chapter_id) {
+        where.topic = { chapter_id: filters.chapter_id };
+      } else if (filters?.section_id) {
+        where.topic = { chapter: { section_id: filters.section_id } };
+      } else if (filters?.course_id) {
+        where.topic = { chapter: { section: { course_id: filters.course_id } } };
+      }
+
       if (filters?.question_type) where.question_type = filters.question_type;
       if (filters?.difficulty) where.difficulty = filters.difficulty;
       if (filters?.intern_only) {

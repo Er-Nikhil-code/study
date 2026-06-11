@@ -1,5 +1,7 @@
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
 const navItems = [
   { label: "Teacher home", href: "/teacher" },
@@ -16,6 +18,15 @@ export default function TeacherTestsPage() {
       <SectionTitle
         title="Tests"
         subtitle="Create, schedule, and manage test sets from the teacher panel."
+        action={
+          <Link
+            href="/teacher/tests/create"
+            className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-red-500/20 transition hover:bg-red-500"
+          >
+            <Plus size={16} />
+            Create Test
+          </Link>
+        }
       />
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">

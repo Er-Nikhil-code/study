@@ -67,6 +67,9 @@ export class QuestionsController {
   @Roles("INTERN", "TEACHER", "ADMIN")
   async listQuestions(
     @Query("topic_id") topicId?: string,
+    @Query("chapter_id") chapterId?: string,
+    @Query("section_id") sectionId?: string,
+    @Query("course_id") courseId?: string,
     @Query("type") type?: string,
     @Query("difficulty") difficulty?: string,
     @Query("skip") skip?: string,
@@ -76,6 +79,9 @@ export class QuestionsController {
   ) {
     const filters: any = {};
     if (topicId) filters.topic_id = topicId;
+    if (chapterId) filters.chapter_id = chapterId;
+    if (sectionId) filters.section_id = sectionId;
+    if (courseId) filters.course_id = courseId;
     if (type) filters.question_type = type;
     if (difficulty) filters.difficulty = difficulty;
 

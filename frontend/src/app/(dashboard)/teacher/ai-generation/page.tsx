@@ -14,9 +14,6 @@ import { useAuthStore } from "@/store/auth.store";
 const QUESTION_TYPES = [
   "SINGLE_CORRECT",
   "MULTIPLE_CORRECT",
-  "TRUE_FALSE",
-  "FILL_BLANK",
-  "NUMERICAL",
 ];
 
 const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
@@ -175,6 +172,20 @@ export default function AIGenerationPage() {
         if (!q.options || q.options.length === 0) {
           optionsJson = undefined;
         }
+      }
+      
+      // Force 4 options for MCQ/MSQ as requested
+      if (mappedType === "SINGLE_CORRECT" || mappedType === "MULTIPLE_CORRECT") {
+         if (!optionsJson || !optionsJson.options || optionsJson.options.length === 0) {
+            optionsJson = {
+              options: [
+                { id: "1", text: "Option A" },
+                { id: "2", text: "Option B" },
+                { id: "3", text: "Option C" },
+                { id: "4", text: "Option D" },
+              ]
+            };
+         }
       }
 
       const mappedData = {

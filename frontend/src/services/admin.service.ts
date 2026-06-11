@@ -169,6 +169,9 @@ class AdminService {
     search?: string;
     type?: string;
     difficulty?: string;
+    course_id?: string;
+    section_id?: string;
+    chapter_id?: string;
     topic_id?: string;
     skip?: number;
     take?: number;

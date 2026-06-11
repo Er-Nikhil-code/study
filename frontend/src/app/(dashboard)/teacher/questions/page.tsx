@@ -6,6 +6,7 @@ import Link from "next/link";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { QuestionsService } from "@/services/questions.service";
+import { HierarchyService } from "@/services/hierarchy.service";
 import authService from "@/services/auth.service";
 
 export default function TeacherQuestionsPage() {
@@ -19,10 +20,35 @@ export default function TeacherQuestionsPage() {
   // Submitting state
   const [submittingId, setSubmittingId] = useState<string | null>(null);
 
+  // Hierarchy Filters
+  const [hierarchy, setHierarchy] = useState<any[]>([]);
+  const [courseId, setCourseId] = useState("");
+  const [sectionId, setSectionId] = useState("");
+  const [chapterId, setChapterId] = useState("");
+  const [topicId, setTopicId] = useState("");
+
+  useEffect(() => {
+    HierarchyService.getFullHierarchy()
+      .then(setHierarchy)
+      .catch(err => console.error("Failed to load hierarchy", err));
+  }, []);
+
+  const currentCourse = hierarchy.find(c => c.id === courseId);
+  const currentSection = currentCourse?.sections?.find((s: any) => s.id === sectionId);
+  const currentChapter = currentSection?.chapters?.find((c: any) => c.id === chapterId);
+  const topicsList = currentChapter?.topics || [];
+
   const { data: questionsData, isLoading: loading, isFetching, error: queryError } = useQuery({
-    queryKey: ["questions", "list", createdOnly],
+    queryKey: ["questions", "list", createdOnly, courseId, sectionId, chapterId, topicId],
     queryFn: async () => {
-      return await QuestionsService.getAll(createdOnly ? { created_by_me: true } : {});
+      const filters: any = {};
+      if (createdOnly) filters.created_by_me = true;
+      if (courseId) filters.course_id = courseId;
+      if (sectionId) filters.section_id = sectionId;
+      if (chapterId) filters.chapter_id = chapterId;
+      if (topicId) filters.topic_id = topicId;
+      
+      return await QuestionsService.getAll(filters);
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
@@ -128,7 +154,61 @@ export default function TeacherQuestionsPage() {
         </div>
       )}
 
-      <div className="mt-6 grid gap-4">
+      {/* Hierarchy Filters */}
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <select
+          value={courseId}
+          onChange={e => {
+            setCourseId(e.target.value);
+            setSectionId("");
+            setChapterId("");
+            setTopicId("");
+          }}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30"
+        >
+          <option value="">All Courses</option>
+          {hierarchy.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+
+        <select
+          value={sectionId}
+          disabled={!courseId}
+          onChange={e => {
+            setSectionId(e.target.value);
+            setChapterId("");
+            setTopicId("");
+          }}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 disabled:opacity-50"
+        >
+          <option value="">All Sections</option>
+          {currentCourse?.sections?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+
+        <select
+          value={chapterId}
+          disabled={!sectionId}
+          onChange={e => {
+            setChapterId(e.target.value);
+            setTopicId("");
+          }}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 disabled:opacity-50"
+        >
+          <option value="">All Chapters</option>
+          {currentSection?.chapters?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+
+        <select
+          value={topicId}
+          disabled={!chapterId}
+          onChange={e => setTopicId(e.target.value)}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 disabled:opacity-50"
+        >
+          <option value="">All Topics</option>
+          {topicsList.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
+      </div>
+
+      <div className="mt-4 grid gap-4">
         {loading ? (
           [...Array(3)].map((_, i) => (
             <Panel key={i} className="p-5 h-32 animate-pulse bg-white/[0.03]">
@@ -188,9 +268,6 @@ export default function TeacherQuestionsPage() {
                       {submittingId === q.id ? "Submitting…" : "Submit for Review"}
                     </button>
                   )}
-                  <button className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
-                    Preview
-                  </button>
                 </div>
               )}
             </Panel>

@@ -6,6 +6,7 @@ import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { adminNavItems } from "../nav";
 import adminService, { type AdminQuestion } from "@/services/admin.service";
+import { HierarchyService } from "@/services/hierarchy.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import UserHoverCard from "@/components/ui/UserHoverCard";
 
@@ -59,6 +60,25 @@ export default function AdminQuestionsPage() {
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [diffFilter, setDiffFilter] = useState("ALL");
 
+  // Hierarchy Filters
+  const [hierarchy, setHierarchy] = useState<any[]>([]);
+  const [courseId, setCourseId] = useState("");
+  const [sectionId, setSectionId] = useState("");
+  const [chapterId, setChapterId] = useState("");
+  const [topicId, setTopicId] = useState("");
+
+  // Hierarchy Data Processing
+  useEffect(() => {
+    HierarchyService.getFullHierarchy()
+      .then(setHierarchy)
+      .catch(err => console.error("Failed to load hierarchy", err));
+  }, []);
+
+  const currentCourse = hierarchy.find(c => c.id === courseId);
+  const currentSection = currentCourse?.sections?.find((s: any) => s.id === sectionId);
+  const currentChapter = currentSection?.chapters?.find((c: any) => c.id === chapterId);
+  const topicsList = currentChapter?.topics || [];
+
   // Delete
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -74,6 +94,10 @@ export default function AdminQuestionsPage() {
         search: search || undefined,
         type: typeFilter !== "ALL" ? typeFilter : undefined,
         difficulty: diffFilter !== "ALL" ? diffFilter : undefined,
+        course_id: courseId || undefined,
+        section_id: sectionId || undefined,
+        chapter_id: chapterId || undefined,
+        topic_id: topicId || undefined,
         skip: page * PAGE_SIZE,
         take: PAGE_SIZE,
       });
@@ -84,7 +108,7 @@ export default function AdminQuestionsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, typeFilter, diffFilter, page]);
+  }, [search, typeFilter, diffFilter, courseId, sectionId, chapterId, topicId, page]);
 
   useEffect(() => {
     fetchQuestions();
@@ -121,8 +145,68 @@ export default function AdminQuestionsPage() {
         subtitle={`${total} question${total !== 1 ? "s" : ""} in the bank.`}
       />
 
-      {/* Filters bar */}
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+      {/* Hierarchy Filters */}
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <select
+          value={courseId}
+          onChange={e => {
+            setCourseId(e.target.value);
+            setSectionId("");
+            setChapterId("");
+            setTopicId("");
+            setPage(0);
+          }}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30"
+        >
+          <option value="">All Courses</option>
+          {hierarchy.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+
+        <select
+          value={sectionId}
+          disabled={!courseId}
+          onChange={e => {
+            setSectionId(e.target.value);
+            setChapterId("");
+            setTopicId("");
+            setPage(0);
+          }}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 disabled:opacity-50"
+        >
+          <option value="">All Sections</option>
+          {currentCourse?.sections?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+
+        <select
+          value={chapterId}
+          disabled={!sectionId}
+          onChange={e => {
+            setChapterId(e.target.value);
+            setTopicId("");
+            setPage(0);
+          }}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 disabled:opacity-50"
+        >
+          <option value="">All Chapters</option>
+          {currentSection?.chapters?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+
+        <select
+          value={topicId}
+          disabled={!chapterId}
+          onChange={e => {
+            setTopicId(e.target.value);
+            setPage(0);
+          }}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30 disabled:opacity-50"
+        >
+          <option value="">All Topics</option>
+          {topicsList.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
+      </div>
+
+      {/* Basic Filters bar */}
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         {/* Search */}
         <div className="relative flex-1">
           <svg

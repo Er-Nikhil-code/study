@@ -67,7 +67,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
 
     case "TEACHER":
       return [
-        { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
+        { label: "Knight Dashboard", href: "/teacher", icon: LayoutDashboard },
         { label: "Courses", href: "/courses", icon: BookOpen },
         { label: "Curriculum", href: "/teacher/hierarchy", icon: Network },
         { label: "Create Notes", href: "/intern/notes/create", icon: FileEdit },
@@ -78,12 +78,12 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
         { label: "Tests", href: "/teacher/tests", icon: FileText },
         { label: "Challenges", href: "/teacher/challenges", icon: ShieldAlert },
         { label: "Notifications", href: "/notifications", icon: Bell },
-        { label: "My Interns", href: "/teacher/interns", icon: Users },
+        { label: "My Pawns", href: "/teacher/interns", icon: Users },
       ];
 
     case "INTERN": {
       const items: NavItem[] = [
-        { label: "Dashboard", href: "/intern/dashboard", icon: LayoutDashboard },
+        { label: "Pawn Dashboard", href: "/intern/dashboard", icon: LayoutDashboard },
         { label: "My Questions", href: "/intern/questions", icon: BookOpen },
         { label: "Create Questions", href: "/teacher/questions/create", icon: FilePlus2 },
         { label: "Question Statistics", href: "/intern/statistics", icon: BarChart2 },

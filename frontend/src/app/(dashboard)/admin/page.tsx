@@ -95,7 +95,7 @@ export default function AdminHomePage() {
         <StatCard label="Total Questions" value={stats?.totalQuestions ?? "—"} loading={loading} />
         <StatCard label="Open Challenges" value={stats?.openChallenges ?? "—"} accent={(stats?.openChallenges ?? 0) > 0} loading={loading} />
         <StatCard label="Students" value={stats?.totalStudents ?? "—"} loading={loading} />
-        <StatCard label="Teachers" value={stats?.totalTeachers ?? "—"} loading={loading} />
+        <StatCard label="Knights" value={stats?.totalTeachers ?? "—"} loading={loading} />
         <StatCard label="Custom Roles" value={stats?.totalRoles ?? "—"} loading={loading} />
       </div>
 
