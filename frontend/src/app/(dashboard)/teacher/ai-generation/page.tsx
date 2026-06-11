@@ -17,8 +17,6 @@ const QUESTION_TYPES = [
   "TRUE_FALSE",
   "FILL_BLANK",
   "NUMERICAL",
-  "ESSAY",
-  "IMAGE_BASED",
 ];
 
 const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
@@ -35,7 +33,7 @@ export default function AIGenerationPage() {
   const [form, setForm] = useState({
     topicId: "",
     count: "" as any,
-    questionType: "MULTIPLE_CHOICE",
+    questionType: "SINGLE_CORRECT",
     difficulty: "MEDIUM",
     useNotes: false,
     customInstructions: ""
