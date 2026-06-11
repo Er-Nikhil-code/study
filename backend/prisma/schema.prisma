@@ -45,6 +45,7 @@ model User {
   notification_events   NotificationEvent[]
   course_enrollments    CourseEnrollment[]
   topic_progress        TopicProgress[]
+  questions             Question[]
 
   @@index([email])
   @@index([role])
@@ -191,6 +192,7 @@ model Question {
   topic_id        String
   topic           Topic     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
   created_by      String    // User ID of creator
+  creator         User      @relation(fields: [created_by], references: [id])
   title           String
   question_type   QuestionType
   content_json    Json      // Block model: [{type:'TEXT'|'LATEX'|'IMAGE', content/asset_id}]

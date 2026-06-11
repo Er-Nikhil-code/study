@@ -6,8 +6,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { AiService } from "@/services/ai.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import { QuestionsService } from "@/services/questions.service";
-import { NotesService } from "@/services/notes.service";
-import { Brain, Save, Check, AlertTriangle, Loader2, Edit2, Trash2 } from "lucide-react";
+import { Brain, Sparkles, AlertTriangle, Loader2, Save, Trash2, Check, Info, Edit2 } from "lucide-react";
 import UserHoverCard from "@/components/ui/UserHoverCard";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -49,6 +48,8 @@ export default function AIGenerationPage() {
   const [generatedQuestions, setGeneratedQuestions] = useState<any[]>([]);
   const [savingIdx, setSavingIdx] = useState<number | null>(null);
   const [savedStatus, setSavedStatus] = useState<Record<number, boolean>>({});
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<any>(null);
 
   useEffect(() => {
     HierarchyService.getFullHierarchy().then(setHierarchy).catch(() => setError("Failed to load hierarchy"));
@@ -164,6 +165,19 @@ export default function AIGenerationPage() {
     } finally {
       setSavingIdx(null);
     }
+  };
+
+  const handleStartEdit = (idx: number, q: any) => {
+    setEditingIdx(idx);
+    setEditForm(JSON.parse(JSON.stringify(q)));
+  };
+
+  const handleSaveEdit = (idx: number) => {
+    const updated = [...generatedQuestions];
+    updated[idx] = editForm;
+    setGeneratedQuestions(updated);
+    setEditingIdx(null);
+    setEditForm(null);
   };
 
   const wordCount = form.customInstructions.trim() ? form.customInstructions.trim().split(/\s+/).length : 0;
@@ -413,7 +427,57 @@ export default function AIGenerationPage() {
 
           {!loading && generatedQuestions.map((q, idx) => (
             <Panel key={idx} className="relative transition hover:border-purple-500/30 group">
-              {/* Question text */}
+              {editingIdx === idx ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-zinc-400">Question Text</label>
+                    <textarea value={editForm.questionText} onChange={e => setEditForm({...editForm, questionText: e.target.value})} className="mt-1 w-full bg-black border border-white/10 rounded px-3 py-2 text-sm text-white" rows={3} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-400">Options</label>
+                    <div className="space-y-2 mt-1">
+                      {editForm.options?.map((opt: any, optIdx: number) => (
+                        <div key={opt.id} className="flex gap-2 items-center">
+                          <span className="text-zinc-500 font-mono text-xs">{opt.id}.</span>
+                          <input type="text" value={opt.text} onChange={e => {
+                            const newOpts = [...editForm.options];
+                            newOpts[optIdx].text = e.target.value;
+                            setEditForm({...editForm, options: newOpts});
+                          }} className="w-full bg-black border border-white/10 rounded px-3 py-2 text-sm text-white outline-none focus:border-purple-500" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs text-zinc-400">Answer Key</label>
+                      <select value={editForm.answerKey} onChange={e => setEditForm({...editForm, answerKey: e.target.value})} className="mt-1 w-full bg-black border border-white/10 rounded px-3 py-2 text-sm text-white outline-none focus:border-purple-500">
+                        {editForm.options?.map((opt: any) => (
+                          <option key={opt.id} value={opt.id}>{opt.id}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-zinc-400">Difficulty</label>
+                      <select value={editForm.difficulty} onChange={e => setEditForm({...editForm, difficulty: e.target.value})} className="mt-1 w-full bg-black border border-white/10 rounded px-3 py-2 text-sm text-white outline-none focus:border-purple-500">
+                        <option value="EASY">EASY</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="HARD">HARD</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-400">Solution Text</label>
+                    <textarea value={editForm.solutionText || ""} onChange={e => setEditForm({...editForm, solutionText: e.target.value})} className="mt-1 w-full bg-black border border-white/10 rounded px-3 py-2 text-sm text-white outline-none focus:border-purple-500" rows={2} />
+                  </div>
+                  <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-white/10">
+                    <button onClick={() => setEditingIdx(null)} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-white transition">Cancel</button>
+                    <button onClick={() => handleSaveEdit(idx)} className="px-3 py-1.5 rounded text-xs bg-purple-600 text-white hover:bg-purple-500 transition">Save Edits</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Question text */}
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs font-bold bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded uppercase tracking-wider">AI</span>
@@ -449,6 +513,13 @@ export default function AIGenerationPage() {
               {/* Actions */}
               <div className="flex gap-2 justify-end border-t border-white/5 pt-4 mt-4">
                 <button 
+                  onClick={() => handleStartEdit(idx, q)}
+                  disabled={savedStatus[idx]}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white transition disabled:opacity-50"
+                >
+                  <Edit2 size={14} /> Edit
+                </button>
+                <button 
                   onClick={() => setGeneratedQuestions(prev => prev.filter((_, i) => i !== idx))}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white transition"
                 >
@@ -467,6 +538,8 @@ export default function AIGenerationPage() {
                   {savedStatus[idx] ? 'Saved to Bank' : 'Save to Bank'}
                 </button>
               </div>
+              </>
+            )}
             </Panel>
           ))}
         </div>
