@@ -25,8 +25,9 @@ export default function Logo({ className = "", size = "md" }: LogoProps) {
       <div
         className={`${sizeClasses[size]} font-bold tracking-tight uppercase flex items-center pr-2 pb-1`}
       >
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-black via-orange-900 to-red-600 bg-[length:200%_auto] animate-gradient drop-shadow-[0_0_8px_rgba(225,29,72,0.4)] pr-1">
-          CODIFY
+        <span className="text-white drop-shadow-md">CODI</span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-br from-red-500 to-red-700 drop-shadow-[0_2px_4px_rgba(220,38,38,0.5)]">
+          FY
         </span>
       </div>
       <div

@@ -35,6 +35,27 @@ class AuthService {
       }
       return config;
     });
+
+    // Add response interceptor for 401 Unauthorized
+    this.api.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          if (typeof window !== "undefined") {
+            // Check if we are already on a public page to prevent redirect loops
+            const publicPages = ["/", "/register", "/forgot-password", "/reset-password"];
+            if (!publicPages.includes(window.location.pathname)) {
+              localStorage.removeItem("codify-auth");
+              localStorage.removeItem("accessToken");
+              localStorage.removeItem("refreshToken");
+              localStorage.removeItem("user");
+              window.location.href = "/";
+            }
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
   }
 
   async register(data: RegisterRequest): Promise<RegisterResponse> {
