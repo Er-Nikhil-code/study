@@ -86,11 +86,11 @@ Below is the curriculum context for the questions you need to generate:
     if (questionType === 'TRUE_FALSE') {
       optionsInstruction = 'Provide exactly 2 options per question: "True" (id: "1") and "False" (id: "2").';
     } else if (questionType === 'FILL_BLANK') {
-      optionsInstruction = 'Provide exactly 1 option containing the correct fill-in-the-blank answer (id: "1").';
+      optionsInstruction = 'Provide exactly 4 options per question. One of them should be the exact text that goes in the blank.';
     } else if (questionType === 'MULTIPLE_CORRECT') {
       optionsInstruction = 'Provide exactly 4 options per question, where multiple options might be correct (but output a single string of correct ids separated by commas for the answerKey, e.g. "1,3").';
     } else if (questionType === 'NUMERICAL') {
-      optionsInstruction = 'Provide exactly 1 option containing the numeric answer (id: "1").';
+      optionsInstruction = 'Provide exactly 4 options per question. One of them must be the correct numerical answer.';
     } else if (questionType === 'ASSERTION_REASON') {
       optionsInstruction = `This is an Assertion-Reasoning question. The questionText MUST clearly state both the "Assertion (A): [statement]" and "Reason (R): [statement]".
 Provide exactly 4 standard options with these exact texts:

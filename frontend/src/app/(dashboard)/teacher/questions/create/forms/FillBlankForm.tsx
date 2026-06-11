@@ -3,11 +3,31 @@ import Panel from "@/components/ui/Panel";
 interface FillBlankFormProps {
   data: {
     blanks: { position: number; answer: string; case_sensitive: boolean }[];
+    options?: { id: string; text: string }[];
+    correct_option?: string;
   };
   onChange: (data: any) => void;
 }
 
 export default function FillBlankForm({ data, onChange }: FillBlankFormProps) {
+  const handleOptionChange = (optId: string, text: string) => {
+    const newOptions = data.options?.map(o => o.id === optId ? { ...o, text } : o) || [];
+    const newData = { ...data, options: newOptions };
+    // If this option is currently selected as correct, sync its text to the first blank
+    if (data.correct_option === optId && newData.blanks.length > 0) {
+      newData.blanks[0].answer = text;
+    }
+    onChange(newData);
+  };
+
+  const handleCorrectOptionSelect = (optId: string) => {
+    const optText = data.options?.find(o => o.id === optId)?.text || "";
+    const newData = { ...data, correct_option: optId };
+    if (newData.blanks.length > 0) {
+      newData.blanks[0].answer = optText;
+    }
+    onChange(newData);
+  };
   const addBlank = () => {
     const nextPos = data.blanks.length + 1;
     onChange({
@@ -83,6 +103,35 @@ export default function FillBlankForm({ data, onChange }: FillBlankFormProps) {
           </div>
         ))}
       </div>
+
+      {data.options && data.options.length > 0 && (
+        <div className="pt-6 mt-6 border-t border-white/10 space-y-4">
+          <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500">Options (MCQ View)</h2>
+          <div className="space-y-3">
+            {data.options.map((opt, i) => (
+              <div key={opt.id} className="flex items-center gap-4 bg-black/20 p-2 rounded-xl border border-white/5">
+                <input
+                  type="radio"
+                  name="correct_option"
+                  value={opt.id}
+                  checked={data.correct_option === opt.id}
+                  onChange={() => handleCorrectOptionSelect(opt.id)}
+                  className="h-4 w-4 accent-red-500 cursor-pointer"
+                />
+                <span className="text-zinc-400 font-medium w-4">{opt.id}.</span>
+                <input
+                  type="text"
+                  required
+                  value={opt.text}
+                  onChange={(e) => handleOptionChange(opt.id, e.target.value)}
+                  className="flex-1 rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-sm text-white outline-none focus:border-red-500/30"
+                  placeholder={`Option ${opt.id}`}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </Panel>
   );
 }

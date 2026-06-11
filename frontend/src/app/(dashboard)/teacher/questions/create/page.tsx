@@ -70,11 +70,23 @@ export default function CreateQuestionPage() {
   });
 
   const [tfData, setTfData] = useState({
-    answer: true
+    answer: true,
+    options: [
+      { id: "A", text: "True" },
+      { id: "B", text: "False" }
+    ],
+    correct_option: "A"
   });
 
   const [fibData, setFibData] = useState({
-    blanks: [{ position: 1, answer: "", case_sensitive: false }]
+    blanks: [{ position: 1, answer: "", case_sensitive: false }],
+    options: [
+      { id: "A", text: "" },
+      { id: "B", text: "" },
+      { id: "C", text: "" },
+      { id: "D", text: "" }
+    ],
+    correct_option: "A"
   });
 
   const [matchingData, setMatchingData] = useState({
@@ -144,10 +156,12 @@ export default function CreateQuestionPage() {
           payload.answer_key = { correct_options: mcqData.correct_options };
           break;
         case "TRUE_FALSE":
-          payload.answer_key = { answer: tfData.answer };
+          payload.options_json = { options: tfData.options };
+          payload.answer_key = { answer: tfData.answer, correct_option: tfData.correct_option };
           break;
         case "FILL_BLANK":
-          payload.answer_key = { blanks: fibData.blanks };
+          payload.options_json = { options: fibData.options };
+          payload.answer_key = { blanks: fibData.blanks, correct_option: fibData.correct_option };
           break;
         case "MATCHING":
           payload.options_json = {

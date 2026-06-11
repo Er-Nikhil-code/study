@@ -167,7 +167,13 @@ export default function AIGenerationPage() {
       if (mappedType === "TRUE_FALSE") {
         const isTrue = String(q.answerKey) === "1" || String(q.answerKey).toLowerCase() === "true";
         answerKey = { answer: isTrue };
-        optionsJson = undefined; // True/False schema doesn't use options_json strictly
+        // Force exactly 2 options for True/False
+        optionsJson = {
+          options: [
+            { id: "A", text: "True" },
+            { id: "B", text: "False" }
+          ]
+        };
       } else if (mappedType === "MULTIPLE_CORRECT") {
         const correctArray = String(q.answerKey).split(',').map(s => {
           let v = s.trim();
@@ -180,19 +186,35 @@ export default function AIGenerationPage() {
         answerKey = { correct_options: correctArray };
       } else if (mappedType === "FILL_BLANK") {
         let ansText = String(q.answerKey);
-        if (q.options && q.options.length > 0) {
+        
+        // Find the matching option text if they provided an ID like "1" or "A"
+        let matchedText = ansStr;
+        if (optionsJson && optionsJson.options) {
+          const matchedOpt = optionsJson.options.find((o: any) => o.id === ansStr);
+          if (matchedOpt) {
+            matchedText = matchedOpt.text;
+          }
+        }
+
+        if (q.options && q.options.length > 0 && ansText === String(q.answerKey)) {
+          // Fallback if ansText didn't map cleanly
           const firstOpt = q.options[0];
-          ansText = typeof firstOpt === 'object' ? firstOpt.text : String(firstOpt);
+          if (typeof firstOpt === 'object' && firstOpt.text === matchedText) {
+             // It's fine
+          } else if (matchedText === ansStr) {
+             ansText = typeof firstOpt === 'object' ? firstOpt.text : String(firstOpt);
+             matchedText = ansText;
+          }
         }
+        
         answerKey = {
-          blanks: [{ position: 1, answer: ansText, case_sensitive: false }]
+          blanks: [{ position: 1, answer: matchedText, case_sensitive: false }],
+          correct_option: ansStr // Save it here just in case UI wants it mapped easily
         };
-        optionsJson = undefined;
+        // Do NOT set optionsJson = undefined; we want to keep them!
       } else if (mappedType === "NUMERICAL" || mappedType === "ESSAY" || mappedType === "IMAGE_BASED") {
-        answerKey = { answer: String(q.answerKey) };
-        if (!q.options || q.options.length === 0) {
-          optionsJson = undefined;
-        }
+        answerKey = { answer: String(q.answerKey), correct_option: ansStr };
+        // Keep optionsJson if it exists
       }
       
       // Force 4 options for MCQ/MSQ/Assertion as requested

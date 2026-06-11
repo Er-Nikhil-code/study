@@ -106,6 +106,7 @@ export const NumericalSchema = BaseQuestionSchema.extend({
 export const TrueFalseSchema = BaseQuestionSchema.extend({
   type: z.literal("TRUE_FALSE"),
   content_json: z.array(ContentBlockSchema).min(1),
+  options_json: z.any().optional(),
   answer_key: z.object({
     answer: z.boolean(),
   }),
@@ -115,6 +116,7 @@ export const TrueFalseSchema = BaseQuestionSchema.extend({
 export const FillBlankSchema = BaseQuestionSchema.extend({
   type: z.literal("FILL_BLANK"),
   content_json: z.array(ContentBlockSchema).min(1),
+  options_json: z.any().optional(),
   answer_key: z.object({
     blanks: z
       .array(
