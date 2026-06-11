@@ -20,7 +20,7 @@ export default function CoursesPage() {
   const { data: courses = [], isLoading: loading, error: queryError } = useQuery({
     queryKey: ["courses", "hierarchy"],
     queryFn: () => HierarchyService.getFullHierarchy(),
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    staleTime: 0, // Fetch immediately on mount
   });
 
   const error = queryError ? "Failed to load courses." : null;

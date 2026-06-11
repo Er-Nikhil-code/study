@@ -13,7 +13,7 @@ export default function StudentDashboardPage() {
   const { data: studentData, isLoading: loading } = useQuery({
     queryKey: ["student", "dashboard"],
     queryFn: () => studentService.getDashboard(),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
     gcTime: 1000 * 60 * 10,
     retry: 2,
   });
@@ -21,7 +21,7 @@ export default function StudentDashboardPage() {
   const { data: upcomingTests } = useQuery({
     queryKey: ["tests", "upcoming"],
     queryFn: () => studentService.getTests({ limit: 5 }),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
     retry: 1,
   });
 
