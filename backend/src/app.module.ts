@@ -1,4 +1,7 @@
 import { Module } from "@nestjs/common";
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { AuditInterceptor } from "./modules/common/interceptors/audit.interceptor";
+import { PrismaService } from "./prisma/prisma.service";
 import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerModule } from "@nestjs/throttler";
@@ -65,6 +68,14 @@ import { KeepAliveService } from "./jobs/keep-alive.service";
     NotesModule,
     SocketModule,
   ],
-  providers: [CleanupService, KeepAliveService],
+  providers: [
+    CleanupService, 
+    KeepAliveService,
+    PrismaService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    }
+  ],
 })
 export class AppModule {}
