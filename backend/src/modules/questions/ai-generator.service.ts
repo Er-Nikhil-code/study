@@ -152,7 +152,7 @@ CRITICAL: The options array MUST use string IDs starting from "1" ("1", "2", "3"
     }
     try {
       const response = await this.ai.models.embedContent({
-        model: 'text-embedding-004',
+        model: 'embedding-001',
         contents: text
       });
       return response.embeddings?.[0]?.values || [];

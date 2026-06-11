@@ -151,7 +151,12 @@ export default function AIGenerationPage() {
         marks: 1,
         negative_marks: 0,
         content_json: [{ type: "TEXT", content: q.questionText }],
-        options_json: { options: q.options || [] },
+        options_json: { 
+          options: (q.options || []).map((opt: string, i: number) => ({
+            id: `opt${i + 1}`,
+            text: opt
+          }))
+        },
         answer_key: { correct_option: q.answerKey },
         solution_json: q.solutionText ? [{ type: "TEXT", content: q.solutionText }] : [],
         approval_status: "APPROVED", // Mapped directly to APPROVED to prevent Zod dropping causing issues

@@ -16,6 +16,7 @@ import {
 } from "@nestjs/common";
 import { QuestionsService } from "./questions.service";
 import { AiGeneratorService } from "./ai-generator.service";
+import { z } from "zod";
 import {
   CreateQuestionRequestSchema,
   UpdateQuestionSchema,
@@ -48,8 +49,9 @@ export class QuestionsController {
         req.user.role,
       );
     } catch (error: any) {
-      if (error.name === "ZodError") {
-        throw new BadRequestException(error.errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', '));
+      if (error?.name === "ZodError" || error instanceof z.ZodError) {
+        const issues = error.issues || error.errors || [];
+        throw new BadRequestException(issues.map((e: any) => `${(e.path || []).join('.')}: ${e.message}`).join(', '));
       }
       throw error;
     }
