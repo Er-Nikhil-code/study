@@ -471,7 +471,7 @@ export class StudentService {
         description: true,
         status: true,
         created_at: true,
-        question: { select: { id: true, title: true } },
+        question: { select: { id: true, content_json: true } },
       },
     });
 

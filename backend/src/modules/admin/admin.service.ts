@@ -446,7 +446,6 @@ export class AdminService {
 
       if (search) {
         where.OR = [
-          { title: { contains: search, mode: "insensitive" } },
           { id: { equals: search } }
         ];
       }
@@ -704,14 +703,14 @@ export class AdminService {
         take: 5,
         select: {
           id: true, status: true, reason: true, created_at: true,
-          question: { select: { title: true } },
+          question: { select: { id: true, content_json: true } },
         },
       }),
       this.prisma.question.findMany({
         where: { approval_status: { in: ['APPROVED', 'REJECTED'] } },
         orderBy: { updated_at: 'desc' },
         take: 5,
-        select: { id: true, title: true, approval_status: true, updated_at: true },
+        select: { id: true, content_json: true, approval_status: true, updated_at: true },
       }),
     ]);
 

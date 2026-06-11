@@ -240,9 +240,13 @@ export default function AdminQuestionsPage() {
                           setExpandedId(expandedId === q.id ? null : q.id)
                         }
                         className="truncate text-white text-left hover:text-red-300 transition cursor-pointer"
-                        title={q.title}
                       >
-                        {q.title}
+                        <div 
+                          className="text-sm font-medium text-white truncate max-w-[200px]"
+                          title={q.content_json?.[0]?.content?.substring(0, 100) || "Question Content"}
+                        >
+                          {q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}
+                        </div>
                       </button>
 
                       <div className="text-xs text-zinc-400">

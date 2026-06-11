@@ -166,7 +166,9 @@ export default function AdminHomePage() {
                       {q.approval_status === "APPROVED"
                         ? <CheckCircle size={14} className="text-emerald-400 shrink-0" />
                         : <XCircle size={14} className="text-red-400 shrink-0" />}
-                      <span className="text-sm text-white truncate flex-1">{q.title}</span>
+                      <span className="text-sm text-white truncate flex-1">
+                        {q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}
+                      </span>
                       <span className="text-xs text-zinc-600 shrink-0">{timeAgo(q.updated_at)}</span>
                     </div>
                   </Panel>

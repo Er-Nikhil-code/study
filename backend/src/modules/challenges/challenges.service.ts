@@ -38,11 +38,11 @@ export class ChallengesService {
     if (data.question_id) {
       const question = await this.prisma.question.findUnique({
         where: { id: data.question_id },
-        select: { id: true, created_by: true, title: true },
+        select: { id: true, created_by: true, content_json: true },
       });
       if (!question) throw new NotFoundException("Question not found");
       creatorId = question.created_by;
-      itemTitle = question.title;
+      itemTitle = Array.isArray(question.content_json) && (question.content_json as any)[0]?.content ? (question.content_json as any)[0].content.substring(0, 50) : "Question Content";
     } else if (data.note_id) {
       const note = await this.prisma.note.findUnique({
         where: { id: data.note_id },
@@ -127,7 +127,6 @@ export class ChallengesService {
           question: {
             select: {
               id: true,
-              title: true,
               question_type: true,
               content_json: true,
               options_json: true,
@@ -196,7 +195,7 @@ export class ChallengesService {
       throw new BadRequestException("Challenge already resolved");
 
     const isNote = !!challenge.note_id;
-    const itemTitle = isNote ? challenge.note?.title : challenge.question?.title;
+    const itemTitle = isNote ? challenge.note?.title : (Array.isArray(challenge.question?.content_json) && (challenge.question?.content_json as any)[0]?.content ? (challenge.question?.content_json as any)[0].content.substring(0, 50) : "Question Content");
     const creatorId = isNote ? challenge.note?.created_by : challenge.question?.created_by;
 
     // ── FORWARD TO INTERN ──
@@ -413,7 +412,7 @@ export class ChallengesService {
       orderBy: { created_at: "desc" },
       include: {
         question: {
-          select: { id: true, title: true },
+          select: { id: true, content_json: true },
         },
         note: {
           select: { id: true, title: true },
