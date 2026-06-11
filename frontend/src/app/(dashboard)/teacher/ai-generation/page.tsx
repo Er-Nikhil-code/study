@@ -48,6 +48,7 @@ export default function AIGenerationPage() {
   const [savedStatus, setSavedStatus] = useState<Record<number, boolean>>({});
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<any>(null);
+  const [similarityPrompt, setSimilarityPrompt] = useState<{ idx: number; q: any; similar: any[] } | null>(null);
 
   useEffect(() => {
     HierarchyService.getFullHierarchy().then(setHierarchy).catch(() => setError("Failed to load hierarchy"));
@@ -135,23 +136,31 @@ export default function AIGenerationPage() {
       // First, check similarity
       const similar = await AiService.findSimilarQuestions({ text: q.questionText, threshold: 0.15 });
       if (similar && similar.length > 0) {
-        const confirmSave = confirm(`Warning: We found ${similar.length} similar question(s) in the bank. Do you still want to save this new question?`);
-        if (!confirmSave) {
-          setSavingIdx(null);
-          return;
-        }
+        setSimilarityPrompt({ idx, q, similar });
+        setSavingIdx(null);
+        return;
       }
+      await executeSaveQuestion(idx, q);
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.response?.data?.message || err.message || "Failed to save question");
+      setSavingIdx(null);
+    }
+  };
 
+  const executeSaveQuestion = async (idx: number, q: any) => {
+    setSavingIdx(idx);
+    try {
       // Map AI output format to our schema
       const mappedType = form.questionType === "MULTIPLE_CHOICE" ? "SINGLE_CORRECT" : form.questionType;
 
       let optionsJson: any = { 
         options: (q.options || []).map((opt: any, i: number) => {
-          const defaultId = String.fromCharCode(65 + i); // A, B, C, D
+          const strictId = String.fromCharCode(65 + i); // Always force A, B, C, D, etc.
           if (typeof opt === 'object' && opt !== null) {
-            return { id: opt.id || defaultId, text: opt.text || '' };
+            return { id: strictId, text: opt.text || '' };
           }
-          return { id: defaultId, text: String(opt) };
+          return { id: strictId, text: String(opt) };
         })
       };
 
@@ -259,7 +268,8 @@ export default function AIGenerationPage() {
       await QuestionsService.create(mappedData);
       setSavedStatus(prev => ({ ...prev, [idx]: true }));
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to save question");
+      console.error(err);
+      setError(err?.response?.data?.message || err.message || "Failed to save question");
     } finally {
       setSavingIdx(null);
     }
@@ -667,6 +677,66 @@ export default function AIGenerationPage() {
           ))}
         </div>
       </div>
+
+      {/* Custom Similarity Modal */}
+      {similarityPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="w-full max-w-2xl bg-zinc-950 border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+            <div className="p-6 border-b border-white/10 bg-red-500/10 flex items-start gap-4">
+              <div className="p-2 bg-red-500/20 rounded-lg shrink-0 mt-1">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">Similar Questions Found</h3>
+                <p className="text-sm text-zinc-400 mt-1">
+                  We found {similarityPrompt.similar.length} question(s) in the bank that are semantically very similar. Please review them before saving.
+                </p>
+              </div>
+            </div>
+            
+            <div className="p-6 overflow-y-auto space-y-4 flex-1">
+              {similarityPrompt.similar.map((sim: any, i: number) => (
+                <div key={sim.id} className="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-mono bg-white/10 px-2 py-1 rounded text-zinc-400">Match #{i + 1}</span>
+                    <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 rounded">Distance: {(sim.distance * 100).toFixed(1)}%</span>
+                  </div>
+                  <p className="text-sm text-zinc-300 font-medium">
+                    {sim.content_json?.[0]?.content || "No text preview"}
+                  </p>
+                  <a 
+                    href={isAdmin ? `/admin/questions/${sim.id}/edit` : `/teacher/questions/${sim.id}/edit`}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-block text-xs text-blue-400 hover:text-blue-300 hover:underline"
+                  >
+                    View existing question
+                  </a>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-6 border-t border-white/10 flex items-center justify-end gap-3 bg-black/40">
+              <button
+                onClick={() => setSimilarityPrompt(null)}
+                className="px-5 py-2 rounded-xl text-sm font-medium text-zinc-300 hover:bg-white/5 transition border border-transparent"
+              >
+                Cancel Save
+              </button>
+              <button
+                onClick={() => {
+                  executeSaveQuestion(similarityPrompt.idx, similarityPrompt.q);
+                  setSimilarityPrompt(null);
+                }}
+                className="px-5 py-2 rounded-xl text-sm font-medium bg-red-500/20 text-red-300 hover:bg-red-500/30 transition border border-red-500/30 flex items-center gap-2"
+              >
+                <Save className="w-4 h-4" />
+                Save Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

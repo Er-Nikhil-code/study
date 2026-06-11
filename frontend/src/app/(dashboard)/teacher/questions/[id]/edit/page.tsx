@@ -130,14 +130,22 @@ export default function EditQuestionPage() {
         });
 
         if (q.question_type === "SINGLE_CORRECT" || q.question_type === "ASSERTION_REASON") {
+          const loadedOptions = (q.options_json?.options || [{ id: "A", text: "" }]).map((o: any, i: number) => ({
+            ...o,
+            id: String.fromCharCode(65 + i)
+          }));
           setMcqData({
-            options: q.options_json?.options || [{ id: "A", text: "" }],
+            options: loadedOptions,
             correct_option: q.answer_key?.correct_option || "A",
             correct_options: [q.answer_key?.correct_option || "A"],
           });
         } else if (q.question_type === "MULTIPLE_CORRECT") {
+          const loadedOptions = (q.options_json?.options || [{ id: "A", text: "" }]).map((o: any, i: number) => ({
+            ...o,
+            id: String.fromCharCode(65 + i)
+          }));
           setMcqData({
-            options: q.options_json?.options || [{ id: "A", text: "" }],
+            options: loadedOptions,
             correct_option: "A",
             correct_options: q.answer_key?.correct_options || ["A"],
           });
