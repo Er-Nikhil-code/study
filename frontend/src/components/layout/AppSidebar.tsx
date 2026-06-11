@@ -9,6 +9,7 @@ import { useAuthStore } from "@/store/auth.store";
 import adminService from "@/services/admin.service";
 import { LogOut, ChevronDown, ChevronLeft, ChevronRight, User } from "lucide-react";
 import type { NavItem } from "@/lib/nav";
+import { getChessRoleName } from "@/lib/role";
 
 type AppSidebarProps = {
   items: NavItem[];
@@ -180,7 +181,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                       {(user as any)?.first_name || user?.firstName || user?.email || "User"}
                     </span>
                     <span className="truncate text-xs text-zinc-500 block">
-                      {user?.role?.replace("_", " ") || "Member"}
+                      {getChessRoleName(user?.role)}
                     </span>
                   </div>
                 )}

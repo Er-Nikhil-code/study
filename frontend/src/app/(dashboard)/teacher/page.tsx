@@ -8,6 +8,7 @@ import studentService from "@/services/student.service";
 import { useAuthStore } from "@/store/auth.store";
 import { Users, FileQuestion, ClipboardCheck, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import ActivityGraph from "@/components/ui/ActivityGraph";
+import ChessPiece3D from "@/components/ui/ChessPiece3D";
 
 const CHALLENGE_STATUS_STYLES: Record<string, string> = {
   PENDING: "border-red-500/20 bg-red-500/10 text-red-300",
@@ -42,11 +43,16 @@ export default function TeacherHomePage() {
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <SectionTitle
-          title="Teacher Dashboard"
-          subtitle={`Welcome back, ${name}. Here's your workflow overview.`}
-        />
+      <div className="flex items-center justify-between gap-6 mb-8 bg-gradient-to-r from-red-500/10 to-transparent p-6 rounded-2xl border border-red-500/20 overflow-hidden relative">
+        <div className="z-10">
+          <h1 className="text-3xl font-bold text-white mb-2">Knight Dashboard</h1>
+          <p className="text-zinc-400">Welcome back, {name}. Here's your workflow overview.</p>
+        </div>
+        <div className="h-40 w-40 hidden sm:block shrink-0 z-10 absolute right-10 top-1/2 -translate-y-1/2">
+          <ChessPiece3D role="TEACHER" />
+        </div>
+        {/* Subtle background glow */}
+        <div className="absolute right-0 top-0 bottom-0 w-64 bg-[radial-gradient(ellipse_at_center,rgba(255,50,50,0.15)_0%,transparent_70%)] pointer-events-none" />
       </div>
 
       {/* Stats Grid — 2×3 symmetric */}

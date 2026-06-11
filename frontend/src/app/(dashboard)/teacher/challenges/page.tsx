@@ -73,14 +73,27 @@ export default function TeacherChallengesPage() {
         payload.revised_content_json = revisedContent;
       }
 
-      await ChallengesService.resolveChallenge(id, payload);
-      await fetchChallenges();
+      // Optimistic UI update
+      const previousChallenges = [...challenges];
+      let optimisticStatus = "RESOLVED";
+      if (action === "REJECT") optimisticStatus = "REJECTED";
+      if (action === "ESCALATE") optimisticStatus = "ESCALATED";
+
+      setChallenges((prev) => 
+        prev.map(c => c.id === id ? { ...c, status: optimisticStatus } : c)
+      );
       setNoteModal(null);
       setResolutionNote("");
       setSelectedTargetId("");
       setRevisedContent(null);
+
+      await ChallengesService.resolveChallenge(id, payload);
+      // Re-fetch in background to ensure full sync
+      fetchChallenges();
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to resolve challenge");
+      // Revert on failure
+      fetchChallenges();
     } finally {
       setProcessingId(null);
     }

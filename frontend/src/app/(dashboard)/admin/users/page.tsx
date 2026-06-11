@@ -7,6 +7,7 @@ import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { adminNavItems } from "../nav";
 import adminService, { type AdminUser } from "@/services/admin.service";
+import { getChessRoleName } from "@/lib/role";
 
 const ROLES = ["ALL", "STUDENT", "INTERN", "TEACHER", "ADMIN"];
 const ASSIGNABLE_ROLES = ["STUDENT", "INTERN", "TEACHER", "ADMIN"];
@@ -167,7 +168,7 @@ export default function AdminUsersPage() {
       <span
         className={`rounded-full border px-3 py-1 text-xs font-medium ${colors[role] || "border-zinc-500/20 bg-zinc-500/10 text-zinc-300"}`}
       >
-        {role.replace("_", " ")}
+        {getChessRoleName(role)}
       </span>
     );
   };
@@ -225,7 +226,7 @@ export default function AdminUsersPage() {
         >
           {ROLES.map((r) => (
             <option key={r} value={r} className="bg-zinc-900 text-white">
-              {r === "ALL" ? "All Roles" : r.replace("_", " ")}
+              {r === "ALL" ? "All Roles" : getChessRoleName(r)}
             </option>
           ))}
         </select>
@@ -302,7 +303,7 @@ export default function AdminUsersPage() {
                     >
                       {ASSIGNABLE_ROLES.map((r) => (
                         <option key={r} value={r}>
-                          {r.replace("_", " ")}
+                          {getChessRoleName(r)}
                         </option>
                       ))}
                     </select>
@@ -465,10 +466,10 @@ export default function AdminUsersPage() {
                   onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:border-red-500/50 outline-none cursor-pointer"
                 >
-                  <option value="STUDENT" className="bg-zinc-900">Student</option>
-                  <option value="INTERN" className="bg-zinc-900">Intern</option>
-                  <option value="TEACHER" className="bg-zinc-900">Teacher</option>
-                  <option value="ADMIN" className="bg-zinc-900">Admin</option>
+                  <option value="STUDENT" className="bg-zinc-900">{getChessRoleName("STUDENT")}</option>
+                  <option value="INTERN" className="bg-zinc-900">{getChessRoleName("INTERN")}</option>
+                  <option value="TEACHER" className="bg-zinc-900">{getChessRoleName("TEACHER")}</option>
+                  <option value="ADMIN" className="bg-zinc-900">{getChessRoleName("ADMIN")}</option>
                 </select>
               </div>
 

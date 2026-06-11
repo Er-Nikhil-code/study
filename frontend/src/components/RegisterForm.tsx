@@ -6,6 +6,7 @@ import authService from "@/services/auth.service";
 import { useAuthStore, AuthUser } from "@/store/auth.store";
 import { useFormState } from "@/hooks/useFormState";
 import { useOtpTimer } from "@/hooks/useOtpTimer";
+import Link from "next/link";
 
 export function RegisterForm() {
   const [step, setStep] = useState<1 | 2>(1);
@@ -181,11 +182,10 @@ export function RegisterForm() {
               value={formState.email}
               onChange={(e) => updateField("email", e.target.value)}
               placeholder="Email address"
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
-                errors.email
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${errors.email
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:ring-red-500"
-              }`}
+                }`}
               disabled={loading}
             />
             {errors.email && (
@@ -203,11 +203,10 @@ export function RegisterForm() {
               value={formState.firstName}
               onChange={(e) => updateField("firstName", e.target.value)}
               placeholder="First name"
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${
-                errors.firstName
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition ${errors.firstName
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:ring-red-500"
-              }`}
+                }`}
               disabled={loading}
             />
             {errors.firstName && (
@@ -243,9 +242,9 @@ export function RegisterForm() {
 
           <p className="text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <a href="/login" className="text-red-600 hover:underline">
+            <Link href="/login" className="text-red-600 hover:underline">
               Login
-            </a>
+            </Link>
           </p>
         </form>
       </div>
@@ -312,11 +311,10 @@ export function RegisterForm() {
                 updateField("otp", value);
               }}
               placeholder="6-digit code"
-              className={`w-full px-4 py-3 text-center text-2xl border-2 rounded-lg font-mono tracking-widest focus:outline-none transition ${
-                errors.otp
+              className={`w-full px-4 py-3 text-center text-2xl border-2 rounded-lg font-mono tracking-widest focus:outline-none transition ${errors.otp
                   ? "border-red-500 focus:ring-2 focus:ring-red-500"
                   : "border-gray-300 focus:ring-2 focus:ring-red-500"
-              }`}
+                }`}
               disabled={loading || isExpired}
             />
           </div>
@@ -333,9 +331,8 @@ export function RegisterForm() {
               className={`w-4 h-4 ${isExpired ? "text-red-600" : "text-red-600"}`}
             />
             <span
-              className={`text-sm font-mono font-bold ${
-                isExpired ? "text-red-600" : "text-gray-900"
-              }`}
+              className={`text-sm font-mono font-bold ${isExpired ? "text-red-600" : "text-gray-900"
+                }`}
             >
               {formattedTime}
             </span>
@@ -353,11 +350,10 @@ export function RegisterForm() {
               value={formState.password}
               onChange={(e) => updateField("password", e.target.value)}
               placeholder="Minimum 8 characters"
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${
-                errors.password
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${errors.password
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:ring-red-500"
-              }`}
+                }`}
               disabled={loading}
             />
             <button
@@ -389,11 +385,10 @@ export function RegisterForm() {
               value={formState.confirmPassword}
               onChange={(e) => updateField("confirmPassword", e.target.value)}
               placeholder="Confirm password"
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${
-                errors.confirmPassword
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition pr-10 ${errors.confirmPassword
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:ring-red-500"
-              }`}
+                }`}
               disabled={loading}
             />
             <button

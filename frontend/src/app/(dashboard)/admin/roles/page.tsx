@@ -5,6 +5,7 @@ import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { adminNavItems } from "../nav";
 import adminService, { type AdminRole } from "@/services/admin.service";
+import { getChessRoleName } from "@/lib/role";
 
 const SYSTEM_ROLES = ["STUDENT", "INTERN", "TEACHER", "ADMIN"];
 
@@ -173,7 +174,7 @@ export default function AdminRolesPage() {
         {/* Role info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-white">{node.name}</span>
+            <span className="text-sm font-medium text-white">{getChessRoleName(node.name)}</span>
             {(node as any).designation && (
               <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] text-zinc-400">
                 {(node as any).designation}
@@ -320,7 +321,7 @@ export default function AdminRolesPage() {
                   return (
                     <div key={role.id} className="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1.5fr)_80px_80px_100px] gap-3 px-5 py-4 text-sm items-center">
                       <div className="flex items-center gap-2">
-                        <span className="text-white font-medium">{role.name}</span>
+                        <span className="text-white font-medium">{getChessRoleName(role.name)}</span>
                         {isSystem && <span className="rounded-full border border-zinc-600/30 bg-zinc-600/10 px-2 py-0.5 text-[10px] text-zinc-400">system</span>}
                       </div>
                       <div className="text-xs text-zinc-400">{(role as any).designation || "—"}</div>
@@ -383,7 +384,7 @@ export default function AdminRolesPage() {
                     <option value="" className="bg-zinc-900">— None (Top level)</option>
                     {roles.filter((r) => r.id !== editRole?.id).map((r) => (
                       <option key={r.id} value={r.id} className="bg-zinc-900">
-                        {r.name} {(r as any).designation ? `(${(r as any).designation})` : ""}
+                        {getChessRoleName(r.name)} {(r as any).designation ? `(${(r as any).designation})` : ""}
                       </option>
                     ))}
                   </select>
@@ -440,7 +441,7 @@ export default function AdminRolesPage() {
                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none focus:border-red-500/30 appearance-none cursor-pointer">
                   {roles.map((r) => (
                     <option key={r.id} value={r.name} className="bg-zinc-900">
-                      {r.name} {r.designation ? `(${r.designation})` : ""}
+                      {getChessRoleName(r.name)} {r.designation ? `(${r.designation})` : ""}
                     </option>
                   ))}
                 </select>

@@ -47,6 +47,11 @@ export interface AdminQuestion {
   negative_marks: number;
   created_at: string;
   created_by: string;
+  creator?: {
+    first_name: string | null;
+    last_name: string | null;
+    email: string;
+  };
   topic: {
     id: string;
     name: string;

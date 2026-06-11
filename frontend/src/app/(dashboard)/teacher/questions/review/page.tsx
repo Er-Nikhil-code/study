@@ -46,44 +46,64 @@ export default function ReviewQuestionsPage() {
 
   const handleApprove = async () => {
     if (!reviewQ) return;
-    setActionLoading(true);
+    
+    // Optimistic UI update
+    const previousQuestions = [...questions];
+    setQuestions((prev) => prev.filter((q) => q.id !== reviewQ.id));
+    setTotal((prev) => Math.max(0, prev - 1));
+    const targetQ = reviewQ;
+    setReviewQ(null);
+
     try {
-      await QuestionsService.approve(reviewQ.id);
-      setReviewQ(null);
-      fetchPending();
+      await QuestionsService.approve(targetQ.id);
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to approve question");
-    } finally {
-      setActionLoading(false);
+      // Revert on failure
+      setQuestions(previousQuestions);
+      setTotal(previousQuestions.length);
     }
   };
 
   const handleEscalate = async () => {
     if (!reviewQ) return;
-    setActionLoading(true);
+    
+    // Optimistic UI update
+    const previousQuestions = [...questions];
+    setQuestions((prev) => prev.filter((q) => q.id !== reviewQ.id));
+    setTotal((prev) => Math.max(0, prev - 1));
+    const targetQ = reviewQ;
+    setReviewQ(null);
+
     try {
-      await QuestionsService.escalate(reviewQ.id);
-      setReviewQ(null);
-      fetchPending();
+      await QuestionsService.escalate(targetQ.id);
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to escalate question");
-    } finally {
-      setActionLoading(false);
+      // Revert on failure
+      setQuestions(previousQuestions);
+      setTotal(previousQuestions.length);
     }
   };
 
   const handleReject = async () => {
     if (!reviewQ || !rejectNote.trim()) return;
-    setActionLoading(true);
+    
+    // Optimistic UI update
+    const previousQuestions = [...questions];
+    setQuestions((prev) => prev.filter((q) => q.id !== reviewQ.id));
+    setTotal((prev) => Math.max(0, prev - 1));
+    const targetQ = reviewQ;
+    const note = rejectNote;
+    setReviewQ(null);
+    setRejectNote("");
+
     try {
-      await QuestionsService.reject(reviewQ.id, rejectNote);
-      setReviewQ(null);
-      setRejectNote("");
-      fetchPending();
+      await QuestionsService.reject(targetQ.id, note);
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to reject question");
-    } finally {
-      setActionLoading(false);
+      // Revert on failure
+      setQuestions(previousQuestions);
+      setTotal(previousQuestions.length);
+      setRejectNote(note);
     }
   };
 

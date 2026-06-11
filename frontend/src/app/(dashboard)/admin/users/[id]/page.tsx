@@ -8,6 +8,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import ActivityGraph from "@/components/ui/ActivityGraph";
 import { api } from "@/lib/api";
 import adminService from "@/services/admin.service";
+import { getChessRoleName } from "@/lib/role";
 
 export default function AdminUserProfilePage() {
   const params = useParams();
@@ -193,7 +194,7 @@ export default function AdminUserProfilePage() {
                   
                   <div className="flex flex-wrap justify-center gap-2 mb-4">
                     <span className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-300">
-                      {user.role}
+                      {getChessRoleName(user.role)}
                     </span>
                     {user.custom_role && (
                       <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-300">

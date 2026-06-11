@@ -13,13 +13,15 @@ export default function QueryProvider({ children }: QueryProviderProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 1000 * 60 * 5, // 5 min
+            // Serve instantly from cache, but consider data stale after 1 minute to ensure background updates
+            staleTime: 1000 * 60 * 1, // 1 min
 
             gcTime: 1000 * 60 * 30, // 30 min
 
             retry: 2,
 
-            refetchOnWindowFocus: false,
+            // Automatically refetch in background when user switches back to the tab
+            refetchOnWindowFocus: true,
 
             refetchOnReconnect: true,
 

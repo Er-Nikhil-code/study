@@ -299,8 +299,8 @@ export default function CreateQuestionPage() {
                 min="0"
                 step="any"
                 required
-                value={formData.marks}
-                onChange={(e) => setFormData({ ...formData, marks: e.target.value === '' ? '' : Number(e.target.value) })}
+                value={formData.marks === 0 ? '' : formData.marks}
+                onChange={(e) => setFormData({ ...formData, marks: e.target.value === '' ? 0 : Number(e.target.value) })}
                 className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
               />
             </div>
@@ -311,8 +311,8 @@ export default function CreateQuestionPage() {
                 min="0"
                 step="any"
                 required
-                value={formData.negative_marks}
-                onChange={(e) => setFormData({ ...formData, negative_marks: e.target.value === '' ? '' : Number(e.target.value) })}
+                value={formData.negative_marks === 0 ? '' : formData.negative_marks}
+                onChange={(e) => setFormData({ ...formData, negative_marks: e.target.value === '' ? 0 : Number(e.target.value) })}
                 className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30"
               />
             </div>

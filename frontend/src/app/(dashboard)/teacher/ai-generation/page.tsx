@@ -6,6 +6,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { AiService } from "@/services/ai.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import { QuestionsService } from "@/services/questions.service";
+import { NotesService } from "@/services/notes.service";
 import { Brain, Sparkles, AlertTriangle, Loader2, Save, Trash2, Check, Info, Edit2 } from "lucide-react";
 import UserHoverCard from "@/components/ui/UserHoverCard";
 import { useAuthStore } from "@/store/auth.store";

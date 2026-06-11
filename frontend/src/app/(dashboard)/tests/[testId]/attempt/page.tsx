@@ -7,6 +7,7 @@ import studentService, {
   type SavedResponse,
 } from "@/services/student.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import Link from "next/link";
 
 /* ─── Helper: format seconds to MM:SS ─── */
 function formatTime(sec: number) {
@@ -193,7 +194,7 @@ export default function AttemptPage() {
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center max-w-md">
           <p className="text-red-400">{error}</p>
-          <a href="/tests" className="mt-4 inline-block text-zinc-400 hover:text-white">← Back to tests</a>
+          <Link href="/tests" className="mt-4 inline-block text-zinc-400 hover:text-white">← Back to tests</Link>
         </div>
       </div>
     );

@@ -7,6 +7,7 @@ import Panel from "@/components/ui/Panel";
 import { useAuthStore } from "@/store/auth.store";
 import { PlusCircle, FileCheck, Clock, XCircle, RefreshCw, TrendingUp } from "lucide-react";
 import ActivityGraph from "@/components/ui/ActivityGraph";
+import ChessPiece3D from "@/components/ui/ChessPiece3D";
 
 const STATUS_COLORS: Record<string, string> = {
   APPROVED: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
@@ -45,18 +46,26 @@ export default function InternDashboardPage() {
   return (
     <>
       {/* Header */}
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Welcome back, {name}</h1>
-          <p className="text-sm text-zinc-500 mt-1">Your content contribution overview.</p>
+      {/* Header */}
+      <div className="flex items-center justify-between gap-6 mb-8 bg-gradient-to-r from-red-500/10 to-transparent p-6 rounded-2xl border border-red-500/20 overflow-hidden relative">
+        <div className="z-10 flex-1">
+          <h1 className="text-3xl font-bold text-white mb-2">Pawn Dashboard</h1>
+          <p className="text-zinc-400">Welcome back, {name}. Your content contribution overview.</p>
+          <div className="mt-4">
+            <Link
+              href="/teacher/questions/create"
+              className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition hover:bg-red-500/20"
+            >
+              <PlusCircle size={16} />
+              Create Question
+            </Link>
+          </div>
         </div>
-        <Link
-          href="/teacher/questions/create"
-          className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition hover:bg-red-500/20"
-        >
-          <PlusCircle size={16} />
-          Create Question
-        </Link>
+        <div className="h-40 w-40 hidden sm:block shrink-0 z-10 absolute right-10 top-1/2 -translate-y-1/2">
+          <ChessPiece3D role="INTERN" />
+        </div>
+        {/* Subtle background glow */}
+        <div className="absolute right-0 top-0 bottom-0 w-64 bg-[radial-gradient(ellipse_at_center,rgba(255,50,50,0.15)_0%,transparent_70%)] pointer-events-none" />
       </div>
 
       {loading ? (

@@ -6,6 +6,8 @@ import { useAuthStore } from "@/store/auth.store";
 import authService from "@/services/auth.service";
 import { User, Lock, Phone, BookOpen, Camera, X, Upload, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { getChessRoleName } from "@/lib/role";
+import ChessPiece3D from "@/components/ui/ChessPiece3D";
 
 /**
  * Compress an image file using canvas.
@@ -209,7 +211,7 @@ export default function ProfilePage() {
                 <h3 className="text-lg font-medium text-white">{firstName} {lastName}</h3>
                 <p className="text-sm text-zinc-500">{user.email}</p>
                 <div className="mt-1 inline-flex rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-300">
-                  {user.role}
+                  {getChessRoleName(user.role)}
                 </div>
               </div>
             </div>
@@ -311,6 +313,15 @@ export default function ProfilePage() {
 
         {/* Sidebar info */}
         <div className="space-y-6">
+          <Panel className="p-0 overflow-hidden relative h-64 border border-white/10 bg-black/50">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,50,50,0.15)_0%,transparent_70%)] pointer-events-none" />
+            <div className="absolute top-4 left-4 z-10">
+              <h3 className="text-sm font-semibold uppercase tracking-widest text-zinc-400">Rank</h3>
+              <p className="text-xl font-bold text-white">{getChessRoleName(user.role)}</p>
+            </div>
+            <ChessPiece3D role={user.role} />
+          </Panel>
+
           <Panel className="p-5 bg-[linear-gradient(135deg,rgba(239,68,68,0.1),transparent)]">
             <h3 className="text-sm font-medium text-white flex items-center gap-2 mb-4">
               <BookOpen size={16} className="text-red-400" />
@@ -325,7 +336,7 @@ export default function ProfilePage() {
               )}
               <div>
                 <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Account Type</p>
-                <p className="text-sm text-white mt-1">{user.role}</p>
+                <p className="text-sm text-white mt-1">{getChessRoleName(user.role)}</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Email Address</p>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AlertCircle, CheckCircle, ArrowLeft } from "lucide-react";
 import authService from "@/services/auth.service";
 import { useFormState } from "@/hooks/useFormState";
+import Link from "next/link";
 
 export function ForgotPasswordForm() {
   const [loading, setLoading] = useState(false);
@@ -92,35 +93,35 @@ export function ForgotPasswordForm() {
 
           <p className="text-sm text-gray-600">
             Remember your password?{" "}
-            <a
+            <Link
               href="/login"
               className="text-red-600 hover:underline font-medium"
             >
               Sign in
-            </a>
+            </Link>
           </p>
         </div>
 
-        <a
+        <Link
           href="/register"
           className="mt-6 flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900 transition"
         >
           <ArrowLeft className="w-4 h-4" />
           Create new account
-        </a>
+        </Link>
       </div>
     );
   }
 
   return (
     <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <a
+      <Link
         href="/"
         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
-      </a>
+      </Link>
 
       <h1 className="text-3xl font-bold mb-2 text-gray-900">Reset Password</h1>
       <p className="text-gray-600 mb-6">
@@ -175,9 +176,9 @@ export function ForgotPasswordForm() {
 
         <p className="text-center text-sm text-gray-600">
           Remember your password?{" "}
-          <a href="/login" className="text-red-600 hover:underline">
-            Sign in
-          </a>
+          <Link href="/login" className="text-red-600 hover:underline">
+            Back to login
+          </Link>
         </p>
       </form>
     </div>
