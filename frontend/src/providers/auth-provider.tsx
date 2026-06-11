@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
-
 import { useAuthStore } from "@/store/auth.store";
+import AppLoader from "@/components/ui/AppLoader";
 
 interface Props {
   children: React.ReactNode;
@@ -24,7 +24,15 @@ export default function AuthProvider({ children }: Props) {
 
         if (!token) {
           logout();
+          setLoading(false);
           return;
+        }
+
+        // Optimistic Load: If Zustand already has a persisted user, we can render the app instantly!
+        // We still fetch /auth/me in the background to ensure roles/tokens are fresh.
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser) {
+          setLoading(false);
         }
 
         const { data } = await api.get("/auth/me");
@@ -48,11 +56,7 @@ export default function AuthProvider({ children }: Props) {
   }, [logout, setAuth]);
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-zinc-400">
-        Loading...
-      </div>
-    );
+    return <AppLoader />;
   }
 
   return <>{children}</>;
