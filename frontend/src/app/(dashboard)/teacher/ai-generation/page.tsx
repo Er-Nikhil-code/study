@@ -538,15 +538,18 @@ export default function AIGenerationPage() {
               
               {/* Options */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-                {q.options?.map((opt: any) => (
+                {q.options?.map((opt: any) => {
+                  const isCorrect = String(q.answerKey).split(',').map(s => s.trim()).includes(String(opt.id));
+                  return (
                   <div 
                     key={opt.id} 
-                    className={`p-3 rounded-lg border text-sm ${opt.id === q.answerKey ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-100' : 'bg-white/5 border-white/10 text-zinc-300'}`}
+                    className={`p-3 rounded-lg border text-sm ${isCorrect ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-100' : 'bg-white/5 border-white/10 text-zinc-300'}`}
                   >
                     <span className="font-mono text-xs opacity-50 mr-2">{opt.id}.</span> {opt.text}
-                    {opt.id === q.answerKey && <Check size={14} className="inline ml-2 text-emerald-400" />}
+                    {isCorrect && <Check size={14} className="inline ml-2 text-emerald-400" />}
                   </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Solution */}
