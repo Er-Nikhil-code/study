@@ -15,6 +15,7 @@ export default function AdminNotificationsPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [statusVisible, setStatusVisible] = useState(false);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,6 +33,20 @@ export default function AdminNotificationsPage() {
       fetchLists();
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    if (status) {
+      setStatusVisible(true);
+      if (status.type === "success") {
+        const timer1 = setTimeout(() => setStatusVisible(false), 2000);
+        const timer2 = setTimeout(() => setStatus(null), 2500);
+        return () => {
+          clearTimeout(timer1);
+          clearTimeout(timer2);
+        };
+      }
+    }
+  }, [status]);
 
   const fetchLists = async () => {
     setFetchingLists(true);
@@ -151,17 +166,18 @@ export default function AdminNotificationsPage() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col gap-4">
+          {status && (
+            <div className={`transition-all duration-500 transform ${statusVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'} p-4 rounded-xl flex items-center gap-3 text-sm font-medium ${status.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+              {status.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+              {status.text}
+            </div>
+          )}
+
           {activeTab === "compose" && (
             <Panel className="max-w-2xl bg-zinc-950 border border-white/10 shadow-2xl">
               <h2 className="text-xl font-bold text-white mb-6">Compose Notification</h2>
               <form onSubmit={handleSend} className="space-y-6">
-                {status && (
-                  <div className={`p-4 rounded-xl flex items-center gap-3 text-sm font-medium ${status.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-                    {status.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-                    {status.text}
-                  </div>
-                )}
 
                 <div>
                   <label className="block text-sm font-medium text-zinc-300 mb-2">Recipient (User ID or Name)</label>
