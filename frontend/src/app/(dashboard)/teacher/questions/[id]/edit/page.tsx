@@ -15,6 +15,7 @@ import TrueFalseForm from "../../create/forms/TrueFalseForm";
 import FillBlankForm from "../../create/forms/FillBlankForm";
 import MatchingForm from "../../create/forms/MatchingForm";
 import PassageForm from "../../create/forms/PassageForm";
+import AssertionReasonForm from "../../create/forms/AssertionReasonForm";
 
 const getNavItems = (role: string) => {
   if (role === "INTERN") {
@@ -225,6 +226,7 @@ export default function EditQuestionPage() {
       // Construct Payload based on Question Type
       switch (formData.type) {
         case "SINGLE_CORRECT":
+        case "ASSERTION_REASON":
           payload.options_json = { options: mcqData.options };
           payload.answer_key = { correct_option: mcqData.correct_option };
           break;
@@ -352,6 +354,7 @@ export default function EditQuestionPage() {
                 <option value="FILL_BLANK" className="bg-zinc-900 text-white">Fill in the Blank</option>
                 <option value="MATCHING" className="bg-zinc-900 text-white">Matching</option>
                 <option value="PASSAGE" className="bg-zinc-900 text-white">Passage (Comprehension)</option>
+                <option value="ASSERTION_REASON" className="bg-zinc-900 text-white">Assertion-Reasoning</option>
               </select>
             </div>
             <div>
@@ -372,7 +375,7 @@ export default function EditQuestionPage() {
         {/* Content Statement */}
         <Panel className="space-y-5">
           <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500">
-            {formData.type === "PASSAGE" ? "Main Passage Text" : "Question Statement"}
+            {formData.type === "PASSAGE" ? "Main Passage Text" : formData.type === "ASSERTION_REASON" ? "Assertion & Reason Statement" : "Question Statement"}
           </h2>
           <div>
             <textarea
@@ -381,7 +384,7 @@ export default function EditQuestionPage() {
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               className="w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white outline-none focus:border-red-500/30 font-mono"
-              placeholder={formData.type === "PASSAGE" ? "Enter passage content" : "Enter question statement"}
+              placeholder={formData.type === "PASSAGE" ? "Enter passage content" : formData.type === "ASSERTION_REASON" ? "Assertion (A): ...\nReason (R): ..." : "Enter question statement"}
             />
           </div>
         </Panel>
@@ -389,6 +392,9 @@ export default function EditQuestionPage() {
         {/* Dynamic Type-Specific UI */}
         {(formData.type === "SINGLE_CORRECT" || formData.type === "MULTIPLE_CORRECT") && (
           <McqForm type={formData.type} data={mcqData} onChange={setMcqData} />
+        )}
+        {formData.type === "ASSERTION_REASON" && (
+          <AssertionReasonForm data={mcqData} onChange={setMcqData} />
         )}
         {formData.type === "TRUE_FALSE" && (
           <TrueFalseForm data={tfData} onChange={setTfData} />
