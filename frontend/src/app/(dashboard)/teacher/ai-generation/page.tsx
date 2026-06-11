@@ -6,6 +6,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { AiService } from "@/services/ai.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import { QuestionsService } from "@/services/questions.service";
+import { NotesService } from "@/services/notes.service";
 import { Brain, Save, Check, AlertTriangle, Loader2, Edit2, Trash2 } from "lucide-react";
 import UserHoverCard from "@/components/ui/UserHoverCard";
 
@@ -33,9 +34,9 @@ export default function AIGenerationPage() {
   const [selectedSection, setSelectedSection] = useState("");
   const [selectedChapter, setSelectedChapter] = useState("");
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<any>({
     topicId: "",
-    count: 5,
+    count: "",
     questionType: "SINGLE_CORRECT",
     difficulty: "MEDIUM",
     useNotes: false,
@@ -250,7 +251,28 @@ export default function AIGenerationPage() {
                     type="checkbox" 
                     id="useNotes"
                     checked={form.useNotes}
-                    onChange={e => setForm({...form, useNotes: e.target.checked})}
+                    onChange={async e => {
+                      const checked = e.target.checked;
+                      if (checked) {
+                        try {
+                          const notes = await NotesService.getApprovedNotes(form.topicId);
+                          if (!notes || notes.length === 0) {
+                            setError("Notes unavailable for this topic. Uncheck 'Use Topic Notes' or upload notes first.");
+                            setForm({...form, useNotes: false});
+                            setTimeout(() => setError(null), 3000);
+                          } else {
+                            setForm({...form, useNotes: true});
+                          }
+                        } catch (err) {
+                          setError("Failed to check notes availability.");
+                          setForm({...form, useNotes: false});
+                          setTimeout(() => setError(null), 3000);
+                        }
+                      } else {
+                        setForm({...form, useNotes: false});
+                        setError(null);
+                      }
+                    }}
                     className="rounded border-zinc-700 bg-zinc-900 text-purple-600 focus:ring-purple-600/20"
                   />
                   <label htmlFor="useNotes" className="text-sm text-zinc-300">Use Topic Notes for Reference</label>
@@ -289,7 +311,8 @@ export default function AIGenerationPage() {
                     max="5" 
                     required
                     value={form.count} 
-                    onChange={e => setForm({...form, count: Number(e.target.value)})}
+                    placeholder="1-5"
+                    onChange={e => setForm({...form, count: e.target.value ? Number(e.target.value) : ""})}
                     className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500" 
                   />
                 </div>
