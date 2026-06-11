@@ -412,6 +412,20 @@ export class TestsService {
       },
     });
 
+    // Mark tests completed in Topic Progress
+    const progress = await this.prisma.topicProgress.upsert({
+      where: { user_id_topic_id: { user_id: userId, topic_id: attempt.test.topic_id } },
+      create: { user_id: userId, topic_id: attempt.test.topic_id, tests_completed: true },
+      update: { tests_completed: true }
+    });
+
+    if (progress.notes_viewed && progress.tests_completed && !progress.is_completed) {
+      await this.prisma.topicProgress.update({
+        where: { id: progress.id },
+        data: { is_completed: true, completed_at: new Date() }
+      });
+    }
+
     // Update user stats
     await this.updateUserStats(userId);
 

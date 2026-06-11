@@ -4,11 +4,16 @@ import { useState, useEffect } from "react";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { HierarchyService } from "@/services/hierarchy.service";
+import { useAuthStore } from "@/store/auth.store";
+import { Trash2 } from "lucide-react";
 
 export default function HierarchyManagerPage() {
   const [hierarchy, setHierarchy] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "ADMIN";
 
   // Forms state
   const [showCourseForm, setShowCourseForm] = useState(false);
@@ -44,6 +49,16 @@ export default function HierarchyManagerPage() {
     setCourseForm({ name: "", code: "" });
     setShowCourseForm(false);
     fetchHierarchy();
+  };
+
+  const handleDeleteCourse = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this course? This will remove all sections, chapters, topics, tests, and questions.")) return;
+    try {
+      await HierarchyService.deleteCourse(id);
+      fetchHierarchy();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to delete course");
+    }
   };
 
   const handleCreateSection = async (e: React.FormEvent, courseId: string) => {
@@ -119,7 +134,14 @@ export default function HierarchyManagerPage() {
               <Panel key={course.id} className="space-y-4 border-l-4 border-l-red-500">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold text-white">{course.name} <span className="text-zinc-500 text-sm ml-2">({course.code})</span></h3>
-                  <button onClick={() => setActiveCourseId(course.id)} className="text-xs text-red-400 hover:text-white">+ Add Section</button>
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => setActiveCourseId(course.id)} className="text-xs text-red-400 hover:text-white">+ Add Section</button>
+                    {isAdmin && (
+                      <button onClick={() => handleDeleteCourse(course.id)} className="text-zinc-500 hover:text-red-500 transition-colors" title="Delete Course">
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {activeCourseId === course.id && (

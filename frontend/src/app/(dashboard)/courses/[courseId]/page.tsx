@@ -363,7 +363,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                         ) : (
                                           <div className="flex-1">
                                             <div className="flex justify-between items-start mb-2 pr-6">
-                                              <h5 className="font-medium text-white text-md leading-tight group-hover:text-red-400 transition-colors">{topic.name}</h5>
+                                              <div className="flex items-center gap-2">
+                                                {topic.is_completed ? (
+                                                  <CheckCircle size={16} className="text-emerald-500 fill-emerald-500/20" />
+                                                ) : (
+                                                  <div className="w-4 h-4 rounded-full border-2 border-zinc-600 shrink-0" />
+                                                )}
+                                                <h5 className="font-medium text-white text-md leading-tight group-hover:text-red-400 transition-colors">{topic.name}</h5>
+                                              </div>
                                             </div>
                                             {topic.description ? (
                                               <p className="text-xs text-zinc-400 line-clamp-2 mb-4 leading-relaxed">{topic.description}</p>

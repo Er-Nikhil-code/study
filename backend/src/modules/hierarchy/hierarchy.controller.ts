@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards, Request } from "@nestjs/common";
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Request } from "@nestjs/common";
 import { HierarchyService } from "./hierarchy.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
@@ -31,6 +31,12 @@ export class HierarchyController {
   @Roles("TEACHER", "ADMIN")
   updateCourse(@Param("id") id: string, @Body() data: { name?: string; code?: string }) {
     return this.hierarchyService.updateCourse(id, data);
+  }
+
+  @Delete("courses/:id")
+  @Roles("ADMIN")
+  deleteCourse(@Param("id") id: string) {
+    return this.hierarchyService.deleteCourse(id);
   }
 
   @Post("sections")

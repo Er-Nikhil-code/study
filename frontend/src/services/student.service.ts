@@ -31,7 +31,13 @@ export interface StudentDashboard {
     subject: string;
     wrong_count: number;
   }[];
-  enrolled_course: string | null;
+  enrolled_courses?: {
+    id: string;
+    name: string;
+    total_topics: number;
+    completed_topics: number;
+    progress_percentage: number;
+  }[];
   activity_graph?: { date: string; count: number }[];
 }
 

@@ -49,11 +49,48 @@ export class StudentService {
           },
         }),
         this.getWeakTopics(userId),
-        this.prisma.user.findUnique({ where: { id: userId }, select: { course_enrolled: true } }),
+        this.prisma.user.findUnique({ 
+          where: { id: userId }, 
+          select: { 
+            course_enrolled: true,
+            course_enrollments: { include: { course: true } } 
+          } 
+        }),
       ]);
 
+    // Calculate progress for each enrolled course
+    const courseProgressList = [];
+    if (userRec?.course_enrollments) {
+      for (const enr of userRec.course_enrollments) {
+        // Count total topics in this course
+        const totalTopics = await this.prisma.topic.count({
+          where: { chapter: { section: { course_id: enr.course_id } } }
+        });
+
+        // Count completed topics for this user in this course
+        const completedTopics = await this.prisma.topicProgress.count({
+          where: {
+            user_id: userId,
+            is_completed: true,
+            topic: { chapter: { section: { course_id: enr.course_id } } }
+          }
+        });
+
+        const percentage = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+        
+        courseProgressList.push({
+          id: enr.course.id,
+          name: enr.course.name,
+          code: enr.course.code,
+          total_topics: totalTopics,
+          completed_topics: completedTopics,
+          progress_percentage: percentage
+        });
+      }
+    }
+
     let enrolledCourseName = userRec?.course_enrolled || null;
-    if (enrolledCourseName && enrolledCourseName.startsWith("c")) { // likely a cuid
+    if (enrolledCourseName && enrolledCourseName.startsWith("c")) {
        const course = await this.prisma.course.findUnique({ where: { id: enrolledCourseName } });
        if (course) enrolledCourseName = course.name;
     }
@@ -123,6 +160,7 @@ export class StudentService {
       })),
       weak_topics: weakTopics,
       enrolled_course: enrolledCourseName,
+      enrolled_courses: courseProgressList,
       activity_graph,
     };
   }

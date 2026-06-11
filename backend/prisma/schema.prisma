@@ -3,11 +3,13 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 model User {
@@ -42,6 +44,7 @@ model User {
   audit_logs            AuditLog[]        @relation("actor")
   notification_events   NotificationEvent[]
   course_enrollments    CourseEnrollment[]
+  topic_progress        TopicProgress[]
 
   @@index([email])
   @@index([role])
@@ -142,6 +145,7 @@ model Topic {
   responses       Response[]
   notes           Note[]
   tests           Test[]
+  topic_progress  TopicProgress[]
 
   @@unique([chapter_id, name])
   @@index([chapter_id])
@@ -198,6 +202,7 @@ model Question {
   approved_by     String?   // User ID of approver (teacher/admin)
   approved_at     DateTime?
   rejection_note  String?
+  embedding       Unsupported("vector(768)")?
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt
 
@@ -321,6 +326,22 @@ model CourseEnrollment {
   @@unique([user_id, course_id])
   @@index([user_id])
   @@index([course_id])
+}
+
+model TopicProgress {
+  id              String    @id @default(cuid())
+  user_id         String
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  topic_id        String
+  topic           Topic     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  notes_viewed    Boolean   @default(false)
+  tests_completed Boolean   @default(false)
+  is_completed    Boolean   @default(false)
+  completed_at    DateTime?
+  updated_at      DateTime  @updatedAt
+
+  @@unique([user_id, topic_id])
+  @@index([user_id])
 }
 
 model Response {
@@ -483,6 +504,8 @@ enum QuestionApprovalStatus {
   REJECTED
   NEEDS_REVISION
   ESCALATED
+  AI_GENERATED
+  DROPPED
 }
 
 

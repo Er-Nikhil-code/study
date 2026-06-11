@@ -55,6 +55,7 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@google/genai": "^2.8.0",
     "@nestjs/platform-socket.io": "^11.1.26",
     "@nestjs/websockets": "^11.1.26",
     "socket.io": "^4.8.3"

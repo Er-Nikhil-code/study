@@ -12,6 +12,9 @@ export class HierarchyService {
   updateCourse(id: string, data: { name?: string; code?: string }) {
     return this.prisma.course.update({ where: { id }, data });
   }
+  deleteCourse(id: string) {
+    return this.prisma.course.delete({ where: { id } });
+  }
   getCourses() {
     return this.prisma.course.findMany({ include: { sections: true }, orderBy: { created_at: 'asc' } });
   }
@@ -59,8 +62,46 @@ export class HierarchyService {
       if (e.code === 'P2002') {
         return { message: "Already enrolled", alreadyEnrolled: true };
       }
-      throw e;
+      return { message: "Successfully enrolled" };
     }
+  }
+
+  // Topic Progress
+  async markNotesViewed(topicId: string, userId: string) {
+    const progress = await this.prisma.topicProgress.upsert({
+      where: { user_id_topic_id: { user_id: userId, topic_id: topicId } },
+      create: { user_id: userId, topic_id: topicId, notes_viewed: true },
+      update: { notes_viewed: true }
+    });
+
+    if (progress.notes_viewed && progress.tests_completed && !progress.is_completed) {
+      await this.prisma.topicProgress.update({
+        where: { id: progress.id },
+        data: { is_completed: true, completed_at: new Date() }
+      });
+    }
+    return { success: true };
+  }
+
+  async markTestsCompleted(topicId: string, userId: string) {
+    const progress = await this.prisma.topicProgress.upsert({
+      where: { user_id_topic_id: { user_id: userId, topic_id: topicId } },
+      create: { user_id: userId, topic_id: topicId, tests_completed: true },
+      update: { tests_completed: true }
+    });
+
+    if (progress.notes_viewed && progress.tests_completed && !progress.is_completed) {
+      await this.prisma.topicProgress.update({
+        where: { id: progress.id },
+        data: { is_completed: true, completed_at: new Date() }
+      });
+    }
+  }
+
+  async getStudentProgress(userId: string) {
+    return this.prisma.topicProgress.findMany({
+      where: { user_id: userId }
+    });
   }
 
   // Full Hierarchy
@@ -96,15 +137,26 @@ export class HierarchyService {
     const attempts = await this.prisma.attempt.findMany({
       where: { user_id: userId }
     });
-    
+
+    // Fetch user topic progress
+    const progressRecords = await this.prisma.topicProgress.findMany({
+      where: { user_id: userId }
+    });
+    const progressMap = new Map<string, any>();
+    progressRecords.forEach(p => progressMap.set(p.topic_id, p));
+
     // We need to map attempts to topics. But attempts are tied to test_id.
     // Fetch all tests so we can map them.
     const tests = await this.prisma.test.findMany({
-      select: { id: true, topic_id: true }
+      select: { id: true, topic_id: true, title: true }
     });
 
-    const topicTestsMap = new Map<string, string>(); // topicId -> testId (assuming 1 test per topic)
-    tests.forEach(t => topicTestsMap.set(t.topic_id, t.id));
+    const topicTestsMap = new Map<string, any[]>(); // topicId -> Test[]
+    tests.forEach(t => {
+      const arr = topicTestsMap.get(t.topic_id) || [];
+      arr.push(t);
+      topicTestsMap.set(t.topic_id, arr);
+    });
 
     const latestAttemptMap = new Map<string, any>(); // testId -> latest attempt
     attempts.forEach(a => {
@@ -120,13 +172,30 @@ export class HierarchyService {
       const mappedSections = course.sections.map(section => {
         const mappedChapters = section.chapters.map(chapter => {
           const mappedTopics = chapter.topics.map(topic => {
-            const testId = topicTestsMap.get(topic.id);
-            const latestAttempt = testId ? latestAttemptMap.get(testId) : null;
+            const topicTests = topicTestsMap.get(topic.id) || [];
+            
+            const testsWithAttempts = topicTests.map(t => {
+              const latestAttempt = latestAttemptMap.get(t.id);
+              return {
+                id: t.id,
+                title: t.title,
+                has_attempted: !!latestAttempt,
+                latest_attempt_id: latestAttempt ? latestAttempt.id : null
+              };
+            });
+
+            const firstTest = testsWithAttempts[0];
+            const prog = progressMap.get(topic.id);
+
             return {
               ...topic,
-              test_id: testId || null,
-              has_attempted_tests: !!latestAttempt,
-              latest_attempt_id: latestAttempt ? latestAttempt.id : null
+              tests: testsWithAttempts,
+              test_id: firstTest ? firstTest.id : null,
+              has_attempted_tests: firstTest ? firstTest.has_attempted : false,
+              latest_attempt_id: firstTest ? firstTest.latest_attempt_id : null,
+              is_completed: prog?.is_completed || false,
+              notes_viewed: prog?.notes_viewed || false,
+              tests_completed: prog?.tests_completed || false
             };
           });
           return { ...chapter, topics: mappedTopics };

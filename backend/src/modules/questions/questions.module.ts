@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { QuestionsController } from "./questions.controller";
 import { QuestionsService } from "./questions.service";
+import { AiGeneratorService } from "./ai-generator.service";
 import { PrismaService } from "../../prisma/prisma.service";
 
 @Module({
@@ -11,7 +12,7 @@ import { PrismaService } from "../../prisma/prisma.service";
     }),
   ],
   controllers: [QuestionsController],
-  providers: [QuestionsService, PrismaService],
+  providers: [QuestionsService, AiGeneratorService, PrismaService],
   exports: [QuestionsService],
 })
 export class QuestionsModule {}

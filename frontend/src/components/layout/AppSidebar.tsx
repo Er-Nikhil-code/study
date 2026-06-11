@@ -175,14 +175,15 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                   )}
                 </div>
                 {!isCollapsed && (
-                  <div className={`flex flex-col overflow-hidden transition-all duration-300 ${isCollapsed ? "w-0 opacity-0" : "w-full opacity-100"}`}>
-              <span className="truncate text-sm font-medium text-white">
-                {(user as any)?.first_name || user?.firstName || user?.email || "User"}
-              </span>
-              <span className="truncate text-xs text-zinc-500">
-                {user?.role?.replace("_", " ") || "Member"}
-              </span>
-            </div>    )}
+                  <div className={`flex flex-col min-w-0 overflow-hidden transition-all duration-300 ${isCollapsed ? "w-0 opacity-0" : "w-full opacity-100"}`}>
+                    <span className="truncate text-sm font-medium text-white">
+                      {(user as any)?.first_name || user?.firstName || user?.email || "User"}
+                    </span>
+                    <span className="truncate text-xs text-zinc-500">
+                      {user?.role?.replace("_", " ") || "Member"}
+                    </span>
+                  </div>
+                )}
               </div>
               {!isCollapsed && (
                 <ChevronDown size={16} className={`text-zinc-500 transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />

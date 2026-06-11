@@ -57,6 +57,11 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
       setNotes(notesData);
       setTests(testsData.data || []);
       setLoading(false);
+      
+      // Mark notes as viewed in background if not empty
+      if (notesData.length > 0) {
+        HierarchyService.markNotesViewed(topicId).catch(console.error);
+      }
     });
   }, [topicId]);
 

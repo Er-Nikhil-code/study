@@ -14,6 +14,7 @@ import {
   ForbiddenException,
 } from "@nestjs/common";
 import { QuestionsService } from "./questions.service";
+import { AiGeneratorService } from "./ai-generator.service";
 import {
   CreateQuestionRequestSchema,
   UpdateQuestionSchema,
@@ -25,7 +26,10 @@ import { Roles } from "../common/decorators/roles.decorator";
 @Controller("admin/questions")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class QuestionsController {
-  constructor(private questionsService: QuestionsService) {}
+  constructor(
+    private questionsService: QuestionsService,
+    private aiGeneratorService: AiGeneratorService
+  ) {}
 
   @Post()
   @Roles("INTERN", "TEACHER", "ADMIN")
@@ -201,5 +205,21 @@ export class QuestionsController {
     @Req() req: any,
   ) {
     return this.questionsService.rejectQuestion(id, req.user.id || req.user.sub, body.note);
+  }
+
+  /* ── AI Generation workflow ── */
+
+  @Post("ai/generate")
+  @Roles("TEACHER", "ADMIN")
+  async generateQuestions(@Body() body: { topicName: string; count: number; contextNotes?: string }, @Req() req: any) {
+    const userId = req.user.id || req.user.sub;
+    return this.aiGeneratorService.generateQuestions(userId, req.user.role, body.topicName, body.count, body.contextNotes);
+  }
+
+  @Post("ai/similarity")
+  @Roles("TEACHER", "ADMIN")
+  async findSimilarQuestions(@Body() body: { text: string; threshold?: number }, @Req() req: any) {
+    const embedding = await this.aiGeneratorService.computeEmbedding(body.text);
+    return this.aiGeneratorService.searchSimilarQuestions(embedding, 5, body.threshold || 0.2);
   }
 }

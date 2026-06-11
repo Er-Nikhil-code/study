@@ -25,6 +25,10 @@ export const HierarchyService = {
     return api.patch(`/admin/hierarchy/courses/${id}`, data).then((r) => r.data);
   },
 
+  deleteCourse(id: string) {
+    return api.delete(`/admin/hierarchy/courses/${id}`).then((r) => r.data);
+  },
+
   enrollCourse(courseId: string) {
     return api.post(`/admin/hierarchy/courses/${courseId}/enroll`).then((r) => r.data);
   },
@@ -39,5 +43,9 @@ export const HierarchyService = {
 
   updateTopic(id: string, data: { name?: string; description?: string; order?: number }) {
     return api.patch(`/admin/hierarchy/topics/${id}`, data).then((r) => r.data);
+  },
+
+  markNotesViewed(topicId: string) {
+    return api.post(`/admin/hierarchy/topics/${topicId}/view-notes`).then((r) => r.data);
   }
 };

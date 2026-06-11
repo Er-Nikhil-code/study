@@ -5,6 +5,7 @@ import {
   Logger,
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
+import { AiGeneratorService } from "./ai-generator.service";
 import {
   CreateQuestionRequestType,
   UpdateQuestionType,
@@ -15,7 +16,10 @@ import {
 export class QuestionsService {
   private readonly logger = new Logger(QuestionsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private aiGenerator: AiGeneratorService
+  ) {}
 
   /**
    * Fetch all active topics for dropdowns
@@ -63,33 +67,63 @@ export class QuestionsService {
         );
       }
 
-      // Determine approval status based on role
       const isIntern = userRole === "INTERN";
-      const approvalStatus = isIntern ? "PENDING_REVIEW" : "APPROVED";
-
-      // Create question
-      const question = await this.prisma.question.create({
-        data: {
+      
+      return await this.prisma.$transaction(async (prisma) => {
+        const questionData: any = {
           topic_id: data.topic_id,
-          created_by: userId,
-          title: data.title,
-          question_type: (data as any).question_type || data.type,
-          content_json: data.content_json || [],
-          options_json: (data as any).options_json || undefined,
-          answer_key: (data as any).answer_key || {},
-          solution_json: data.solution_json || undefined,
+          content_json: data.content_json,
+          options_json: (data as any).options_json ?? null,
+          answer_key: (data as any).answer_key,
+          solution_json: data.solution_json ?? null,
           difficulty: data.difficulty,
-          marks: data.marks,
-          negative_marks: data.negative_marks,
-          approval_status: approvalStatus as any,
+          question_type: (data as any).question_type || data.type,
+          marks: data.marks ?? 1,
+          negative_marks: data.negative_marks ?? 0,
+          created_by: userId,
+          approval_status: isIntern ? "PENDING_REVIEW" : ((data as any).approval_status === "AI_GENERATED" ? "AI_GENERATED" : "APPROVED"),
           approved_by: isIntern ? null : userId,
           approved_at: isIntern ? null : new Date(),
-        },
+        };
+
+        // Generate embedding if not an intern draft
+        if (questionData.approval_status !== "PENDING_REVIEW") {
+          const textToEmbed = typeof data.content_json === "string" ? data.content_json : JSON.stringify(data.content_json);
+          const embedding = await this.aiGenerator.computeEmbedding(textToEmbed);
+          
+          const q = await prisma.question.create({ data: questionData });
+          
+          if (embedding.length > 0) {
+            const vectorStr = `[${embedding.join(',')}]`;
+            await prisma.$executeRawUnsafe(`UPDATE "Question" SET embedding = $1::vector WHERE id = $2`, vectorStr, q.id);
+          }
+          
+          await prisma.questionVersion.create({
+            data: {
+              question_id: q.id,
+              version: 1,
+              content_json: data.content_json,
+              options_json: (data as any).options_json ?? undefined,
+              answer_key: (data as any).answer_key,
+              solution_json: data.solution_json ?? undefined,
+            },
+          });
+          return q;
+        } else {
+          const q = await prisma.question.create({ data: questionData });
+          await prisma.questionVersion.create({
+            data: {
+              question_id: q.id,
+              version: 1,
+              content_json: data.content_json,
+              options_json: (data as any).options_json ?? undefined,
+              answer_key: (data as any).answer_key,
+              solution_json: data.solution_json ?? undefined,
+            },
+          });
+          return q;
+        }
       });
-
-      this.logger.log(`✅ [QUESTIONS] Question created: ${question.id} (status: ${approvalStatus})`);
-
-      return question;
     } catch (error: any) {
       this.logger.error(
         `❌ [QUESTIONS] Error creating question: ${error?.message}`,
@@ -356,16 +390,16 @@ export class QuestionsService {
   /**
    * Update question (with versioning)
    */
-  async updateQuestion(id: string, data: UpdateQuestionType) {
+  async updateQuestion(questionId: string, data: UpdateQuestionType) {
     try {
-      this.logger.debug(`✏️  [QUESTIONS] Updating question ${id}`);
+      this.logger.debug(`✏️  [QUESTIONS] Updating question ${questionId}`);
 
       const question = await this.prisma.question.findUnique({
-        where: { id },
+        where: { id: questionId },
       });
 
       if (!question) {
-        throw new NotFoundException(`Question with ID "${id}" not found`);
+        throw new NotFoundException(`Question with ID "${questionId}" not found`);
       }
 
       // If answer_key is changing, create version snapshot
@@ -373,15 +407,15 @@ export class QuestionsService {
         data.answer_key &&
         JSON.stringify(data.answer_key) !== JSON.stringify(question.answer_key)
       ) {
-        this.logger.debug(`📸 [QUESTIONS] Creating version snapshot for ${id}`);
+        this.logger.debug(`📸 [QUESTIONS] Creating version snapshot for ${questionId}`);
 
         await this.prisma.questionVersion.create({
           data: {
-            question_id: id,
+            question_id: questionId,
             version: question.version,
             content_json: question.content_json || {},
-            options_json: question.options_json || undefined,
-            answer_key: question.answer_key || {},
+            options_json: (question as any).options_json || undefined,
+            answer_key: (question as any).answer_key || {},
             solution_json: question.solution_json || undefined,
           },
         });
@@ -391,21 +425,30 @@ export class QuestionsService {
 
       // Update question
       const updated = await this.prisma.question.update({
-        where: { id },
+        where: { id: questionId },
         data: {
-          title: data.title || undefined,
-          content_json: data.content_json || undefined,
-          options_json: data.options_json || undefined,
-          answer_key: data.answer_key || undefined,
-          solution_json: data.solution_json || undefined,
-          difficulty: data.difficulty || undefined,
-          marks: data.marks || undefined,
-          negative_marks: data.negative_marks || undefined,
+          content_json: (data.content_json ?? question.content_json) as any,
+          options_json: (data as any).options_json ?? (question as any).options_json ?? undefined,
+          answer_key: (data as any).answer_key ?? (question as any).answer_key,
+          solution_json: (data.solution_json ?? question.solution_json) as any,
+          difficulty: data.difficulty ?? question.difficulty,
+          marks: data.marks ?? question.marks,
+          negative_marks: data.negative_marks ?? question.negative_marks,
           version: question.version + 1,
         },
       });
 
-      this.logger.log(`✅ [QUESTIONS] Question updated: ${id}`);
+      // Update embedding if content changed and it's approved/ai
+      if (data.content_json && (updated.approval_status === "APPROVED" || updated.approval_status === "AI_GENERATED")) {
+        const textToEmbed = typeof data.content_json === "string" ? data.content_json : JSON.stringify(data.content_json);
+        const embedding = await this.aiGenerator.computeEmbedding(textToEmbed);
+        if (embedding.length > 0) {
+          const vectorStr = `[${embedding.join(',')}]`;
+          await this.prisma.$executeRawUnsafe(`UPDATE "Question" SET embedding = $1::vector WHERE id = $2`, vectorStr, updated.id);
+        }
+      }
+
+      this.logger.log(`✅ [QUESTIONS] Question updated: ${questionId}`);
 
       return updated;
     } catch (error: any) {
