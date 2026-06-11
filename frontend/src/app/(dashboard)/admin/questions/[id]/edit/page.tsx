@@ -70,11 +70,23 @@ export default function EditQuestionPage() {
   });
 
   const [tfData, setTfData] = useState({
-    answer: true
+    answer: true,
+    options: [
+      { id: "A", text: "True" },
+      { id: "B", text: "False" }
+    ],
+    correct_option: "A"
   });
 
   const [fibData, setFibData] = useState({
-    blanks: [{ position: 1, answer: "", case_sensitive: false }]
+    blanks: [{ position: 1, answer: "", case_sensitive: false }],
+    options: [
+      { id: "A", text: "" },
+      { id: "B", text: "" },
+      { id: "C", text: "" },
+      { id: "D", text: "" }
+    ],
+    correct_option: "A"
   });
 
   const [matchingData, setMatchingData] = useState({
@@ -129,9 +141,29 @@ export default function EditQuestionPage() {
             correct_options: q.answer_key?.correct_options || ["A"],
           });
         } else if (q.question_type === "TRUE_FALSE") {
-          setTfData({ answer: q.answer_key?.answer ?? true });
+          const defaultTfOptions = [
+            { id: "A", text: "True" },
+            { id: "B", text: "False" }
+          ];
+          const hasOptions = q.options_json?.options && q.options_json.options.length > 0;
+          setTfData({ 
+            answer: q.answer_key?.answer ?? true,
+            options: hasOptions ? q.options_json.options : defaultTfOptions,
+            correct_option: q.answer_key?.correct_option || (q.answer_key?.answer ? "A" : "B")
+          });
         } else if (q.question_type === "FILL_BLANK") {
-          setFibData({ blanks: q.answer_key?.blanks || [{ position: 1, answer: "", case_sensitive: false }] });
+          const defaultFibOptions = [
+            { id: "A", text: "" },
+            { id: "B", text: "" },
+            { id: "C", text: "" },
+            { id: "D", text: "" }
+          ];
+          const hasOptions = q.options_json?.options && q.options_json.options.length > 0;
+          setFibData({ 
+            blanks: q.answer_key?.blanks || [{ position: 1, answer: "", case_sensitive: false }],
+            options: hasOptions ? q.options_json.options : defaultFibOptions,
+            correct_option: q.answer_key?.correct_option || "A"
+          });
         } else if (q.question_type === "MATCHING") {
           setMatchingData({
             left_column: q.options_json?.left_column || [{ id: "L1", text: "" }],
@@ -193,10 +225,12 @@ export default function EditQuestionPage() {
           payload.answer_key = { correct_options: mcqData.correct_options };
           break;
         case "TRUE_FALSE":
-          payload.answer_key = { answer: tfData.answer };
+          payload.options_json = { options: tfData.options };
+          payload.answer_key = { answer: tfData.answer, correct_option: tfData.correct_option };
           break;
         case "FILL_BLANK":
-          payload.answer_key = { blanks: fibData.blanks };
+          payload.options_json = { options: fibData.options };
+          payload.answer_key = { blanks: fibData.blanks, correct_option: fibData.correct_option };
           break;
         case "MATCHING":
           payload.options_json = {
