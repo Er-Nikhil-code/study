@@ -31,9 +31,8 @@ export default function InternDashboardPage() {
   const { data, isLoading: loading } = useQuery({
     queryKey: ["intern", "dashboard"],
     queryFn: () => studentService.getInternDashboard(),
-    staleTime: 0,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
     gcTime: 1000 * 60 * 10,
-    refetchInterval: 10000,
     retry: 2,
   });
 
@@ -164,7 +163,7 @@ export default function InternDashboardPage() {
                     <Panel className="p-3 hover:bg-white/[0.04] transition cursor-pointer">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <span className="text-sm text-white truncate block">{q.title}</span>
+                          <span className="text-sm text-white truncate block">{q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}</span>
                           <span className="mt-0.5 text-xs text-zinc-500 truncate block">
                             {q.topic?.chapter?.section?.course?.name || "—"} → {q.topic?.chapter?.name} → {q.topic?.name}
                           </span>

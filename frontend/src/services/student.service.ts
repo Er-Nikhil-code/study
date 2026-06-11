@@ -155,7 +155,7 @@ export interface InternDashboard {
   global_rank: number;
   recent_questions: {
     id: string;
-    title: string;
+    content_json?: any[];
     approval_status: string;
     question_type: string;
     difficulty: string;

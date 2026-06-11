@@ -491,7 +491,7 @@ export class StudentService {
       take: 5,
       select: {
         id: true,
-        title: true,
+        content_json: true,
         approval_status: true,
         updated_at: true,
         created_by: true,
@@ -578,7 +578,7 @@ export class StudentService {
       take: 8,
       select: {
         id: true,
-        title: true,
+        content_json: true,
         approval_status: true,
         question_type: true,
         difficulty: true,

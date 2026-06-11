@@ -29,9 +29,8 @@ export default function TeacherHomePage() {
   const { data, isLoading: loading } = useQuery({
     queryKey: ["teacher", "dashboard"],
     queryFn: () => studentService.getTeacherDashboard(),
-    staleTime: 0,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
     gcTime: 1000 * 60 * 10,
-    refetchInterval: 10000, // auto-refresh every 10 seconds for real-time updates
     retry: 2,
   });
 
@@ -149,7 +148,7 @@ export default function TeacherHomePage() {
                 <Panel key={c.id} className="p-3">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <span className="text-sm text-white truncate block">{c.question?.title || "Unknown question"}</span>
+                      <span className="text-sm text-white truncate block">{c.question?.content_json?.[0]?.content?.substring(0, 40) || "Unknown question"}</span>
                       <span className="text-xs text-zinc-500 capitalize">{c.reason?.toLowerCase().replace(/_/g, " ")}</span>
                     </div>
                     <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${CHALLENGE_STATUS_STYLES[c.status] || CHALLENGE_STATUS_STYLES.PENDING}`}>
@@ -178,7 +177,7 @@ export default function TeacherHomePage() {
                 <Panel key={q.id} className="p-3">
                   <div className="flex items-center gap-3">
                     {APPROVAL_ICONS[q.approval_status]}
-                    <span className="text-sm text-white truncate flex-1">{q.title}</span>
+                    <span className="text-sm text-white truncate flex-1">{q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}</span>
                     <span className="text-xs text-zinc-600 shrink-0">
                       {new Date(q.updated_at).toLocaleDateString()}
                     </span>
