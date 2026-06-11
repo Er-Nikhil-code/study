@@ -22,7 +22,9 @@ export class CleanupService {
   async cleanupExpiredOtps(): Promise<void> {
     try {
       const deletedCount = await this.otpService.deleteExpiredOtps();
-      this.logger.debug(`OTP cleanup: Deleted ${deletedCount} expired records`);
+      if (deletedCount > 0) {
+        this.logger.debug(`OTP cleanup: Deleted ${deletedCount} expired records`);
+      }
     } catch (error: any) {
       this.logger.error(
         `Error during OTP cleanup: ${error?.message || "Unknown error"}`,
@@ -39,9 +41,11 @@ export class CleanupService {
     try {
       const deletedCount =
         await this.passwordResetService.deleteExpiredTokens();
-      this.logger.debug(
-        `Token cleanup: Deleted ${deletedCount} expired reset tokens`,
-      );
+      if (deletedCount > 0) {
+        this.logger.debug(
+          `Token cleanup: Deleted ${deletedCount} expired reset tokens`,
+        );
+      }
     } catch (error: any) {
       this.logger.error(
         `Error during token cleanup: ${error?.message || "Unknown error"}`,

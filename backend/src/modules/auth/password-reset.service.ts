@@ -176,7 +176,9 @@ export class PasswordResetService {
         },
       });
 
-      this.logger.log(`Deleted ${result.count} expired password reset tokens`);
+      if (result.count > 0) {
+        this.logger.log(`Deleted ${result.count} expired password reset tokens`);
+      }
       return result.count;
     } catch (error: any) {
       this.logger.error(

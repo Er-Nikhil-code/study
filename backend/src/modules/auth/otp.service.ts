@@ -202,7 +202,9 @@ export class OtpService {
         },
       });
 
-      this.logger.log(`Deleted ${result.count} expired OTP records`);
+      if (result.count > 0) {
+        this.logger.log(`Deleted ${result.count} expired OTP records`);
+      }
       return result.count;
     } catch (error: any) {
       this.logger.error(

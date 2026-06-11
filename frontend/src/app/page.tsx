@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { Quicksand } from "next/font/google";
 import { authService } from "@/services/auth.service";
 import { useAuthStore, AuthUser } from "@/store/auth.store";
 import Logo from "@/components/ui/Logo";
@@ -18,6 +19,11 @@ const QUOTES = [
   { greeting: "Welcome, Champion of Tomorrow!", body: "The right guidance, focused preparation, and persistent effort can turn your ambitions into remarkable achievements." },
   { greeting: "Your future is built by what you do today.", body: "Take control of your preparation, overcome every challenge, and create the results you've always aimed for." },
 ];
+
+const quicksand = Quicksand({ 
+  subsets: ["latin"], 
+  weight: ["300", "400", "500"] 
+});
 
 // Main Home Page Component
 export default function HomePage() {
@@ -297,17 +303,17 @@ export default function HomePage() {
           <div className="absolute -inset-4 bg-white/5 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
           
           <div className="relative transform transition-transform duration-500 group-hover:scale-[1.01]">
-            <h1 className="text-7xl md:text-8xl font-black tracking-tighter uppercase flex items-center">
-              <span className="text-white drop-shadow-lg">
+            <h1 className={`text-6xl md:text-7xl ${quicksand.className} font-medium tracking-[0.1em] uppercase flex items-center`}>
+              <span className="text-white drop-shadow-md">
                 CODI
               </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-b from-red-500 to-red-700 drop-shadow-[0_2px_8px_rgba(220,38,38,0.4)]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-br from-red-500 to-red-600 drop-shadow-[0_1px_4px_rgba(220,38,38,0.4)]">
                 FY
               </span>
             </h1>
             
             {/* Minimal static underline */}
-            <div className="relative mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-red-600 to-red-800 shadow-sm opacity-90 transition-all duration-500 group-hover:w-24"></div>
+            <div className="relative mt-4 h-[3px] w-16 rounded-full bg-gradient-to-r from-red-600 to-red-800 shadow-sm opacity-80 transition-all duration-500 group-hover:w-24"></div>
 
             <p className="text-zinc-400 text-sm md:text-base mt-4 tracking-[0.2em] font-light uppercase flex items-center gap-3 opacity-70">
               Learn smarter
