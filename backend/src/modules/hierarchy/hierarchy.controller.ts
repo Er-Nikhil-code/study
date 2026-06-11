@@ -24,7 +24,7 @@ export class HierarchyController {
   @Post("courses")
   @Roles("TEACHER", "ADMIN")
   createCourse(@Request() req: any, @Body() data: { name: string; code: string; description: string }) {
-    return this.hierarchyService.createCourse({ ...data, created_by: req.user.id });
+    return this.hierarchyService.createCourse({ ...data, created_by: req.user.sub });
   }
 
   @Post("courses/:id/enroll")

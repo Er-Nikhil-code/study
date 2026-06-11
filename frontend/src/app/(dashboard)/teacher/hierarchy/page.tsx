@@ -73,10 +73,14 @@ export default function HierarchyManagerPage() {
       alert("Section description cannot exceed 80 words.");
       return;
     }
-    await HierarchyService.createSection({ ...sectionForm, course_id: courseId });
-    setSectionForm({ name: "", description: "", order: 1 });
-    setActiveCourseId(null);
-    fetchHierarchy();
+    try {
+      await HierarchyService.createSection({ ...sectionForm, course_id: courseId });
+      setSectionForm({ name: "", description: "", order: 1 });
+      setActiveCourseId(null);
+      fetchHierarchy();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to create section");
+    }
   };
 
   const handleCreateChapter = async (e: React.FormEvent, sectionId: string) => {
@@ -85,10 +89,14 @@ export default function HierarchyManagerPage() {
       alert("Chapter description cannot exceed 50 words.");
       return;
     }
-    await HierarchyService.createChapter({ ...chapterForm, section_id: sectionId });
-    setChapterForm({ name: "", description: "", order: 1 });
-    setActiveSectionId(null);
-    fetchHierarchy();
+    try {
+      await HierarchyService.createChapter({ ...chapterForm, section_id: sectionId });
+      setChapterForm({ name: "", description: "", order: 1 });
+      setActiveSectionId(null);
+      fetchHierarchy();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to create chapter");
+    }
   };
 
   const handleCreateTopic = async (e: React.FormEvent, chapterId: string) => {
@@ -97,10 +105,14 @@ export default function HierarchyManagerPage() {
       alert("Topic description cannot exceed 20 words.");
       return;
     }
-    await HierarchyService.createTopic({ ...topicForm, chapter_id: chapterId });
-    setTopicForm({ name: "", description: "", order: 1 });
-    setActiveChapterId(null);
-    fetchHierarchy();
+    try {
+      await HierarchyService.createTopic({ ...topicForm, chapter_id: chapterId });
+      setTopicForm({ name: "", description: "", order: 1 });
+      setActiveChapterId(null);
+      fetchHierarchy();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to create topic");
+    }
   };
 
   const navItems = [
