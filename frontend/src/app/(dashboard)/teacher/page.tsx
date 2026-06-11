@@ -43,12 +43,12 @@ export default function TeacherHomePage() {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-6 mb-8 bg-gradient-to-r from-red-500/10 to-transparent p-6 rounded-2xl border border-red-500/20 overflow-hidden relative min-h-[160px]">
+      <div className="flex items-center justify-between gap-6 mb-8 bg-gradient-to-r from-red-500/10 to-transparent p-6 rounded-2xl relative min-h-[160px]">
         <div className="z-10">
           <h1 className="text-3xl font-bold text-white mb-2">Knight Dashboard</h1>
           <p className="text-zinc-400">Welcome back, {name}. Here's your workflow overview.</p>
         </div>
-        <div className="h-40 w-40 hidden sm:block shrink-0 z-10 absolute right-10 top-1/2 -translate-y-1/2">
+        <div className="h-40 w-40 hidden sm:block shrink-0 z-10 absolute right-10 top-1/2 -translate-y-[40%]">
           <ChessPiece3D role="TEACHER" />
         </div>
         {/* Subtle background glow */}

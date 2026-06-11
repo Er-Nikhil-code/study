@@ -71,6 +71,7 @@ export class QuestionsService {
       
       return await this.prisma.$transaction(async (prisma) => {
         const questionData: any = {
+          title: data.title,
           topic_id: data.topic_id,
           content_json: data.content_json,
           options_json: (data as any).options_json ?? null,

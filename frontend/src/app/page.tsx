@@ -291,12 +291,32 @@ export default function HomePage() {
 
       {/* Left Section - Alien Typed Quotes */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-start px-8 md:px-16 py-12 md:py-16 relative z-10">
-        {/* Logo */}
-        <div className="mb-10 md:mb-14">
-          <Logo size="xl" />
-          <p className="text-zinc-500 text-sm mt-3 tracking-wide font-light">
-            Learn smarter. Score higher.
-          </p>
+        {/* Premium Animated Logo */}
+        <div className="mb-10 md:mb-14 relative group cursor-default">
+          {/* Subtle background glow that reacts to hover */}
+          <div className="absolute -inset-4 bg-gradient-to-r from-red-600/0 via-red-600/10 to-orange-600/0 rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+          
+          <div className="relative transform transition-transform duration-700 group-hover:scale-[1.02]">
+            <h1 className="text-7xl md:text-8xl font-black tracking-tighter uppercase flex items-center">
+              <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-200 to-zinc-500 drop-shadow-xl">
+                CODI
+              </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-rose-600 bg-[length:200%_auto] animate-gradient drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                FY
+              </span>
+            </h1>
+            
+            {/* Animated underline */}
+            <div className="relative mt-3 h-1.5 w-24 overflow-hidden rounded-full bg-zinc-800">
+              <div className="absolute inset-0 bg-gradient-to-r from-red-600 via-orange-500 to-rose-600 w-[200%] animate-gradient shadow-[0_0_15px_rgba(220,38,38,0.6)]"></div>
+            </div>
+
+            <p className="text-zinc-400 text-sm md:text-base mt-4 tracking-[0.2em] font-light uppercase flex items-center gap-3 opacity-80">
+              Learn smarter
+              <span className="h-1 w-1 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,1)] animate-pulse"></span>
+              Score higher
+            </p>
+          </div>
         </div>
 
         {/* Alien Typed Quote */}
