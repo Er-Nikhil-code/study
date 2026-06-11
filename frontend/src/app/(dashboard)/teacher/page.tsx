@@ -31,6 +31,7 @@ export default function TeacherHomePage() {
     queryFn: () => studentService.getTeacherDashboard(),
     staleTime: 0,
     gcTime: 1000 * 60 * 10,
+    refetchInterval: 10000, // auto-refresh every 10 seconds for real-time updates
     retry: 2,
   });
 
@@ -62,10 +63,18 @@ export default function TeacherHomePage() {
             <FileQuestion size={12} />
             Questions
           </div>
-          <div className="mt-2 text-3xl font-semibold text-white">
-            {loading ? <span className="inline-block h-8 w-14 animate-pulse rounded bg-white/10" /> : data?.questions_created ?? 0}
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-3xl font-semibold text-white">
+              {loading ? <span className="inline-block h-8 w-8 animate-pulse rounded bg-white/10" /> : data?.questions_created ?? 0}
+            </span>
+            <span className="text-sm text-zinc-500">created</span>
+            <span className="text-zinc-700 mx-1">•</span>
+            <span className="text-xl font-medium text-emerald-400">
+              {loading ? <span className="inline-block h-6 w-6 animate-pulse rounded bg-emerald-400/10" /> : data?.questions_approved ?? 0}
+            </span>
+            <span className="text-sm text-emerald-500/50">approved</span>
           </div>
-          <p className="mt-1 text-xs text-zinc-500">Created by you</p>
+          <p className="mt-1 text-xs text-zinc-500">Your total contributions</p>
         </Panel>
         <Panel>
           <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-zinc-500">

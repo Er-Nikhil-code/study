@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { TestsService } from "@/services/tests.service";
@@ -10,6 +11,7 @@ import { QuestionsService } from "@/services/questions.service";
 export default function CreateTestPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const topicId = searchParams.get("topic_id");
   const topicName = searchParams.get("topic_name");
   
@@ -63,6 +65,7 @@ export default function CreateTestPage() {
         topic_id: topicId as string,
         question_ids: Array.from(selectedQuestionIds),
       });
+      queryClient.invalidateQueries({ queryKey: ["teacher", "dashboard"] });
       router.back();
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to create test");

@@ -452,12 +452,13 @@ export class StudentService {
    * ════════════════════════════════════════════ */
 
   async getTeacherDashboard(userId: string) {
-    const [questionCount, testCount, challengeCount, resolvedCount] =
+    const [questionCount, testCount, challengeCount, resolvedCount, approvedCount] =
       await Promise.all([
         this.prisma.question.count({ where: { created_by: userId } }),
         this.prisma.test.count({ where: { created_by: userId } }),
         this.prisma.challenge.count({ where: { assigned_to: userId, status: "PENDING" } }),
         this.prisma.challenge.count({ where: { assigned_to: userId, status: { not: "PENDING" } } }),
+        this.prisma.question.count({ where: { approved_by: userId } }),
       ]);
 
     // Recent challenges
@@ -535,6 +536,7 @@ export class StudentService {
 
     return {
       questions_created: questionCount,
+      questions_approved: approvedCount,
       tests_created: testCount,
       pending_challenges: challengeCount,
       resolved_challenges: resolvedCount,

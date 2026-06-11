@@ -15,6 +15,7 @@ export default function StudentDashboardPage() {
     queryFn: () => studentService.getDashboard(),
     staleTime: 0,
     gcTime: 1000 * 60 * 10,
+    refetchInterval: 10000,
     retry: 2,
   });
 
@@ -22,6 +23,7 @@ export default function StudentDashboardPage() {
     queryKey: ["tests", "upcoming"],
     queryFn: () => studentService.getTests({ limit: 5 }),
     staleTime: 0,
+    refetchInterval: 10000,
     retry: 1,
   });
 

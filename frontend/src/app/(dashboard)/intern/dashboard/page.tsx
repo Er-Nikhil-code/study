@@ -33,6 +33,7 @@ export default function InternDashboardPage() {
     queryFn: () => studentService.getInternDashboard(),
     staleTime: 0,
     gcTime: 1000 * 60 * 10,
+    refetchInterval: 10000,
     retry: 2,
   });
 

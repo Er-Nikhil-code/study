@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
@@ -20,6 +21,7 @@ export default function ReviewQuestionsPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Review modal state
   const [reviewQ, setReviewQ] = useState<any>(null);
@@ -56,6 +58,7 @@ export default function ReviewQuestionsPage() {
 
     try {
       await QuestionsService.approve(targetQ.id);
+      queryClient.invalidateQueries({ queryKey: ["teacher", "dashboard"] });
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to approve question");
       // Revert on failure
@@ -98,6 +101,7 @@ export default function ReviewQuestionsPage() {
 
     try {
       await QuestionsService.reject(targetQ.id, note);
+      queryClient.invalidateQueries({ queryKey: ["teacher", "dashboard"] });
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to reject question");
       // Revert on failure

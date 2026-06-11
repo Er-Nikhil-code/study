@@ -117,6 +117,8 @@ export default function CreateQuestionPage() {
     onSuccess: () => {
       // Invalidate the questions cache to fetch the new question instantly
       queryClient.invalidateQueries({ queryKey: ["questions", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["teacher", "dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["intern", "dashboard"] });
       // Instantly route to the questions bank 
       router.push(role === "INTERN" ? "/intern/questions" : "/teacher/questions");
     },

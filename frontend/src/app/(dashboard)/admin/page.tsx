@@ -56,6 +56,7 @@ export default function AdminHomePage() {
     queryFn: () => adminService.getDashboardStats(),
     staleTime: 0,
     gcTime: 1000 * 60 * 10,
+    refetchInterval: 10000,
     retry: 2,
   });
 
@@ -64,6 +65,7 @@ export default function AdminHomePage() {
     queryFn: () => adminService.getRecentActivity(8),
     staleTime: 0,
     gcTime: 1000 * 60 * 5,
+    refetchInterval: 10000,
     retry: 1,
   });
 

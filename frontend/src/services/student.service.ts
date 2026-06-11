@@ -133,6 +133,7 @@ export interface LeaderboardRow {
 
 export interface TeacherDashboard {
   questions_created: number;
+  questions_approved: number;
   tests_created: number;
   pending_challenges: number;
   resolved_challenges: number;
