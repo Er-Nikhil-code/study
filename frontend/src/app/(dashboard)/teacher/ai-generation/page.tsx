@@ -152,10 +152,12 @@ export default function AIGenerationPage() {
         negative_marks: 0,
         content_json: [{ type: "TEXT", content: q.questionText }],
         options_json: { 
-          options: (q.options || []).map((opt: string, i: number) => ({
-            id: `opt${i + 1}`,
-            text: opt
-          }))
+          options: (q.options || []).map((opt: any, i: number) => {
+            if (typeof opt === 'object' && opt !== null) {
+              return { id: opt.id || `opt${i + 1}`, text: opt.text || '' };
+            }
+            return { id: `opt${i + 1}`, text: String(opt) };
+          })
         },
         answer_key: { correct_option: q.answerKey },
         solution_json: q.solutionText ? [{ type: "TEXT", content: q.solutionText }] : [],
