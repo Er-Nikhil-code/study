@@ -62,7 +62,7 @@ export default function CreateTestPage() {
     if (bankCourseId) params.course_id = bankCourseId;
     if (bankSectionId) params.section_id = bankSectionId;
     if (bankChapterId) params.chapter_id = bankChapterId;
-    if (bankQuestionType) params.question_type = bankQuestionType;
+    if (bankQuestionType) params.type = bankQuestionType;
     if (bankDifficulty) params.difficulty = bankDifficulty;
     
     if (!bankCourseId && !bankSectionId && !bankChapterId && topicId) {
