@@ -767,15 +767,6 @@ export class TestsService {
         longest_streak: longestStreak,
       },
     });
-
-    return {
-      id: attemptId,
-      score: totalScore,
-      max_score: maxScore,
-      correct: correctCount,
-      wrong: wrongCount,
-      skipped: test.total_marks - (correctCount + wrongCount), // rough estimate
-    };
   }
 
   async recordDailyActivity(userId: string, type: string) {

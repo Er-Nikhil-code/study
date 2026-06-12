@@ -11,6 +11,7 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  Put,
 } from "@nestjs/common";
 import { TestsService } from "./tests.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
