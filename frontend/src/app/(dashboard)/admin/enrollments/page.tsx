@@ -63,7 +63,7 @@ export default function AdminEnrollmentsPage() {
                 {enrollments.map((enrollment: any) => (
                   <tr key={enrollment.id} className="transition-colors hover:bg-white/[0.02]">
                     <td className="whitespace-nowrap px-6 py-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-zinc-400">
                           <User size={14} />
                         </div>
@@ -76,7 +76,7 @@ export default function AdminEnrollmentsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center gap-2">
                         <BookOpen size={14} className="text-red-400" />
                         <span className="font-medium text-white">{enrollment.course?.name}</span>
                       </div>
@@ -84,7 +84,7 @@ export default function AdminEnrollmentsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {enrollment.course?.price > 0 || enrollment.course?.discount_price > 0 ? (
-                        <div className="flex items-center gap-1.5 text-emerald-400">
+                        <div className="flex items-center justify-center gap-1.5 text-emerald-400">
                           <CreditCard size={14} />
                           <span>Purchased</span>
                           <span className="text-xs bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 ml-1">
@@ -96,7 +96,7 @@ export default function AdminEnrollmentsPage() {
                       )}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
-                      <div className="flex items-center gap-2 text-zinc-400">
+                      <div className="flex items-center justify-center gap-2 text-zinc-400">
                         <Calendar size={14} />
                         {new Date(enrollment.enrolled_at).toLocaleDateString(undefined, {
                           year: 'numeric',

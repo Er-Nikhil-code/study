@@ -337,7 +337,7 @@ export default function AdminQuestionsPage() {
                 return (
                   <div key={q.id}>
                     <div className="grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-center">
-                      <div className="font-mono text-[10px] text-zinc-500 break-all" title={q.id}>
+                      <div className="font-mono text-[10px] text-zinc-500 truncate" title={q.id}>
                         {q.id}
                       </div>
 
@@ -373,15 +373,15 @@ export default function AdminQuestionsPage() {
                         <span className="text-zinc-300 font-medium">{q.topic?.name || "—"}</span>
                       </div>
 
-                      <div className="text-xs text-zinc-400 flex items-center">
+                      <div className="text-xs text-zinc-400 flex justify-center items-center text-center">
                         {q.creator || q.created_by ? (
                           <UserHoverCard userId={q.created_by}>
-                            <span className="block truncate max-w-[120px]">
-                              {q.creator ? `${q.creator.first_name || ""} ${q.creator.last_name || ""}`.trim() || "King" : q.created_by}
+                            <span className="block truncate max-w-[120px] text-center">
+                              {q.creator ? (q.creator.first_name || "King") : q.created_by}
                             </span>
                           </UserHoverCard>
                         ) : (
-                          <span className="block truncate max-w-[120px]">King</span>
+                          <span className="block truncate max-w-[120px] text-center">King</span>
                         )}
                       </div>
 

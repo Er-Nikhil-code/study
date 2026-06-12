@@ -723,7 +723,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                                   <CheckCircle size={14} /> Re-attempt
                                                 </Link>
                                                 {topic.latest_attempt_id && (
-                                                  <Link href={`/tests/${topic.test_id}/attempt/${topic.latest_attempt_id}/result`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors">
+                                                  <Link href={`/results/${topic.latest_attempt_id}?testId=${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors">
                                                     <BarChart2 size={14} /> Analysis
                                                   </Link>
                                                 )}
