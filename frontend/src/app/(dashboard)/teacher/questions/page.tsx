@@ -239,7 +239,7 @@ export default function TeacherQuestionsPage() {
           </svg>
           <input
             type="text"
-            placeholder="Search by ID..."
+            placeholder="Search by ID or keywords..."
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
             className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-2 pl-9 pr-4 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-red-500/30 focus:ring-1 focus:ring-red-500/20"

@@ -7,7 +7,7 @@ import { HierarchyService } from "@/services/hierarchy.service";
 import { NotesService } from "@/services/notes.service";
 import studentService, { type TestListItem } from "@/services/student.service";
 import Link from "next/link";
-import { ChevronLeft, FileText, BookOpen, Clock, ShieldAlert, Edit2 } from "lucide-react";
+import { ChevronLeft, FileText, BookOpen, Clock, ShieldAlert, Edit2, Trash2 } from "lucide-react";
 import TestCard from "@/components/tests/TestCard";
 import { useAuthStore } from "@/store/auth.store";
 import RichTextEditor from "@/components/ui/RichTextEditor";
@@ -105,6 +105,16 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
     }
   };
 
+  const handleDeleteNote = async (noteId: string) => {
+    if (!confirm("Are you sure you want to delete this note?")) return;
+    try {
+      await NotesService.deleteNote(noteId);
+      setNotes(notes.filter(n => n.id !== noteId));
+    } catch (err: any) {
+      alert("Failed to delete note");
+    }
+  };
+
   return (
     <>
       <div className="mb-6">
@@ -173,12 +183,20 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                         <h3 className="text-xl font-bold text-white">{note.title}</h3>
                         <div className="flex gap-2">
                           {canEdit && (
-                            <button
-                              onClick={() => { setEditingNoteId(note.id); setEditNoteForm({ title: note.title, content_html: note.content_html }); }}
-                              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
-                            >
-                              <Edit2 size={12} /> Edit
-                            </button>
+                            <>
+                              <button
+                                onClick={() => { setEditingNoteId(note.id); setEditNoteForm({ title: note.title, content_html: note.content_html }); }}
+                                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
+                              >
+                                <Edit2 size={12} /> Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteNote(note.id)}
+                                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
+                              >
+                                <Trash2 size={12} /> Delete
+                              </button>
+                            </>
                           )}
                           <button
                             onClick={() => setSelectedNote(note)}

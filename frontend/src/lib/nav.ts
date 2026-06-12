@@ -62,10 +62,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
   // Courses
   items.push({ label: "Courses", href: "/courses", icon: BookOpen });
 
-  // Content & Hierarchy
-  if (hasPerm("manage_hierarchy") || user.role === "TEACHER") {
-    items.push({ label: "Curriculum", href: "/teacher/hierarchy", icon: Network });
-  }
+  // Content & Hierarchy (Removed as curriculum is now managed directly inside courses)
 
   // AI Features
   if (hasPerm("use_ai_generator") || user.role === "TEACHER") {

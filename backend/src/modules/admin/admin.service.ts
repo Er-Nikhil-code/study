@@ -470,7 +470,8 @@ export class AdminService {
 
       if (search) {
         where.OR = [
-          { id: { contains: search, mode: "insensitive" } }
+          { id: { contains: search, mode: "insensitive" } },
+          { content_json: { string_contains: search } }
         ];
       }
 

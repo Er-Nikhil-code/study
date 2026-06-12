@@ -6,13 +6,19 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import Panel from "@/components/ui/Panel";
 import { HierarchyService } from "@/services/hierarchy.service";
 import Link from "next/link";
-import { BookOpen, Edit2, X, ShoppingCart } from "lucide-react";
+import { BookOpen, Edit2, X, ShoppingCart, Plus } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { CartService } from "@/services/cart.service";
 
 export default function CoursesPage() {
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
+
+  const [creatingCourse, setCreatingCourse] = useState(false);
+  const [createForm, setCreateForm] = useState({ 
+    name: "", code: "", description: "",
+    price: "" as number | string, discount_price: "" as number | string, status: "DRAFT" as "DRAFT" | "PUBLISHED" | "HIDDEN", launch_date: ""
+  });
 
   const [editingCourse, setEditingCourse] = useState<any>(null);
   const [editForm, setEditForm] = useState({ 
@@ -51,6 +57,141 @@ export default function CoursesPage() {
           </Link>
         )}
       </div>
+
+      {creatingCourse && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <Panel className="w-full max-w-md animate-in fade-in zoom-in-95 border-red-500/30">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+              <h3 className="text-lg font-semibold text-white">Create New Course</h3>
+              <button onClick={() => setCreatingCourse(false)} className="text-zinc-400 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-zinc-500 mb-1 block">Course Name</label>
+                <input 
+                  type="text" 
+                  value={createForm.name} 
+                  onChange={e => setCreateForm({...createForm, name: e.target.value})} 
+                  className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                />
+              </div>
+              <div>
+                <label className="text-xs text-zinc-500 mb-1 block">Course Code</label>
+                <input 
+                  type="text" 
+                  required
+                  value={createForm.code} 
+                  onChange={e => setCreateForm({...createForm, code: e.target.value})} 
+                  className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                />
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs text-zinc-500 block">Description (Max 30 words)</label>
+                  <span className={`text-[10px] ${countWords(createForm.description) > 30 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(createForm.description)} / 30</span>
+                </div>
+                <textarea 
+                  required
+                  value={createForm.description} 
+                  onChange={e => setCreateForm({...createForm, description: e.target.value})} 
+                  className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50 min-h-[80px]" 
+                  placeholder="Enter course description..."
+                />
+              </div>
+
+              {user?.role === "ADMIN" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Status</label>
+                    <select 
+                      value={createForm.status} 
+                      onChange={e => setCreateForm({...createForm, status: e.target.value as any})} 
+                      className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50"
+                    >
+                      <option value="DRAFT">Draft</option>
+                      <option value="PUBLISHED">Published</option>
+                      <option value="HIDDEN">Hidden</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Launch Date</label>
+                    <input 
+                      type="date" 
+                      value={createForm.launch_date?.split('T')[0] || ""} 
+                      onChange={e => setCreateForm({...createForm, launch_date: e.target.value})} 
+                      className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Base Price (₹)</label>
+                    <input 
+                      type="number" min="0" 
+                      value={createForm.price} 
+                      onChange={e => setCreateForm({...createForm, price: e.target.value ? Number(e.target.value) : ""})} 
+                      className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Discount Price (₹)</label>
+                    <input 
+                      type="number" min="0" 
+                      value={createForm.discount_price} 
+                      onChange={e => setCreateForm({...createForm, discount_price: e.target.value ? Number(e.target.value) : ""})} 
+                      className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                    />
+                  </div>
+                </div>
+              )}
+
+              <button 
+                onClick={async () => {
+                  if (!createForm.name || !createForm.code || !createForm.description) {
+                    alert("Name, code and description are required.");
+                    return;
+                  }
+                  if (countWords(createForm.description) > 30) {
+                    alert("Course description cannot exceed 30 words.");
+                    return;
+                  }
+                  setSaving(true);
+                  try {
+                    const payload: any = { ...createForm };
+                    if (user?.role !== "ADMIN") {
+                      delete payload.price;
+                      delete payload.discount_price;
+                      delete payload.status;
+                      delete payload.launch_date;
+                    } else {
+                      payload.price = payload.price === "" ? null : Number(payload.price);
+                      payload.discount_price = payload.discount_price === "" ? null : Number(payload.discount_price);
+                      if (!payload.launch_date) {
+                        payload.launch_date = null;
+                      } else {
+                        payload.launch_date = new Date(payload.launch_date).toISOString();
+                      }
+                    }
+
+                    await HierarchyService.createCourse(payload);
+                    queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
+                    setCreatingCourse(false);
+                    setCreateForm({ name: "", code: "", description: "", price: "", discount_price: "", status: "DRAFT", launch_date: "" });
+                  } catch (e) {
+                    alert("Failed to create course");
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                disabled={saving}
+                className="w-full rounded-lg bg-red-600 py-2 text-sm font-medium text-white hover:bg-red-500 transition disabled:opacity-50 mt-4"
+              >
+                {saving ? "Creating..." : "Create Course"}
+              </button>
+            </div>
+          </Panel>
+        </div>
+      )}
 
       {editingCourse && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
@@ -199,6 +340,18 @@ export default function CoursesPage() {
         </div>
       ) : (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {(user?.role === "ADMIN" || user?.role === "TEACHER") && (
+            <Panel 
+              className="relative flex flex-col items-center justify-center p-6 border-2 border-dashed border-white/20 hover:border-red-500/50 hover:bg-red-500/5 transition-all cursor-pointer min-h-[250px] group"
+              onClick={() => setCreatingCourse(true)}
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 text-zinc-400 group-hover:scale-110 group-hover:text-red-400 group-hover:bg-red-500/10 transition-all mb-4">
+                <Plus size={32} />
+              </div>
+              <h3 className="text-lg font-bold text-white group-hover:text-red-400 transition-colors">Create Course</h3>
+              <p className="text-sm text-zinc-500 text-center mt-2 group-hover:text-zinc-400">Add a new course to your curriculum.</p>
+            </Panel>
+          )}
           {courses.map((course: any) => {
             const isCreatorOrAdmin = user?.role === "ADMIN" || user?.id === course.created_by;
             const canSeeCodeAndId = user?.role === "ADMIN" || user?.role === "TEACHER";

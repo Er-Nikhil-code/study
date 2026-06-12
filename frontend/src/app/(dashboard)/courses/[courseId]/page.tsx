@@ -5,8 +5,10 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import Panel from "@/components/ui/Panel";
 import { HierarchyService } from "@/services/hierarchy.service";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield } from "lucide-react";
 import CourseLeaderboard from "@/components/ui/CourseLeaderboard";
+import { api } from "@/lib/api";
+import { adminService } from "@/services/admin.service";
 import { useAuthStore } from "@/store/auth.store";
 import { useQueryClient } from "@tanstack/react-query";
 import { CartService } from "@/services/cart.service";
@@ -23,6 +25,20 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  const isCreatorOrAdmin = user?.role === "ADMIN" || (course && user?.id === course.created_by);
+
+  const { data: knights } = useQuery({
+    queryKey: ["knights"],
+    queryFn: () => adminService.getUsers({ role: "TEACHER", limit: 100 }),
+    enabled: !!isCreatorOrAdmin,
+  });
+
+  const { data: interns } = useQuery({
+    queryKey: ["interns"],
+    queryFn: () => adminService.getUsers({ role: "INTERN", limit: 100 }),
+    enabled: !!isCreatorOrAdmin,
+  });
+
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
 
@@ -155,6 +171,47 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
     await HierarchyService.updateTopic(topicId, editTopicForm);
     setEditingTopic(null);
     fetchCourse();
+  };
+
+  // --- Delete Handlers ---
+  const handleDeleteSection = async (e: React.MouseEvent, sectionId: string) => {
+    e.stopPropagation();
+    if (confirm("Delete this section and all its contents?")) {
+      await HierarchyService.deleteSection(sectionId);
+      fetchCourse();
+    }
+  };
+
+  const handleDeleteChapter = async (e: React.MouseEvent, chapterId: string) => {
+    e.stopPropagation();
+    if (confirm("Delete this chapter and all its topics?")) {
+      await HierarchyService.deleteChapter(chapterId);
+      fetchCourse();
+    }
+  };
+
+  const handleDeleteTopic = async (e: React.MouseEvent, topicId: string) => {
+    e.stopPropagation();
+    if (confirm("Delete this topic?")) {
+      await HierarchyService.deleteTopic(topicId);
+      fetchCourse();
+    }
+  };
+
+  const handleDeleteTest = async (e: React.MouseEvent, testId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirm("Delete this test?")) {
+      await api.delete(`/tests/${testId}`);
+      fetchCourse();
+    }
+  };
+
+  const handleDeleteCourse = async () => {
+    if (confirm("Delete this course entirely?")) {
+      await HierarchyService.deleteCourse(course.id);
+      router.push("/courses");
+    }
   };
 
   // --- Drag and Drop Handlers ---
@@ -309,7 +366,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             </div>
           </div>
 
-          <div className="space-y-8 max-w-5xl">
+          <div className="flex flex-col lg:flex-row gap-8 w-full">
+            <div className="flex-1 space-y-8 max-w-4xl">
             {addingSection && (
               <Panel className="border border-red-500/30 bg-black/50">
                 <form onSubmit={handleCreateSection} className="flex flex-col gap-4">
@@ -380,12 +438,20 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
                         {section.name}
                         {isCreatorOrAdmin && (
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setEditingSection(section.id); setEditSectionForm({ name: section.name, description: section.description || "" }); }}
-                            className="p-1.5 rounded-full hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
-                          >
-                            <Edit2 size={14} />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); setEditingSection(section.id); setEditSectionForm({ name: section.name, description: section.description || "" }); }}
+                              className="p-1.5 rounded-full hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button 
+                              onClick={(e) => handleDeleteSection(e, section.id)}
+                              className="p-1.5 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-400 transition-colors"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         )}
                       </h3>
                     )}
@@ -468,12 +534,20 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                     <span className="text-zinc-500 text-sm font-normal">Ch {idx + 1}.</span> 
                                     {chapter.name}
                                     {isCreatorOrAdmin && (
-                                      <button 
-                                        onClick={(e) => { e.stopPropagation(); setEditingChapter(chapter.id); setEditChapterForm({ name: chapter.name, description: chapter.description || "" }); }}
-                                        className="p-1 rounded-full hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
-                                      >
-                                        <Edit2 size={12} />
-                                      </button>
+                                      <div className="flex items-center gap-1">
+                                        <button 
+                                          onClick={(e) => { e.stopPropagation(); setEditingChapter(chapter.id); setEditChapterForm({ name: chapter.name, description: chapter.description || "" }); }}
+                                          className="p-1 rounded hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
+                                        >
+                                          <Edit2 size={12} />
+                                        </button>
+                                        <button 
+                                          onClick={(e) => handleDeleteChapter(e, chapter.id)}
+                                          className="p-1 rounded hover:bg-red-500/20 text-zinc-500 hover:text-red-400 transition-colors"
+                                        >
+                                          <Trash2 size={12} />
+                                        </button>
+                                      </div>
                                     )}
                                   </h4>
                                 )}
@@ -557,13 +631,22 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                           onDragEnd={() => { setDraggedItem(null); setDragOverIndex(null); setDragOverParentId(null); }}
                                         >
                                         {isCreatorOrAdmin && editingTopic !== topic.id && (
-                                          <button 
-                                            onClick={(e) => { e.preventDefault(); setEditingTopic(topic.id); setEditTopicForm({ name: topic.name, description: topic.description || "" }); }}
-                                            className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-zinc-400 hover:text-white hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-all z-10"
-                                            title="Edit Topic"
-                                          >
-                                            <Edit2 size={12} />
-                                          </button>
+                                          <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
+                                            <button 
+                                              onClick={() => { setEditingTopic(topic.id); setEditTopicForm({ name: topic.name, description: topic.description || "" }); }}
+                                              className="p-1.5 rounded-full bg-black/50 text-zinc-400 hover:text-white hover:bg-white/10"
+                                              title="Edit Topic"
+                                            >
+                                              <Edit2 size={12} />
+                                            </button>
+                                            <button 
+                                              onClick={(e) => handleDeleteTopic(e, topic.id)}
+                                              className="p-1.5 rounded-full bg-black/50 text-zinc-400 hover:text-red-400 hover:bg-red-500/20"
+                                              title="Delete Topic"
+                                            >
+                                              <Trash2 size={12} />
+                                            </button>
+                                          </div>
                                         )}
 
                                         {editingTopic === topic.id ? (
@@ -627,9 +710,16 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                             ) : (
                                               <>
                                                 {topic.test_id ? (
-                                                  <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-medium text-white shadow-lg shadow-red-500/20 transition-all">
-                                                    <CheckCircle size={14} /> Take Test
-                                                  </Link>
+                                                  <div className="flex-1 flex gap-1 items-center">
+                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-medium text-white shadow-lg shadow-red-500/20 transition-all">
+                                                      <CheckCircle size={14} /> Take Test
+                                                    </Link>
+                                                    {isCreatorOrAdmin && (
+                                                      <button onClick={(e) => handleDeleteTest(e, topic.test_id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 transition-colors">
+                                                        <Trash2 size={14} />
+                                                      </button>
+                                                    )}
+                                                  </div>
                                                 ) : isCreatorOrAdmin ? (
                                                   <Link href={`/teacher/tests/create?topic_id=${topic.id}&topic_name=${encodeURIComponent(topic.name)}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-medium text-white shadow-lg shadow-emerald-500/20 transition-all">
                                                     <Plus size={14} /> Create Test
@@ -674,6 +764,112 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               </Panel>
             )}
           </div>
+
+          <div className="w-full lg:w-80 shrink-0 space-y-6">
+            {isCreatorOrAdmin && (
+              <Panel className="bg-zinc-900/50 border-white/10">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <Users size={18} className="text-red-400" /> Course Knights
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-2">
+                    <select
+                      className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-red-500/50 outline-none"
+                      onChange={async (e) => {
+                        const val = e.target.value;
+                        if (!val) return;
+                        try {
+                          await HierarchyService.assignCourseStaff(course.id, val);
+                          fetchCourse();
+                          e.target.value = "";
+                        } catch (error: any) {
+                          alert(error.response?.data?.message || "Failed to assign Knight");
+                        }
+                      }}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>Assign a Knight...</option>
+                      {knights?.data?.map((k: any) => (
+                        <option key={k.id} value={k.id} disabled={course.staff?.some((s: any) => s.user_id === k.id)}>
+                          {k.name} ({k.email})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {course.staff?.length > 0 ? (
+                    <ul className="space-y-2">
+                      {course.staff.map((s: any) => (
+                        <li key={s.id} className="flex items-center justify-between bg-black/40 border border-white/5 rounded-lg px-3 py-2">
+                          <div>
+                            <p className="text-sm text-white font-medium">{s.user.name}</p>
+                            <p className="text-[10px] text-zinc-500">{s.user.email}</p>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              await HierarchyService.removeCourseStaff(course.id, s.user_id);
+                              fetchCourse();
+                            }}
+                            className="text-zinc-500 hover:text-red-400 p-1"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-zinc-500 text-center py-2">No Knights assigned.</p>
+                  )}
+                </div>
+              </Panel>
+            )}
+
+            {isCreatorOrAdmin && (
+              <Panel className="bg-zinc-900/50 border-white/10">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <Shield size={18} className="text-emerald-400" /> Section Managers
+                </h3>
+                <p className="text-xs text-zinc-400 mb-4">Assign Pawns (Interns) to manage specific sections.</p>
+                <div className="space-y-4">
+                  {course.sections?.map((section: any) => (
+                    <div key={section.id} className="flex flex-col gap-1.5 bg-black/40 border border-white/5 rounded-lg p-3">
+                      <p className="text-sm text-white font-medium truncate">{section.name}</p>
+                      <select
+                        className="w-full bg-black border border-white/10 rounded text-xs text-zinc-300 py-1.5 px-2 outline-none focus:border-emerald-500/50"
+                        value={section.managed_by || ""}
+                        onChange={async (e) => {
+                          const val = e.target.value;
+                          await HierarchyService.assignSectionManager(section.id, val || null);
+                          fetchCourse();
+                        }}
+                      >
+                        <option value="">No Manager</option>
+                        {interns?.data?.map((i: any) => (
+                          <option key={i.id} value={i.id}>{i.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                  {course.sections?.length === 0 && (
+                    <p className="text-xs text-zinc-500 text-center py-2">Create sections to assign managers.</p>
+                  )}
+                </div>
+              </Panel>
+            )}
+
+            {isCreatorOrAdmin && (
+              <Panel className="bg-red-500/5 border-red-500/20">
+                <h3 className="text-lg font-bold text-red-400 mb-2">Danger Zone</h3>
+                <p className="text-xs text-red-400/70 mb-4">Deleting the course will permanently remove all its contents, sections, chapters, topics, and tests.</p>
+                <button
+                  onClick={handleDeleteCourse}
+                  className="w-full rounded-lg bg-red-600/20 border border-red-500/30 px-4 py-2.5 text-sm font-medium text-red-400 hover:bg-red-600 hover:text-white transition-all active:scale-[0.98]"
+                >
+                  Delete Course
+                </button>
+              </Panel>
+            )}
+          </div>
+        </div>
 
           {(user?.role === "ADMIN" || user?.role === "STUDENT") && (
             <div className="mt-12 max-w-5xl relative">

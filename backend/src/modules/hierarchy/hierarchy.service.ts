@@ -31,8 +31,58 @@ export class HierarchyService {
     await this.checkCoursePermission(id, userId, role);
     return this.prisma.course.update({ where: { id }, data });
   }
+  private async preserveQuestions(params: { courseId?: string, sectionId?: string, chapterId?: string, topicId?: string }) {
+    // Find all topics affected
+    let topics = [];
+    if (params.topicId) {
+      topics = [{ id: params.topicId }];
+    } else if (params.chapterId) {
+      topics = await this.prisma.topic.findMany({ where: { chapter_id: params.chapterId }, select: { id: true } });
+    } else if (params.sectionId) {
+      topics = await this.prisma.topic.findMany({ where: { chapter: { section_id: params.sectionId } }, select: { id: true } });
+    } else if (params.courseId) {
+      topics = await this.prisma.topic.findMany({ where: { chapter: { section: { course_id: params.courseId } } }, select: { id: true } });
+    }
+    const topicIds = topics.map(t => t.id);
+    if (topicIds.length === 0) return;
+
+    // Check if there are any questions to preserve
+    const qCount = await this.prisma.question.count({ where: { topic_id: { in: topicIds } } });
+    if (qCount === 0) return;
+
+    // Get or create Orphaned topic
+    let orphanCourse = await this.prisma.course.findFirst({ where: { name: "Orphaned Questions (System)" } });
+    if (!orphanCourse) {
+      orphanCourse = await this.prisma.course.create({
+        data: { name: "Orphaned Questions (System)", code: "ORPHAN", description: "System course for orphaned questions", status: "HIDDEN" }
+      });
+    }
+    let orphanSection = await this.prisma.section.findFirst({ where: { course_id: orphanCourse.id } });
+    if (!orphanSection) {
+      orphanSection = await this.prisma.section.create({ data: { course_id: orphanCourse.id, name: "Orphaned Section", description: "", order: 1 } });
+    }
+    let orphanChapter = await this.prisma.chapter.findFirst({ where: { section_id: orphanSection.id } });
+    if (!orphanChapter) {
+      orphanChapter = await this.prisma.chapter.create({ data: { section_id: orphanSection.id, name: "Orphaned Chapter", description: "", order: 1 } });
+    }
+    let orphanTopic = await this.prisma.topic.findFirst({ where: { chapter_id: orphanChapter.id } });
+    if (!orphanTopic) {
+      orphanTopic = await this.prisma.topic.create({ data: { chapter_id: orphanChapter.id, name: "Orphaned Topic", description: "", order: 1 } });
+    }
+
+    // Move all questions from the deleted topics to the orphan topic, EXCEPT if the topic being deleted IS the orphan topic
+    const idsToMove = topicIds.filter(id => id !== orphanTopic.id);
+    if (idsToMove.length > 0) {
+      await this.prisma.question.updateMany({
+        where: { topic_id: { in: idsToMove } },
+        data: { topic_id: orphanTopic.id }
+      });
+    }
+  }
+
   async deleteCourse(id: string, userId: string, role: string) {
     await this.checkCoursePermission(id, userId, role);
+    await this.preserveQuestions({ courseId: id });
     return this.prisma.course.delete({ where: { id } });
   }
   getCourses() {
@@ -53,6 +103,7 @@ export class HierarchyService {
   }
   async deleteSection(id: string, userId: string, role: string) {
     await this.checkSectionPermission(id, userId, role);
+    await this.preserveQuestions({ sectionId: id });
     return this.prisma.section.delete({ where: { id } });
   }
 
@@ -74,6 +125,7 @@ export class HierarchyService {
     const chapter = await this.prisma.chapter.findUnique({ where: { id } });
     if (!chapter) throw new NotFoundException();
     await this.checkSectionPermission(chapter.section_id, userId, role);
+    await this.preserveQuestions({ chapterId: id });
     return this.prisma.chapter.delete({ where: { id } });
   }
 
@@ -96,6 +148,7 @@ export class HierarchyService {
     const topic = await this.prisma.topic.findUnique({ where: { id }, include: { chapter: true } });
     if (!topic) throw new NotFoundException();
     await this.checkSectionPermission(topic.chapter.section_id, userId, role);
+    await this.preserveQuestions({ topicId: id });
     return this.prisma.topic.delete({ where: { id } });
   }
 
