@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request } from "@nestjs/common";
+import { Controller, Get, Post, Body, UseGuards, Request } from "@nestjs/common";
 import { PaymentService } from "./payment.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 
@@ -6,6 +6,11 @@ import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 @UseGuards(JwtAuthGuard)
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
+
+  @Get("key")
+  getKey() {
+    return { key: process.env.RAZORPAY_KEY_ID || "test" };
+  }
 
   @Post("create-order")
   createOrder(@Request() req: any) {

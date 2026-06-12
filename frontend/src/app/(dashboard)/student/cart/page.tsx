@@ -53,8 +53,9 @@ export default function CartPage() {
         return;
       }
 
+      const keyData = await PaymentService.getKey();
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "test",
+        key: keyData.key,
         amount: orderData.amount,
         currency: orderData.currency,
         name: "Antigravity Chess",

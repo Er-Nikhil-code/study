@@ -6,5 +6,8 @@ export const PaymentService = {
   },
   verifyPayment(data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) {
     return api.post("/payment/verify", data).then((r) => r.data);
+  },
+  getKey() {
+    return api.get("/payment/key").then((r) => r.data);
   }
 };
