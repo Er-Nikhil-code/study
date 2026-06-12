@@ -296,7 +296,7 @@ export default function AdminQuestionsPage() {
       {/* Questions list */}
       <Panel className="mt-4 p-0 overflow-x-auto">
         <div className="min-w-[800px]">
-          <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
             <div>ID</div>
             <div>Title</div>
             <div>Type</div>
@@ -336,7 +336,7 @@ export default function AdminQuestionsPage() {
 
                 return (
                   <div key={q.id}>
-                    <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center">
+                    <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-center">
                       <div className="font-mono text-[10px] text-zinc-500 truncate" title={q.id}>
                         {q.id}
                       </div>
@@ -345,7 +345,7 @@ export default function AdminQuestionsPage() {
                         onClick={() =>
                           setExpandedId(expandedId === q.id ? null : q.id)
                         }
-                        className="truncate text-white text-left hover:text-red-300 transition cursor-pointer"
+                        className="truncate text-white hover:text-red-300 transition cursor-pointer mx-auto"
                       >
                         <div 
                           className="text-sm font-medium text-white truncate max-w-[200px]"
@@ -383,7 +383,7 @@ export default function AdminQuestionsPage() {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1">
+                      <div className="flex justify-center items-center gap-1">
                         {deletingId === q.id ? (
                           <>
                             <button

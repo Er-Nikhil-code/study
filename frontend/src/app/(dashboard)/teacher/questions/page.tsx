@@ -260,7 +260,7 @@ export default function TeacherQuestionsPage() {
 
       <Panel className="mt-4 p-0 overflow-x-auto">
         <div className="min-w-[900px]">
-          <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
             <div>ID</div>
             <div>Title</div>
             <div>Type</div>
@@ -300,7 +300,7 @@ export default function TeacherQuestionsPage() {
 
                 return (
                   <div key={q.id}>
-                    <div className={`grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center ${q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION" ? "bg-white/[0.02]" : ""}`}>
+                    <div className={`grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-center ${q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION" ? "bg-white/[0.02]" : ""}`}>
                       <div className="font-mono text-[10px] text-zinc-500 truncate" title={q.id}>
                         {q.id}
                       </div>
@@ -309,7 +309,7 @@ export default function TeacherQuestionsPage() {
                         onClick={() =>
                           setExpandedId(expandedId === q.id ? null : q.id)
                         }
-                        className="truncate text-white text-left hover:text-red-300 transition cursor-pointer"
+                        className="truncate text-white hover:text-red-300 transition cursor-pointer mx-auto"
                       >
                         <div 
                           className="text-sm font-medium text-white truncate max-w-[200px]"
@@ -350,7 +350,7 @@ export default function TeacherQuestionsPage() {
                         )}
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-1">
+                      <div className="flex justify-center flex-wrap items-center gap-1">
                         {canSeeActions(q) && (
                           <>
                             {canEdit(q) && (

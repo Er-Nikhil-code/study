@@ -45,7 +45,7 @@ export class PaymentService {
     const razorpayOrder = await this.razorpay.orders.create({
       amount: Math.round(totalAmount * 100), // in paise
       currency: "INR",
-      receipt: `receipt_${Date.now()}_${userId}`,
+      receipt: `rcpt_${userId.slice(-10)}_${Date.now().toString().slice(-6)}`,
     });
 
     const order = await this.prisma.order.create({
