@@ -643,9 +643,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                             )}
                                           </div>
                                         )}
-                                        )}
                                       </div>
-                                    )})}
+                                    );
+                                  })}
                                   </div>
                                 )}
                               </div>
@@ -674,7 +674,6 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               </Panel>
             )}
           </div>
-          )}
 
           {(user?.role === "ADMIN" || user?.role === "STUDENT") && (
             <div className="mt-12 max-w-5xl relative">
