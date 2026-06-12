@@ -74,6 +74,7 @@ export default function AdminUserProfilePage() {
   const handleSave = () => {
     const payload = { ...editForm };
     if (payload.course_enrolled === "") payload.course_enrolled = null;
+    if (payload.custom_role_id === "") payload.custom_role_id = null;
     updateMutation.mutate(payload);
   };
 

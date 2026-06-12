@@ -9,15 +9,19 @@ import { getChessRoleName } from "@/lib/role";
 
 const SYSTEM_ROLES = ["STUDENT", "INTERN", "TEACHER", "ADMIN"];
 
-const ALL_PERMISSIONS = [
-  "take_test", "view_results", "submit_challenge",
-  "create_question", "edit_question", "edit_own_question", "delete_question",
-  "approve_question",
-  "create_test", "edit_test", "publish_test", "review_challenge",
-  "manage_users", "manage_roles", "manage_questions", "manage_tests",
-  "approve_teachers", "manage_challenges", "view_audit_logs",
-  "system_health", "manage_hierarchy", "CREATE_NOTES",
-];
+// Grouped for better UI
+const PERMISSION_GROUPS = {
+  "AI Features": ["use_ai_generator", "chat_with_ai"],
+  "Content & Hierarchy": ["manage_hierarchy", "create_notes", "review_notes"],
+  "Questions": ["create_question", "edit_question", "edit_own_question", "delete_question", "approve_question", "manage_questions"],
+  "Tests": ["create_test", "edit_test", "publish_test", "manage_tests"],
+  "Challenges": ["submit_challenge", "review_challenge", "manage_challenges"],
+  "User Management": ["manage_users", "manage_roles", "approve_teachers"],
+  "System": ["view_audit_logs", "system_health"],
+  "Student Specific": ["take_test", "view_results"]
+};
+
+const ALL_PERMISSIONS = Object.values(PERMISSION_GROUPS).flat();
 
 type RoleNode = AdminRole & {
   designation?: string | null;
@@ -400,12 +404,17 @@ export default function AdminRolesPage() {
 
               <div>
                 <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">Permissions</label>
-                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.02] p-3">
-                  {ALL_PERMISSIONS.map((perm) => (
-                    <label key={perm} className="flex items-center gap-2 cursor-pointer rounded-lg px-2 py-1.5 hover:bg-white/[0.04] transition">
-                      <input type="checkbox" checked={formPerms.includes(perm)} onChange={() => togglePerm(perm)} className="accent-red-500" />
-                      <span className="text-xs text-zinc-300">{perm}</span>
-                    </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-64 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                  {Object.entries(PERMISSION_GROUPS).map(([groupName, perms]) => (
+                    <div key={groupName} className="space-y-2">
+                      <div className="text-xs font-bold text-red-400 mb-1 border-b border-white/10 pb-1">{groupName}</div>
+                      {perms.map((perm) => (
+                        <label key={perm} className="flex items-center gap-2 cursor-pointer rounded-lg px-2 py-1.5 hover:bg-white/[0.04] transition">
+                          <input type="checkbox" checked={formPerms.includes(perm)} onChange={() => togglePerm(perm)} className="accent-red-500" />
+                          <span className="text-xs text-zinc-300">{perm.replace(/_/g, " ")}</span>
+                        </label>
+                      ))}
+                    </div>
                   ))}
                 </div>
               </div>

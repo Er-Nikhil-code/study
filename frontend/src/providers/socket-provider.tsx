@@ -18,7 +18,7 @@ export default function SocketProvider({ children }: Props) {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
 
     if (!token) return;
 
