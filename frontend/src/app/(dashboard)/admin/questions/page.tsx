@@ -337,7 +337,7 @@ export default function AdminQuestionsPage() {
                 return (
                   <div key={q.id}>
                     <div className="grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-center">
-                      <div className="font-mono text-[10px] text-zinc-500 truncate" title={q.id}>
+                      <div className="font-mono text-[10px] text-zinc-500 truncate min-w-0" title={q.id}>
                         {q.id}
                       </div>
 
@@ -345,25 +345,23 @@ export default function AdminQuestionsPage() {
                         onClick={() =>
                           setExpandedId(expandedId === q.id ? null : q.id)
                         }
-                        className="text-white hover:text-red-300 transition cursor-pointer text-center"
+                        className="text-white hover:text-red-300 transition cursor-pointer text-center min-w-0"
                       >
                         <div 
-                          className="text-sm font-medium text-white line-clamp-2 w-full"
+                          className="text-sm font-medium text-white line-clamp-2 w-full text-left sm:text-center"
                           title={q.content_json?.[0]?.content?.substring(0, 100) || "Question Content"}
                         >
                           {q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}
                         </div>
                       </button>
 
-                      <div className="text-xs text-zinc-400">
+                      <div className="text-xs text-zinc-400 min-w-0">
                         {typeLabel(q.question_type)}
                       </div>
 
-                      <div>{difficultyBadge(q.difficulty)}</div>
+                      <div className="min-w-0">{difficultyBadge(q.difficulty)}</div>
 
-
-
-                      <div className="truncate text-[10px] text-zinc-500 leading-tight">
+                      <div className="truncate text-[10px] text-zinc-500 leading-tight min-w-0">
                         {q.topic?.chapter?.section?.name && (
                           <span className="text-zinc-400">{q.topic.chapter.section.name} &gt; </span>
                         )}
@@ -373,15 +371,15 @@ export default function AdminQuestionsPage() {
                         <span className="text-zinc-300 font-medium">{q.topic?.name || "—"}</span>
                       </div>
 
-                      <div className="text-xs text-zinc-400 flex justify-center items-center text-center">
+                      <div className="text-xs text-zinc-400 flex justify-center items-center text-center min-w-0 w-full">
                         {q.creator || q.created_by ? (
                           <UserHoverCard userId={q.created_by}>
-                            <span className="block truncate max-w-[120px] text-center">
-                              {q.creator ? (q.creator.first_name || "King") : q.created_by}
+                            <span className="block truncate max-w-[120px] text-center mx-auto">
+                              {q.creator ? ((q.creator.first_name?.split(' ')[0]) || "King") : q.created_by}
                             </span>
                           </UserHoverCard>
                         ) : (
-                          <span className="block truncate max-w-[120px] text-center">King</span>
+                          <span className="block truncate max-w-[120px] text-center mx-auto">King</span>
                         )}
                       </div>
 
