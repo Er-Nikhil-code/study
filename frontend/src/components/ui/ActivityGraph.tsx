@@ -156,15 +156,21 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
   };
 
   const getTooltip = (day: any) => {
-    const prefix = userName ? `${userName}: ` : "";
+    // Format date nicely (e.g. Apr 21, 2026)
+    const d = new Date(day.date);
+    const formattedDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
     if (theme === 'mixed') {
       const parts = [];
       if (day.blueCount > 0) parts.push(`${day.blueCount} tests`);
       if (day.emeraldCount > 0) parts.push(`${day.emeraldCount} questions`);
-      if (parts.length === 0) return `${prefix}0 activities on ${day.date}`;
-      return `${prefix}${parts.join(' and ')} on ${day.date}`;
+      if (parts.length === 0) return `No activity on ${formattedDate}`;
+      return `${parts.join(' and ')} on ${formattedDate}`;
     }
-    return `${prefix}${day.count} activities on ${day.date}`;
+    
+    if (day.count === 0) return `No activity on ${formattedDate}`;
+    const activityText = day.count === 1 ? 'activity' : 'activities';
+    return `${day.count} ${activityText} on ${formattedDate}`;
   };
 
   return (
@@ -201,9 +207,9 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
                           key={day.date}
                           onMouseEnter={(e) => handleMouseEnter(e, day)}
                           onMouseLeave={handleMouseLeave}
-                          className={`group w-4 h-4 rounded-sm transition-all hover:scale-125 hover:ring-1 hover:ring-white/50 cursor-pointer flex items-center justify-center ${getColor(day)}`}
+                          className={`group w-4 h-4 rounded-sm transition-all hover:ring-2 hover:ring-zinc-400 hover:z-10 relative cursor-pointer flex items-center justify-center ${getColor(day)}`}
                         >
-                          <span className="text-[8px] font-medium opacity-60 group-hover:opacity-100 mix-blend-plus-lighter">{dayNum}</span>
+                          <span className="text-[8px] font-medium opacity-0 group-hover:opacity-100 text-white drop-shadow-md">{dayNum}</span>
                         </div>
                       );
                     })}
@@ -247,17 +253,17 @@ export default function ActivityGraph({ data = [], mixedData = [], theme = 'emer
         )}
       </div>
 
-      {/* Floating Tooltip */}
       {hoveredDay && (
         <div 
-          className="fixed z-50 pointer-events-none px-3 py-2 text-xs font-medium text-white bg-zinc-800 border border-white/10 rounded shadow-xl whitespace-nowrap"
+          className="fixed z-50 pointer-events-none px-3 py-2 text-xs font-medium text-zinc-200 bg-zinc-900 border border-white/10 rounded-md shadow-2xl whitespace-nowrap"
           style={{ 
             left: `${tooltipPos.x}px`, 
             top: `${tooltipPos.y}px`,
-            transform: 'translate(-50%, -100%)'
+            transform: 'translate(-50%, -120%)'
           }}
         >
           {getTooltip(hoveredDay)}
+          <div className="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-zinc-900 border-r border-b border-white/10 rotate-45" />
         </div>
       )}
     </div>
