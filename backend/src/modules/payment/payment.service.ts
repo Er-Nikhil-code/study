@@ -35,6 +35,10 @@ export class PaymentService {
     });
 
     if (totalAmount === 0) {
+      for (const item of cart.items) {
+        await this.hierarchyService.enrollCourse(item.course_id, userId);
+      }
+      await this.prisma.cart.delete({ where: { user_id: userId } });
       return { free: true, orderId: null, amount: 0 };
     }
 

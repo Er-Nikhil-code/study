@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -155,6 +156,14 @@ export class TestsController {
   @HttpCode(HttpStatus.OK)
   async publishTest(@Param("id") id: string, @Request() req: any) {
     return this.testsService.publishTest(id, req.user.sub);
+  }
+
+  @Delete(":id")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteTest(@Param("id") id: string, @Request() req: any) {
+    await this.testsService.deleteTest(id, req.user.sub, req.user.role);
   }
 
   @Post(":id/questions")

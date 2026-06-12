@@ -53,14 +53,25 @@ export class ChallengesService {
       itemTitle = note.title;
     }
 
-    // Create the challenge — auto-assign to creator
+    // Find creator to determine assignment
+    const creatorUser = await this.prisma.user.findUnique({
+      where: { id: creatorId },
+      select: { role: true, assigned_teacher_id: true }
+    });
+
+    // Route to Teacher if created by Intern
+    const assignedToId = creatorUser?.role === "INTERN" && creatorUser.assigned_teacher_id
+      ? creatorUser.assigned_teacher_id
+      : creatorId;
+
+    // Create the challenge — auto-assign
     const challenge = await this.prisma.challenge.create({
       data: {
         response_id: data.response_id,
         question_id: data.question_id,
         note_id: data.note_id,
         submitted_by: userId,
-        assigned_to: creatorId,
+        assigned_to: assignedToId,
         status: "PENDING",
         reason: data.reason as any,
         description: data.description,
@@ -68,10 +79,10 @@ export class ChallengesService {
       },
     });
 
-    // Create notification for the teacher
+    // Create notification for the assignee
     await this.prisma.notificationEvent.create({
       data: {
-        user_id: creatorId,
+        user_id: assignedToId,
         type: "CUSTOM",
         title: `New ${data.note_id ? "Note" : "Question"} Challenge`,
         message: `A student has challenged your ${data.note_id ? "note" : "question"}: "${itemTitle}" — Reason: ${data.reason}`,
@@ -85,7 +96,7 @@ export class ChallengesService {
     });
 
     this.logger.log(
-      `✅ Challenge submitted: ${challenge.id} for ${data.note_id ? "Note" : "Q"}:${data.note_id || data.question_id} → Teacher:${creatorId}`,
+      `✅ Challenge submitted: ${challenge.id} for ${data.note_id ? "Note" : "Q"}:${data.note_id || data.question_id} → Assignee:${assignedToId}`,
     );
 
     return challenge;
@@ -419,5 +430,22 @@ export class ChallengesService {
         }
       },
     });
+  }
+
+  /* ════════════════════════════════════════════
+   *  ADMIN: Delete Challenge
+   * ════════════════════════════════════════════ */
+
+  async deleteChallenge(challengeId: string, role: string) {
+    if (role !== "ADMIN") {
+      throw new ForbiddenException("Only Admins can delete challenges");
+    }
+    
+    const challenge = await this.prisma.challenge.findUnique({
+      where: { id: challengeId },
+    });
+    if (!challenge) throw new NotFoundException("Challenge not found");
+
+    return this.prisma.challenge.delete({ where: { id: challengeId } });
   }
 }

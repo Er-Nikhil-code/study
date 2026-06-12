@@ -57,6 +57,12 @@ export class HierarchyController {
     return this.hierarchyService.updateSection(id, req.user.sub, req.user.role, data);
   }
 
+  @Delete("sections/:id")
+  @Roles("TEACHER", "ADMIN")
+  deleteSection(@Param("id") id: string, @Request() req: any) {
+    return this.hierarchyService.deleteSection(id, req.user.sub, req.user.role);
+  }
+
   @Post("chapters")
   @Roles("TEACHER", "ADMIN")
   createChapter(@Request() req: any, @Body() data: { section_id: string; name: string; description: string; order: number }) {
@@ -69,6 +75,12 @@ export class HierarchyController {
     return this.hierarchyService.updateChapter(id, req.user.sub, req.user.role, data);
   }
 
+  @Delete("chapters/:id")
+  @Roles("TEACHER", "ADMIN")
+  deleteChapter(@Param("id") id: string, @Request() req: any) {
+    return this.hierarchyService.deleteChapter(id, req.user.sub, req.user.role);
+  }
+
   @Post("topics")
   @Roles("TEACHER", "ADMIN")
   createTopic(@Request() req: any, @Body() data: { chapter_id: string; name: string; description: string; order: number }) {
@@ -79,5 +91,11 @@ export class HierarchyController {
   @Roles("TEACHER", "ADMIN")
   updateTopic(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; description?: string; order?: number }) {
     return this.hierarchyService.updateTopic(id, req.user.sub, req.user.role, data);
+  }
+
+  @Delete("topics/:id")
+  @Roles("TEACHER", "ADMIN")
+  deleteTopic(@Param("id") id: string, @Request() req: any) {
+    return this.hierarchyService.deleteTopic(id, req.user.sub, req.user.role);
   }
 }

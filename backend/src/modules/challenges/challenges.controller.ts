@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Param,
   Body,
   Query,
@@ -87,5 +88,14 @@ export class ChallengesController {
     },
   ) {
     return this.challengesService.resolveChallenge(id, req.user.sub, body);
+  }
+
+  /* ── Admin: delete challenge ── */
+  @Delete(":id")
+  @UseGuards(RolesGuard)
+  @Roles("ADMIN")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteChallenge(@Param("id") id: string, @Request() req: any) {
+    await this.challengesService.deleteChallenge(id, req.user.role);
   }
 }

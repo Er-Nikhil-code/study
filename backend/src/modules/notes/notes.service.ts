@@ -23,7 +23,7 @@ export class NotesService {
     const note = await this.prisma.note.findUnique({ where: { id: noteId } });
     if (!note) throw new NotFoundException("Note not found");
 
-    if (role === "TEACHER" && note.created_by !== userId) {
+    if ((role === "TEACHER" || role === "INTERN") && note.created_by !== userId) {
       throw new BadRequestException("You can only edit notes that you have created");
     }
 
@@ -32,6 +32,7 @@ export class NotesService {
       data: {
         ...(data.title && { title: data.title }),
         ...(data.content_html && { content_html: data.content_html }),
+        ...(role === "INTERN" && { approval_status: "PENDING_REVIEW" }), // Auto-reset status for interns
       }
     });
   }
@@ -138,5 +139,16 @@ export class NotesService {
     ]);
 
     return { data: notes, total, skip, take };
+  }
+
+  async deleteNote(noteId: string, userId: string, role: string) {
+    const note = await this.prisma.note.findUnique({ where: { id: noteId } });
+    if (!note) throw new NotFoundException("Note not found");
+
+    if (role !== "ADMIN" && note.created_by !== userId) {
+      throw new BadRequestException("You can only delete your own notes");
+    }
+
+    return this.prisma.note.delete({ where: { id: noteId } });
   }
 }

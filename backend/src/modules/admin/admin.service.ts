@@ -115,7 +115,7 @@ export class AdminService {
    */
   async updateUser(
     id: string,
-    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean; custom_role_id?: string | null },
+    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean; custom_role_id?: string | null; course_enrolled?: string | null },
   ) {
     try {
       const user = await this.prisma.user.findUnique({ where: { id } });
@@ -127,9 +127,12 @@ export class AdminService {
       if (data.role) updateData.role = data.role;
       if (data.first_name !== undefined) updateData.first_name = data.first_name;
       if (data.last_name !== undefined) updateData.last_name = data.last_name;
-      if (data.assigned_teacher_id !== undefined) updateData.assigned_teacher_id = data.assigned_teacher_id;
+      if (data.assigned_teacher_id !== undefined) updateData.assigned_teacher_id = data.assigned_teacher_id || null;
       if (data.is_active !== undefined) updateData.is_active = data.is_active;
-      if (data.custom_role_id !== undefined) updateData.custom_role_id = data.custom_role_id;
+      if (data.custom_role_id !== undefined) updateData.custom_role_id = data.custom_role_id || null;
+      if (data.course_enrolled !== undefined) {
+        updateData.course_enrolled = data.course_enrolled || null;
+      }
 
       const updated = await this.prisma.user.update({
         where: { id },
@@ -141,9 +144,28 @@ export class AdminService {
           last_name: true,
           role: true,
           assigned_teacher_id: true,
+          course_enrolled: true,
           created_at: true,
         },
       });
+
+      // Sync CourseEnrollment table if course_enrolled was updated
+      if (data.course_enrolled !== undefined) {
+        if (data.course_enrolled) {
+          // Add or ensure enrollment exists
+          await this.prisma.courseEnrollment.upsert({
+            where: { user_id_course_id: { user_id: id, course_id: data.course_enrolled } },
+            update: {},
+            create: { user_id: id, course_id: data.course_enrolled },
+          }).catch(() => null); // ignore if course doesn't exist
+        } else {
+          // Remove all enrollments (since legacy single-enrollment assumed)
+          // or just delete if it matches
+          await this.prisma.courseEnrollment.deleteMany({
+            where: { user_id: id }
+          });
+        }
+      }
 
       this.logger.log(`✅ [ADMIN] User updated: ${id}`);
       return updated;
@@ -269,9 +291,9 @@ export class AdminService {
         }
       }
 
-      // Generate activity graph (last 365 days)
+      // Mixed Activity graph (last 180 days)
       const oneYearAgo = new Date();
-      oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+      oneYearAgo.setDate(oneYearAgo.getDate() - 180);
       
       const questionsData = await this.prisma.question.findMany({
         where: { 
@@ -299,7 +321,7 @@ export class AdminService {
       };
     } else if (user.role === "TEACHER") {
       const oneYearAgo = new Date();
-      oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+      oneYearAgo.setDate(oneYearAgo.getDate() - 180);
       
       const testsData = await this.prisma.test.findMany({
         where: { created_by: id, created_at: { gte: oneYearAgo } },
@@ -337,7 +359,7 @@ export class AdminService {
 
     } else if (user.role === "STUDENT") {
       const oneYearAgo = new Date();
-      oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+      oneYearAgo.setDate(oneYearAgo.getDate() - 180);
       
       const attemptsData = await this.prisma.attempt.findMany({
         where: { user_id: id, started_at: { gte: oneYearAgo } },

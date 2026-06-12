@@ -41,6 +41,12 @@ export class HierarchyService {
   getSections(courseId: string) {
     return this.prisma.section.findMany({ where: { course_id: courseId }, include: { chapters: true }, orderBy: { order: 'asc' } });
   }
+  async deleteSection(id: string, userId: string, role: string) {
+    const section = await this.prisma.section.findUnique({ where: { id } });
+    if (!section) throw new NotFoundException();
+    await this.checkCoursePermission(section.course_id, userId, role);
+    return this.prisma.section.delete({ where: { id } });
+  }
 
   // Chapter
   async createChapter(userId: string, role: string, data: { section_id: string; name: string; description: string; order: number }) {
@@ -58,6 +64,12 @@ export class HierarchyService {
   getChapters(sectionId: string) {
     return this.prisma.chapter.findMany({ where: { section_id: sectionId }, include: { topics: true }, orderBy: { order: 'asc' } });
   }
+  async deleteChapter(id: string, userId: string, role: string) {
+    const chapter = await this.prisma.chapter.findUnique({ where: { id }, include: { section: true } });
+    if (!chapter) throw new NotFoundException();
+    await this.checkCoursePermission(chapter.section.course_id, userId, role);
+    return this.prisma.chapter.delete({ where: { id } });
+  }
 
   async createTopic(userId: string, role: string, data: { chapter_id: string; name: string; description: string; order: number }) {
     const chapter = await this.prisma.chapter.findUnique({ where: { id: data.chapter_id }, include: { section: true } });
@@ -74,13 +86,25 @@ export class HierarchyService {
   getTopics(chapterId: string) {
     return this.prisma.topic.findMany({ where: { chapter_id: chapterId }, orderBy: { order: 'asc' } });
   }
+  async deleteTopic(id: string, userId: string, role: string) {
+    const topic = await this.prisma.topic.findUnique({ where: { id }, include: { chapter: { include: { section: true } } } });
+    if (!topic) throw new NotFoundException();
+    await this.checkCoursePermission(topic.chapter.section.course_id, userId, role);
+    return this.prisma.topic.delete({ where: { id } });
+  }
 
   // Enrollment
   async enrollCourse(courseId: string, userId: string) {
     try {
-      return await this.prisma.courseEnrollment.create({
+      const enrollment = await this.prisma.courseEnrollment.create({
         data: { course_id: courseId, user_id: userId }
       });
+      // Sync legacy string field to prevent Admin overwrites
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { course_enrolled: courseId }
+      });
+      return enrollment;
     } catch (e: any) {
       if (e.code === 'P2002') {
         return { message: "Already enrolled", alreadyEnrolled: true };

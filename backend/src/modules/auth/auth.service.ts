@@ -97,7 +97,8 @@ export class AuthService {
         role: true,
         profile_picture: true,
         created_at: true,
-        custom_role: { select: { name: true } }
+        custom_role: { select: { name: true } },
+        assigned_teacher: { select: { first_name: true, last_name: true } }
       }
     });
 

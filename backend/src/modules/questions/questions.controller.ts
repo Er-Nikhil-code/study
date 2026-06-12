@@ -24,9 +24,12 @@ import {
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
 import { Roles } from "../common/decorators/roles.decorator";
+import { PermissionsGuard } from "../common/guards/permissions.guard";
+import { Permissions } from "../common/decorators/permissions.decorator";
+import { PERMISSIONS } from "../common/constants/permissions";
 
 @Controller("admin/questions")
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 export class QuestionsController {
   constructor(
     private questionsService: QuestionsService,
@@ -244,7 +247,7 @@ export class QuestionsController {
   /* ── AI Generation workflow ── */
 
   @Post("ai/generate")
-  @Roles("TEACHER", "ADMIN")
+  @Permissions(PERMISSIONS.USE_AI_GENERATOR)
   async generateQuestions(@Body() body: { 
     topicId: string;
     topicName: string;

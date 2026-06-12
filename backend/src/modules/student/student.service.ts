@@ -117,9 +117,9 @@ export class StudentService {
       },
     });
 
-    // Activity graph (last 365 days)
+    // Activity graph (last 180 days)
     const oneYearAgo = new Date();
-    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+    oneYearAgo.setDate(oneYearAgo.getDate() - 180);
     
     const attemptsData = await this.prisma.attempt.findMany({
       where: { user_id: userId, started_at: { gte: oneYearAgo } },
@@ -309,7 +309,7 @@ export class StudentService {
       user: { role: targetRole as any },
     };
     if (courseId) {
-      whereClause.user.course_enrolled = courseId;
+      whereClause.user.course_enrollments = { some: { course_id: courseId } };
     }
 
     const attempts = await this.prisma.attempt.findMany({
@@ -373,7 +373,7 @@ export class StudentService {
       user: { role: targetRole as any }
     };
     if (courseId) {
-      whereClause.user.course_enrolled = courseId;
+      whereClause.user.course_enrollments = { some: { course_id: courseId } };
     }
 
     const users = await this.prisma.userStats.findMany({
@@ -484,8 +484,8 @@ export class StudentService {
     // Recent approved/rejected questions (last 5 reviews)
     const recentReviews = await this.prisma.question.findMany({
       where: {
+        approved_by: userId,
         approval_status: { in: ["APPROVED", "REJECTED"] },
-        topic: { chapter: { section: { is: {} } } },
       },
       orderBy: { updated_at: "desc" },
       take: 5,
@@ -498,9 +498,9 @@ export class StudentService {
       },
     });
 
-    // Mixed Activity graph (last 365 days)
+    // Mixed Activity graph (last 180 days)
     const oneYearAgo = new Date();
-    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+    oneYearAgo.setDate(oneYearAgo.getDate() - 180);
 
     const [testsData, approvalsData] = await Promise.all([
       this.prisma.test.findMany({
@@ -601,9 +601,9 @@ export class StudentService {
       where: { total_score: { gt: stats?.total_score ?? 0 } },
     });
 
-    // Activity graph (last 365 days)
+    // Activity graph (last 180 days)
     const oneYearAgo = new Date();
-    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+    oneYearAgo.setDate(oneYearAgo.getDate() - 180);
     
     const questionsData = await this.prisma.question.findMany({
       where: { created_by: userId, created_at: { gte: oneYearAgo } },

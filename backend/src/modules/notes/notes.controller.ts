@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards, Req, Query } from "@nestjs/common";
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Req, Query } from "@nestjs/common";
 import { NotesService } from "./notes.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
@@ -47,7 +47,7 @@ export class NotesController {
   }
 
   @Patch(":id")
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   updateNote(
     @Param("id") id: string,
     @Body() data: { title?: string; content_html?: string },
@@ -70,5 +70,11 @@ export class NotesController {
   @Roles("STUDENT", "INTERN", "TEACHER", "ADMIN")
   getApprovedNotes(@Param("topicId") topicId: string) {
     return this.notesService.getApprovedNotesByTopic(topicId);
+  }
+
+  @Delete(":id")
+  @Roles("INTERN", "TEACHER", "ADMIN")
+  deleteNote(@Param("id") id: string, @Req() req: any) {
+    return this.notesService.deleteNote(id, req.user.userId || req.user.sub, req.user.role);
   }
 }

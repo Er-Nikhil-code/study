@@ -11,6 +11,7 @@ import {
   UpdateQuestionType,
   CreateQuestionSchema,
 } from "./dto/question.dto";
+import { PERMISSIONS } from "../common/constants/permissions";
 
 @Injectable()
 export class QuestionsService {
@@ -67,7 +68,16 @@ export class QuestionsService {
         );
       }
 
-      const isIntern = userRole === "INTERN";
+      const creatorUser = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: { custom_role: true }
+      });
+      
+      const rolePerms = Array.isArray(creatorUser?.custom_role?.permissions_json) 
+        ? (creatorUser?.custom_role?.permissions_json as string[]) 
+        : [];
+      
+      const canApprove = userRole === "ADMIN" || userRole === "TEACHER" || rolePerms.includes("approve_question") || rolePerms.includes(PERMISSIONS.MANAGE_QUESTIONS) || rolePerms.includes("*");
       
       return await this.prisma.$transaction(async (prisma) => {
         const questionData: any = {
@@ -81,9 +91,9 @@ export class QuestionsService {
           marks: data.marks ?? 1,
           negative_marks: data.negative_marks ?? 0,
           created_by: userId,
-          approval_status: isIntern ? "PENDING_REVIEW" : ((data as any).approval_status === "AI_GENERATED" ? "AI_GENERATED" : "APPROVED"),
-          approved_by: isIntern ? null : userId,
-          approved_at: isIntern ? null : new Date(),
+          approval_status: canApprove ? ((data as any).approval_status === "AI_GENERATED" ? "AI_GENERATED" : "APPROVED") : "PENDING_REVIEW",
+          approved_by: canApprove ? userId : null,
+          approved_at: canApprove ? new Date() : null,
         };
 
         // Generate embedding if not an intern draft

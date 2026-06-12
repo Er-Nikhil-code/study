@@ -124,6 +124,23 @@ export class TestsService {
     });
   }
 
+  async deleteTest(testId: string, userId: string, role: string) {
+    const test = await this.prisma.test.findUnique({ where: { id: testId } });
+    if (!test) throw new NotFoundException("Test not found");
+    if (role !== "ADMIN" && test.created_by !== userId)
+      throw new ForbiddenException("Not the test creator");
+    
+    // Check if test has attempts
+    const attemptCount = await this.prisma.attempt.count({ where: { test_id: testId } });
+    if (attemptCount > 0) {
+      throw new BadRequestException("Cannot delete a test that has been attempted by students.");
+    }
+
+    return this.prisma.test.delete({
+      where: { id: testId },
+    });
+  }
+
   async addQuestionsToTest(
     testId: string,
     questionIds: string[],
