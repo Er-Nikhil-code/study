@@ -304,8 +304,8 @@ export default function HomePage() {
 
       {/* Subtle Ambient */}
       <div className="absolute right-0 top-0 bottom-0 w-96 pointer-events-none z-5">
-        <div className="absolute top-1/4 right-1/4 w-40 h-40 bg-gradient-to-br from-red-500/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute bottom-1/4 right-1/3 w-32 h-32 bg-gradient-to-tl from-rose-600/10 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
+        <div className="absolute top-1/4 right-1/4 w-40 h-40 bg-gradient-to-br from-red-500/10 to-transparent rounded-full blur-3xl hidden" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-1/4 right-1/3 w-32 h-32 bg-gradient-to-tl from-rose-600/10 to-transparent rounded-full blur-3xl hidden" style={{ animationDuration: '6s' }} />
       </div>
 
       {/* Left Section - Alien Typed Quotes */}

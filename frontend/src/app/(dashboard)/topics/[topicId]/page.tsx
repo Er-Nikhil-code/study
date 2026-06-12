@@ -150,7 +150,7 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
       </div>
 
       {loading ? (
-        <div className="animate-pulse space-y-4">
+        <div className="hidden space-y-4">
           <div className="h-32 bg-white/5 rounded-xl w-full" />
         </div>
       ) : activeTab === "NOTES" ? (

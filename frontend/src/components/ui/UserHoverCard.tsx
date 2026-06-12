@@ -77,7 +77,7 @@ export default function UserHoverCard({ userId, children }: UserHoverCardProps) 
 
           {isLoading || !userInfo ? (
             <div className="flex items-center justify-center py-4">
-              <div className="w-5 h-5 rounded-full border-2 border-red-500 border-t-transparent animate-spin" />
+              null
             </div>
           ) : (
             <div className="flex gap-4">

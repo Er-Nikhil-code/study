@@ -57,8 +57,8 @@ export default function TestDetailsPage() {
   if (loading) {
     return (
       <>
-        <div className="h-8 w-48 animate-pulse rounded bg-white/10" />
-        <div className="mt-4 h-64 animate-pulse rounded-2xl bg-white/[0.03]" />
+        <div className="h-8 w-48 hidden rounded bg-white/10" />
+        <div className="mt-4 h-64 hidden rounded-2xl bg-white/[0.03]" />
       </>
     );
   }

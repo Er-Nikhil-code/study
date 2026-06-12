@@ -45,7 +45,7 @@ export default function AdminSystemPage() {
           </div>
           <div className="mt-4 flex items-baseline gap-2 relative z-10">
             {loadingStatus ? (
-              <span className="h-8 w-16 animate-pulse rounded bg-white/10" />
+              <span className="h-8 w-16 hidden rounded bg-white/10" />
             ) : (
               <>
                 <span className="text-3xl font-bold text-white">
@@ -64,7 +64,7 @@ export default function AdminSystemPage() {
           </div>
           <div className="mt-4 flex items-baseline gap-2">
             {loadingStatus ? (
-              <span className="h-8 w-16 animate-pulse rounded bg-white/10" />
+              <span className="h-8 w-16 hidden rounded bg-white/10" />
             ) : (
               <>
                 <span className="text-3xl font-bold text-white">{status?.db_latency_ms > 0 ? `${status.db_latency_ms}ms` : "—"}</span>
@@ -81,7 +81,7 @@ export default function AdminSystemPage() {
           </div>
           <div className="mt-4 flex items-baseline gap-2">
             {loadingStatus ? (
-              <span className="h-8 w-16 animate-pulse rounded bg-white/10" />
+              <span className="h-8 w-16 hidden rounded bg-white/10" />
             ) : (
               <>
                 <span className="text-3xl font-bold text-white">{status?.active_users ?? "—"}</span>
@@ -110,7 +110,7 @@ export default function AdminSystemPage() {
             {loadingLogs ? (
               <div className="space-y-2">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-4 w-full animate-pulse rounded bg-white/5" />
+                  <div key={i} className="h-4 w-full hidden rounded bg-white/5" />
                 ))}
               </div>
             ) : logs.length === 0 ? (

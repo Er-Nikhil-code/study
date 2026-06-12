@@ -64,12 +64,12 @@ export default function TeacherHomePage() {
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-3xl font-semibold text-white">
-              {loading ? <span className="inline-block h-8 w-8 animate-pulse rounded bg-white/10" /> : data?.questions_created ?? 0}
+              {loading ? <span className="inline-block h-8 w-8 hidden rounded bg-white/10" /> : data?.questions_created ?? 0}
             </span>
             <span className="text-sm text-zinc-500">created</span>
             <span className="text-zinc-700 mx-1">•</span>
             <span className="text-xl font-medium text-emerald-400">
-              {loading ? <span className="inline-block h-6 w-6 animate-pulse rounded bg-emerald-400/10" /> : data?.questions_approved ?? 0}
+              {loading ? <span className="inline-block h-6 w-6 hidden rounded bg-emerald-400/10" /> : data?.questions_approved ?? 0}
             </span>
             <span className="text-sm text-emerald-500/50">approved</span>
           </div>
@@ -81,7 +81,7 @@ export default function TeacherHomePage() {
             Tests
           </div>
           <div className="mt-2 text-3xl font-semibold text-white">
-            {loading ? <span className="inline-block h-8 w-14 animate-pulse rounded bg-white/10" /> : data?.tests_created ?? 0}
+            {loading ? <span className="inline-block h-8 w-14 hidden rounded bg-white/10" /> : data?.tests_created ?? 0}
           </div>
           <p className="mt-1 text-xs text-zinc-500">Tests created</p>
         </Panel>
@@ -91,21 +91,21 @@ export default function TeacherHomePage() {
             Pawns
           </div>
           <div className="mt-2 text-3xl font-semibold text-white">
-            {loading ? <span className="inline-block h-8 w-14 animate-pulse rounded bg-white/10" /> : data?.students_assigned ?? 0}
+            {loading ? <span className="inline-block h-8 w-14 hidden rounded bg-white/10" /> : data?.students_assigned ?? 0}
           </div>
           <p className="mt-1 text-xs text-zinc-500">Assigned to you</p>
         </Panel>
         <Panel accent={(data?.pending_challenges ?? 0) > 0}>
           <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Pending Challenges</div>
           <div className="mt-2 text-3xl font-semibold text-red-300">
-            {loading ? <span className="inline-block h-8 w-14 animate-pulse rounded bg-white/10" /> : data?.pending_challenges ?? 0}
+            {loading ? <span className="inline-block h-8 w-14 hidden rounded bg-white/10" /> : data?.pending_challenges ?? 0}
           </div>
           <p className="mt-1 text-xs text-zinc-500">Awaiting review</p>
         </Panel>
         <Panel>
           <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Resolved</div>
           <div className="mt-2 text-3xl font-semibold text-white">
-            {loading ? <span className="inline-block h-8 w-14 animate-pulse rounded bg-white/10" /> : data?.resolved_challenges ?? 0}
+            {loading ? <span className="inline-block h-8 w-14 hidden rounded bg-white/10" /> : data?.resolved_challenges ?? 0}
           </div>
           <p className="mt-1 text-xs text-zinc-500">Challenges closed</p>
         </Panel>
@@ -113,7 +113,7 @@ export default function TeacherHomePage() {
           <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Resolution Rate</div>
           <div className="mt-2 text-3xl font-semibold text-white">
             {loading ? (
-              <span className="inline-block h-8 w-14 animate-pulse rounded bg-white/10" />
+              <span className="inline-block h-8 w-14 hidden rounded bg-white/10" />
             ) : data ? (
               (() => {
                 const total = (data.pending_challenges ?? 0) + (data.resolved_challenges ?? 0);

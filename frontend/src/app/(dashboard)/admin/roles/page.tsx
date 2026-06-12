@@ -309,7 +309,7 @@ export default function AdminRolesPage() {
           {loading ? (
             <div className="space-y-2">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-12 animate-pulse rounded-xl bg-white/[0.03]" style={{ marginLeft: i * 28 }} />
+                <div key={i} className="h-12 hidden rounded-xl bg-white/[0.03]" style={{ marginLeft: i * 28 }} />
               ))}
             </div>
           ) : hierarchy.length === 0 ? (
@@ -336,7 +336,7 @@ export default function AdminRolesPage() {
                 {[...Array(4)].map((_, i) => (
                   <div key={i} className="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1.5fr)_80px_80px_100px] gap-3 px-5 py-4">
                     {[...Array(6)].map((__, j) => (
-                      <div key={j} className="h-4 w-16 animate-pulse rounded bg-white/10" />
+                      <div key={j} className="h-4 w-16 hidden rounded bg-white/10" />
                     ))}
                   </div>
                 ))}
@@ -473,7 +473,7 @@ export default function AdminRolesPage() {
                 
                 {isSearchingUsers && (
                   <div className="absolute right-3 top-9">
-                    <span className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin inline-block"></span>
+                    null
                   </div>
                 )}
                 

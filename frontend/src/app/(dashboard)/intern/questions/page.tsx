@@ -114,7 +114,7 @@ export default function InternQuestionsPage() {
       <div className="mt-6 grid gap-4">
         {loading ? (
           [...Array(3)].map((_, i) => (
-            <Panel key={i} className="p-5 h-32 animate-pulse bg-white/[0.03]">
+            <Panel key={i} className="p-5 h-32 hidden bg-white/[0.03]">
               <div />
             </Panel>
           ))

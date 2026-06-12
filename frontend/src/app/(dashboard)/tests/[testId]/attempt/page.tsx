@@ -209,12 +209,12 @@ export default function AttemptPage() {
             <span className="text-sm font-medium text-zinc-400">Q {currentIdx + 1}/{questions.length}</span>
             {saving && (
               <span className="flex items-center gap-1 text-xs text-zinc-500">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />Saving
+                <span className="h-2 w-2 hidden rounded-full bg-emerald-400" />Saving
               </span>
             )}
           </div>
           <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
-            timeLeft < 300 ? "bg-red-600/20 text-red-300 animate-pulse"
+            timeLeft < 300 ? "bg-red-600/20 text-red-300 hidden"
               : timeLeft < 600 ? "bg-red-500/15 text-red-300"
               : "bg-white/[0.05] text-white"
           }`}>{formatTime(timeLeft)}</div>

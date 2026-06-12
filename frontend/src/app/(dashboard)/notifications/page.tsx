@@ -101,7 +101,7 @@ export default function NotificationsPage() {
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-20 animate-pulse rounded-2xl border border-white/5 bg-white/[0.02]" />
+              <div key={i} className="h-20 hidden rounded-2xl border border-white/5 bg-white/[0.02]" />
             ))}
           </div>
         ) : notifications.length === 0 ? (

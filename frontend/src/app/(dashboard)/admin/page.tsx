@@ -31,7 +31,7 @@ function StatCard({
         className={`mt-2 text-3xl font-semibold ${accent ? "text-red-300" : "text-white"}`}
       >
         {loading ? (
-          <span className="inline-block h-8 w-16 animate-pulse rounded-lg bg-white/10" />
+          <span className="inline-block h-8 w-16 hidden rounded-lg bg-white/10" />
         ) : (
           value
         )}

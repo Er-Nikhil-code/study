@@ -199,7 +199,7 @@ export default function AdminNotificationsPage() {
                         {searchQuery.trim().length >= 2 && (
                           <div className="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-20">
                             {isSearching ? (
-                              <div className="p-4 text-center text-sm text-zinc-500 animate-pulse">Searching...</div>
+                              <div className="p-4 text-center text-sm text-zinc-500 hidden">Searching...</div>
                             ) : searchResults.length > 0 ? (
                               <div className="max-h-64 overflow-y-auto">
                                 {searchResults.map((u) => (
@@ -294,7 +294,7 @@ export default function AdminNotificationsPage() {
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-white mb-6">Received Notifications</h2>
               {fetchingLists ? (
-                <div className="h-32 rounded-xl bg-zinc-900/50 animate-pulse border border-white/5" />
+                <div className="h-32 rounded-xl bg-zinc-900/50 hidden border border-white/5" />
               ) : inbox.length === 0 ? (
                 <Panel className="text-center py-12 border-dashed border-white/10 bg-white/[0.01]">
                   <Inbox className="mx-auto h-12 w-12 text-zinc-600 mb-4" />
@@ -322,7 +322,7 @@ export default function AdminNotificationsPage() {
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-white mb-6">Sent Notifications</h2>
               {fetchingLists ? (
-                <div className="h-32 rounded-xl bg-zinc-900/50 animate-pulse border border-white/5" />
+                <div className="h-32 rounded-xl bg-zinc-900/50 hidden border border-white/5" />
               ) : sent.length === 0 ? (
                 <Panel className="text-center py-12 border-dashed border-white/10 bg-white/[0.01]">
                   <SendIcon className="mx-auto h-12 w-12 text-zinc-600 mb-4" />

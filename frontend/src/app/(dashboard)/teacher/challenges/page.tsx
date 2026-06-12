@@ -124,11 +124,11 @@ export default function TeacherChallengesPage() {
               <Panel key={i} className="p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-2 w-full max-w-sm">
-                    <div className="h-3 w-16 animate-pulse rounded bg-white/10" />
-                    <div className="h-5 w-48 animate-pulse rounded bg-white/10" />
-                    <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
+                    <div className="h-3 w-16 hidden rounded bg-white/10" />
+                    <div className="h-5 w-48 hidden rounded bg-white/10" />
+                    <div className="h-4 w-32 hidden rounded bg-white/10" />
                   </div>
-                  <div className="h-6 w-20 animate-pulse rounded-full bg-white/10 shrink-0" />
+                  <div className="h-6 w-20 hidden rounded-full bg-white/10 shrink-0" />
                 </div>
               </Panel>
             ))}

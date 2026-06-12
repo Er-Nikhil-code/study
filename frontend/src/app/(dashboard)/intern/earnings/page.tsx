@@ -31,8 +31,8 @@ export default function InternEarningsPage() {
 
       {isLoading ? (
         <div className="mt-6 grid gap-6 md:grid-cols-2">
-          <div className="h-40 animate-pulse rounded-2xl bg-white/[0.02]" />
-          <div className="h-40 animate-pulse rounded-2xl bg-white/[0.02]" />
+          <div className="h-40 hidden rounded-2xl bg-white/[0.02]" />
+          <div className="h-40 hidden rounded-2xl bg-white/[0.02]" />
         </div>
       ) : data ? (
         <div className="mt-6 space-y-6">
@@ -67,7 +67,7 @@ export default function InternEarningsPage() {
                 className="h-full bg-gradient-to-r from-red-600 to-orange-500 transition-all duration-1000 ease-out relative"
                 style={{ width: `${percent}%` }}
               >
-                <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                <div className="absolute inset-0 bg-white/20 hidden" />
               </div>
             </div>
             <div className="mt-3 text-center text-sm text-zinc-500">

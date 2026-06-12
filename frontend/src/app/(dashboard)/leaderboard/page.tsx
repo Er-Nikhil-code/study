@@ -54,12 +54,12 @@ export default function LeaderboardPage() {
             <div className="divide-y divide-white/10">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="grid grid-cols-[60px_minmax(0,1fr)_90px_70px_80px_70px] gap-3 px-5 py-4">
-                  <div className="h-4 w-8 animate-pulse rounded bg-white/10" />
-                  <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
-                  <div className="h-4 w-12 animate-pulse rounded bg-white/10" />
-                  <div className="h-4 w-8 animate-pulse rounded bg-white/10" />
-                  <div className="h-4 w-10 animate-pulse rounded bg-white/10" />
-                  <div className="h-4 w-8 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-8 hidden rounded bg-white/10" />
+                  <div className="h-4 w-32 hidden rounded bg-white/10" />
+                  <div className="h-4 w-12 hidden rounded bg-white/10" />
+                  <div className="h-4 w-8 hidden rounded bg-white/10" />
+                  <div className="h-4 w-10 hidden rounded bg-white/10" />
+                  <div className="h-4 w-8 hidden rounded bg-white/10" />
                 </div>
               ))}
             </div>

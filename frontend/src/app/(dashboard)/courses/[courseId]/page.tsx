@@ -321,7 +321,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   if (!course && loading) {
     return (
-      <div className="animate-pulse space-y-6">
+      <div className="hidden space-y-6">
         <div className="h-10 w-1/3 bg-white/10 rounded" />
         <div className="h-6 w-1/4 bg-white/5 rounded" />
         <div className="h-40 bg-white/5 rounded-xl" />
@@ -336,7 +336,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
       {/* Elegant, minimal loading overlay that keeps the current page visible */}
       {loading && (
         <div className="fixed top-24 right-8 z-50 flex items-center gap-2 rounded-full bg-black/80 border border-white/10 px-4 py-2 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in slide-in-from-top-4">
-          <Loader2 className="h-4 w-4 animate-spin text-red-400" />
+          null
           <span className="text-xs font-medium text-white">Syncing...</span>
         </div>
       )}

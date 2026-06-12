@@ -37,12 +37,12 @@ export default function ResultsPage() {
               <div className="divide-y divide-white/10">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 px-5 py-4">
-                    <div className="h-4 w-40 animate-pulse rounded bg-white/10" />
-                    <div className="h-4 w-12 animate-pulse rounded bg-white/10" />
-                    <div className="h-4 w-16 animate-pulse rounded bg-white/10" />
-                    <div className="h-4 w-8 animate-pulse rounded bg-white/10" />
-                    <div className="h-4 w-10 animate-pulse rounded bg-white/10" />
-                    <div className="h-4 w-14 animate-pulse rounded bg-white/10" />
+                    <div className="h-4 w-40 hidden rounded bg-white/10" />
+                    <div className="h-4 w-12 hidden rounded bg-white/10" />
+                    <div className="h-4 w-16 hidden rounded bg-white/10" />
+                    <div className="h-4 w-8 hidden rounded bg-white/10" />
+                    <div className="h-4 w-10 hidden rounded bg-white/10" />
+                    <div className="h-4 w-14 hidden rounded bg-white/10" />
                   </div>
                 ))}
               </div>

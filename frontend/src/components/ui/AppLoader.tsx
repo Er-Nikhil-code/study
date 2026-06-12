@@ -96,11 +96,6 @@ export default function AppLoader({ message }: { message?: string }) {
             strokeLinecap="round"
           />
         </svg>
-        {message && (
-          <p className="mt-8 text-[11px] font-medium tracking-[0.4em] text-red-500/80 uppercase animate-pulse">
-            {message}
-          </p>
-        )}
       </div>
     </>
   );

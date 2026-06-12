@@ -8,7 +8,7 @@ import "./RichTextEditor.css"; // Custom styling overrides
 // Dynamic import of react-quill to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill-new"), {
   ssr: false,
-  loading: () => <div className="h-48 w-full animate-pulse rounded-lg bg-white/5 border border-white/10" />,
+  loading: () => <div className="h-48 w-full hidden rounded-lg bg-white/5 border border-white/10" />,
 });
 
 interface RichTextEditorProps {

@@ -230,7 +230,7 @@ export default function ExamInterfacePage() {
           <div className="flex items-center gap-2 bg-zinc-800/80 px-4 py-2 rounded-lg border border-zinc-700">
             <Clock className="w-4 h-4 text-zinc-400" />
             <span className="text-sm font-medium text-zinc-300">Time Left:</span>
-            <span className={`text-lg font-bold font-mono tracking-wider ${timeLeft !== null && timeLeft < 300 ? 'text-red-400 animate-pulse' : 'text-emerald-400'}`}>
+            <span className={`text-lg font-bold font-mono tracking-wider ${timeLeft !== null && timeLeft < 300 ? 'text-red-400 hidden' : 'text-emerald-400'}`}>
               {timeLeft !== null ? formatTime(timeLeft) : "--:--"}
             </span>
           </div>

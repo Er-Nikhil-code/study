@@ -123,8 +123,8 @@ export default function AdminUserProfilePage() {
 
       {isLoading ? (
         <div className="mt-6 space-y-4">
-          <div className="h-40 animate-pulse rounded-2xl bg-white/[0.02]" />
-          <div className="h-60 animate-pulse rounded-2xl bg-white/[0.02]" />
+          <div className="h-40 hidden rounded-2xl bg-white/[0.02]" />
+          <div className="h-60 hidden rounded-2xl bg-white/[0.02]" />
         </div>
       ) : user ? (
         <div className="mt-6 grid gap-6 md:grid-cols-3">

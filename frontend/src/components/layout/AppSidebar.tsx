@@ -185,7 +185,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
       {/* Footer / Profile */}
       <div className="p-4 border-t border-white/10 relative" ref={dropdownRef}>
         {!mounted ? (
-          <div className="h-12 w-full animate-pulse rounded-xl bg-white/[0.02]" />
+          <div className="h-12 w-full hidden rounded-xl bg-white/[0.02]" />
         ) : isAuthenticated && user ? (
           <>
             {/* Dropdown menu — shows both in collapsed and expanded mode */}

@@ -154,7 +154,7 @@ export function FileUpload({
             disabled={loading}
             className="flex-1 py-2 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition disabled:bg-gray-400 flex items-center justify-center gap-2"
           >
-            {loading && <Loader className="w-4 h-4 animate-spin" />}
+            {loading && null}
             {loading ? "Uploading..." : "Upload"}
           </button>
           <button

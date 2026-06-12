@@ -37,7 +37,7 @@ export default function AdminEnrollmentsPage() {
       />
 
       {isLoading ? (
-        <div className="mt-6 animate-pulse space-y-4">
+        <div className="mt-6 hidden space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-20 w-full rounded-2xl bg-white/5" />
           ))}

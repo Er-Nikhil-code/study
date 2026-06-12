@@ -38,7 +38,7 @@ export default function InternStatisticsPage() {
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-28 animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
+            <div key={i} className="h-28 hidden rounded-2xl border border-white/10 bg-white/[0.03]" />
           ))}
         </div>
       ) : dashboardData ? (

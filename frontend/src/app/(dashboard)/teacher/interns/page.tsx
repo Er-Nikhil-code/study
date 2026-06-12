@@ -62,7 +62,7 @@ export default function TeacherInternsPage() {
       {isLoading ? (
         <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-48 animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
+            <div key={i} className="h-48 hidden rounded-2xl border border-white/10 bg-white/[0.03]" />
           ))}
         </div>
       ) : (
