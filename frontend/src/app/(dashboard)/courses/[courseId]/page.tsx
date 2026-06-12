@@ -3,9 +3,10 @@
 import { useEffect, useState, use } from "react";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Panel from "@/components/ui/Panel";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 import { HierarchyService } from "@/services/hierarchy.service";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield, Loader2 } from "lucide-react";
 import CourseLeaderboard from "@/components/ui/CourseLeaderboard";
 import { api } from "@/lib/api";
 import { adminService } from "@/services/admin.service";
@@ -68,18 +69,20 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [dragOverParentId, setDragOverParentId] = useState<string | null>(null);
 
-  const fetchCourse = () => {
+  const fetchCourse = (isInitial = false) => {
     setLoading(true);
     HierarchyService.getFullHierarchy()
       .then((data) => {
         const c = data.find((c: any) => c.id === courseId);
         if (c) {
           setCourse(c);
-          // Auto-expand first section and chapter for better UX
-          if (c.sections?.[0]) {
-            setExpandedSections({ [c.sections[0].id]: true });
-            if (c.sections[0].chapters?.[0]) {
-              setExpandedChapters({ [c.sections[0].chapters[0].id]: true });
+          if (isInitial) {
+            // Auto-expand first section and chapter for better UX
+            if (c.sections?.[0]) {
+              setExpandedSections({ [c.sections[0].id]: true });
+              if (c.sections[0].chapters?.[0]) {
+                setExpandedChapters({ [c.sections[0].chapters[0].id]: true });
+              }
             }
           }
         } else {
@@ -87,11 +90,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
         }
       })
       .catch(() => setError("Failed to load course details."))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
-    fetchCourse();
+    fetchCourse(true);
   }, [courseId]);
 
   const toggleSection = (id: string) => setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
@@ -306,21 +311,38 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
     }
   };
 
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-red-600/30 bg-red-600/10 px-4 py-3 text-red-400">
+        {error}
+      </div>
+    );
+  }
+
+  if (!course && loading) {
+    return (
+      <div className="animate-pulse space-y-6">
+        <div className="h-10 w-1/3 bg-white/10 rounded" />
+        <div className="h-6 w-1/4 bg-white/5 rounded" />
+        <div className="h-40 bg-white/5 rounded-xl" />
+      </div>
+    );
+  }
+
+  if (!course) return null;
+
   return (
     <>
-      {loading ? (
-        <div className="animate-pulse space-y-6">
-          <div className="h-10 w-1/3 bg-white/10 rounded" />
-          <div className="h-6 w-1/4 bg-white/5 rounded" />
-          <div className="h-40 bg-white/5 rounded-xl" />
+      {/* Elegant, minimal loading overlay that keeps the current page visible */}
+      {loading && (
+        <div className="fixed top-24 right-8 z-50 flex items-center gap-2 rounded-full bg-black/80 border border-white/10 px-4 py-2 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in slide-in-from-top-4">
+          <Loader2 className="h-4 w-4 animate-spin text-red-400" />
+          <span className="text-xs font-medium text-white">Syncing...</span>
         </div>
-      ) : error ? (
-        <div className="rounded-2xl border border-red-600/30 bg-red-600/10 px-4 py-3 text-red-400">
-          {error}
-        </div>
-      ) : (
-        <>
-          <div className="mb-6 flex justify-between items-start">
+      )}
+      
+      <div className={`transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+        <div className="mb-6 flex justify-between items-start">
             <div>
               <Link href="/courses" className="text-sm text-zinc-400 hover:text-white flex items-center gap-1 mb-4">
                 <ChevronLeft size={16} /> Back to Courses
@@ -772,28 +794,27 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 </h3>
                 <div className="space-y-4">
                   <div className="flex flex-col gap-2">
-                    <select
-                      className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-red-500/50 outline-none"
-                      onChange={async (e) => {
-                        const val = e.target.value;
+                    <SearchableSelect
+                      options={[
+                        { value: "", label: "Assign a Knight...", disabled: true },
+                        ...(knights?.data?.map((k: any) => ({
+                          value: k.id,
+                          label: `${k.name} (${k.email})`,
+                          disabled: course.staff?.some((s: any) => s.user_id === k.id)
+                        })) || [])
+                      ]}
+                      value=""
+                      onChange={async (val) => {
                         if (!val) return;
                         try {
                           await HierarchyService.assignCourseStaff(course.id, val);
                           fetchCourse();
-                          e.target.value = "";
                         } catch (error: any) {
                           alert(error.response?.data?.message || "Failed to assign Knight");
                         }
                       }}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>Assign a Knight...</option>
-                      {knights?.data?.map((k: any) => (
-                        <option key={k.id} value={k.id} disabled={course.staff?.some((s: any) => s.user_id === k.id)}>
-                          {k.name} ({k.email})
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Search to assign Knight..."
+                    />
                   </div>
                   {course.staff?.length > 0 ? (
                     <ul className="space-y-2">
@@ -827,25 +848,26 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <Shield size={18} className="text-emerald-400" /> Section Managers
                 </h3>
-                <p className="text-xs text-zinc-400 mb-4">Assign Pawns (Interns) to manage specific sections.</p>
+                <p className="text-xs text-zinc-400 mb-4">Assign Knights to manage specific sections.</p>
                 <div className="space-y-4">
                   {course.sections?.map((section: any) => (
                     <div key={section.id} className="flex flex-col gap-1.5 bg-black/40 border border-white/5 rounded-lg p-3">
                       <p className="text-sm text-white font-medium truncate">{section.name}</p>
-                      <select
-                        className="w-full bg-black border border-white/10 rounded text-xs text-zinc-300 py-1.5 px-2 outline-none focus:border-emerald-500/50"
+                      <SearchableSelect
+                        options={[
+                          { value: "", label: "No Manager" },
+                          ...(knights?.data?.map((k: any) => ({
+                            value: k.id,
+                            label: k.name
+                          })) || [])
+                        ]}
                         value={section.managed_by || ""}
-                        onChange={async (e) => {
-                          const val = e.target.value;
+                        onChange={async (val) => {
                           await HierarchyService.assignSectionManager(section.id, val || null);
                           fetchCourse();
                         }}
-                      >
-                        <option value="">No Manager</option>
-                        {interns?.data?.map((i: any) => (
-                          <option key={i.id} value={i.id}>{i.name}</option>
-                        ))}
-                      </select>
+                        placeholder="Search for manager..."
+                      />
                     </div>
                   ))}
                   {course.sections?.length === 0 && (
@@ -886,8 +908,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               <CourseLeaderboard courseId={courseId} />
             </div>
           )}
-        </>
-      )}
+        </div>
     </>
   );
 }

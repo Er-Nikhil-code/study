@@ -339,7 +339,7 @@ export default function TeacherQuestionsPage() {
                   <div key={q.id}>
                     <div className={`grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-left ${q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION" ? "bg-white/[0.02]" : ""}`}>
                       <div className="font-mono text-[10px] text-zinc-500 truncate" title={q.id}>
-                        {q.id.substring(0, 16)}...
+                        {q.id}
                       </div>
 
                       <button

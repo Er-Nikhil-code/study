@@ -145,7 +145,7 @@ export default function TeacherChallengesPage() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
-                    {challenge.id.split("-")[0]}-{challenge.id.slice(-4)}
+                    {challenge.id}
                   </div>
                   <h3 className="mt-2 text-lg font-semibold text-white flex items-center gap-2">
                     {challenge.question?.title || "Unknown Question"}

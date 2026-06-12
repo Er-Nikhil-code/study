@@ -150,6 +150,7 @@ export default function CreateQuestionPage() {
       switch (formData.type) {
         case "SINGLE_CORRECT":
         case "ASSERTION_REASON":
+        case "NUMERICAL":
           payload.options_json = { options: mcqData.options };
           payload.answer_key = { correct_option: mcqData.correct_option };
           break;
@@ -278,6 +279,7 @@ export default function CreateQuestionPage() {
                 <option value="MATCHING" className="bg-zinc-900 text-white">Matching</option>
                 <option value="PASSAGE" className="bg-zinc-900 text-white">Passage (Comprehension)</option>
                 <option value="ASSERTION_REASON" className="bg-zinc-900 text-white">Assertion-Reasoning</option>
+                <option value="NUMERICAL" className="bg-zinc-900 text-white">Numerical (with Options)</option>
               </select>
             </div>
             <div>
@@ -313,7 +315,7 @@ export default function CreateQuestionPage() {
         </Panel>
 
         {/* Dynamic Type-Specific UI */}
-        {(formData.type === "SINGLE_CORRECT" || formData.type === "MULTIPLE_CORRECT") && (
+        {(formData.type === "SINGLE_CORRECT" || formData.type === "MULTIPLE_CORRECT" || formData.type === "NUMERICAL") && (
           <McqForm type={formData.type} data={mcqData} onChange={setMcqData} />
         )}
         {formData.type === "ASSERTION_REASON" && (

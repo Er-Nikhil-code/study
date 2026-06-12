@@ -17,11 +17,19 @@ export const TestsService = {
     return api.get(`/tests/${id}/payload`);
   },
 
-  start(id: string) {
-    return api.post(`/tests/${id}/start`);
+  startAttempt(id: string) {
+    return api.post(`/tests/${id}/start`).then(res => res.data);
   },
 
-  submit(id: string, payload: unknown) {
-    return api.post(`/tests/${id}/submit`, payload);
+  saveAnswer(attemptId: string, data: any) {
+    return api.post(`/tests/any/attempt/${attemptId}/answer`, data).then(res => res.data); // backend uses testId parameter but it might not strictly need the exact testId if attemptId is unique, or I can pass it if I want. Wait, the controller is `@Post(":testId/attempt/:attemptId/answer")`.
+  },
+
+  submitAttempt(attemptId: string) {
+    return api.post(`/tests/any/attempt/${attemptId}/submit`).then(res => res.data);
+  },
+
+  getAttemptResult(attemptId: string) {
+    return api.get(`/tests/any/attempt/${attemptId}/result`);
   },
 };

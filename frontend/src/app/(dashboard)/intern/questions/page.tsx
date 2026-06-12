@@ -129,7 +129,7 @@ export default function InternQuestionsPage() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
-                      {q.id.split("-")[0]}-{q.id.slice(-4)}
+                      {q.id}
                     </div>
                     {q.approval_status === "NEEDS_REVISION" && q.rejection_note && (
                       <span className="rounded bg-red-500/20 px-2 py-0.5 text-[10px] text-red-300">

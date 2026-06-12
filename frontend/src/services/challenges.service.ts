@@ -18,5 +18,9 @@ export const ChallengesService = {
 
   getEscalationTargets() {
     return api.get("/challenges/escalation-targets").then(res => res.data);
+  },
+
+  create(data: any) {
+    return api.post("/challenges", data).then(res => res.data);
   }
 };

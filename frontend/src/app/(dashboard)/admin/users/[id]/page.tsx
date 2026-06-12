@@ -329,7 +329,7 @@ export default function AdminUserProfilePage() {
 
             {user.role === "STUDENT" && (
               <Panel className="p-6 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
-                <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider mb-4 border-b border-emerald-500/10 pb-2">Student Activity</h3>
+                <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider mb-4 border-b border-emerald-500/10 pb-2">Warrior Activity</h3>
                 <div>
                   <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">Test Attempts (Last 6 Months)</h4>
                   <ActivityGraph data={user.activity_graph || []} userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />

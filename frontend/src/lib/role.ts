@@ -4,7 +4,7 @@ export const getChessRoleName = (role: string | undefined): string => {
     case "INTERN": return "Pawn";
     case "TEACHER": return "Knight";
     case "ADMIN": return "King";
-    case "STUDENT": return "Student";
+    case "STUDENT": return "Warrior";
     default: return role;
   }
 };

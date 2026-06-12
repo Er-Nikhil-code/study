@@ -102,6 +102,38 @@ const King = () => {
   );
 };
 
+const WarriorPiece = () => {
+  return (
+    <group position={[0, -1, 0]}>
+      {/* Base */}
+      <mesh material={pieceMaterial} position={[0, 0.2, 0]}>
+        <cylinderGeometry args={[0.9, 1, 0.4, 32]} />
+      </mesh>
+      {/* Body */}
+      <mesh material={pieceMaterial} position={[0, 1.5, 0]}>
+        <cylinderGeometry args={[0.6, 0.8, 2.6, 32]} />
+      </mesh>
+      {/* Top collar */}
+      <mesh material={pieceMaterial} position={[0, 2.9, 0]}>
+        <cylinderGeometry args={[0.8, 0.6, 0.4, 32]} />
+      </mesh>
+      {/* Battlements (Rook top) */}
+      <mesh material={pieceMaterial} position={[0.6, 3.3, 0]}>
+        <boxGeometry args={[0.3, 0.4, 0.3]} />
+      </mesh>
+      <mesh material={pieceMaterial} position={[-0.6, 3.3, 0]}>
+        <boxGeometry args={[0.3, 0.4, 0.3]} />
+      </mesh>
+      <mesh material={pieceMaterial} position={[0, 3.3, 0.6]}>
+        <boxGeometry args={[0.3, 0.4, 0.3]} />
+      </mesh>
+      <mesh material={pieceMaterial} position={[0, 3.3, -0.6]}>
+        <boxGeometry args={[0.3, 0.4, 0.3]} />
+      </mesh>
+    </group>
+  );
+};
+
 const AnimatedPiece = ({ role }: { role: string }) => {
   const groupRef = useRef<THREE.Group>(null);
 
@@ -115,7 +147,8 @@ const AnimatedPiece = ({ role }: { role: string }) => {
 
   return (
     <group ref={groupRef}>
-      {role === "INTERN" || role === "STUDENT" ? <Pawn /> : null}
+      {role === "INTERN" ? <Pawn /> : null}
+      {role === "STUDENT" ? <WarriorPiece /> : null}
       {role === "TEACHER" ? <Knight /> : null}
       {role === "ADMIN" ? <King /> : null}
     </group>

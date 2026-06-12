@@ -64,7 +64,7 @@ export default function CourseLeaderboard({ courseId }: { courseId: string }) {
             </div>
           ) : rows.length === 0 ? (
             <div className="px-5 py-8 text-center text-sm text-zinc-500 bg-zinc-900/30">
-              No students are currently active in this course.
+              No warriors are currently active in this course.
             </div>
           ) : (
             <div className="divide-y divide-white/5">

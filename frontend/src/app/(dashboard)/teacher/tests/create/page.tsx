@@ -44,7 +44,7 @@ export default function CreateTestPage() {
     duration_minutes: 60,
     positive_marks: 4,
     negative_marks: 1,
-    passing_marks: 40,
+    passing_marks: "" as number | "",
   });
 
   const [bankCourseId, setBankCourseId] = useState("");
@@ -101,6 +101,7 @@ export default function CreateTestPage() {
     try {
       await TestsService.create({
         ...formData,
+        passing_marks: formData.passing_marks === "" ? null : formData.passing_marks,
         total_marks: selectedQuestionIds.size * formData.positive_marks,
         topic_id: topicId as string,
         question_ids: Array.from(selectedQuestionIds),
@@ -183,13 +184,13 @@ export default function CreateTestPage() {
                 </div>
                 <div className="flex-1">
                   <label className="block text-sm text-zinc-400 mb-1">Negative Marks (-)</label>
-                  <input type="number" required min="0" max="5" step="any" value={formData.negative_marks === 0 ? '' : formData.negative_marks} onChange={e => setFormData({...formData, negative_marks: e.target.value === '' ? 0 : Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="0 to 5" />
+                  <input type="number" required min="0" max="5" step="any" value={formData.negative_marks} onChange={e => setFormData({...formData, negative_marks: e.target.value === '' ? 0 : Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="0 to 5" />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm text-zinc-400 mb-1">Passing Marks</label>
-                <input type="number" required min="0" value={formData.passing_marks} onChange={e => setFormData({...formData, passing_marks: Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" />
+                <input type="number" required min="0" value={formData.passing_marks} onChange={e => setFormData({...formData, passing_marks: e.target.value === '' ? '' : Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="e.g. 40" />
               </div>
 
               <button type="submit" disabled={loading} className="w-full mt-4 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg disabled:opacity-50">

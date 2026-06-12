@@ -129,7 +129,7 @@ export default function EditQuestionPage() {
           exam_shift: q.metadata_json?.exam_shift || "",
         });
 
-        if (q.question_type === "SINGLE_CORRECT" || q.question_type === "ASSERTION_REASON") {
+        if (q.question_type === "SINGLE_CORRECT" || q.question_type === "ASSERTION_REASON" || q.question_type === "NUMERICAL") {
           const loadedOptions = (q.options_json?.options || [{ id: "A", text: "" }]).map((o: any, i: number) => ({
             ...o,
             id: String.fromCharCode(65 + i)
@@ -227,6 +227,7 @@ export default function EditQuestionPage() {
       switch (formData.type) {
         case "SINGLE_CORRECT":
         case "ASSERTION_REASON":
+        case "NUMERICAL":
           payload.options_json = { options: mcqData.options };
           payload.answer_key = { correct_option: mcqData.correct_option };
           break;
@@ -355,6 +356,7 @@ export default function EditQuestionPage() {
                 <option value="MATCHING" className="bg-zinc-900 text-white">Matching</option>
                 <option value="PASSAGE" className="bg-zinc-900 text-white">Passage (Comprehension)</option>
                 <option value="ASSERTION_REASON" className="bg-zinc-900 text-white">Assertion-Reasoning</option>
+                <option value="NUMERICAL" className="bg-zinc-900 text-white">Numerical (with Options)</option>
               </select>
             </div>
             <div>
@@ -390,7 +392,7 @@ export default function EditQuestionPage() {
         </Panel>
 
         {/* Dynamic Type-Specific UI */}
-        {(formData.type === "SINGLE_CORRECT" || formData.type === "MULTIPLE_CORRECT") && (
+        {(formData.type === "SINGLE_CORRECT" || formData.type === "MULTIPLE_CORRECT" || formData.type === "NUMERICAL") && (
           <McqForm type={formData.type} data={mcqData} onChange={setMcqData} />
         )}
         {formData.type === "ASSERTION_REASON" && (
