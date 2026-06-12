@@ -197,7 +197,7 @@ export default function EditQuestionPage() {
       // Invalidate the questions cache to fetch the new question instantly
       queryClient.invalidateQueries({ queryKey: ["questions", "list"] });
       // Instantly route to the questions bank 
-      router.push(role === "INTERN" ? "/intern/questions" : "/teacher/questions");
+      router.push(role === "INTERN" ? "/intern/questions" : role === "ADMIN" ? "/admin/questions" : "/teacher/questions");
     },
     onError: (err: any) => {
       setError(err?.response?.data?.message || err.message || "Failed to create question");

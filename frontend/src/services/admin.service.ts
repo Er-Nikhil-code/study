@@ -259,6 +259,16 @@ class AdminService {
     const res = await api.get("/admin/activity", { params: { take } });
     return res.data;
   }
+
+  /* ─── Enrollments ─── */
+  async getEnrollments(params?: {
+    page?: number;
+    limit?: number;
+    course_id?: string;
+  }): Promise<PaginatedResponse<any>> {
+    const res = await api.get<PaginatedResponse<any>>("/admin/enrollments", { params });
+    return res.data;
+  }
 }
 
 export const adminService = new AdminService();

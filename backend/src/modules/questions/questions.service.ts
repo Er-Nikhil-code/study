@@ -298,6 +298,7 @@ export class QuestionsService {
       intern_only?: string;
       teacher_id?: string;
       admin_search?: boolean;
+      search?: string;
       is_pyq?: boolean;
       exam_year?: string;
     },
@@ -345,6 +346,10 @@ export class QuestionsService {
         });
         const internIds = interns.map(i => i.id);
         where.created_by = { in: [filters.teacher_id, ...internIds] };
+      }
+
+      if (filters?.search) {
+        where.id = { contains: filters.search, mode: "insensitive" };
       }
 
       const [questions, total] = await Promise.all([

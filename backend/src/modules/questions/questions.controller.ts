@@ -79,6 +79,7 @@ export class QuestionsController {
     @Query("course_id") courseId?: string,
     @Query("type") type?: string,
     @Query("difficulty") difficulty?: string,
+    @Query("search") search?: string,
     @Query("is_pyq") isPyq?: string,
     @Query("exam_year") examYear?: string,
     @Query("page") page?: string,
@@ -93,6 +94,7 @@ export class QuestionsController {
     if (courseId) filters.course_id = courseId;
     if (type) filters.question_type = type;
     if (difficulty) filters.difficulty = difficulty;
+    if (search) filters.search = search;
     if (isPyq === "true") filters.is_pyq = true;
     if (examYear) filters.exam_year = examYear;
 

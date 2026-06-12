@@ -167,14 +167,14 @@ class AuthService {
 
   getAccessToken(): string | null {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("accessToken");
+      return localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
     }
     return null;
   }
 
   getUser(): any {
     if (typeof window !== "undefined") {
-      const user = localStorage.getItem("user");
+      const user = localStorage.getItem("user") || sessionStorage.getItem("user");
       return user ? JSON.parse(user) : null;
     }
     return null;

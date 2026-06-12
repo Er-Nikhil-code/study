@@ -235,16 +235,16 @@ export default function CoursesPage() {
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500/20 to-red-500/5 border border-red-500/30 text-red-400 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all">
                       <BookOpen size={28} />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <h3 className="text-xl font-bold text-white tracking-tight line-clamp-2 leading-snug group-hover:text-red-100 transition-colors">{course.name}</h3>
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex flex-wrap items-center gap-2 mt-2">
                         {canSeeCodeAndId && (
-                          <span className="text-[10px] uppercase tracking-wider font-semibold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-full">{course.code}</span>
+                          <span className="whitespace-nowrap shrink-0 text-[10px] uppercase tracking-wider font-semibold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-md">{course.code}</span>
                         )}
                         {course.is_enrolled ? (
-                          <span className="text-[10px] uppercase tracking-wider font-semibold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full">Enrolled</span>
+                          <span className="whitespace-nowrap shrink-0 text-[10px] uppercase tracking-wider font-semibold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-md">Enrolled</span>
                         ) : (course.price > 0 || course.discount_price > 0) && (
-                          <div className="flex items-center gap-2 text-zinc-400 bg-white/5 px-2 py-0.5 rounded text-xs font-medium">
+                          <div className="flex items-center shrink-0 whitespace-nowrap gap-2 text-zinc-400 bg-white/5 px-2 py-0.5 rounded-md text-[11px] font-medium">
                             {course.discount_price > 0 ? (
                               <>
                                 <span className="line-through opacity-50">₹{course.price}</span>
@@ -283,35 +283,10 @@ export default function CoursesPage() {
                         </span>
                         Enrolled
                       </div>
-                    ) : cartCourseIds.has(course.id) ? (
-                      <Link href="/student/cart" className="block w-full rounded-xl bg-white/10 py-2.5 text-center text-sm font-bold text-white shadow hover:bg-white/20 transition-all border border-white/10">
-                        Go to Cart
-                      </Link>
                     ) : (
-                      <button
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          try {
-                            if (course.price > 0 || course.discount_price > 0) {
-                              await CartService.addToCart(course.id);
-                              queryClient.invalidateQueries({ queryKey: ["cart"] });
-                            } else {
-                              // Free course enrollment
-                              await HierarchyService.enrollCourse(course.id);
-                              queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
-                            }
-                          } catch (err) {
-                            alert("Failed to add to cart or enroll. Please try again.");
-                          }
-                        }}
-                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-500 py-2.5 text-center text-sm font-bold text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:from-red-500 hover:to-red-400 transition-all active:scale-[0.98]"
-                      >
-                        {(course.price > 0 || course.discount_price > 0) ? (
-                          <>
-                            <ShoppingCart size={16} /> Add to Cart
-                          </>
-                        ) : "Enroll for Free"}
-                      </button>
+                      <Link href={`/courses/${course.id}`} className="block w-full rounded-xl bg-red-600 hover:bg-red-500 transition-all py-2.5 text-center text-sm font-bold text-white shadow shadow-red-500/20">
+                        Enroll
+                      </Link>
                     )}
                   </div>
                 )}

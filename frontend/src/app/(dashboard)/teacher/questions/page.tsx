@@ -28,6 +28,7 @@ export default function TeacherQuestionsPage() {
   const [diffFilter, setDiffFilter] = useState("ALL");
   const [pyqFilter, setPyqFilter] = useState("ALL");
   const [yearFilter, setYearFilter] = useState("");
+  const [searchFilter, setSearchFilter] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Submitting state
@@ -62,6 +63,7 @@ export default function TeacherQuestionsPage() {
       if (topicId) filters.topic_id = topicId;
       if (typeFilter !== "ALL") filters.type = typeFilter;
       if (diffFilter !== "ALL") filters.difficulty = diffFilter;
+      if (searchFilter) filters.search = searchFilter;
       if (pyqFilter !== "ALL") filters.is_pyq = pyqFilter === "YES";
       if (yearFilter) filters.exam_year = yearFilter;
       
@@ -208,7 +210,34 @@ export default function TeacherQuestionsPage() {
           <option value="">All Topics</option>
           {allTopics.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
-        
+      </div>
+
+      {/* Basic Filters bar */}
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        {/* Search */}
+        <div className="relative flex-1">
+          <svg
+            className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by ID..."
+            value={searchFilter}
+            onChange={(e) => setSearchFilter(e.target.value)}
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-2 pl-9 pr-4 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-red-500/30 focus:ring-1 focus:ring-red-500/20"
+          />
+        </div>
+
         {/* Type filter */}
         <select
           value={typeFilter}
@@ -260,7 +289,7 @@ export default function TeacherQuestionsPage() {
 
       <Panel className="mt-4 p-0 overflow-x-auto">
         <div className="min-w-[900px]">
-          <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
+          <div className="grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-left">
             <div>ID</div>
             <div>Title</div>
             <div>Type</div>
@@ -275,7 +304,7 @@ export default function TeacherQuestionsPage() {
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4"
+                  className="grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4"
                 >
                   <div className="h-4 w-64 animate-pulse rounded bg-white/10" />
                   <div className="h-4 w-48 animate-pulse rounded bg-white/10" />
@@ -300,19 +329,19 @@ export default function TeacherQuestionsPage() {
 
                 return (
                   <div key={q.id}>
-                    <div className={`grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-center ${q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION" ? "bg-white/[0.02]" : ""}`}>
+                    <div className={`grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-left ${q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION" ? "bg-white/[0.02]" : ""}`}>
                       <div className="font-mono text-[10px] text-zinc-500 truncate" title={q.id}>
-                        {q.id}
+                        {q.id.substring(0, 16)}...
                       </div>
 
                       <button
                         onClick={() =>
                           setExpandedId(expandedId === q.id ? null : q.id)
                         }
-                        className="truncate text-white hover:text-red-300 transition cursor-pointer mx-auto"
+                        className="truncate text-white hover:text-red-300 transition cursor-pointer text-left"
                       >
                         <div 
-                          className="text-sm font-medium text-white truncate max-w-[200px]"
+                          className="text-sm font-medium text-white truncate w-full"
                           title={q.content_json?.[0]?.content?.substring(0, 100) || "Question Content"}
                         >
                           {q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}

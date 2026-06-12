@@ -219,7 +219,7 @@ export default function AdminQuestionsPage() {
           </svg>
           <input
             type="text"
-            placeholder="Search by title or ID…"
+            placeholder="Search by ID..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-2 pl-9 pr-4 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-red-500/30 focus:ring-1 focus:ring-red-500/20"
@@ -296,7 +296,7 @@ export default function AdminQuestionsPage() {
       {/* Questions list */}
       <Panel className="mt-4 p-0 overflow-x-auto">
         <div className="min-w-[800px]">
-          <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
+          <div className="grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-left">
             <div>ID</div>
             <div>Title</div>
             <div>Type</div>
@@ -311,7 +311,7 @@ export default function AdminQuestionsPage() {
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4"
+                  className="grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4"
                 >
                   <div className="h-4 w-64 animate-pulse rounded bg-white/10" />
                   <div className="h-4 w-48 animate-pulse rounded bg-white/10" />
@@ -336,19 +336,19 @@ export default function AdminQuestionsPage() {
 
                 return (
                   <div key={q.id}>
-                    <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-center">
+                    <div className="grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-left">
                       <div className="font-mono text-[10px] text-zinc-500 truncate" title={q.id}>
-                        {q.id}
+                        {q.id.substring(0, 16)}...
                       </div>
 
                       <button
                         onClick={() =>
                           setExpandedId(expandedId === q.id ? null : q.id)
                         }
-                        className="truncate text-white hover:text-red-300 transition cursor-pointer mx-auto"
+                        className="truncate text-white hover:text-red-300 transition cursor-pointer text-left"
                       >
                         <div 
-                          className="text-sm font-medium text-white truncate max-w-[200px]"
+                          className="text-sm font-medium text-white truncate w-full"
                           title={q.content_json?.[0]?.content?.substring(0, 100) || "Question Content"}
                         >
                           {q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}

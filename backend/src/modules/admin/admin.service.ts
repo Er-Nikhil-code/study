@@ -468,7 +468,7 @@ export class AdminService {
 
       if (search) {
         where.OR = [
-          { id: { equals: search } }
+          { id: { contains: search, mode: "insensitive" } }
         ];
       }
 
@@ -737,6 +737,33 @@ export class AdminService {
     ]);
 
     return { recent_users: recentUsers, recent_challenges: recentChallenges, recent_questions: recentQuestions };
+  }
+
+  /* ─── ENROLLMENTS ─── */
+  async getEnrollments(params: { skip?: number; take?: number; course_id?: string }) {
+    try {
+      const { skip = 0, take = 20, course_id } = params;
+      const where = course_id ? { course_id } : {};
+
+      const [data, total] = await Promise.all([
+        this.prisma.courseEnrollment.findMany({
+          where,
+          skip,
+          take,
+          orderBy: { enrolled_at: "desc" },
+          include: {
+            user: { select: { id: true, first_name: true, last_name: true, email: true, role: true } },
+            course: { select: { id: true, name: true, code: true, price: true, discount_price: true } },
+          },
+        }),
+        this.prisma.courseEnrollment.count({ where }),
+      ]);
+
+      return { data, total, skip, take };
+    } catch (error: any) {
+      this.logger.error(`❌ [ADMIN] Error fetching enrollments: ${error?.message}`, error?.stack);
+      throw error;
+    }
   }
 }
 

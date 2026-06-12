@@ -234,5 +234,21 @@ export class AdminController {
   async getRecentActivity(@Query("take") take?: string) {
     return this.adminService.getRecentActivity(take ? parseInt(take, 10) : 10);
   }
+
+  /* ─── Enrollments ─── */
+  @Get("enrollments")
+  async getEnrollments(
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+    @Query("course_id") courseId?: string,
+  ) {
+    const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
+    return this.adminService.getEnrollments({
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
+      course_id: courseId,
+    });
+  }
 }
 

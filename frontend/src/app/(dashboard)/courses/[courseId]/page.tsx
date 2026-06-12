@@ -274,48 +274,42 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 subtitle={canSeeCode ? `Course Code: ${course.code}` : "Course Curriculum"} 
               />
             </div>
-            {isCreatorOrAdmin && (
-              <button 
-                onClick={() => setAddingSection(!addingSection)}
-                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 transition shadow-lg shadow-red-500/20"
-              >
-                <Plus size={16} /> Add Section
-              </button>
-            )}
+            <div className="flex items-center gap-4">
+              {user?.role === "STUDENT" && !course.is_enrolled && (
+                <button
+                  onClick={async () => {
+                    try {
+                      if (course.price > 0 || course.discount_price > 0) {
+                        await CartService.addToCart(course.id);
+                        queryClient.invalidateQueries({ queryKey: ["cart"] });
+                        router.push("/student/cart");
+                      } else {
+                        await HierarchyService.enrollCourse(course.id);
+                        queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
+                        fetchCourse();
+                      }
+                    } catch (e) {
+                      alert("Failed to enroll or add to cart");
+                    }
+                  }}
+                  className="rounded-xl bg-gradient-to-r from-red-600 to-red-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:from-red-500 hover:to-red-400 transition-all active:scale-[0.98] flex items-center gap-2"
+                >
+                  <Lock size={16} />
+                  {(course.price > 0 || course.discount_price > 0) ? "Add to Cart" : "Enroll Now"}
+                </button>
+              )}
+              {isCreatorOrAdmin && (
+                <button 
+                  onClick={() => setAddingSection(!addingSection)}
+                  className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 transition shadow-lg shadow-red-500/20"
+                >
+                  <Plus size={16} /> Add Section
+                </button>
+              )}
+            </div>
           </div>
 
-          {user?.role === "STUDENT" && !course.is_enrolled ? (
-            <Panel className="border border-red-500/20 bg-gradient-to-b from-zinc-900 to-black text-center py-20 max-w-5xl shadow-2xl">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-red-500/20 to-red-500/5 border border-red-500/30 text-red-500 mx-auto mb-6 shadow-inner">
-                <Lock size={40} />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-4">Course Locked</h2>
-              <p className="text-zinc-400 max-w-md mx-auto mb-8">
-                You must enroll in this course to access the curriculum, view notes, and attempt practice tests.
-              </p>
-              <button
-                onClick={async () => {
-                  try {
-                    if (course.price > 0 || course.discount_price > 0) {
-                      await CartService.addToCart(course.id);
-                      queryClient.invalidateQueries({ queryKey: ["cart"] });
-                      router.push("/student/cart");
-                    } else {
-                      await HierarchyService.enrollCourse(course.id);
-                      queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
-                      fetchCourse();
-                    }
-                  } catch (e) {
-                    alert("Failed to enroll or add to cart");
-                  }
-                }}
-                className="rounded-xl bg-gradient-to-r from-red-600 to-red-500 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:from-red-500 hover:to-red-400 transition-all active:scale-[0.98]"
-              >
-                Enroll Now
-              </button>
-            </Panel>
-          ) : (
-            <div className="space-y-8 max-w-5xl">
+          <div className="space-y-8 max-w-5xl">
             {addingSection && (
               <Panel className="border border-red-500/30 bg-black/50">
                 <form onSubmit={handleCreateSection} className="flex flex-col gap-4">
@@ -529,16 +523,39 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                   <p className="text-sm text-zinc-500 text-center py-2">No topics in this chapter.</p>
                                 ) : (
                                   <div className="grid gap-3 sm:grid-cols-2">
-                                    {chapter.topics?.map((topic: any, idx: number) => (
-                                      <div 
-                                        key={topic.id} 
-                                        className={`p-4 rounded-xl border ${draggedItem?.id === topic.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === chapter.id && draggedItem?.type === "TOPIC" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col h-full group relative cursor-default`}
-                                        draggable={isCreatorOrAdmin}
-                                        onDragStart={(e) => handleDragStart(e, topic.id, "TOPIC", chapter.id, idx)}
-                                        onDragOver={(e) => handleDragOver(e, "TOPIC", chapter.id, idx)}
-                                        onDrop={(e) => handleDrop(e, "TOPIC", chapter.id, idx)}
-                                        onDragEnd={() => { setDraggedItem(null); setDragOverIndex(null); setDragOverParentId(null); }}
-                                      >
+                                    {chapter.topics?.map((topic: any, idx: number) => {
+                                      const absoluteTopicIdx = section.chapters?.flatMap((c:any) => c.topics || []).findIndex((t:any) => t?.id === topic.id);
+                                      const isPreviewLocked = user?.role === "STUDENT" && !course.is_enrolled && absoluteTopicIdx >= 2;
+
+                                      return isPreviewLocked ? (
+                                        <div 
+                                          key={topic.id} 
+                                          onClick={() => {
+                                            alert("This topic is locked in the free preview. Please enroll in or purchase the course to unlock it.");
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                          }}
+                                          className="p-4 rounded-xl border border-white/5 bg-black/40 hover:bg-black/60 transition-all flex flex-col h-full group relative cursor-pointer"
+                                        >
+                                          <div className="flex-1">
+                                            <div className="flex justify-between items-start mb-2 pr-6">
+                                              <div className="flex items-center gap-2">
+                                                <div className="text-zinc-600"><Lock size={16} /></div>
+                                                <h5 className="font-medium text-zinc-500 text-md leading-tight">{topic.name}</h5>
+                                              </div>
+                                            </div>
+                                            <p className="text-[11px] text-zinc-600 font-medium mb-4 uppercase tracking-wider">Locked. Enroll to view contents.</p>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div 
+                                          key={topic.id} 
+                                          className={`p-4 rounded-xl border ${draggedItem?.id === topic.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === chapter.id && draggedItem?.type === "TOPIC" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col h-full group relative cursor-default`}
+                                          draggable={isCreatorOrAdmin}
+                                          onDragStart={(e) => handleDragStart(e, topic.id, "TOPIC", chapter.id, idx)}
+                                          onDragOver={(e) => handleDragOver(e, "TOPIC", chapter.id, idx)}
+                                          onDrop={(e) => handleDrop(e, "TOPIC", chapter.id, idx)}
+                                          onDragEnd={() => { setDraggedItem(null); setDragOverIndex(null); setDragOverParentId(null); }}
+                                        >
                                         {isCreatorOrAdmin && editingTopic !== topic.id && (
                                           <button 
                                             onClick={(e) => { e.preventDefault(); setEditingTopic(topic.id); setEditTopicForm({ name: topic.name, description: topic.description || "" }); }}
@@ -626,8 +643,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                             )}
                                           </div>
                                         )}
+                                        )}
                                       </div>
-                                    ))}
+                                    )})}
                                   </div>
                                 )}
                               </div>
@@ -659,7 +677,18 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
           )}
 
           {(user?.role === "ADMIN" || user?.role === "STUDENT") && (
-            <div className="mt-12 max-w-5xl">
+            <div className="mt-12 max-w-5xl relative">
+              {user?.role === "STUDENT" && !course.is_enrolled && (
+                <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center border border-white/10 shadow-2xl">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-900 border border-white/10 text-zinc-500 mb-4 shadow-inner">
+                    <Lock size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Leaderboard Locked</h3>
+                  <p className="text-zinc-400 max-w-sm text-center text-sm">
+                    Enroll in the course to view rankings, compare scores, and compete with other students.
+                  </p>
+                </div>
+              )}
               <CourseLeaderboard courseId={courseId} />
             </div>
           )}
