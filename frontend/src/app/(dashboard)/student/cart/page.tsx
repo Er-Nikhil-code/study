@@ -8,6 +8,7 @@ import { CartService } from "@/services/cart.service";
 import { PaymentService } from "@/services/payment.service";
 import { Trash2, CreditCard, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
+import authService from "@/services/auth.service";
 
 export default function CartPage() {
   const queryClient = useQueryClient();
@@ -54,6 +55,7 @@ export default function CartPage() {
       }
 
       const keyData = await PaymentService.getKey();
+      const user = authService.getUser();
       const options = {
         key: keyData.key,
         amount: orderData.amount,
@@ -77,8 +79,8 @@ export default function CartPage() {
           }
         },
         prefill: {
-          name: "Student",
-          email: "student@example.com",
+          name: user ? `${user.first_name || ""} ${user.last_name || ""}`.trim() : "Student",
+          email: user?.email || "student@example.com",
         },
         theme: {
           color: "#EF4444",

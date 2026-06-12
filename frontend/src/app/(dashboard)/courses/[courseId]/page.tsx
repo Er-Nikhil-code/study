@@ -9,12 +9,15 @@ import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText
 import CourseLeaderboard from "@/components/ui/CourseLeaderboard";
 import { useAuthStore } from "@/store/auth.store";
 import { useQueryClient } from "@tanstack/react-query";
+import { CartService } from "@/services/cart.service";
+import { useRouter } from "next/navigation";
 
 export default function CourseDetailPage({ params }: { params: Promise<{ courseId: string }> }) {
   const unwrappedParams = use(params);
   const { courseId } = unwrappedParams;
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
+  const router = useRouter();
   
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -293,11 +296,17 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               <button
                 onClick={async () => {
                   try {
-                    await HierarchyService.enrollCourse(course.id);
-                    queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
-                    fetchCourse();
+                    if (course.price > 0 || course.discount_price > 0) {
+                      await CartService.addToCart(course.id);
+                      queryClient.invalidateQueries({ queryKey: ["cart"] });
+                      router.push("/student/cart");
+                    } else {
+                      await HierarchyService.enrollCourse(course.id);
+                      queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
+                      fetchCourse();
+                    }
                   } catch (e) {
-                    alert("Failed to enroll");
+                    alert("Failed to enroll or add to cart");
                   }
                 }}
                 className="rounded-xl bg-gradient-to-r from-red-600 to-red-500 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:from-red-500 hover:to-red-400 transition-all active:scale-[0.98]"

@@ -42,33 +42,39 @@ export class PaymentService {
       return { free: true, orderId: null, amount: 0 };
     }
 
-    const razorpayOrder = await this.razorpay.orders.create({
-      amount: Math.round(totalAmount * 100), // in paise
-      currency: "INR",
-      receipt: `rcpt_${userId.slice(-10)}_${Date.now().toString().slice(-6)}`,
-    });
+    try {
+      const razorpayOrder = await this.razorpay.orders.create({
+        amount: Math.round(totalAmount * 100), // in paise
+        currency: "INR",
+        receipt: `rcpt_${userId.slice(-10)}_${Date.now().toString().slice(-6)}`,
+      });
 
-    const order = await this.prisma.order.create({
-      data: {
-        user_id: userId,
-        total_amount: totalAmount,
-        razorpay_order_id: razorpayOrder.id,
-        status: "PENDING",
-        items: {
-          create: cart.items.map((i) => ({
-            course_id: i.course_id,
-            price_paid: i.course.discount_price ?? i.course.price ?? 0,
-          })),
+      const order = await this.prisma.order.create({
+        data: {
+          user_id: userId,
+          total_amount: totalAmount,
+          razorpay_order_id: razorpayOrder.id,
+          status: "PENDING",
+          items: {
+            create: cart.items.map((i) => ({
+              course_id: i.course_id,
+              price_paid: i.course.discount_price ?? i.course.price ?? 0,
+            })),
+          },
         },
-      },
-    });
+      });
 
-    return {
-      orderId: razorpayOrder.id,
-      amount: razorpayOrder.amount,
-      currency: razorpayOrder.currency,
-      dbOrderId: order.id,
-    };
+      return {
+        orderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        dbOrderId: order.id,
+      };
+    } catch (error: any) {
+      console.error("Razorpay Create Order Error:", error);
+      throw new BadRequestException(error.message || "Failed to create Razorpay order");
+    }
+
   }
 
   async verifyPayment(userId: string, data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) {
