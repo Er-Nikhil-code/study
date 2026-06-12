@@ -279,7 +279,7 @@ export default function CoursesPage() {
                           <span className="text-zinc-400 tracking-normal">{course.launch_date ? new Date(course.launch_date).toLocaleDateString() : 'TBD'}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span>Enrolled / Purchased</span>
+                          <span>Enrolled</span>
                           <span className="text-white font-semibold tracking-normal">{course.enrollment_count || 0}</span>
                         </div>
                       </div>

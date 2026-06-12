@@ -13,14 +13,12 @@ export default function Loading() {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        minHeight: "50vh",
         width: "100%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background:
-          "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(220,38,38,0.18) 0%, transparent 70%), #050505",
         position: "relative",
         overflow: "hidden",
       }}

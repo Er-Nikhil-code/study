@@ -3,7 +3,7 @@ import Logo from "./Logo";
 
 export default function AppLoader() {
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-transparent">
       <div className="relative flex flex-col items-center justify-center animate-pulse duration-1000">
         <Logo size="lg" className="mb-8" />
         
