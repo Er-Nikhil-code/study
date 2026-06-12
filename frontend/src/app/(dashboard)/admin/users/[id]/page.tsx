@@ -59,13 +59,16 @@ export default function AdminUserProfilePage() {
         role: user.role,
         is_active: user.is_active,
         custom_role_id: user.custom_role_id || "",
+        course_enrolled: user.course_enrolled || "",
       });
     }
     setIsEditing(!isEditing);
   };
 
   const handleSave = () => {
-    updateMutation.mutate(editForm);
+    const payload = { ...editForm };
+    if (payload.course_enrolled === "") payload.course_enrolled = null;
+    updateMutation.mutate(payload);
   };
 
   return (
@@ -238,9 +241,32 @@ export default function AdminUserProfilePage() {
                   )}
                 </div>
 
-                <div className="flex justify-between items-center">
+                <div className={`flex ${isEditing ? 'flex-col items-start gap-1' : 'justify-between items-center'}`}>
                   <span className="text-zinc-500">Enrolled Course</span>
-                  <span className="text-zinc-300">{user.course_enrolled || "—"}</span>
+                  {isEditing ? (
+                    <div className="flex w-full items-center gap-2">
+                      <input
+                        type="text"
+                        value={editForm.course_enrolled}
+                        onChange={e => setEditForm({ ...editForm, course_enrolled: e.target.value })}
+                        placeholder="No Course Enrolled"
+                        disabled
+                        className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-zinc-500 cursor-not-allowed outline-none"
+                      />
+                      {editForm.course_enrolled && (
+                        <button
+                          type="button"
+                          onClick={() => setEditForm({ ...editForm, course_enrolled: "" })}
+                          className="px-2 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded transition"
+                          title="Remove student from this course"
+                        >
+                          Unenroll
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-zinc-300">{user.course_enrolled || "—"}</span>
+                  )}
                 </div>
                 {user.assigned_teacher && (
                   <div className="flex justify-between items-center">

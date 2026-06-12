@@ -241,7 +241,9 @@ export default function CoursesPage() {
                         {canSeeCodeAndId && (
                           <span className="text-[10px] uppercase tracking-wider font-semibold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-full">{course.code}</span>
                         )}
-                        {(course.price > 0 || course.discount_price > 0) && (
+                        {course.is_enrolled ? (
+                          <span className="text-[10px] uppercase tracking-wider font-semibold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full">Enrolled</span>
+                        ) : (course.price > 0 || course.discount_price > 0) && (
                           <div className="flex items-center gap-2 text-zinc-400 bg-white/5 px-2 py-0.5 rounded text-xs font-medium">
                             {course.discount_price > 0 ? (
                               <>
