@@ -23,8 +23,8 @@ export default function AdminEnrollmentsPage() {
   return (
     <>
       <SectionTitle
-        title="Student Enrollments"
-        subtitle={`Track purchased courses and student enrollments (${total} total)`}
+        title="Warrior Enrollments"
+        subtitle={`Track purchased courses and warrior enrollments (${total} total)`}
         action={
           <button
             disabled={isFetching}
@@ -53,7 +53,7 @@ export default function AdminEnrollmentsPage() {
             <table className="w-full text-left text-sm text-zinc-400">
               <thead className="border-b border-white/5 bg-white/[0.02] text-xs uppercase tracking-wider text-zinc-500">
                 <tr>
-                  <th className="px-6 py-4 font-medium">Student</th>
+                  <th className="px-6 py-4 font-medium">Warrior</th>
                   <th className="px-6 py-4 font-medium">Course</th>
                   <th className="px-6 py-4 font-medium">Status</th>
                   <th className="px-6 py-4 font-medium">Enrolled Date</th>

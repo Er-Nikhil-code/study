@@ -166,10 +166,10 @@ export default function AdminUserProfilePage() {
                       onChange={e => setEditForm({ ...editForm, role: e.target.value })}
                       className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-red-500/50"
                     >
-                      <option value="STUDENT">STUDENT</option>
-                      <option value="INTERN">INTERN</option>
-                      <option value="TEACHER">TEACHER</option>
-                      <option value="ADMIN">ADMIN</option>
+                      <option value="STUDENT">WARRIOR</option>
+                      <option value="INTERN">PAWN</option>
+                      <option value="TEACHER">KNIGHT</option>
+                      <option value="ADMIN">KING</option>
                     </select>
                   </div>
                   <div>
@@ -267,7 +267,7 @@ export default function AdminUserProfilePage() {
                           type="button"
                           onClick={() => setEditForm({ ...editForm, course_enrolled: "" })}
                           className="px-2 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded transition"
-                          title="Remove student from this course"
+                          title="Remove warrior from this course"
                         >
                           Unenroll
                         </button>

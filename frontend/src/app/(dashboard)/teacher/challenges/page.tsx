@@ -17,7 +17,7 @@ export default function TeacherChallengesPage() {
   const [resolutionNote, setResolutionNote] = useState("");
   
   // Escalation specific state
-  const [escalationTargets, setEscalationTargets] = useState<{ interns: any[], admins: any[] }>({ interns: [], admins: [] });
+  const [escalationTargets, setEscalationTargets] = useState<{ pawns: any[], kings: any[] }>({ pawns: [], kings: [] });
   const [selectedTargetId, setSelectedTargetId] = useState("");
 
   // Revise Content specific state
@@ -114,7 +114,7 @@ export default function TeacherChallengesPage() {
     <>
       <SectionTitle
         title="Challenges"
-        subtitle="Review student challenge submissions. You can resolve them, revise content directly, reject, or escalate to interns/admins."
+        subtitle="Review warrior challenge submissions. You can resolve them, revise content directly, reject, or escalate to pawns/kings."
       />
 
       <div className="mt-6 grid gap-4">
@@ -156,7 +156,7 @@ export default function TeacherChallengesPage() {
                     )}
                   </h3>
                   <p className="mt-1 text-sm text-zinc-400">
-                    Submitted by: {challenge.created_by?.first_name || challenge.created_by?.email || "Student"}
+                    Submitted by: {challenge.created_by?.first_name || challenge.created_by?.email || "Warrior"}
                   </p>
                 </div>
 
@@ -247,16 +247,16 @@ export default function TeacherChallengesPage() {
                   className="w-full rounded-xl bg-zinc-900 border border-white/10 px-4 py-3 text-white focus:outline-none focus:border-red-500/50"
                 >
                   <option value="">-- Select User --</option>
-                  {escalationTargets.admins.length > 0 && (
-                    <optgroup label="Admins">
-                      {escalationTargets.admins.map(a => (
-                        <option key={a.id} value={a.id}>{a.first_name || a.email} (Admin)</option>
+                  {escalationTargets.kings.length > 0 && (
+                    <optgroup label="Kings">
+                      {escalationTargets.kings.map(a => (
+                        <option key={a.id} value={a.id}>{a.first_name || a.email} (King)</option>
                       ))}
                     </optgroup>
                   )}
-                  {escalationTargets.interns.length > 0 && (
+                  {escalationTargets.pawns.length > 0 && (
                     <optgroup label="Your Pawns">
-                      {escalationTargets.interns.map(i => (
+                      {escalationTargets.pawns.map(i => (
                         <option key={i.id} value={i.id}>{i.first_name || i.email} (Pawn)</option>
                       ))}
                     </optgroup>

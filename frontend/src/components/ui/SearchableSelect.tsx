@@ -42,7 +42,7 @@ export default function SearchableSelect({
   }, []);
 
   const filteredOptions = options.filter((opt) =>
-    opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+    (opt.label || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

@@ -131,7 +131,7 @@ export function RegisterForm() {
         if (role === "ADMIN") window.location.href = "/admin";
         else if (role === "TEACHER") window.location.href = "/teacher";
         else if (role === "INTERN") window.location.href = "/intern/dashboard";
-        else window.location.href = "/student/dashboard";
+        else window.location.href = "/warrior/dashboard";
       }, 2000);
     } catch (error: any) {
       const message =

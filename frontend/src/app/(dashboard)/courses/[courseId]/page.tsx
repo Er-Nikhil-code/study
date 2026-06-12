@@ -34,7 +34,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
     enabled: !!isCreatorOrAdmin,
   });
 
-  const { data: interns } = useQuery({
+  const { data: pawns } = useQuery({
     queryKey: ["interns"],
     queryFn: () => adminService.getUsers({ role: "INTERN", limit: 100 }),
     enabled: !!isCreatorOrAdmin,
@@ -799,7 +799,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         { value: "", label: "Assign a Knight...", disabled: true },
                         ...(knights?.data?.map((k: any) => ({
                           value: k.id,
-                          label: `${k.name} (${k.email})`,
+                          label: `${k.name || 'Unknown'} (${k.email})`,
                           disabled: course.staff?.some((s: any) => s.user_id === k.id)
                         })) || [])
                       ]}
@@ -858,7 +858,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           { value: "", label: "No Manager" },
                           ...(knights?.data?.map((k: any) => ({
                             value: k.id,
-                            label: k.name
+                            label: k.name || k.email || "Unknown User"
                           })) || [])
                         ]}
                         value={section.managed_by || ""}
@@ -901,7 +901,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Leaderboard Locked</h3>
                   <p className="text-zinc-400 max-w-sm text-center text-sm">
-                    Enroll in the course to view rankings, compare scores, and compete with other students.
+                    Enroll in the course to view rankings, compare scores, and compete with other warriors.
                   </p>
                 </div>
               )}

@@ -27,7 +27,7 @@ export default function LeaderboardPage() {
 
   return (
     <>
-        <SectionTitle title="Leaderboard" subtitle="See how you stack up against other students." />
+        <SectionTitle title="Leaderboard" subtitle="See how you stack up against other warriors." />
 
         {/* Period tabs */}
         <div className="mt-6 flex gap-2">

@@ -3,7 +3,7 @@ import Panel from "@/components/ui/Panel";
 const users = [
   {
     name: "Aarav Sharma",
-    role: "Student",
+    role: "Warrior",
   },
   {
     name: "Priya Nair",

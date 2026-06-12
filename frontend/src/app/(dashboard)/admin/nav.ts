@@ -1,16 +1,16 @@
 import { LayoutDashboard, Users, Shield, FileQuestion, CheckSquare, ShieldAlert, Activity, ShoppingCart } from "lucide-react";
 
 /**
- * Shared navigation items for all admin pages.
- * Single source of truth — imported by every admin page.
+ * Shared navigation items for all king pages.
+ * Single source of truth — imported by every king page.
  */
 export const adminNavItems = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Enrollments", href: "/admin/enrollments", icon: ShoppingCart },
-  { label: "Roles", href: "/admin/roles", icon: Shield },
-  { label: "Questions", href: "/admin/questions", icon: FileQuestion },
-  { label: "Approvals", href: "/admin/approvals", icon: CheckSquare },
-  { label: "Challenges", href: "/admin/challenges", icon: ShieldAlert },
-  { label: "System", href: "/admin/system", icon: Activity },
+  { label: "Dashboard", href: "/king", icon: LayoutDashboard },
+  { label: "Users", href: "/king/users", icon: Users },
+  { label: "Enrollments", href: "/king/enrollments", icon: ShoppingCart },
+  { label: "Roles", href: "/king/roles", icon: Shield },
+  { label: "Questions", href: "/king/questions", icon: FileQuestion },
+  { label: "Approvals", href: "/king/approvals", icon: CheckSquare },
+  { label: "Challenges", href: "/king/challenges", icon: ShieldAlert },
+  { label: "System", href: "/king/system", icon: Activity },
 ];

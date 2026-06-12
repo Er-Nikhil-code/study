@@ -490,7 +490,7 @@ export default function AIGenerationPage() {
           <div className="mt-4 pt-4 border-t border-white/10">
             <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded text-xs text-blue-300">
               <strong className="block mb-1 text-blue-400">Knight Quota</strong>
-              You can generate a maximum of 50 AI questions per day. Your teacher account acts as the creator.
+              You can generate a maximum of 50 AI questions per day. Your knight account acts as the creator.
             </div>
           </div>
         </Panel>
@@ -689,7 +689,7 @@ export default function AIGenerationPage() {
                     {sim.content_json?.[0]?.content || "No text preview"}
                   </p>
                   <a 
-                    href={isAdmin ? `/admin/questions/${sim.id}/edit` : `/teacher/questions/${sim.id}/edit`}
+                    href={isAdmin ? `/king/questions/${sim.id}/edit` : `/knight/questions/${sim.id}/edit`}
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="mt-3 inline-block text-xs text-blue-400 hover:text-blue-300 hover:underline"

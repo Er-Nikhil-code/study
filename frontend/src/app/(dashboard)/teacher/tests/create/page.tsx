@@ -116,9 +116,9 @@ export default function CreateTestPage() {
   };
 
   const navItems = [
-    { label: "Knight home", href: "/teacher" },
-    { label: "Questions", href: "/teacher/questions" },
-    { label: "Tests", href: "/teacher/tests" },
+    { label: "Knight home", href: "/knight" },
+    { label: "Questions", href: "/knight/questions" },
+    { label: "Tests", href: "/knight/tests" },
   ];
 
   return (

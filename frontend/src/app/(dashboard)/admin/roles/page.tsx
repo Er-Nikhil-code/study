@@ -18,7 +18,7 @@ const PERMISSION_GROUPS = {
   "Challenges": ["submit_challenge", "review_challenge", "manage_challenges"],
   "User Management": ["manage_users", "manage_roles", "approve_teachers"],
   "System": ["view_audit_logs", "system_health"],
-  "Student Specific": ["take_test", "view_results"]
+  "Warrior Specific": ["take_test", "view_results"]
 };
 
 const ALL_PERMISSIONS = Object.values(PERMISSION_GROUPS).flat();

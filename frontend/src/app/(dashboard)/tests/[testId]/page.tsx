@@ -165,7 +165,7 @@ export default function TestDetailsPage() {
                 <thead className="bg-black/40 text-xs uppercase text-zinc-500">
                   <tr>
                     <th className="px-4 py-3 rounded-tl-xl">Rank</th>
-                    <th className="px-4 py-3">Student</th>
+                    <th className="px-4 py-3">Warrior</th>
                     <th className="px-4 py-3">Score</th>
                     <th className="px-4 py-3 rounded-tr-xl">Time Taken</th>
                   </tr>

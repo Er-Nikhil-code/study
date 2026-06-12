@@ -9,7 +9,7 @@ export default function AdminChallengesPage() {
     <>
       <SectionTitle
         title="Escalated challenges"
-        subtitle="Admin override queue for unresolved or escalated student issues."
+        subtitle="King override queue for unresolved or escalated warrior issues."
       />
 
       <div className="mt-6 grid gap-4">

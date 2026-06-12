@@ -391,7 +391,7 @@ export default function TeacherQuestionsPage() {
                         {canSeeActions(q) && (
                           <>
                             {canEdit(q) && (
-                              <Link href={`/teacher/questions/${q.id}/edit`}
+                              <Link href={`/knight/questions/${q.id}/edit`}
                                 className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-xs text-zinc-300 transition hover:bg-white/[0.06]">
                                 Edit
                               </Link>

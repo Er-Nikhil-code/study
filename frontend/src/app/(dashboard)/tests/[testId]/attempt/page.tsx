@@ -8,6 +8,7 @@ import studentService, {
 } from "@/services/student.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import Link from "next/link";
+import AppLoader from "@/components/ui/AppLoader";
 
 /* ─── Helper: format seconds to MM:SS ─── */
 function formatTime(sec: number) {
@@ -179,14 +180,7 @@ export default function AttemptPage() {
   const unansweredCount = questions.length - answeredCount;
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-red-500 border-t-transparent mx-auto" />
-          <p className="mt-4 text-zinc-400 text-sm">Loading test…</p>
-        </div>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   if (error) {

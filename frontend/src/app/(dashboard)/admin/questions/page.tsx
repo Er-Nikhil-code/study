@@ -377,11 +377,11 @@ export default function AdminQuestionsPage() {
                         {q.creator || q.created_by ? (
                           <UserHoverCard userId={q.created_by}>
                             <span className="block truncate max-w-[120px]">
-                              {q.creator ? `${q.creator.first_name || ""} ${q.creator.last_name || ""}`.trim() || "Admin" : q.created_by}
+                              {q.creator ? `${q.creator.first_name || ""} ${q.creator.last_name || ""}`.trim() || "King" : q.created_by}
                             </span>
                           </UserHoverCard>
                         ) : (
-                          <span className="block truncate max-w-[120px]">Admin</span>
+                          <span className="block truncate max-w-[120px]">King</span>
                         )}
                       </div>
 
@@ -405,7 +405,7 @@ export default function AdminQuestionsPage() {
                         ) : (
                           <>
                             <Link
-                              href={`/admin/questions/${q.id}/edit`}
+                              href={`/king/questions/${q.id}/edit`}
                               className="rounded-lg border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs text-purple-300 transition hover:bg-purple-500/20"
                             >
                               Edit

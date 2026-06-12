@@ -7,7 +7,7 @@ import { Users, CheckCircle, FileQuestion, Activity } from "lucide-react";
 import { api } from "@/lib/api";
 
 export default function TeacherInternsPage() {
-  const { data: interns = [], isLoading, error } = useQuery({
+  const { data: pawns = [], isLoading, error } = useQuery({
     queryKey: ["teacher", "interns"],
     queryFn: () => api.get("/teacher/interns").then((res) => res.data),
   });
@@ -50,12 +50,12 @@ export default function TeacherInternsPage() {
     <>
       <SectionTitle
         title="My Pawns"
-        subtitle="Track the progress and activity of interns assigned to you."
+        subtitle="Track the progress and activity of pawns assigned to you."
       />
 
       {error && (
         <div className="mt-4 rounded-2xl border border-red-600/30 bg-red-600/10 px-4 py-3 text-sm text-red-400">
-          Failed to load interns data.
+          Failed to load pawns data.
         </div>
       )}
 
@@ -67,7 +67,7 @@ export default function TeacherInternsPage() {
         </div>
       ) : (
         <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {interns.map((intern: any) => (
+          {pawns.map((pawn: any) => (
             <Panel key={intern.id} className="flex flex-col relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:scale-110 transition-transform">
                 <Users size={120} />
@@ -75,11 +75,11 @@ export default function TeacherInternsPage() {
               
               <div className="flex items-center gap-4 border-b border-white/10 pb-4 mb-4 relative z-10">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/30 text-purple-400 font-bold text-lg shadow-[0_0_15px_rgba(168,85,247,0.15)]">
-                  {intern.first_name?.[0] || intern.email[0].toUpperCase()}
+                  {pawn.first_name?.[0] || pawn.email[0].toUpperCase()}
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white tracking-tight">
-                    {intern.first_name} {intern.last_name}
+                    {pawn.first_name} {pawn.last_name}
                   </h3>
                   <p className="text-xs text-zinc-400">{intern.email}</p>
                 </div>
@@ -111,15 +111,15 @@ export default function TeacherInternsPage() {
                   <Activity size={16} className="text-purple-400" />
                   30-Day Activity Heatmap
                 </div>
-                {renderHeatmap(intern.stats.heatmap)}
+                {renderHeatmap(pawn.stats.heatmap)}
               </div>
             </Panel>
           ))}
           
-          {interns.length === 0 && (
+          {pawns.length === 0 && (
             <div className="col-span-full py-12 text-center border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
               <Users size={32} className="mx-auto text-zinc-600 mb-3" />
-              <p className="text-sm font-medium text-zinc-400">No interns are currently assigned to you.</p>
+              <p className="text-sm font-medium text-zinc-400">No pawns are currently assigned to you.</p>
             </div>
           )}
         </div>

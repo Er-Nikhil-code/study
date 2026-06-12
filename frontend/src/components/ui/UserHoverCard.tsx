@@ -97,7 +97,11 @@ export default function UserHoverCard({ userId, children }: UserHoverCardProps) 
                 <div className="flex items-center gap-1.5 mt-1.5">
                   <ShieldCheck size={12} className="text-emerald-500" />
                   <span className="text-xs font-medium text-emerald-400 uppercase tracking-wider">
-                    {userInfo.custom_role ? userInfo.custom_role.name : userInfo.role}
+                    {userInfo.custom_role ? userInfo.custom_role.name : 
+                     (userInfo.role === 'STUDENT' ? 'WARRIOR' : 
+                      userInfo.role === 'TEACHER' ? 'KNIGHT' : 
+                      userInfo.role === 'INTERN' ? 'PAWN' : 
+                      userInfo.role === 'ADMIN' ? 'KING' : userInfo.role)}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-2">
@@ -114,10 +118,10 @@ export default function UserHoverCard({ userId, children }: UserHoverCardProps) 
                     <span className="text-zinc-500">Reports to:</span>
                     <span className="font-medium text-zinc-300">
                       {userInfo.role === 'TEACHER' 
-                        ? 'Admin' 
+                        ? 'King' 
                         : (userInfo.assigned_teacher 
                             ? `${userInfo.assigned_teacher.first_name} ${userInfo.assigned_teacher.last_name}` 
-                            : 'Admin')}
+                            : 'King')}
                     </span>
                   </div>
                 )}

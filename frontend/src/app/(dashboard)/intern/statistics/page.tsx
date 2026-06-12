@@ -17,7 +17,7 @@ export default function InternStatisticsPage() {
         const data = await studentService.getTeacherDashboard();
         if (isMounted) setDashboardData(data);
       } catch (err) {
-        console.error("Failed to fetch intern statistics", err);
+        console.error("Failed to fetch pawn statistics", err);
       } finally {
         if (isMounted) setLoading(false);
       }

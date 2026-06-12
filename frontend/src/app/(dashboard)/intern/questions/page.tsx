@@ -63,7 +63,7 @@ export default function InternQuestionsPage() {
 
   const filteredQuestions = useMemo(() => {
     let filtered = questions;
-    // For interns, we might only want to show their own questions if backend doesn't filter.
+    // For pawns, we might only want to show their own questions if backend doesn't filter.
     // Assuming backend returns only their questions, but let's double check.
     filtered = filtered.filter(q => q.created_by === userId);
     
@@ -155,7 +155,7 @@ export default function InternQuestionsPage() {
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {q.approval_status !== "APPROVED" && (
-                  <Link href={`/teacher/questions/${q.id}/edit`}
+                  <Link href={`/knight/questions/${q.id}/edit`}
                     className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
                     Edit
                   </Link>

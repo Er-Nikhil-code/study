@@ -51,9 +51,9 @@ export default function CreateNotePage() {
   };
 
   const navItems = [
-    { label: "Pawn home", href: "/intern" },
-    { label: "Create Questions", href: "/intern/questions/create" },
-    { label: "Create Notes", href: "/intern/notes/create" },
+    { label: "Pawn home", href: "/pawn" },
+    { label: "Create Questions", href: "/pawn/questions/create" },
+    { label: "Create Notes", href: "/pawn/notes/create" },
   ];
 
   return (
@@ -63,7 +63,7 @@ export default function CreateNotePage() {
       <Panel className="mt-6 max-w-4xl">
         {success && (
           <div className="mb-6 rounded bg-green-900/50 border border-green-500/50 p-4 text-green-400">
-            {isPrivileged ? "Note created and published successfully!" : "Note submitted successfully! It is now pending teacher review."}
+            {isPrivileged ? "Note created and published successfully!" : "Note submitted successfully! It is now pending knight review."}
           </div>
         )}
 

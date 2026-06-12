@@ -35,12 +35,12 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
   };
 
   const handlePrefetch = (href: string) => {
-    if (href === "/admin") {
+    if (href === "/king") {
       queryClient.prefetchQuery({
         queryKey: ["admin", "dashboard", "stats"],
         queryFn: () => adminService.getDashboardStats()
       });
-    } else if (href === "/admin/users") {
+    } else if (href === "/king/users") {
       queryClient.prefetchQuery({
         queryKey: ["admin", "users", { search: "", roleFilter: "ALL", page: 0 }],
         queryFn: () => adminService.getUsers({ page: 1, limit: 15 })
@@ -67,10 +67,10 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
   const getDashboardUrl = () => {
     if (!mounted || !isAuthenticated || !user) return "/";
     switch (user.role) {
-      case "STUDENT": return "/student/dashboard";
-      case "INTERN": return "/intern/dashboard";
-      case "TEACHER": return "/teacher";
-      case "ADMIN": return "/admin";
+      case "STUDENT": return "/warrior/dashboard";
+      case "INTERN": return "/pawn/dashboard";
+      case "TEACHER": return "/knight";
+      case "ADMIN": return "/king";
       default: return "/dashboard";
     }
   };

@@ -18,7 +18,7 @@ export default function ExamInterfacePage() {
   const [activeQuestionIdx, setActiveQuestionIdx] = useState(0);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   
-  // States to track student actions
+  // States to track warrior actions
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [statuses, setStatuses] = useState<Record<string, QuestionStatus>>({});
   
@@ -40,7 +40,7 @@ export default function ExamInterfacePage() {
       if (document.fullscreenElement) {
         document.exitFullscreen().catch(console.error);
       }
-      router.replace(`/student/tests/${testId}/attempt/${attemptId}/result`);
+      router.replace(`/warrior/tests/${testId}/attempt/${attemptId}/result`);
     },
     onError: (err: any) => {
       alert(err?.response?.data?.message || "Failed to submit test.");

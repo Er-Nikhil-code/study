@@ -93,7 +93,7 @@ export default function AdminUsersPage() {
       await adminService.updateUser(userId, { assigned_teacher_id: teacherId || null });
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to assign teacher");
+      alert(err?.response?.data?.message || "Failed to assign knight");
     }
   };
 
@@ -114,7 +114,7 @@ export default function AdminUsersPage() {
     try {
       // Optimistically update the UI cache
       queryClient.setQueryData(
-        ["admin", "users", { search, roleFilter, page }],
+        ["king", "users", { search, roleFilter, page }],
         (old: any) => {
           if (!old) return old;
           return {
@@ -326,7 +326,7 @@ export default function AdminUsersPage() {
                       onChange={(e) => handleTeacherAssign(user.id, e.target.value)}
                     >
                       <option value="">No Knight Assigned</option>
-                      {(teachers || []).map((t: any) => (
+                      {(knights || []).map((t: any) => (
                         <option key={t.id} value={t.id}>
                           {t.first_name || "—"} {t.last_name || ""}
                         </option>

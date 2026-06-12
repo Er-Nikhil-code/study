@@ -11,10 +11,10 @@ import authService from "@/services/auth.service";
 import UserHoverCard from "@/components/ui/UserHoverCard";
 
 const navItems = [
-  { label: "Knight home", href: "/teacher" },
-  { label: "Questions", href: "/teacher/questions" },
-  { label: "Tests", href: "/teacher/tests" },
-  { label: "Challenges", href: "/teacher/challenges" },
+  { label: "Knight home", href: "/knight" },
+  { label: "Questions", href: "/knight/questions" },
+  { label: "Tests", href: "/knight/tests" },
+  { label: "Challenges", href: "/knight/challenges" },
 ];
 
 export default function ReviewQuestionsPage() {
@@ -241,7 +241,7 @@ export default function ReviewQuestionsPage() {
               <div className="flex gap-3">
                 <button onClick={handleEscalate} disabled={actionLoading}
                   className="rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/20 disabled:opacity-50">
-                  {actionLoading ? "Processing…" : "Escalate to Admin"}
+                  {actionLoading ? "Processing…" : "Escalate to King"}
                 </button>
                 <button onClick={handleReject} disabled={actionLoading || !rejectNote.trim()}
                   className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300 transition hover:bg-rose-500/20 disabled:opacity-50">

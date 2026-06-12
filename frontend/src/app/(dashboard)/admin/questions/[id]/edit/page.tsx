@@ -20,15 +20,15 @@ import AssertionReasonForm from "../../../../teacher/questions/create/forms/Asse
 const getNavItems = (role: string) => {
   if (role === "INTERN") {
     return [
-      { label: "Pawn Dashboard", href: "/intern/dashboard" },
-      { label: "Question Bank", href: "/teacher/questions" },
+      { label: "Pawn Dashboard", href: "/pawn/dashboard" },
+      { label: "Question Bank", href: "/knight/questions" },
     ];
   }
   return [
-    { label: "Knight home", href: "/teacher" },
-    { label: "Questions", href: "/teacher/questions" },
-    { label: "Tests", href: "/teacher/tests" },
-    { label: "Challenges", href: "/teacher/challenges" },
+    { label: "Knight home", href: "/knight" },
+    { label: "Questions", href: "/knight/questions" },
+    { label: "Tests", href: "/knight/tests" },
+    { label: "Challenges", href: "/knight/challenges" },
   ];
 };
 

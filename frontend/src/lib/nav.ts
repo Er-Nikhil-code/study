@@ -55,7 +55,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
   // Base Dashboard for Staff
   const items: NavItem[] = [];
   
-  if (user.role === "ADMIN") items.push({ label: "Dashboard", href: "/admin", icon: LayoutDashboard });
+  if (user.role === "ADMIN") items.push({ label: "King Dashboard", href: "/admin", icon: LayoutDashboard });
   else if (user.role === "TEACHER") items.push({ label: "Knight Dashboard", href: "/teacher", icon: LayoutDashboard });
   else if (user.role === "INTERN") items.push({ label: "Pawn Dashboard", href: "/intern/dashboard", icon: LayoutDashboard });
 

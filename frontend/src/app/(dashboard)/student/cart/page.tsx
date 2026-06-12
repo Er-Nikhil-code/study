@@ -79,8 +79,8 @@ export default function CartPage() {
           }
         },
         prefill: {
-          name: user ? `${user.first_name || ""} ${user.last_name || ""}`.trim() : "Student",
-          email: user?.email || "student@example.com",
+          name: user ? `${user.first_name || ""} ${user.last_name || ""}`.trim() : "Warrior",
+          email: user?.email || "warrior@example.com",
         },
         theme: {
           color: "#EF4444",
