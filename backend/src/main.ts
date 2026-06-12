@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { Logger } from "@nestjs/common";
+import { PrismaService } from "./prisma/prisma.service";
 
 async function bootstrap() {
   const logger = new Logger("Bootstrap");
@@ -17,6 +18,15 @@ async function bootstrap() {
   }
 
   const app = await NestFactory.create(AppModule);
+
+  // Auto-publish any stuck DRAFT tests
+  try {
+    const prisma = app.get(PrismaService);
+    await prisma.test.updateMany({ where: { status: "DRAFT" }, data: { status: "PUBLISHED" } });
+    logger.log("✅ Auto-published all DRAFT tests");
+  } catch (err) {
+    logger.error("Failed to auto-publish draft tests", err);
+  }
 
   // Parse CORS origins from environment variable, with sensible defaults
   const defaultOrigins = [

@@ -114,7 +114,7 @@ export default function TestDetailsPage() {
             </div>
           </div>
 
-          {test.passing_marks && (
+          {test.passing_marks != null && (
             <p className="mt-4 text-sm text-zinc-400">
               Passing marks: <span className="text-white font-medium">{test.passing_marks}</span>
             </p>
@@ -185,8 +185,8 @@ export default function TestDetailsPage() {
                         </td>
                         <td className="px-4 py-3 flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden">
-                            {row.user?.profile_picture_url ? (
-                              <Image src={row.user.profile_picture_url} alt="" width={24} height={24} className="w-full h-full object-cover" />
+                            {row.user?.profile_picture ? (
+                              <Image src={row.user.profile_picture} alt="" width={24} height={24} className="w-full h-full object-cover" />
                             ) : (
                               <UserIcon size={14} className="text-zinc-500" />
                             )}
