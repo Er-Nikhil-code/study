@@ -13,8 +13,8 @@ export class PaymentService {
     private hierarchyService: HierarchyService
   ) {
     this.razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID || "test",
-      key_secret: process.env.RAZORPAY_KEY_SECRET || "test",
+      key_id: (process.env.RAZORPAY_KEY_ID || "test").trim(),
+      key_secret: (process.env.RAZORPAY_KEY_SECRET || "test").trim(),
     });
   }
 

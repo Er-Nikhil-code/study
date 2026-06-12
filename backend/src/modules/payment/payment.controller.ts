@@ -9,7 +9,8 @@ export class PaymentController {
 
   @Get("key")
   getKey() {
-    return { key: process.env.RAZORPAY_KEY_ID || "test" };
+    const key = process.env.RAZORPAY_KEY_ID || "test";
+    return { key: key.trim() };
   }
 
   @Post("create-order")
