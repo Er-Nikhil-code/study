@@ -59,10 +59,33 @@ export default function AdminRolesPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Assign role modal
+  // Assign role modal
   const [showAssign, setShowAssign] = useState(false);
   const [assignUserId, setAssignUserId] = useState("");
   const [assignRoleName, setAssignRoleName] = useState("STUDENT");
   const [assignLoading, setAssignLoading] = useState(false);
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+  const [searchedUsers, setSearchedUsers] = useState<any[]>([]);
+  const [isSearchingUsers, setIsSearchingUsers] = useState(false);
+
+  useEffect(() => {
+    if (!userSearchTerm || assignUserId) {
+      setSearchedUsers([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      setIsSearchingUsers(true);
+      try {
+        const res = await adminService.getUsers({ search: userSearchTerm, limit: 5 } as any);
+        setSearchedUsers(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsSearchingUsers(false);
+      }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [userSearchTerm, assignUserId]);
 
   const fetchRoles = useCallback(async () => {
     setLoading(true);
@@ -153,6 +176,7 @@ export default function AdminRolesPage() {
       alert("Role assigned successfully!");
       setShowAssign(false);
       setAssignUserId("");
+      setUserSearchTerm("");
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to assign role");
     } finally {
@@ -438,11 +462,39 @@ export default function AdminRolesPage() {
           <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
             <h3 className="text-lg font-semibold text-white mb-4">Assign Role to User</h3>
             <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1 uppercase tracking-wide">User ID</label>
-                <input type="text" value={assignUserId} onChange={(e) => setAssignUserId(e.target.value)}
-                  placeholder="Paste user ID here…"
+              <div className="relative">
+                <label className="block text-xs font-medium text-gray-300 mb-1 uppercase tracking-wide">User ID or Name</label>
+                <input type="text" value={userSearchTerm || assignUserId} onChange={(e) => {
+                  setUserSearchTerm(e.target.value);
+                  setAssignUserId("");
+                }}
+                  placeholder="Type name or paste ID..."
                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white placeholder-zinc-500 outline-none focus:border-red-500/30" />
+                
+                {isSearchingUsers && (
+                  <div className="absolute right-3 top-9">
+                    <span className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin inline-block"></span>
+                  </div>
+                )}
+                
+                {!assignUserId && searchedUsers.length > 0 && (
+                  <div className="absolute top-[105%] left-0 right-0 bg-zinc-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
+                    {searchedUsers.map((u) => (
+                      <button
+                        key={u.id}
+                        onClick={() => {
+                          setAssignUserId(u.id);
+                          setUserSearchTerm(`${u.first_name} ${u.last_name} (${u.email})`.trim() || u.email);
+                          setSearchedUsers([]);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 transition-colors"
+                      >
+                        <div className="font-medium text-white">{u.first_name} {u.last_name}</div>
+                        <div className="text-xs text-zinc-500">{u.email} • ID: {u.id}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-300 mb-1 uppercase tracking-wide">Role</label>

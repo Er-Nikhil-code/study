@@ -566,10 +566,32 @@ export class AdminService {
   }
 
   async getRoleHierarchy() {
-    return this.prisma.role.findMany({
-      include: { children: true },
+    const allRoles = await this.prisma.role.findMany({
       orderBy: { level: 'asc' }
     });
+    
+    const roleMap = new Map();
+    const roots: any[] = [];
+    
+    for (const role of allRoles) {
+      roleMap.set(role.id, { ...role, children: [] });
+    }
+    
+    for (const role of allRoles) {
+      const node = roleMap.get(role.id);
+      if (node.parent_id) {
+        const parent = roleMap.get(node.parent_id);
+        if (parent) {
+          parent.children.push(node);
+        } else {
+          roots.push(node);
+        }
+      } else {
+        roots.push(node);
+      }
+    }
+    
+    return roots;
   }
 
   async seedRoles() {
