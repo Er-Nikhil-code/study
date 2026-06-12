@@ -281,7 +281,7 @@ export default function AdminUserProfilePage() {
                 </div>
                 {user.assigned_teacher && (
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-500">Teacher</span>
+                    <span className="text-zinc-500">Knight</span>
                     <span className="text-zinc-300">
                       {user.assigned_teacher.first_name} {user.assigned_teacher.last_name}
                     </span>
@@ -296,7 +296,7 @@ export default function AdminUserProfilePage() {
             {user.role === "INTERN" && (
               <>
                 <Panel className="p-6 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
-                  <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider mb-4 border-b border-emerald-500/10 pb-2">Intern Contributions</h3>
+                  <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider mb-4 border-b border-emerald-500/10 pb-2">Pawn Contributions</h3>
                   
                   <div className="mb-6 grid grid-cols-2 gap-4">
                     <div className="rounded-xl bg-white/[0.03] p-4 text-center border border-white/5">
@@ -319,7 +319,7 @@ export default function AdminUserProfilePage() {
 
             {user.role === "TEACHER" && (
               <Panel className="p-6 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
-                <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">Teacher Contributions</h3>
+                <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">Knight Contributions</h3>
                 <div>
                   <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">6-Month Activity Graph</h4>
                   <ActivityGraph data={user.activity_graph || []} userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />

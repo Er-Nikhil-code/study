@@ -489,7 +489,7 @@ export default function AIGenerationPage() {
 
           <div className="mt-4 pt-4 border-t border-white/10">
             <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded text-xs text-blue-300">
-              <strong className="block mb-1 text-blue-400">Teacher Quota</strong>
+              <strong className="block mb-1 text-blue-400">Knight Quota</strong>
               You can generate a maximum of 50 AI questions per day. Your teacher account acts as the creator.
             </div>
           </div>

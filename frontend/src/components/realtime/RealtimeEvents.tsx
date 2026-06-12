@@ -21,7 +21,7 @@ export default function RealtimeEvents() {
     });
 
     socket.on("teacher_approved", () => {
-      toast.success("Teacher Application Approved");
+      toast.success("Knight Application Approved");
     });
 
     socket.on("notification", (data) => {

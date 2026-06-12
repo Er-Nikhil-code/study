@@ -11,7 +11,7 @@ import authService from "@/services/auth.service";
 import UserHoverCard from "@/components/ui/UserHoverCard";
 
 const navItems = [
-  { label: "Teacher home", href: "/teacher" },
+  { label: "Knight home", href: "/teacher" },
   { label: "Questions", href: "/teacher/questions" },
   { label: "Tests", href: "/teacher/tests" },
   { label: "Challenges", href: "/teacher/challenges" },
@@ -147,7 +147,7 @@ export default function ReviewQuestionsPage() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-2">
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
-                    Intern: <UserHoverCard userId={q.created_by}>{q.created_by.slice(0, 8)}...</UserHoverCard>
+                    Pawn: <UserHoverCard userId={q.created_by}>{q.created_by.slice(0, 8)}...</UserHoverCard>
                   </div>
                   <h3 className="text-lg font-semibold text-white">
                     {q.content_json?.[0]?.content?.substring(0, 50) || "Question Content"}

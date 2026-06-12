@@ -7,7 +7,7 @@ const users = [
   },
   {
     name: "Priya Nair",
-    role: "Teacher",
+    role: "Knight",
   },
 ];
 

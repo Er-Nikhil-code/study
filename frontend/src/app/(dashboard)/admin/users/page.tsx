@@ -325,7 +325,7 @@ export default function AdminUsersPage() {
                       value={user.assigned_teacher_id || ""}
                       onChange={(e) => handleTeacherAssign(user.id, e.target.value)}
                     >
-                      <option value="">No Teacher Assigned</option>
+                      <option value="">No Knight Assigned</option>
                       {(teachers || []).map((t: any) => (
                         <option key={t.id} value={t.id}>
                           {t.first_name || "—"} {t.last_name || ""}

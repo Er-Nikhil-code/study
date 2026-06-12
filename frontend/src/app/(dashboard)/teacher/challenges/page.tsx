@@ -234,7 +234,7 @@ export default function TeacherChallengesPage() {
             </h3>
             <p className="text-sm text-zinc-500 mb-4">
               {noteModal.action === "REJECT" ? "Explain why you're rejecting this challenge. The student will be notified." :
-               noteModal.action === "ESCALATE" ? "Select an Admin or your assigned Intern to forward this to." :
+               noteModal.action === "ESCALATE" ? "Select an Admin or your assigned Pawn to forward this to." :
                "Edit the question content directly to fix the issue identified in the challenge."}
             </p>
 
@@ -255,9 +255,9 @@ export default function TeacherChallengesPage() {
                     </optgroup>
                   )}
                   {escalationTargets.interns.length > 0 && (
-                    <optgroup label="Your Interns">
+                    <optgroup label="Your Pawns">
                       {escalationTargets.interns.map(i => (
-                        <option key={i.id} value={i.id}>{i.first_name || i.email} (Intern)</option>
+                        <option key={i.id} value={i.id}>{i.first_name || i.email} (Pawn)</option>
                       ))}
                     </optgroup>
                   )}

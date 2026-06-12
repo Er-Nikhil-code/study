@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 
 const navItems = [
-  { label: "Teacher home", href: "/teacher" },
+  { label: "Knight home", href: "/teacher" },
   { label: "Questions", href: "/teacher/questions" },
   { label: "Tests", href: "/teacher/tests" },
   { label: "Challenges", href: "/teacher/challenges" },

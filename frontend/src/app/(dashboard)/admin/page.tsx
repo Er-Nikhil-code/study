@@ -9,6 +9,7 @@ import { adminNavItems } from "./nav";
 import adminService, { type DashboardStats } from "@/services/admin.service";
 import { Users, FileQuestion, ShieldAlert, Shield, Activity, Bell, CheckCircle, XCircle } from "lucide-react";
 import ChessPiece3D from "@/components/ui/ChessPiece3D";
+import { getChessRoleName } from "@/lib/role";
 
 function StatCard({
   label,
@@ -143,7 +144,7 @@ export default function AdminHomePage() {
                         <p className="text-sm text-white truncate">
                           {[u.first_name, u.last_name].filter(Boolean).join(" ") || u.email}
                         </p>
-                        <p className="text-xs text-zinc-600 truncate">{u.role}</p>
+                        <p className="text-xs text-zinc-600 truncate">{getChessRoleName(u.role)}</p>
                       </div>
                     </div>
                     <span className="text-xs text-zinc-600 shrink-0">{timeAgo(u.created_at)}</span>

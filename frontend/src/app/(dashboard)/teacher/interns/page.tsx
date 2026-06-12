@@ -49,7 +49,7 @@ export default function TeacherInternsPage() {
   return (
     <>
       <SectionTitle
-        title="My Interns"
+        title="My Pawns"
         subtitle="Track the progress and activity of interns assigned to you."
       />
 

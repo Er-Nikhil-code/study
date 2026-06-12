@@ -51,7 +51,7 @@ export default function ReviewNotesPage() {
   };
 
   const navItems = [
-    { label: "Teacher home", href: "/teacher" },
+    { label: "Knight home", href: "/teacher" },
     { label: "Hierarchy", href: "/teacher/hierarchy" },
     { label: "Questions", href: "/teacher/questions" },
     { label: "Review Notes", href: "/teacher/notes/review" },
@@ -60,7 +60,7 @@ export default function ReviewNotesPage() {
 
   return (
     <>
-      <SectionTitle title="Notes Review Queue" subtitle="Approve or reject study materials submitted by Interns" />
+      <SectionTitle title="Notes Review Queue" subtitle="Approve or reject study materials submitted by Pawns" />
 
       {loading ? (
         <p className="mt-6 text-zinc-500">Loading queue...</p>
@@ -85,7 +85,7 @@ export default function ReviewNotesPage() {
                   <p className="text-xs text-zinc-400 mt-1">
                     {note.topic.chapter.section.course.name} → {note.topic.chapter.name} → {note.topic.name}
                   </p>
-                  <p className="text-xs text-zinc-500 mt-2">By Intern ID: {note.created_by}</p>
+                  <p className="text-xs text-zinc-500 mt-2">By Pawn ID: {note.created_by}</p>
                 </div>
               ))
             )}

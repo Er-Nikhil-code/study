@@ -20,12 +20,12 @@ import AssertionReasonForm from "./forms/AssertionReasonForm";
 const getNavItems = (role: string) => {
   if (role === "INTERN") {
     return [
-      { label: "Intern Dashboard", href: "/intern/dashboard" },
+      { label: "Pawn Dashboard", href: "/intern/dashboard" },
       { label: "Question Bank", href: "/teacher/questions" },
     ];
   }
   return [
-    { label: "Teacher home", href: "/teacher" },
+    { label: "Knight home", href: "/teacher" },
     { label: "Questions", href: "/teacher/questions" },
     { label: "Tests", href: "/teacher/tests" },
     { label: "Challenges", href: "/teacher/challenges" },

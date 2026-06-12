@@ -22,7 +22,7 @@ export const notify = {
   },
 
   teacherApproved() {
-    toast.success("Teacher approved");
+    toast.success("Knight approved");
   },
 
   apiError() {

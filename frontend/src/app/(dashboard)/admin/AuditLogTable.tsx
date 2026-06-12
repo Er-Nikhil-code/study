@@ -1,7 +1,7 @@
 import Panel from "@/components/ui/Panel";
 
 const logs = [
-  "Teacher approved: Priya Nair",
+  "Knight approved: Priya Nair",
   "Question updated: Q-1001",
   "Challenge resolved: CH-001",
   "Leaderboard snapshot generated",

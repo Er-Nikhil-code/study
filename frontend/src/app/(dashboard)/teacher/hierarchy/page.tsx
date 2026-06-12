@@ -7,6 +7,7 @@ import { HierarchyService } from "@/services/hierarchy.service";
 import { adminService } from "@/services/admin.service";
 import { useAuthStore } from "@/store/auth.store";
 import { Trash2, Users, UserPlus } from "lucide-react";
+import { getChessRoleName } from "@/lib/role";
 
 export default function HierarchyManagerPage() {
   const [hierarchy, setHierarchy] = useState<any[]>([]);
@@ -186,7 +187,7 @@ export default function HierarchyManagerPage() {
   };
 
   const navItems = [
-    { label: "Teacher home", href: "/teacher" },
+    { label: "Knight home", href: "/teacher" },
     { label: "Hierarchy", href: "/teacher/hierarchy" },
     { label: "Questions", href: "/teacher/questions" },
     { label: "Tests", href: "/teacher/tests" },
@@ -325,7 +326,7 @@ export default function HierarchyManagerPage() {
                     <div className="flex flex-wrap gap-2">
                       {course.staff?.map((s: any) => (
                         <div key={s.user_id} className="flex items-center gap-2 bg-black/50 border border-white/10 px-2 py-1 rounded text-xs">
-                          <span className={s.user.role === 'TEACHER' ? 'text-emerald-400' : 'text-blue-300'}>[{s.user.role}]</span>
+                          <span className={s.user.role === 'TEACHER' ? 'text-emerald-400' : 'text-blue-300'}>[{getChessRoleName(s.user.role)}]</span>
                           <span className="text-zinc-300">{s.user.first_name} {s.user.last_name}</span>
                           <button onClick={() => handleRemoveStaff(course.id, s.user_id)} className="text-red-400 hover:text-red-300 ml-1">×</button>
                         </div>
@@ -335,10 +336,10 @@ export default function HierarchyManagerPage() {
                     <form onSubmit={handleAssignStaff} className="flex gap-2">
                       <select required value={selectedStaffId} onChange={e => setSelectedStaffId(e.target.value)} className="text-xs bg-black border border-white/10 rounded px-2 py-1 text-white">
                         <option value="">Select Staff to Assign</option>
-                        <optgroup label="Knights (Teachers)">
+                        <optgroup label="Knights">
                           {knights.map(k => <option key={k.id} value={k.id}>{k.first_name} {k.last_name} ({k.email})</option>)}
                         </optgroup>
-                        <optgroup label="Interns">
+                        <optgroup label="Pawns">
                           {interns.map(i => <option key={i.id} value={i.id}>{i.first_name} {i.last_name} ({i.email})</option>)}
                         </optgroup>
                       </select>

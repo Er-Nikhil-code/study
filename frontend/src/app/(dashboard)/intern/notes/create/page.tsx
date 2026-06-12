@@ -51,14 +51,14 @@ export default function CreateNotePage() {
   };
 
   const navItems = [
-    { label: "Intern home", href: "/intern" },
+    { label: "Pawn home", href: "/intern" },
     { label: "Create Questions", href: "/intern/questions/create" },
     { label: "Create Notes", href: "/intern/notes/create" },
   ];
 
   return (
     <>
-      <SectionTitle title="Create Educational Note" subtitle={isPrivileged ? "Create study material directly" : "Submit study material for Teacher review"} />
+      <SectionTitle title="Create Educational Note" subtitle={isPrivileged ? "Create study material directly" : "Submit study material for Knight review"} />
 
       <Panel className="mt-6 max-w-4xl">
         {success && (
