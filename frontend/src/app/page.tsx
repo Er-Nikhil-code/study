@@ -43,6 +43,25 @@ export default function HomePage() {
     "login" | "signup" | "forgot-password"
   >("login");
 
+  // Intro animation state
+  const [introPhase, setIntroPhase] = useState<"initial" | "splitting" | "done">("initial");
+
+  useEffect(() => {
+    if (sessionStorage.getItem("hasSeenIntro")) {
+      setIntroPhase("done");
+      return;
+    }
+    const timer1 = setTimeout(() => setIntroPhase("splitting"), 1500);
+    const timer2 = setTimeout(() => {
+      setIntroPhase("done");
+      sessionStorage.setItem("hasSeenIntro", "true");
+    }, 2500);
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, []);
+
   // Alien typing state
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [displayedGreeting, setDisplayedGreeting] = useState("");
@@ -145,8 +164,36 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col md:flex-row items-center justify-center overflow-x-hidden overflow-y-auto md:overflow-hidden relative">
-      {/* Animated Background */}
+    <>
+      {introPhase !== "done" && (
+        <div className="fixed inset-0 z-[100] pointer-events-none flex overflow-hidden">
+          {/* Left Curtain */}
+          <div 
+            className={`w-1/2 h-full bg-[#050505] transition-transform duration-1000 ease-[cubic-bezier(0.8,0,0.2,1)] ${introPhase === "splitting" ? "-translate-x-full" : "translate-x-0"} relative border-r border-red-500/10 shadow-[20px_0_50px_rgba(0,0,0,0.5)]`}
+          >
+            <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-red-600/80 to-transparent shadow-[0_0_20px_rgba(220,38,38,0.6)]"></div>
+          </div>
+          
+          {/* Right Curtain */}
+          <div 
+            className={`w-1/2 h-full bg-[#050505] transition-transform duration-1000 ease-[cubic-bezier(0.8,0,0.2,1)] ${introPhase === "splitting" ? "translate-x-full" : "translate-x-0"} relative border-l border-red-500/10 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]`}
+          >
+            <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-red-600/80 to-transparent shadow-[0_0_20px_rgba(220,38,38,0.6)]"></div>
+          </div>
+
+          {/* Centered Logo */}
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-[cubic-bezier(0.8,0,0.2,1)] flex flex-col items-center justify-center ${introPhase === "splitting" ? "opacity-0 scale-150 blur-xl" : "opacity-100 scale-100 blur-0"}`}>
+            <h1 className={`text-6xl md:text-8xl ${quicksand.className} font-medium tracking-[0.1em] uppercase flex items-center`}>
+              <span className="text-white drop-shadow-md">CODI</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-br from-red-500 to-red-600 drop-shadow-[0_1px_4px_rgba(220,38,38,0.4)]">FY</span>
+            </h1>
+            <div className="mt-6 h-[2px] w-24 bg-gradient-to-r from-transparent via-red-600 to-transparent animate-pulse"></div>
+          </div>
+        </div>
+      )}
+
+      <div className={`min-h-screen bg-[#050505] flex flex-col md:flex-row items-center justify-center overflow-x-hidden overflow-y-auto md:overflow-hidden relative transition-opacity duration-700 ${introPhase === "initial" ? "opacity-0" : "opacity-100"}`}>
+        {/* Animated Background */}
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none z-20"
         suppressHydrationWarning
@@ -414,6 +461,7 @@ export default function HomePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
