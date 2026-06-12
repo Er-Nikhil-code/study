@@ -29,6 +29,7 @@ export default function TeacherQuestionsPage() {
   const [pyqFilter, setPyqFilter] = useState("ALL");
   const [yearFilter, setYearFilter] = useState("");
   const [searchFilter, setSearchFilter] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Submitting state
@@ -42,6 +43,13 @@ export default function TeacherQuestionsPage() {
   const [topicId, setTopicId] = useState("");
 
   useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchFilter);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchFilter]);
+
+  useEffect(() => {
     HierarchyService.getFullHierarchy()
       .then(setHierarchy)
       .catch(err => console.error("Failed to load hierarchy", err));
@@ -53,7 +61,7 @@ export default function TeacherQuestionsPage() {
   const allTopics = allChapters.flatMap((c: any) => c.topics || []);
 
   const { data: questionsData, isLoading: loading, isFetching, error: queryError } = useQuery({
-    queryKey: ["questions", "list", createdOnly, courseId, sectionId, chapterId, topicId, typeFilter, diffFilter, pyqFilter, yearFilter],
+    queryKey: ["questions", "list", createdOnly, courseId, sectionId, chapterId, topicId, typeFilter, diffFilter, pyqFilter, yearFilter, debouncedSearch],
     queryFn: async () => {
       const filters: any = {};
       if (createdOnly) filters.created_by_me = true;
@@ -63,7 +71,7 @@ export default function TeacherQuestionsPage() {
       if (topicId) filters.topic_id = topicId;
       if (typeFilter !== "ALL") filters.type = typeFilter;
       if (diffFilter !== "ALL") filters.difficulty = diffFilter;
-      if (searchFilter) filters.search = searchFilter;
+      if (debouncedSearch) filters.search = debouncedSearch;
       if (pyqFilter !== "ALL") filters.is_pyq = pyqFilter === "YES";
       if (yearFilter) filters.exam_year = yearFilter;
       

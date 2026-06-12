@@ -60,18 +60,30 @@ export class QuestionsService {
       // Validate topic exists
       const topic = await this.prisma.topic.findUnique({
         where: { id: data.topic_id },
+        include: { chapter: { include: { section: true } } }
       });
 
       if (!topic) {
-        throw new NotFoundException(
-          `Topic with ID "${data.topic_id}" not found`,
-        );
+        throw new NotFoundException(`Topic with ID "${data.topic_id}" not found`);
       }
 
       const creatorUser = await this.prisma.user.findUnique({
         where: { id: userId },
         include: { custom_role: true }
       });
+
+      if (userRole === "INTERN") {
+        if (creatorUser?.assigned_teacher_id) {
+          const courseId = topic.chapter.section.course_id;
+          const staffAssigned = await this.prisma.courseStaff.findUnique({
+            where: { course_id_user_id: { course_id: courseId, user_id: creatorUser.assigned_teacher_id } }
+          });
+          const course = await this.prisma.course.findUnique({ where: { id: courseId } });
+          if (!staffAssigned && course?.created_by !== creatorUser.assigned_teacher_id) {
+            throw new BadRequestException("You can only create questions for courses your assigned teacher is managing");
+          }
+        }
+      }
       
       const rolePerms = Array.isArray(creatorUser?.custom_role?.permissions_json) 
         ? (creatorUser?.custom_role?.permissions_json as string[]) 
@@ -349,7 +361,13 @@ export class QuestionsService {
       }
 
       if (filters?.search) {
-        where.id = { contains: filters.search, mode: "insensitive" };
+        const isLikelyId = filters.search.length >= 10;
+        where.OR = [
+          ...(isLikelyId ? [{ id: filters.search }] : []),
+          { id: { contains: filters.search, mode: "insensitive" } },
+          { content_json: { string_contains: filters.search } },
+          { options_json: { string_contains: filters.search } },
+        ];
       }
 
       const [questions, total] = await Promise.all([

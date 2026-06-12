@@ -8,7 +8,19 @@ export class HierarchyService {
   private async checkCoursePermission(courseId: string, userId: string, role: string) {
     if (role === "ADMIN") return;
     const course = await this.prisma.course.findUnique({ where: { id: courseId } });
-    if (course?.created_by !== userId) throw new ForbiddenException("Only the course creator can perform this action");
+    if (course?.created_by !== userId) throw new ForbiddenException("Only the course creator can perform this action at the course level");
+  }
+
+  private async checkSectionPermission(sectionId: string, userId: string, role: string) {
+    if (role === "ADMIN") return;
+    const section = await this.prisma.section.findUnique({
+      where: { id: sectionId },
+      include: { course: true }
+    });
+    if (!section) throw new NotFoundException("Section not found");
+    if (section.course.created_by === userId) return;
+    if (section.managed_by === userId) return;
+    throw new ForbiddenException("You are not authorized to manage this section");
   }
 
   // Course
@@ -33,63 +45,57 @@ export class HierarchyService {
     return this.prisma.section.create({ data });
   }
   async updateSection(id: string, userId: string, role: string, data: { name?: string; description?: string; order?: number }) {
-    const section = await this.prisma.section.findUnique({ where: { id } });
-    if (!section) throw new NotFoundException();
-    await this.checkCoursePermission(section.course_id, userId, role);
+    await this.checkSectionPermission(id, userId, role);
     return this.prisma.section.update({ where: { id }, data });
   }
   getSections(courseId: string) {
     return this.prisma.section.findMany({ where: { course_id: courseId }, include: { chapters: true }, orderBy: { order: 'asc' } });
   }
   async deleteSection(id: string, userId: string, role: string) {
-    const section = await this.prisma.section.findUnique({ where: { id } });
-    if (!section) throw new NotFoundException();
-    await this.checkCoursePermission(section.course_id, userId, role);
+    await this.checkSectionPermission(id, userId, role);
     return this.prisma.section.delete({ where: { id } });
   }
 
   // Chapter
   async createChapter(userId: string, role: string, data: { section_id: string; name: string; description: string; order: number }) {
-    const section = await this.prisma.section.findUnique({ where: { id: data.section_id } });
-    if (!section) throw new NotFoundException();
-    await this.checkCoursePermission(section.course_id, userId, role);
+    await this.checkSectionPermission(data.section_id, userId, role);
     return this.prisma.chapter.create({ data });
   }
   async updateChapter(id: string, userId: string, role: string, data: { name?: string; description?: string; order?: number }) {
-    const chapter = await this.prisma.chapter.findUnique({ where: { id }, include: { section: true } });
+    const chapter = await this.prisma.chapter.findUnique({ where: { id } });
     if (!chapter) throw new NotFoundException();
-    await this.checkCoursePermission(chapter.section.course_id, userId, role);
+    await this.checkSectionPermission(chapter.section_id, userId, role);
     return this.prisma.chapter.update({ where: { id }, data });
   }
   getChapters(sectionId: string) {
     return this.prisma.chapter.findMany({ where: { section_id: sectionId }, include: { topics: true }, orderBy: { order: 'asc' } });
   }
   async deleteChapter(id: string, userId: string, role: string) {
-    const chapter = await this.prisma.chapter.findUnique({ where: { id }, include: { section: true } });
+    const chapter = await this.prisma.chapter.findUnique({ where: { id } });
     if (!chapter) throw new NotFoundException();
-    await this.checkCoursePermission(chapter.section.course_id, userId, role);
+    await this.checkSectionPermission(chapter.section_id, userId, role);
     return this.prisma.chapter.delete({ where: { id } });
   }
 
   async createTopic(userId: string, role: string, data: { chapter_id: string; name: string; description: string; order: number }) {
-    const chapter = await this.prisma.chapter.findUnique({ where: { id: data.chapter_id }, include: { section: true } });
+    const chapter = await this.prisma.chapter.findUnique({ where: { id: data.chapter_id } });
     if (!chapter) throw new NotFoundException();
-    await this.checkCoursePermission(chapter.section.course_id, userId, role);
+    await this.checkSectionPermission(chapter.section_id, userId, role);
     return this.prisma.topic.create({ data });
   }
   async updateTopic(id: string, userId: string, role: string, data: { name?: string; description?: string; order?: number }) {
-    const topic = await this.prisma.topic.findUnique({ where: { id }, include: { chapter: { include: { section: true } } } });
+    const topic = await this.prisma.topic.findUnique({ where: { id }, include: { chapter: true } });
     if (!topic) throw new NotFoundException();
-    await this.checkCoursePermission(topic.chapter.section.course_id, userId, role);
+    await this.checkSectionPermission(topic.chapter.section_id, userId, role);
     return this.prisma.topic.update({ where: { id }, data });
   }
   getTopics(chapterId: string) {
     return this.prisma.topic.findMany({ where: { chapter_id: chapterId }, orderBy: { order: 'asc' } });
   }
   async deleteTopic(id: string, userId: string, role: string) {
-    const topic = await this.prisma.topic.findUnique({ where: { id }, include: { chapter: { include: { section: true } } } });
+    const topic = await this.prisma.topic.findUnique({ where: { id }, include: { chapter: true } });
     if (!topic) throw new NotFoundException();
-    await this.checkCoursePermission(topic.chapter.section.course_id, userId, role);
+    await this.checkSectionPermission(topic.chapter.section_id, userId, role);
     return this.prisma.topic.delete({ where: { id } });
   }
 
@@ -151,6 +157,34 @@ export class HierarchyService {
     });
   }
 
+  // Course Staff Management
+  async assignCourseStaff(courseId: string, userId: string, role: string) {
+    if (role !== "ADMIN") throw new ForbiddenException("Only admin can assign course staff");
+    
+    return this.prisma.courseStaff.upsert({
+      where: { course_id_user_id: { course_id: courseId, user_id: userId } },
+      update: {},
+      create: { course_id: courseId, user_id: userId }
+    });
+  }
+
+  async removeCourseStaff(courseId: string, userId: string, role: string) {
+    if (role !== "ADMIN") throw new ForbiddenException("Only admin can remove course staff");
+    
+    return this.prisma.courseStaff.delete({
+      where: { course_id_user_id: { course_id: courseId, user_id: userId } }
+    });
+  }
+
+  async assignSectionManager(sectionId: string, managerId: string, role: string) {
+    if (role !== "ADMIN") throw new ForbiddenException("Only admin can assign section managers");
+    
+    return this.prisma.section.update({
+      where: { id: sectionId },
+      data: { managed_by: managerId }
+    });
+  }
+
   // Full Hierarchy
   async getFullHierarchy(userId?: string) {
     let userRole = null;
@@ -163,8 +197,12 @@ export class HierarchyService {
       where: userRole === 'STUDENT' ? { status: 'PUBLISHED' } : {},
       include: {
         _count: { select: { enrollments: true } },
+        staff: {
+          include: { user: { select: { id: true, first_name: true, last_name: true, email: true, role: true } } }
+        },
         sections: {
           include: {
+            manager: { select: { id: true, first_name: true, last_name: true, email: true } },
             chapters: {
               include: {
                 topics: {

@@ -44,6 +44,8 @@ model User {
   audit_logs            AuditLog[]        @relation("actor")
   notification_events   NotificationEvent[]
   course_enrollments    CourseEnrollment[]
+  course_staff          CourseStaff[]
+  managed_sections      Section[]        @relation("section_manager")
   topic_progress        TopicProgress[]
   questions             Question[]
   cart                  Cart?
@@ -109,10 +111,24 @@ model Course {
 
   sections        Section[]
   enrollments     CourseEnrollment[]
+  staff           CourseStaff[]
   cart_items      CartItem[]
   order_items     OrderItem[]
 
   @@index([code])
+}
+
+model CourseStaff {
+  id        String   @id @default(cuid())
+  course_id String
+  user_id   String
+  course    Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+
+  @@unique([course_id, user_id])
+  @@index([course_id])
+  @@index([user_id])
 }
 
 model Section {
@@ -123,6 +139,8 @@ model Section {
   description     String
   order           Int
   created_at      DateTime  @default(now())
+  managed_by      String?   // User ID of the Knight (Teacher) assigned to manage this section
+  manager         User?     @relation("section_manager", fields: [managed_by], references: [id])
 
   chapters        Chapter[]
 

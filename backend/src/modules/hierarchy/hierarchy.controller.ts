@@ -45,6 +45,18 @@ export class HierarchyController {
     return this.hierarchyService.deleteCourse(id, req.user.sub, req.user.role);
   }
 
+  @Post("courses/:id/staff")
+  @Roles("ADMIN")
+  assignCourseStaff(@Param("id") id: string, @Request() req: any, @Body() data: { user_id: string }) {
+    return this.hierarchyService.assignCourseStaff(id, data.user_id, req.user.role);
+  }
+
+  @Delete("courses/:id/staff/:userId")
+  @Roles("ADMIN")
+  removeCourseStaff(@Param("id") id: string, @Param("userId") userId: string, @Request() req: any) {
+    return this.hierarchyService.removeCourseStaff(id, userId, req.user.role);
+  }
+
   @Post("sections")
   @Roles("TEACHER", "ADMIN")
   createSection(@Request() req: any, @Body() data: { course_id: string; name: string; description: string; order: number }) {
@@ -55,6 +67,12 @@ export class HierarchyController {
   @Roles("TEACHER", "ADMIN")
   updateSection(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; description?: string; order?: number }) {
     return this.hierarchyService.updateSection(id, req.user.sub, req.user.role, data);
+  }
+
+  @Patch("sections/:id/assign")
+  @Roles("ADMIN")
+  assignSectionManager(@Param("id") id: string, @Request() req: any, @Body() data: { manager_id: string }) {
+    return this.hierarchyService.assignSectionManager(id, data.manager_id, req.user.role);
   }
 
   @Delete("sections/:id")

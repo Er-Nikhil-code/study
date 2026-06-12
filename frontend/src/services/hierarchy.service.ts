@@ -51,5 +51,17 @@ export const HierarchyService = {
 
   markNotesViewed(topicId: string) {
     return api.post(`/admin/hierarchy/topics/${topicId}/view-notes`).then((r) => r.data);
+  },
+
+  assignCourseStaff(courseId: string, userId: string) {
+    return api.post(`/admin/hierarchy/courses/${courseId}/staff`, { user_id: userId }).then(r => r.data);
+  },
+
+  removeCourseStaff(courseId: string, userId: string) {
+    return api.delete(`/admin/hierarchy/courses/${courseId}/staff/${userId}`).then(r => r.data);
+  },
+
+  assignSectionManager(sectionId: string, managerId: string) {
+    return api.patch(`/admin/hierarchy/sections/${sectionId}/assign`, { manager_id: managerId }).then(r => r.data);
   }
 };

@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { HierarchyService } from "@/services/hierarchy.service";
+import { adminService } from "@/services/admin.service";
 import { useAuthStore } from "@/store/auth.store";
-import { Trash2 } from "lucide-react";
+import { Trash2, Users, UserPlus } from "lucide-react";
 
 export default function HierarchyManagerPage() {
   const [hierarchy, setHierarchy] = useState<any[]>([]);
@@ -15,9 +16,16 @@ export default function HierarchyManagerPage() {
   const { user } = useAuthStore();
   const isAdmin = user?.role === "ADMIN";
 
+  const [knights, setKnights] = useState<any[]>([]);
+  const [interns, setInterns] = useState<any[]>([]);
+  const [managingStaffCourseId, setManagingStaffCourseId] = useState<string | null>(null);
+  const [assigningSectionId, setAssigningSectionId] = useState<string | null>(null);
+  const [selectedStaffId, setSelectedStaffId] = useState("");
+  const [selectedManagerId, setSelectedManagerId] = useState("");
+
   // Forms state
   const [showCourseForm, setShowCourseForm] = useState(false);
-  const [courseForm, setCourseForm] = useState({ 
+  const [courseForm, setCourseForm] = useState({
     name: "", code: "", description: "",
     price: "" as number | string, discount_price: "" as number | string, status: "DRAFT" as "DRAFT" | "PUBLISHED" | "HIDDEN", launch_date: ""
   });
@@ -37,6 +45,14 @@ export default function HierarchyManagerPage() {
     try {
       const data = await HierarchyService.getFullHierarchy();
       setHierarchy(data);
+      if (isAdmin) {
+        const [teachersRes, internsRes] = await Promise.all([
+          adminService.getUsers({ role: "TEACHER", limit: 100 }),
+          adminService.getUsers({ role: "INTERN", limit: 100 })
+        ]);
+        setKnights(teachersRes.data);
+        setInterns(internsRes.data);
+      }
     } catch (err: any) {
       setError("Failed to fetch hierarchy");
     } finally {
@@ -54,7 +70,7 @@ export default function HierarchyManagerPage() {
       alert("Course description cannot exceed 30 words.");
       return;
     }
-    
+
     const payload: any = { ...courseForm };
     if (!isAdmin) {
       delete payload.price;
@@ -135,6 +151,40 @@ export default function HierarchyManagerPage() {
     }
   };
 
+  const handleAssignStaff = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!managingStaffCourseId || !selectedStaffId) return;
+    try {
+      await HierarchyService.assignCourseStaff(managingStaffCourseId, selectedStaffId);
+      setSelectedStaffId("");
+      fetchHierarchy();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to assign staff");
+    }
+  };
+
+  const handleRemoveStaff = async (courseId: string, userId: string) => {
+    try {
+      await HierarchyService.removeCourseStaff(courseId, userId);
+      fetchHierarchy();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to remove staff");
+    }
+  };
+
+  const handleAssignManager = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!assigningSectionId || !selectedManagerId) return;
+    try {
+      await HierarchyService.assignSectionManager(assigningSectionId, selectedManagerId);
+      setSelectedManagerId("");
+      setAssigningSectionId(null);
+      fetchHierarchy();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to assign section manager");
+    }
+  };
+
   const navItems = [
     { label: "Teacher home", href: "/teacher" },
     { label: "Hierarchy", href: "/teacher/hierarchy" },
@@ -146,12 +196,14 @@ export default function HierarchyManagerPage() {
     <>
       <div className="flex items-center justify-between">
         <SectionTitle title="Academic Hierarchy" subtitle="Manage Courses, Sections, Chapters, and Topics" />
-        <button
-          onClick={() => setShowCourseForm(true)}
-          className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500"
-        >
-          + Create Course
-        </button>
+        {!isAdmin && (
+          <button
+            onClick={() => setShowCourseForm(true)}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500"
+          >
+            + Create Course
+          </button>
+        )}
       </div>
 
       {error && <div className="mt-4 text-red-500">{error}</div>}
@@ -162,11 +214,11 @@ export default function HierarchyManagerPage() {
             <div className="flex gap-4 items-end">
               <div className="flex-1">
                 <label className="text-xs text-zinc-400">Course Name</label>
-                <input type="text" required value={courseForm.name} onChange={e => setCourseForm({...courseForm, name: e.target.value})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" placeholder="Course name" />
+                <input type="text" required value={courseForm.name} onChange={e => setCourseForm({ ...courseForm, name: e.target.value })} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" placeholder="Course name" />
               </div>
               <div className="flex-1">
                 <label className="text-xs text-zinc-400">Course Code</label>
-                <input type="text" required value={courseForm.code} onChange={e => setCourseForm({...courseForm, code: e.target.value})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" placeholder="Course code" />
+                <input type="text" required value={courseForm.code} onChange={e => setCourseForm({ ...courseForm, code: e.target.value })} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" placeholder="Course code" />
               </div>
             </div>
             <div>
@@ -174,14 +226,14 @@ export default function HierarchyManagerPage() {
                 <label className="text-xs text-zinc-400">Description (Max 30 words)</label>
                 <span className={`text-xs ${countWords(courseForm.description) > 30 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(courseForm.description)} / 30</span>
               </div>
-              <textarea required value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500 min-h-[60px]" placeholder="Course description..." />
+              <textarea required value={courseForm.description} onChange={e => setCourseForm({ ...courseForm, description: e.target.value })} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500 min-h-[60px]" placeholder="Course description..." />
             </div>
 
             {isAdmin && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-zinc-900/50 p-4 rounded-xl border border-white/5">
                 <div>
                   <label className="text-xs text-zinc-400">Status</label>
-                  <select value={courseForm.status} onChange={e => setCourseForm({...courseForm, status: e.target.value as any})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500">
+                  <select value={courseForm.status} onChange={e => setCourseForm({ ...courseForm, status: e.target.value as any })} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500">
                     <option value="DRAFT">Draft</option>
                     <option value="PUBLISHED">Published</option>
                     <option value="HIDDEN">Hidden</option>
@@ -189,15 +241,15 @@ export default function HierarchyManagerPage() {
                 </div>
                 <div>
                   <label className="text-xs text-zinc-400">Launch Date</label>
-                  <input type="date" value={courseForm.launch_date} onChange={e => setCourseForm({...courseForm, launch_date: e.target.value})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+                  <input type="date" value={courseForm.launch_date} onChange={e => setCourseForm({ ...courseForm, launch_date: e.target.value })} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
                 </div>
                 <div>
                   <label className="text-xs text-zinc-400">Base Price (₹)</label>
-                  <input type="number" min="0" value={courseForm.price} onChange={e => setCourseForm({...courseForm, price: e.target.value ? Number(e.target.value) : ""})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+                  <input type="number" min="0" value={courseForm.price} onChange={e => setCourseForm({ ...courseForm, price: e.target.value ? Number(e.target.value) : "" })} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
                 </div>
                 <div>
                   <label className="text-xs text-zinc-400">Discount Price (₹)</label>
-                  <input type="number" min="0" value={courseForm.discount_price} onChange={e => setCourseForm({...courseForm, discount_price: e.target.value ? Number(e.target.value) : ""})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+                  <input type="number" min="0" value={courseForm.discount_price} onChange={e => setCourseForm({ ...courseForm, discount_price: e.target.value ? Number(e.target.value) : "" })} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
                 </div>
               </div>
             )}
@@ -223,11 +275,10 @@ export default function HierarchyManagerPage() {
                   <div>
                     <h3 className="text-lg font-bold text-white flex items-center gap-3">
                       {course.name} <span className="text-zinc-500 text-sm">({course.code})</span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${
-                        course.status === 'PUBLISHED' ? 'bg-emerald-500/20 text-emerald-400' :
-                        course.status === 'HIDDEN' ? 'bg-red-500/20 text-red-400' :
-                        'bg-zinc-500/20 text-zinc-400'
-                      }`}>
+                      <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${course.status === 'PUBLISHED' ? 'bg-emerald-500/20 text-emerald-400' :
+                          course.status === 'HIDDEN' ? 'bg-red-500/20 text-red-400' :
+                            'bg-zinc-500/20 text-zinc-400'
+                        }`}>
                         {course.status}
                       </span>
                     </h3>
@@ -252,7 +303,14 @@ export default function HierarchyManagerPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <button onClick={() => setActiveCourseId(course.id)} className="text-xs text-red-400 hover:text-white">+ Add Section</button>
+                    {isAdmin && (
+                      <button onClick={() => setManagingStaffCourseId(managingStaffCourseId === course.id ? null : course.id)} className="text-xs text-blue-400 hover:text-white flex items-center gap-1" title="Manage Staff">
+                        <Users size={14} /> Staff
+                      </button>
+                    )}
+                    {(isAdmin || course.created_by === user?.id) && (
+                      <button onClick={() => setActiveCourseId(course.id)} className="text-xs text-red-400 hover:text-white">+ Add Section</button>
+                    )}
                     {isAdmin && (
                       <button onClick={() => handleDeleteCourse(course.id)} className="text-zinc-500 hover:text-red-500 transition-colors" title="Delete Course">
                         <Trash2 size={16} />
@@ -261,16 +319,44 @@ export default function HierarchyManagerPage() {
                   </div>
                 </div>
 
-                {activeCourseId === course.id && (
+                {managingStaffCourseId === course.id && isAdmin && (
+                  <div className="bg-blue-900/10 border border-blue-500/20 rounded-lg p-4 space-y-4">
+                    <h4 className="text-sm font-bold text-blue-400">Manage Course Staff</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {course.staff?.map((s: any) => (
+                        <div key={s.user_id} className="flex items-center gap-2 bg-black/50 border border-white/10 px-2 py-1 rounded text-xs">
+                          <span className={s.user.role === 'TEACHER' ? 'text-emerald-400' : 'text-blue-300'}>[{s.user.role}]</span>
+                          <span className="text-zinc-300">{s.user.first_name} {s.user.last_name}</span>
+                          <button onClick={() => handleRemoveStaff(course.id, s.user_id)} className="text-red-400 hover:text-red-300 ml-1">×</button>
+                        </div>
+                      ))}
+                      {course.staff?.length === 0 && <span className="text-xs text-zinc-500">No staff assigned</span>}
+                    </div>
+                    <form onSubmit={handleAssignStaff} className="flex gap-2">
+                      <select required value={selectedStaffId} onChange={e => setSelectedStaffId(e.target.value)} className="text-xs bg-black border border-white/10 rounded px-2 py-1 text-white">
+                        <option value="">Select Staff to Assign</option>
+                        <optgroup label="Knights (Teachers)">
+                          {knights.map(k => <option key={k.id} value={k.id}>{k.first_name} {k.last_name} ({k.email})</option>)}
+                        </optgroup>
+                        <optgroup label="Interns">
+                          {interns.map(i => <option key={i.id} value={i.id}>{i.first_name} {i.last_name} ({i.email})</option>)}
+                        </optgroup>
+                      </select>
+                      <button type="submit" className="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded">Assign</button>
+                    </form>
+                  </div>
+                )}
+
+                {activeCourseId === course.id && (isAdmin || course.created_by === user?.id) && (
                   <form onSubmit={(e) => handleCreateSection(e, course.id)} className="flex flex-col gap-4 p-4 bg-black/40 rounded-lg">
                     <div className="flex gap-4 items-end">
                       <div className="flex-1">
                         <label className="text-xs text-zinc-400">Section Name</label>
-                        <input type="text" required value={sectionForm.name} onChange={e => setSectionForm({...sectionForm, name: e.target.value})} className="mt-1 block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white" />
+                        <input type="text" required value={sectionForm.name} onChange={e => setSectionForm({ ...sectionForm, name: e.target.value })} className="mt-1 block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white" />
                       </div>
                       <div className="w-24">
                         <label className="text-xs text-zinc-400">Order</label>
-                        <input type="number" required value={sectionForm.order} onChange={e => setSectionForm({...sectionForm, order: Number(e.target.value)})} className="mt-1 block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white" />
+                        <input type="number" required value={sectionForm.order} onChange={e => setSectionForm({ ...sectionForm, order: Number(e.target.value) })} className="mt-1 block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white" />
                       </div>
                     </div>
                     <div>
@@ -278,7 +364,7 @@ export default function HierarchyManagerPage() {
                         <label className="text-xs text-zinc-400">Description (Max 80 words)</label>
                         <span className={`text-xs ${countWords(sectionForm.description) > 80 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(sectionForm.description)} / 80</span>
                       </div>
-                      <textarea required value={sectionForm.description} onChange={e => setSectionForm({...sectionForm, description: e.target.value})} className="mt-1 block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white min-h-[60px]" placeholder="Section description..." />
+                      <textarea required value={sectionForm.description} onChange={e => setSectionForm({ ...sectionForm, description: e.target.value })} className="mt-1 block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white min-h-[60px]" placeholder="Section description..." />
                     </div>
                     <div className="flex gap-2">
                       <button type="submit" className="rounded bg-zinc-700 px-3 py-1 text-sm text-white">Save Section</button>
@@ -291,18 +377,47 @@ export default function HierarchyManagerPage() {
                   {course.sections?.map((section: any) => (
                     <div key={section.id} className="space-y-2">
                       <div className="flex items-center justify-between group">
-                        <h4 className="text-md font-semibold text-zinc-200">Section: {section.name}</h4>
-                        <button onClick={() => setActiveSectionId(section.id)} className="text-xs text-red-400 opacity-0 group-hover:opacity-100">+ Add Chapter</button>
+                        <h4 className="text-md font-semibold text-zinc-200">
+                          Section: {section.name}
+                          {section.manager && (
+                            <span className="ml-3 text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                              Managed by: {section.manager.first_name} {section.manager.last_name}
+                            </span>
+                          )}
+                        </h4>
+                        <div className="flex items-center gap-2">
+                          {isAdmin && (
+                            <button onClick={() => setAssigningSectionId(assigningSectionId === section.id ? null : section.id)} className="text-xs text-blue-400 opacity-0 group-hover:opacity-100 flex items-center gap-1">
+                              <UserPlus size={12} /> Assign Knight
+                            </button>
+                          )}
+                          {(isAdmin || course.created_by === user?.id || section.managed_by === user?.id) && (
+                            <button onClick={() => setActiveSectionId(section.id)} className="text-xs text-red-400 opacity-0 group-hover:opacity-100">+ Add Chapter</button>
+                          )}
+                        </div>
                       </div>
 
-                      {activeSectionId === section.id && (
+                      {assigningSectionId === section.id && isAdmin && (
+                        <form onSubmit={handleAssignManager} className="flex gap-2 p-2 bg-blue-900/10 rounded border border-blue-500/20 mb-2">
+                          <select required value={selectedManagerId} onChange={e => setSelectedManagerId(e.target.value)} className="text-xs bg-black border border-white/10 rounded px-2 py-1 text-white">
+                            <option value="">Select Knight to Manage Section</option>
+                            {course.staff?.filter((s:any) => s.user.role === 'TEACHER').map((s:any) => (
+                              <option key={s.user_id} value={s.user_id}>{s.user.first_name} {s.user.last_name}</option>
+                            ))}
+                          </select>
+                          <button type="submit" className="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded">Assign Manager</button>
+                          <button type="button" onClick={() => { setAssigningSectionId(null); setSelectedManagerId(""); }} className="text-xs text-zinc-400 hover:text-white">Cancel</button>
+                        </form>
+                      )}
+
+                      {activeSectionId === section.id && (isAdmin || course.created_by === user?.id || section.managed_by === user?.id) && (
                         <form onSubmit={(e) => handleCreateChapter(e, section.id)} className="flex flex-col gap-3 p-3 bg-black/40 rounded-lg">
                           <div className="flex gap-4 items-end">
                             <div className="flex-1">
-                              <input type="text" placeholder="Chapter Name" required value={chapterForm.name} onChange={e => setChapterForm({...chapterForm, name: e.target.value})} className="block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white" />
+                              <input type="text" placeholder="Chapter Name" required value={chapterForm.name} onChange={e => setChapterForm({ ...chapterForm, name: e.target.value })} className="block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white" />
                             </div>
                             <div className="w-24">
-                              <input type="number" placeholder="Order" required value={chapterForm.order} onChange={e => setChapterForm({...chapterForm, order: Number(e.target.value)})} className="block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white" />
+                              <input type="number" placeholder="Order" required value={chapterForm.order} onChange={e => setChapterForm({ ...chapterForm, order: Number(e.target.value) })} className="block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white" />
                             </div>
                           </div>
                           <div>
@@ -310,7 +425,7 @@ export default function HierarchyManagerPage() {
                               <label className="text-[10px] text-zinc-500">Description (Max 50 words)</label>
                               <span className={`text-[10px] ${countWords(chapterForm.description) > 50 ? 'text-red-500' : 'text-zinc-600'}`}>{countWords(chapterForm.description)} / 50</span>
                             </div>
-                            <textarea required placeholder="Chapter description..." value={chapterForm.description} onChange={e => setChapterForm({...chapterForm, description: e.target.value})} className="mt-1 block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white min-h-[50px]" />
+                            <textarea required placeholder="Chapter description..." value={chapterForm.description} onChange={e => setChapterForm({ ...chapterForm, description: e.target.value })} className="mt-1 block w-full rounded border border-white/10 bg-black px-2 py-1 text-sm text-white min-h-[50px]" />
                           </div>
                           <div className="flex gap-2">
                             <button type="submit" className="rounded bg-zinc-700 px-3 py-1 text-sm text-white">Save Chapter</button>
@@ -324,21 +439,23 @@ export default function HierarchyManagerPage() {
                           <div key={chapter.id} className="space-y-1">
                             <div className="flex items-center justify-between group">
                               <h5 className="text-sm font-medium text-zinc-300">Chapter: {chapter.name}</h5>
-                              <button onClick={() => setActiveChapterId(chapter.id)} className="text-xs text-red-400 opacity-0 group-hover:opacity-100">+ Add Topic</button>
+                              {(isAdmin || course.created_by === user?.id || section.managed_by === user?.id) && (
+                                <button onClick={() => setActiveChapterId(chapter.id)} className="text-xs text-red-400 opacity-0 group-hover:opacity-100">+ Add Topic</button>
+                              )}
                             </div>
 
-                            {activeChapterId === chapter.id && (
+                            {activeChapterId === chapter.id && (isAdmin || course.created_by === user?.id || section.managed_by === user?.id) && (
                               <form onSubmit={(e) => handleCreateTopic(e, chapter.id)} className="flex flex-col gap-2 p-2 bg-black/40 rounded-lg">
                                 <div className="flex gap-2 items-center">
-                                  <input type="text" placeholder="Topic Name" required value={topicForm.name} onChange={e => setTopicForm({...topicForm, name: e.target.value})} className="block w-full rounded border border-white/10 bg-black px-2 py-1 text-xs text-white" />
-                                  <input type="number" placeholder="Order" required value={topicForm.order} onChange={e => setTopicForm({...topicForm, order: Number(e.target.value)})} className="block w-16 rounded border border-white/10 bg-black px-2 py-1 text-xs text-white" />
+                                  <input type="text" placeholder="Topic Name" required value={topicForm.name} onChange={e => setTopicForm({ ...topicForm, name: e.target.value })} className="block w-full rounded border border-white/10 bg-black px-2 py-1 text-xs text-white" />
+                                  <input type="number" placeholder="Order" required value={topicForm.order} onChange={e => setTopicForm({ ...topicForm, order: Number(e.target.value) })} className="block w-16 rounded border border-white/10 bg-black px-2 py-1 text-xs text-white" />
                                 </div>
                                 <div>
                                   <div className="flex justify-between">
                                     <label className="text-[10px] text-zinc-500">Description (Max 20 words)</label>
                                     <span className={`text-[10px] ${countWords(topicForm.description) > 20 ? 'text-red-500' : 'text-zinc-600'}`}>{countWords(topicForm.description)} / 20</span>
                                   </div>
-                                  <textarea required placeholder="Topic description..." value={topicForm.description} onChange={e => setTopicForm({...topicForm, description: e.target.value})} className="block w-full rounded border border-white/10 bg-black px-2 py-1 text-xs text-white min-h-[40px]" />
+                                  <textarea required placeholder="Topic description..." value={topicForm.description} onChange={e => setTopicForm({ ...topicForm, description: e.target.value })} className="block w-full rounded border border-white/10 bg-black px-2 py-1 text-xs text-white min-h-[40px]" />
                                 </div>
                                 <div className="flex gap-2">
                                   <button type="submit" className="rounded bg-zinc-700 px-2 py-1 text-xs text-white">Save Topic</button>

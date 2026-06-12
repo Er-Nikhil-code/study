@@ -6,6 +6,26 @@ export class NotesService {
   constructor(private prisma: PrismaService) {}
 
   async createNote(data: { topic_id: string; title: string; content_html: string }, userId: string, role: string) {
+    if (role === "INTERN") {
+      const intern = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (intern?.assigned_teacher_id) {
+        const topic = await this.prisma.topic.findUnique({
+          where: { id: data.topic_id },
+          include: { chapter: { include: { section: true } } }
+        });
+        if (topic) {
+          const courseId = topic.chapter.section.course_id;
+          const staffAssigned = await this.prisma.courseStaff.findUnique({
+            where: { course_id_user_id: { course_id: courseId, user_id: intern.assigned_teacher_id } }
+          });
+          const course = await this.prisma.course.findUnique({ where: { id: courseId } });
+          if (!staffAssigned && course?.created_by !== intern.assigned_teacher_id) {
+            throw new BadRequestException("You can only create notes for courses your assigned teacher is managing");
+          }
+        }
+      }
+    }
+
     // Interns go to PENDING_REVIEW, Teachers/Admins go to APPROVED
     const status = role === "INTERN" ? "PENDING_REVIEW" : "APPROVED";
 
