@@ -15,8 +15,8 @@ export const metadata: Metadata = {
     template: "%s | CODIFY",
     default: "CODIFY",
   },
-  description: "Codify is your all-in-one learning platform for exam preparation, coding, mock tests, PYQs, notes, quizzes, and AI-powered practice. Learn smarter, track progress, and achieve your dream score.",
-  keywords: "Codify, LMS, Learning Management System, EdTech, Online Testing, Performance Analytics, Education",
+  description: "Prepare smarter with Codify. Practice mock tests, solve PYQs, access quality notes, quizzes, and AI-powered learning tools to excel in competitive exams.",
+  keywords: "Codify, LMS, Learning Management System, EdTech, Online Testing, Performance Analytics, Education, Government Exam, Computer Science, Jobs, IT",
   metadataBase: new URL("https://www.codify.today"),
   alternates: {
     canonical: "/",
