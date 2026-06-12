@@ -53,6 +53,9 @@ export const useAuthStore = create<AuthState>()(
           accessToken: null,
           isAuthenticated: false,
         });
+        if (typeof window !== "undefined" && window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
       },
     }),
     {
