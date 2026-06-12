@@ -44,7 +44,9 @@ async function bootstrap() {
 
       if (
         allowedOrigins.includes(origin) ||
-        origin.endsWith(".vercel.app")
+        origin.endsWith(".vercel.app") ||
+        origin === "https://codify.today" ||
+        origin === "https://www.codify.today"
       ) {
         return callback(null, true);
       }
