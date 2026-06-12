@@ -8,16 +8,16 @@ import { useAuthStore, AuthUser } from "@/store/auth.store";
 import Logo from "@/components/ui/Logo";
 
 const QUOTES = [
-  { greeting: "Welcome to Codify!", body: "Codify is your all-in-one learning platform for exam preparation, coding, mock tests, PYQs, notes, quizzes, and AI-powered practice. Learn smarter, track progress, and achieve your dream score." },
-  { greeting: "Welcome to your success zone!", body: "Every question you solve, every test you attempt, and every lesson you complete brings you one step closer to your goal." },
-  { greeting: "Dream big, prepare bigger.", body: "You've arrived at the perfect place to master concepts, sharpen skills, and conquer your exams with confidence." },
-  { greeting: "Welcome, Future Achiever!", body: "Great results are built through consistent effort. Start today, stay focused, and watch your hard work transform into success." },
-  { greeting: "This is where preparation meets opportunity.", body: "Push your limits, challenge yourself daily, and unlock the potential that leads to extraordinary results." },
-  { greeting: "Welcome to the path of excellence.", body: "Every expert was once a beginner, and every topper started with a single step. Your success story begins now." },
-  { greeting: "Ready to outperform your competition?", body: "Learn efficiently, practice relentlessly, and build the confidence needed to excel in every examination." },
-  { greeting: "Success isn't a destination—it's a journey.", body: "Stay consistent, stay determined, and let every lesson bring you closer to your academic goals." },
-  { greeting: "Welcome, Champion of Tomorrow!", body: "The right guidance, focused preparation, and persistent effort can turn your ambitions into remarkable achievements." },
-  { greeting: "Your future is built by what you do today.", body: "Take control of your preparation, overcome every challenge, and create the results you've always aimed for." },
+  { greeting: "Welcome to Codify, Warrior!", body: "Your training ground awaits. Here, every mock test, PYQ, and coding challenge is designed to forge your skills for the ultimate battle." },
+  { greeting: "Rise, Warrior!", body: "The path to success is paved with relentless practice. Do not surrender to difficult questions; conquer them and claim your victory." },
+  { greeting: "Embrace the struggle.", body: "Every incorrect answer is a lesson, every tough test is armor. True warriors are not born; they are forged through perseverance." },
+  { greeting: "Your battlefield awaits.", body: "Stand tall. Your ambition is your weapon, and Codify is your shield. Prepare smarter, fight harder, and never yield." },
+  { greeting: "Warriors do not quit.", body: "When the concepts are tough and the exams loom near, remember why you started. Push forward, for glory belongs to the resilient." },
+  { greeting: "Victory demands discipline.", body: "Success is not an accident. It is the result of countless hours of invisible labor. Keep grinding, Warrior." },
+  { greeting: "Sharpen your mind.", body: "Like a blade on a whetstone, every quiz and assessment hones your intellect. Prepare yourself for the ultimate triumph." },
+  { greeting: "The arena is yours.", body: "You have entered the zone where champions are made. Overcome your doubts, tackle the syllabus, and emerge victorious." },
+  { greeting: "No retreat, no surrender.", body: "Setbacks are merely setups for legendary comebacks. Pick up your pen, face the challenge, and fight for your dream score." },
+  { greeting: "Welcome to the vanguard.", body: "You are part of an elite rank of learners who refuse to settle for mediocrity. Train fiercely, Warrior, and the world will know your name." },
 ];
 
 const quicksand = Quicksand({ 
