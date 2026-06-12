@@ -106,11 +106,11 @@ export default function AdminHomePage() {
       {/* Quick actions */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[
-          { href: "/king/users", icon: <Users size={16} />, label: "Manage Users", desc: "Search, edit roles, and delete user accounts" },
-          { href: "/king/roles", icon: <Shield size={16} />, label: "Manage Roles", desc: "Add, edit, and configure permission-based roles" },
-          { href: "/king/questions", icon: <FileQuestion size={16} />, label: "Manage Questions", desc: "Browse, search, and moderate the question bank" },
-          { href: "/king/challenges", icon: <ShieldAlert size={16} />, label: "Challenges", desc: "Review disputed questions and answer keys" },
-          { href: "/king/system", icon: <Activity size={16} />, label: "System Health", desc: "Monitor API performance, queues, and errors" },
+          { href: "/admin/users", icon: <Users size={16} />, label: "Manage Users", desc: "Search, edit roles, and delete user accounts" },
+          { href: "/admin/roles", icon: <Shield size={16} />, label: "Manage Roles", desc: "Add, edit, and configure permission-based roles" },
+          { href: "/admin/questions", icon: <FileQuestion size={16} />, label: "Manage Questions", desc: "Browse, search, and moderate the question bank" },
+          { href: "/admin/challenges", icon: <ShieldAlert size={16} />, label: "Challenges", desc: "Review disputed questions and answer keys" },
+          { href: "/admin/system", icon: <Activity size={16} />, label: "System Health", desc: "Monitor API performance, queues, and errors" },
           { href: "/notifications", icon: <Bell size={16} />, label: "Notifications", desc: "View system alerts and global announcements" },
         ].map((item) => (
           <Link

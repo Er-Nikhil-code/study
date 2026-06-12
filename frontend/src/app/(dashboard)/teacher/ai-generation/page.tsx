@@ -689,7 +689,7 @@ export default function AIGenerationPage() {
                     {sim.content_json?.[0]?.content || "No text preview"}
                   </p>
                   <a 
-                    href={isAdmin ? `/king/questions/${sim.id}/edit` : `/knight/questions/${sim.id}/edit`}
+                    href={isAdmin ? `/admin/questions/${sim.id}/edit` : `/teacher/questions/${sim.id}/edit`}
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="mt-3 inline-block text-xs text-blue-400 hover:text-blue-300 hover:underline"

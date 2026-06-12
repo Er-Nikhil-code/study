@@ -275,10 +275,10 @@ export default function AdminUsersPage() {
             {users.map((user) => (
               <div
                 key={user.id}
-                className={`grid grid-cols-[200px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 px-5 py-4 text-sm items-center ${!user.is_active ? 'opacity-50 grayscale' : ''}`}
+                className={`grid grid-cols-[200px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 px-5 py-4 text-sm items-center text-center ${!user.is_active ? 'opacity-50 grayscale' : ''}`}
               >
-                <div className="text-xs text-zinc-500 font-mono truncate" title={user.id}>{user.id}</div>
-                <div className="truncate text-white flex items-center gap-2">
+                <div className="text-xs text-zinc-500 font-mono break-all" title={user.id}>{user.id}</div>
+                <div className="text-white flex items-center justify-center gap-2">
                   <Link href={`/admin/users/${user.id}`} className="hover:text-red-400 hover:underline transition">
                     {user.first_name || "—"} {user.last_name || ""}
                   </Link>
@@ -290,7 +290,7 @@ export default function AdminUsersPage() {
                 </div>
 
                 {/* Role — editable */}
-                <div className="flex flex-col gap-2 items-start">
+                <div className="flex flex-col gap-2 items-center">
                   {editingId === user.id ? (
                     <select
                       value={editRole}

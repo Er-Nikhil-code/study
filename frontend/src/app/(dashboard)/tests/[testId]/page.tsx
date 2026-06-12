@@ -161,7 +161,7 @@ export default function TestDetailsPage() {
             )}
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-zinc-300">
+              <table className="w-full text-center text-sm text-zinc-300">
                 <thead className="bg-black/40 text-xs uppercase text-zinc-500">
                   <tr>
                     <th className="px-4 py-3 rounded-tl-xl">Rank</th>

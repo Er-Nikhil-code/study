@@ -40,7 +40,7 @@ export default function ExamInterfacePage() {
       if (document.fullscreenElement) {
         document.exitFullscreen().catch(console.error);
       }
-      router.replace(`/warrior/tests/${testId}/attempt/${attemptId}/result`);
+      router.replace(`/student/tests/${testId}/attempt/${attemptId}/result`);
     },
     onError: (err: any) => {
       alert(err?.response?.data?.message || "Failed to submit test.");

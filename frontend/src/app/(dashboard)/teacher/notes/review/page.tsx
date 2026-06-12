@@ -51,11 +51,11 @@ export default function ReviewNotesPage() {
   };
 
   const navItems = [
-    { label: "Knight home", href: "/knight" },
-    { label: "Hierarchy", href: "/knight/hierarchy" },
-    { label: "Questions", href: "/knight/questions" },
-    { label: "Review Notes", href: "/knight/notes/review" },
-    { label: "Tests", href: "/knight/tests" },
+    { label: "Knight home", href: "/teacher" },
+    { label: "Hierarchy", href: "/teacher/hierarchy" },
+    { label: "Questions", href: "/teacher/questions" },
+    { label: "Review Notes", href: "/teacher/notes/review" },
+    { label: "Tests", href: "/teacher/tests" },
   ];
 
   return (

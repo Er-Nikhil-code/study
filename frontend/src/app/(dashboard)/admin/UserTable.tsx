@@ -16,13 +16,13 @@ export default function UserTable() {
     <Panel>
       <table className="w-full">
         <thead>
-          <tr className="border-b border-white/10 text-left">
+          <tr className="border-b border-white/10 text-center">
             <th className="pb-3 text-zinc-400">Name</th>
             <th className="pb-3 text-zinc-400">Role</th>
           </tr>
         </thead>
 
-        <tbody>
+        <tbody className="text-center">
           {users.map((user) => (
             <tr key={user.name} className="border-b border-white/10">
               <td className="py-4 text-white">{user.name}</td>

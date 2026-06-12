@@ -51,7 +51,7 @@ export default function ResultsPage() {
             ) : (
               <div className="divide-y divide-white/10">
                 {results.map((r) => (
-                  <div key={r.attempt_id} className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 px-5 py-4 text-sm items-center">
+                  <div key={r.attempt_id} className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 px-5 py-4 text-sm items-center text-center">
                     <div className="truncate text-white">{r.test_title}</div>
                     <div className="text-white font-medium">{r.score ?? "—"}<span className="text-zinc-500">/{r.total_marks}</span></div>
                     <div className="text-xs text-zinc-500">{r.submitted_at ? new Date(r.submitted_at).toLocaleDateString() : "—"}</div>

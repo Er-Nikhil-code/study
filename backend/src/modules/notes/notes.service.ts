@@ -31,7 +31,9 @@ export class NotesService {
 
     return this.prisma.note.create({
       data: {
-        ...data,
+        topic_id: data.topic_id,
+        title: data.title,
+        content_html: data.content_html,
         created_by: userId,
         approval_status: status,
         ...(status === "APPROVED" && { approved_by: userId, approved_at: new Date() }),

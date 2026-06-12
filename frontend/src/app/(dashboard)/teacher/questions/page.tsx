@@ -16,6 +16,21 @@ const QUESTION_TYPES = [
 const DIFFICULTIES = ["ALL", "EASY", "MEDIUM", "HARD"];
 const typeLabel = (t: string) => t.replace(/_/g, " ");
 
+const difficultyBadge = (d: string) => {
+  const colors: Record<string, string> = {
+    EASY: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
+    MEDIUM: "border-yellow-500/20 bg-yellow-500/10 text-yellow-300",
+    HARD: "border-red-500/20 bg-red-500/10 text-red-300",
+  };
+  return (
+    <span
+      className={`rounded-full border px-3 py-1 text-[10px] font-medium ${colors[d] || "border-zinc-500/20 bg-zinc-500/10 text-zinc-300"}`}
+    >
+      {d}
+    </span>
+  );
+};
+
 export default function TeacherQuestionsPage() {
   const queryClient = useQueryClient();
 
@@ -337,8 +352,8 @@ export default function TeacherQuestionsPage() {
 
                 return (
                   <div key={q.id}>
-                    <div className={`grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-left ${q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION" ? "bg-white/[0.02]" : ""}`}>
-                      <div className="font-mono text-[10px] text-zinc-500 truncate" title={q.id}>
+                    <div className={`grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center text-center ${q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION" ? "bg-white/[0.02]" : ""}`}>
+                      <div className="font-mono text-[10px] text-zinc-500 break-all" title={q.id}>
                         {q.id}
                       </div>
 
@@ -346,10 +361,10 @@ export default function TeacherQuestionsPage() {
                         onClick={() =>
                           setExpandedId(expandedId === q.id ? null : q.id)
                         }
-                        className="truncate text-white hover:text-red-300 transition cursor-pointer text-left"
+                        className="text-white hover:text-red-300 transition cursor-pointer text-center"
                       >
                         <div 
-                          className="text-sm font-medium text-white truncate w-full"
+                          className="text-sm font-medium text-white line-clamp-2 w-full"
                           title={q.content_json?.[0]?.content?.substring(0, 100) || "Question Content"}
                         >
                           {q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}
@@ -361,9 +376,7 @@ export default function TeacherQuestionsPage() {
                       </div>
 
                       <div>
-                        <span className="text-xs text-zinc-400">
-                          {q.difficulty}
-                        </span>
+                        {difficultyBadge(q.difficulty)}
                       </div>
 
                       <div className="truncate text-[10px] text-zinc-500 leading-tight">
@@ -391,7 +404,7 @@ export default function TeacherQuestionsPage() {
                         {canSeeActions(q) && (
                           <>
                             {canEdit(q) && (
-                              <Link href={`/knight/questions/${q.id}/edit`}
+                              <Link href={`/teacher/questions/${q.id}/edit`}
                                 className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-xs text-zinc-300 transition hover:bg-white/[0.06]">
                                 Edit
                               </Link>

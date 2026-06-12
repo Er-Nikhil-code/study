@@ -30,24 +30,10 @@ export default function RichTextEditor({ value, onChange, placeholder, readOnly 
       const file = input.files ? input.files[0] : null;
       if (!file) return;
 
-      const formData = new FormData();
-      formData.append("file", file);
-
       try {
-        // We use the auth token from local storage
-        const token = localStorage.getItem("accessToken");
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "/api"}/upload/image`, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          },
-          body: formData,
-        });
-
-        if (!res.ok) throw new Error("Upload failed");
-
-        const data = await res.json();
-        const url = data.url;
+        // Use the centralized UploadService
+        const { default: uploadService } = await import("@/services/upload.service");
+        const url = await uploadService.uploadImage(file);
 
         // Get the editor instance to insert the image
         const quill = (document.querySelector('.ql-editor') as any).__quill; 

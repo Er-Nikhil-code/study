@@ -23,6 +23,7 @@ import { CartModule } from "./modules/cart/cart.module";
 import { PaymentModule } from "./modules/payment/payment.module";
 import { CleanupService } from "./jobs/cleanup.service";
 import { KeepAliveService } from "./jobs/keep-alive.service";
+import { UploadModule } from "./modules/upload/upload.module";
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { KeepAliveService } from "./jobs/keep-alive.service";
     TeacherModule,
     CartModule,
     PaymentModule,
+    UploadModule,
   ],
   providers: [
     CleanupService, 

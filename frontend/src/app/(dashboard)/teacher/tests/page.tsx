@@ -4,10 +4,10 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 
 const navItems = [
-  { label: "Knight home", href: "/knight" },
-  { label: "Questions", href: "/knight/questions" },
-  { label: "Tests", href: "/knight/tests" },
-  { label: "Challenges", href: "/knight/challenges" },
+  { label: "Knight home", href: "/teacher" },
+  { label: "Questions", href: "/teacher/questions" },
+  { label: "Tests", href: "/teacher/tests" },
+  { label: "Challenges", href: "/teacher/challenges" },
 ];
 
 const tests: any[] = [];

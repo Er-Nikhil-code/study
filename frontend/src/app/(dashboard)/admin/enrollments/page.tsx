@@ -50,7 +50,7 @@ export default function AdminEnrollmentsPage() {
       ) : (
         <div className="mt-6 space-y-4">
           <div className="rounded-2xl border border-white/10 bg-black/40 overflow-x-auto">
-            <table className="w-full text-left text-sm text-zinc-400">
+            <table className="w-full text-center text-sm text-zinc-400">
               <thead className="border-b border-white/5 bg-white/[0.02] text-xs uppercase tracking-wider text-zinc-500">
                 <tr>
                   <th className="px-6 py-4 font-medium">Warrior</th>

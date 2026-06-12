@@ -51,9 +51,9 @@ export default function CreateNotePage() {
   };
 
   const navItems = [
-    { label: "Pawn home", href: "/pawn" },
-    { label: "Create Questions", href: "/pawn/questions/create" },
-    { label: "Create Notes", href: "/pawn/notes/create" },
+    { label: "Pawn home", href: "/intern" },
+    { label: "Create Questions", href: "/intern/questions/create" },
+    { label: "Create Notes", href: "/intern/notes/create" },
   ];
 
   return (
