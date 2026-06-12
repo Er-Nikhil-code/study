@@ -87,7 +87,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
 
   // Notes
   const notesSubItems: NavItem[] = [];
-  if (hasPerm("create_notes") || user.role === "INTERN") {
+  if (hasPerm("create_notes") || user.role === "INTERN" || user.role === "TEACHER") {
     notesSubItems.push({ label: "Create Notes", href: "/intern/notes/create", icon: PlusCircle });
   }
   if (hasPerm("review_notes") || user.role === "TEACHER" || user.role === "ADMIN") {

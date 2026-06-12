@@ -23,6 +23,62 @@ export class StudentService {
   constructor(private prisma: PrismaService) {}
 
   /* ════════════════════════════════════════════
+   *  ACTIVITY GRAPH HELPER
+   * ════════════════════════════════════════════ */
+  async getDetailedActivityGraph(userId: string) {
+    const oneYearAgo = new Date();
+    oneYearAgo.setDate(oneYearAgo.getDate() - 180);
+
+    const [
+      notesCreated,
+      notesReviewed,
+      questionsCreated,
+      questionsReviewed,
+      testsCreated,
+      testsAttempted,
+      coursesEnrolled,
+      challengesSubmitted
+    ] = await Promise.all([
+      this.prisma.note.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
+      this.prisma.note.findMany({ where: { approved_by: userId, approved_at: { gte: oneYearAgo } }, select: { approved_at: true } }),
+      this.prisma.question.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
+      this.prisma.question.findMany({ where: { approved_by: userId, approved_at: { gte: oneYearAgo } }, select: { approved_at: true } }),
+      this.prisma.test.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
+      this.prisma.attempt.findMany({ where: { user_id: userId, started_at: { gte: oneYearAgo } }, select: { started_at: true } }),
+      this.prisma.courseEnrollment.findMany({ where: { user_id: userId, enrolled_at: { gte: oneYearAgo } }, select: { enrolled_at: true } }),
+      this.prisma.challenge.findMany({ where: { submitted_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } })
+    ]);
+
+    const activityMap: Record<string, { total: number; details: Record<string, number> }> = {};
+
+    const addActivity = (dateObj: Date | null, type: string) => {
+      if (!dateObj) return;
+      const dateStr = getISTDateString(dateObj);
+      if (!activityMap[dateStr]) activityMap[dateStr] = { total: 0, details: {} };
+      activityMap[dateStr].total++;
+      activityMap[dateStr].details[type] = (activityMap[dateStr].details[type] || 0) + 1;
+    };
+
+    notesCreated.forEach(n => addActivity(n.created_at, "notes created"));
+    notesReviewed.forEach(n => addActivity(n.approved_at, "notes reviewed"));
+    questionsCreated.forEach(q => addActivity(q.created_at, "questions created"));
+    questionsReviewed.forEach(q => addActivity(q.approved_at, "questions reviewed"));
+    testsCreated.forEach(t => addActivity(t.created_at, "tests created"));
+    testsAttempted.forEach(t => addActivity(t.started_at, "tests attempted"));
+    coursesEnrolled.forEach(c => addActivity(c.enrolled_at, "courses enrolled"));
+    challengesSubmitted.forEach(c => addActivity(c.created_at, "reviews submitted"));
+
+    return Object.keys(activityMap).map(date => ({
+      date,
+      count: activityMap[date].total,
+      details: Object.keys(activityMap[date].details).map(type => ({
+        type,
+        count: activityMap[date].details[type]
+      }))
+    }));
+  }
+
+  /* ════════════════════════════════════════════
    *  DASHBOARD STATS
    * ════════════════════════════════════════════ */
 
@@ -118,23 +174,7 @@ export class StudentService {
     });
 
     // Activity graph (last 180 days)
-    const oneYearAgo = new Date();
-    oneYearAgo.setDate(oneYearAgo.getDate() - 180);
-    
-    const attemptsData = await this.prisma.attempt.findMany({
-      where: { user_id: userId, started_at: { gte: oneYearAgo } },
-      select: { started_at: true }
-    });
-
-    const attemptsMap: Record<string, number> = {};
-    attemptsData.forEach(a => {
-      const dateStr = getISTDateString(a.started_at);
-      attemptsMap[dateStr] = (attemptsMap[dateStr] || 0) + 1;
-    });
-
-    const activity_graph = Object.keys(attemptsMap).map(date => ({
-      date, count: attemptsMap[date]
-    }));
+    const activity_graph = await this.getDetailedActivityGraph(userId);
 
     return {
       current_streak: stats?.current_streak ?? 0,
@@ -498,41 +538,8 @@ export class StudentService {
       },
     });
 
-    // Mixed Activity graph (last 180 days)
-    const oneYearAgo = new Date();
-    oneYearAgo.setDate(oneYearAgo.getDate() - 180);
-
-    const [testsData, approvalsData] = await Promise.all([
-      this.prisma.test.findMany({
-        where: { created_by: userId, created_at: { gte: oneYearAgo } },
-        select: { created_at: true },
-      }),
-      this.prisma.question.findMany({
-        where: { approved_by: userId, approved_at: { gte: oneYearAgo } },
-        select: { approved_at: true },
-      }),
-    ]);
-
-    const activityMap: Record<string, { blueCount: number; emeraldCount: number }> = {};
-    
-    testsData.forEach((t) => {
-      const dateStr = getISTDateString(t.created_at);
-      if (!activityMap[dateStr]) activityMap[dateStr] = { blueCount: 0, emeraldCount: 0 };
-      activityMap[dateStr].blueCount++;
-    });
-
-    approvalsData.forEach((q) => {
-      if (q.approved_at) {
-        const dateStr = getISTDateString(q.approved_at);
-        if (!activityMap[dateStr]) activityMap[dateStr] = { blueCount: 0, emeraldCount: 0 };
-        activityMap[dateStr].emeraldCount++;
-      }
-    });
-
-    const activity_graph = Object.keys(activityMap).map((date) => ({
-      date,
-      ...activityMap[date],
-    }));
+    // Detailed Activity graph (last 180 days)
+    const activity_graph = await this.getDetailedActivityGraph(userId);
 
     return {
       questions_created: questionCount,
@@ -602,23 +609,7 @@ export class StudentService {
     });
 
     // Activity graph (last 180 days)
-    const oneYearAgo = new Date();
-    oneYearAgo.setDate(oneYearAgo.getDate() - 180);
-    
-    const questionsData = await this.prisma.question.findMany({
-      where: { created_by: userId, created_at: { gte: oneYearAgo } },
-      select: { created_at: true }
-    });
-
-    const activityMap: Record<string, number> = {};
-    questionsData.forEach(q => {
-      const dateStr = getISTDateString(q.created_at);
-      activityMap[dateStr] = (activityMap[dateStr] || 0) + 1;
-    });
-
-    const activity_graph = Object.keys(activityMap).map(date => ({
-      date, count: activityMap[date]
-    }));
+    const activity_graph = await this.getDetailedActivityGraph(userId);
 
     return {
       total_created: totalCreated,

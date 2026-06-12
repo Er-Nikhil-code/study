@@ -38,7 +38,7 @@ export interface StudentDashboard {
     completed_topics: number;
     progress_percentage: number;
   }[];
-  activity_graph?: { date: string; count: number }[];
+  activity_graph?: { date: string; count: number; details?: { type: string; count: number }[] }[];
 }
 
 export interface TestListItem {
@@ -139,7 +139,7 @@ export interface TeacherDashboard {
   students_assigned: number;
   recent_challenges: any[];
   recent_reviews: any[];
-  activity_graph?: { date: string; blueCount: number; emeraldCount: number }[];
+  activity_graph?: { date: string; count: number; details?: { type: string; count: number }[] }[];
 }
 
 export interface InternDashboard {
@@ -162,7 +162,7 @@ export interface InternDashboard {
     updated_at: string;
     topic: { name: string; chapter: { name: string; section?: { course?: { name: string } } } };
   }[];
-  activity_graph?: { date: string; count: number }[];
+  activity_graph?: { date: string; count: number; details?: { type: string; count: number }[] }[];
 }
 
 export interface PaginatedResponse<T> {

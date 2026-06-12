@@ -317,38 +317,22 @@ export default function AdminUserProfilePage() {
               </>
             )}
 
-            {user.role === "TEACHER" && (() => {
-              const map = new Map<string, { blueCount: number; emeraldCount: number }>();
-              (user.tests_created_graph || []).forEach((d: any) => {
-                map.set(d.date, { blueCount: d.count, emeraldCount: 0 });
-              });
-              (user.questions_approved_graph || []).forEach((d: any) => {
-                const existing = map.get(d.date) || { blueCount: 0, emeraldCount: 0 };
-                existing.emeraldCount = d.count;
-                map.set(d.date, existing);
-              });
-              const mixedData = Array.from(map.entries()).map(([date, counts]) => ({
-                date,
-                ...counts
-              }));
-
-              return (
-                <Panel className="p-6 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
-                  <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">Teacher Contributions</h3>
-                  <div>
-                    <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">6-Month Activity Graph</h4>
-                    <ActivityGraph mixedData={mixedData} theme="mixed" userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
-                  </div>
-                </Panel>
-              );
-            })()}
+            {user.role === "TEACHER" && (
+              <Panel className="p-6 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
+                <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">Teacher Contributions</h3>
+                <div>
+                  <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">6-Month Activity Graph</h4>
+                  <ActivityGraph data={user.activity_graph || []} userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
+                </div>
+              </Panel>
+            )}
 
             {user.role === "STUDENT" && (
               <Panel className="p-6 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
                 <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider mb-4 border-b border-emerald-500/10 pb-2">Student Activity</h3>
                 <div>
                   <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">Test Attempts (Last 6 Months)</h4>
-                  <ActivityGraph data={user.activity_graph || []} theme="emerald" userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
+                  <ActivityGraph data={user.activity_graph || []} userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
                 </div>
               </Panel>
             )}

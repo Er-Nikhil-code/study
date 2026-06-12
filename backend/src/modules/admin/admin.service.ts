@@ -7,11 +7,77 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 
+// Helper to convert UTC Date to IST YYYY-MM-DD
+function getISTDateString(d: Date) {
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  const ist = new Date(utc + (3600000 * 5.5));
+  const year = ist.getFullYear();
+  const month = String(ist.getMonth() + 1).padStart(2, '0');
+  const day = String(ist.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 @Injectable()
 export class AdminService {
   private readonly logger = new Logger(AdminService.name);
 
   constructor(private prisma: PrismaService) {}
+
+  /* ════════════════════════════════════════════
+   *  ACTIVITY GRAPH HELPER
+   * ════════════════════════════════════════════ */
+  private async getDetailedActivityGraph(userId: string) {
+    const oneYearAgo = new Date();
+    oneYearAgo.setDate(oneYearAgo.getDate() - 180);
+
+    const [
+      notesCreated,
+      notesReviewed,
+      questionsCreated,
+      questionsReviewed,
+      testsCreated,
+      testsAttempted,
+      coursesEnrolled,
+      challengesSubmitted
+    ] = await Promise.all([
+      this.prisma.note.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
+      this.prisma.note.findMany({ where: { approved_by: userId, approved_at: { gte: oneYearAgo } }, select: { approved_at: true } }),
+      this.prisma.question.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
+      this.prisma.question.findMany({ where: { approved_by: userId, approved_at: { gte: oneYearAgo } }, select: { approved_at: true } }),
+      this.prisma.test.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
+      this.prisma.attempt.findMany({ where: { user_id: userId, started_at: { gte: oneYearAgo } }, select: { started_at: true } }),
+      this.prisma.courseEnrollment.findMany({ where: { user_id: userId, enrolled_at: { gte: oneYearAgo } }, select: { enrolled_at: true } }),
+      this.prisma.challenge.findMany({ where: { submitted_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } })
+    ]);
+
+    const activityMap: Record<string, { total: number; details: Record<string, number> }> = {};
+
+    const addActivity = (dateObj: Date | null, type: string) => {
+      if (!dateObj) return;
+      const dateStr = getISTDateString(dateObj);
+      if (!activityMap[dateStr]) activityMap[dateStr] = { total: 0, details: {} };
+      activityMap[dateStr].total++;
+      activityMap[dateStr].details[type] = (activityMap[dateStr].details[type] || 0) + 1;
+    };
+
+    notesCreated.forEach(n => addActivity(n.created_at, "notes created"));
+    notesReviewed.forEach(n => addActivity(n.approved_at, "notes reviewed"));
+    questionsCreated.forEach(q => addActivity(q.created_at, "questions created"));
+    questionsReviewed.forEach(q => addActivity(q.approved_at, "questions reviewed"));
+    testsCreated.forEach(t => addActivity(t.created_at, "tests created"));
+    testsAttempted.forEach(t => addActivity(t.started_at, "tests attempted"));
+    coursesEnrolled.forEach(c => addActivity(c.enrolled_at, "courses enrolled"));
+    challengesSubmitted.forEach(c => addActivity(c.created_at, "reviews submitted"));
+
+    return Object.keys(activityMap).map(date => ({
+      date,
+      count: activityMap[date].total,
+      details: Object.keys(activityMap[date].details).map(type => ({
+        type,
+        count: activityMap[date].details[type]
+      }))
+    }));
+  }
 
   /**
    * Dashboard stats — live counts from database
@@ -291,93 +357,19 @@ export class AdminService {
         }
       }
 
-      // Mixed Activity graph (last 180 days)
-      const oneYearAgo = new Date();
-      oneYearAgo.setDate(oneYearAgo.getDate() - 180);
-      
-      const questionsData = await this.prisma.question.findMany({
-        where: { 
-          created_by: id,
-          created_at: { gte: oneYearAgo }
-        },
-        select: { created_at: true }
-      });
-
-      const dateMap: Record<string, number> = {};
-      questionsData.forEach(q => {
-        const dateStr = q.created_at.toISOString().split('T')[0];
-        dateMap[dateStr] = (dateMap[dateStr] || 0) + 1;
-      });
-
-      const activity_graph = Object.keys(dateMap).map(date => ({
-        date,
-        count: dateMap[date]
-      }));
-
       extraStats = { 
         approved_questions: approvedCount, 
         calculated_earnings: earnings,
-        activity_graph
       };
     } else if (user.role === "TEACHER") {
-      const oneYearAgo = new Date();
-      oneYearAgo.setDate(oneYearAgo.getDate() - 180);
-      
-      const testsData = await this.prisma.test.findMany({
-        where: { created_by: id, created_at: { gte: oneYearAgo } },
-        select: { created_at: true }
+      const testsCount = await this.prisma.test.count({
+        where: { created_by: id }
       });
-
-      const testsMap: Record<string, number> = {};
-      testsData.forEach(t => {
-        const dateStr = t.created_at.toISOString().split('T')[0];
-        testsMap[dateStr] = (testsMap[dateStr] || 0) + 1;
-      });
-
-      const tests_created_graph = Object.keys(testsMap).map(date => ({
-        date, count: testsMap[date]
-      }));
-
-      const approvedData = await this.prisma.question.findMany({
-        where: { approved_by: id, approval_status: "APPROVED", approved_at: { gte: oneYearAgo } },
-        select: { approved_at: true }
-      });
-
-      const approvedMap: Record<string, number> = {};
-      approvedData.forEach(q => {
-        if (q.approved_at) {
-          const dateStr = q.approved_at.toISOString().split('T')[0];
-          approvedMap[dateStr] = (approvedMap[dateStr] || 0) + 1;
-        }
-      });
-
-      const questions_approved_graph = Object.keys(approvedMap).map(date => ({
-        date, count: approvedMap[date]
-      }));
-
-      extraStats = { tests_created_graph, questions_approved_graph };
-
-    } else if (user.role === "STUDENT") {
-      const oneYearAgo = new Date();
-      oneYearAgo.setDate(oneYearAgo.getDate() - 180);
-      
-      const attemptsData = await this.prisma.attempt.findMany({
-        where: { user_id: id, started_at: { gte: oneYearAgo } },
-        select: { started_at: true }
-      });
-
-      const attemptsMap: Record<string, number> = {};
-      attemptsData.forEach(a => {
-        const dateStr = a.started_at.toISOString().split('T')[0];
-        attemptsMap[dateStr] = (attemptsMap[dateStr] || 0) + 1;
-      });
-
-      const activity_graph = Object.keys(attemptsMap).map(date => ({
-        date, count: attemptsMap[date]
-      }));
-
-      extraStats = { activity_graph };
+      extraStats = { tests_created: testsCount };
     }
+
+    // Attach unified activity graph for all roles
+    extraStats.activity_graph = await this.getDetailedActivityGraph(id);
 
     const { password_hash, ...safeUser } = user as any;
     return { ...safeUser, ...extraStats };

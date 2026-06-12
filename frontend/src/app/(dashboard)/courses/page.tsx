@@ -264,8 +264,27 @@ export default function CoursesPage() {
                       <span className="text-zinc-400">Curriculum</span>
                       <span className="text-zinc-200 font-semibold bg-white/5 px-2 py-1 rounded-md">{course.sections?.length || 0} Sections</span>
                     </div>
-                    {canSeeCodeAndId && (
-                      <div className="flex justify-between items-center text-[10px] font-mono mt-1">
+                    {user?.role === "ADMIN" ? (
+                      <div className="flex flex-col gap-1.5 mt-3 pt-3 border-t border-white/5 text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
+                        <div className="flex justify-between items-center">
+                          <span>ID</span>
+                          <span className="text-zinc-400 truncate max-w-[120px]" title={course.id}>{course.id}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Price</span>
+                          <span className="text-emerald-400 font-semibold tracking-normal">₹{course.discount_price > 0 ? course.discount_price : (course.price || 0)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Launched</span>
+                          <span className="text-zinc-400 tracking-normal">{course.launch_date ? new Date(course.launch_date).toLocaleDateString() : 'TBD'}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Enrolled / Purchased</span>
+                          <span className="text-white font-semibold tracking-normal">{course.enrollment_count || 0}</span>
+                        </div>
+                      </div>
+                    ) : user?.role === "TEACHER" && (
+                      <div className="flex justify-between items-center text-[10px] font-mono mt-3 pt-3 border-t border-white/5">
                         <span className="text-zinc-600">ID</span>
                         <span className="text-zinc-500 truncate max-w-[120px]">{course.id}</span>
                       </div>

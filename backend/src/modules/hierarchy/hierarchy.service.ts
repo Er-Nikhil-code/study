@@ -162,6 +162,7 @@ export class HierarchyService {
     const courses = await this.prisma.course.findMany({
       where: userRole === 'STUDENT' ? { status: 'PUBLISHED' } : {},
       include: {
+        _count: { select: { enrollments: true } },
         sections: {
           include: {
             chapters: {
@@ -262,7 +263,12 @@ export class HierarchyService {
         });
         return { ...section, chapters: mappedChapters };
       });
-      return { ...course, is_enrolled: isEnrolled, sections: mappedSections };
+      return { 
+        ...course, 
+        is_enrolled: isEnrolled, 
+        sections: mappedSections,
+        enrollment_count: course._count?.enrollments || 0 
+      };
     });
   }
 
