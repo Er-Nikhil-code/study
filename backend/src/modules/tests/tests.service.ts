@@ -808,7 +808,7 @@ export class TestsService {
             id: true,
             first_name: true,
             last_name: true,
-            profile_picture_url: true,
+            profile_picture: true,
           }
         }
       }
