@@ -21,16 +21,15 @@ async function bootstrap() {
   // Parse CORS origins from environment variable, with sensible defaults
   const defaultOrigins = [
     "http://localhost:3000",
-    "https://codify.today",
     "https://www.codify.today",
   ];
 
   const corsOriginsEnv = process.env.CORS_ORIGINS;
   const allowedOrigins = corsOriginsEnv
     ? corsOriginsEnv
-        .split(",")
-        .map((o) => o.trim())
-        .filter(Boolean)
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean)
     : defaultOrigins;
 
   app.enableCors({
