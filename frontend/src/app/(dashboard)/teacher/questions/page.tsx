@@ -8,6 +8,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { QuestionsService } from "@/services/questions.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import authService from "@/services/auth.service";
+import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 
 const QUESTION_TYPES = [
   "ALL", "SINGLE_CORRECT", "MULTIPLE_CORRECT", "NUMERICAL", "TRUE_FALSE", "MATCHING", "PASSAGE", "ESSAY", "FILL_BLANK", "IMAGE_BASED", "DRAG_DROP", "CODE", "ASSERTION_REASON"
@@ -27,6 +28,7 @@ export default function TeacherQuestionsPage() {
   const [diffFilter, setDiffFilter] = useState("ALL");
   const [pyqFilter, setPyqFilter] = useState("ALL");
   const [yearFilter, setYearFilter] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Submitting state
   const [submittingId, setSubmittingId] = useState<string | null>(null);
@@ -256,72 +258,139 @@ export default function TeacherQuestionsPage() {
         </div>
       </div>
 
-      <div className="mt-4 grid gap-4">
-        {loading ? (
-          [...Array(3)].map((_, i) => (
-            <Panel key={i} className="p-5 h-32 animate-pulse bg-white/[0.03]">
-              <div />
-            </Panel>
-          ))
-        ) : questions.length === 0 ? (
-          <Panel className="py-12 text-center text-sm text-zinc-500">
-            No questions found. Start by creating one!
-          </Panel>
-        ) : (
-          questions.map((q) => (
-            <Panel key={q.id} accent={q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION"} className="p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
-                      {q.id.split("-")[0]}-{q.id.slice(-4)}
+      <Panel className="mt-4 p-0 overflow-x-auto">
+        <div className="min-w-[900px]">
+          <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+            <div>ID</div>
+            <div>Title</div>
+            <div>Type</div>
+            <div>Difficulty</div>
+            <div>Tags</div>
+            <div>Status</div>
+            <div>Actions</div>
+          </div>
+
+          {loading ? (
+            <div className="divide-y divide-white/10">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4"
+                >
+                  <div className="h-4 w-64 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-48 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-16 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-32 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-20 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-14 animate-pulse rounded bg-white/10" />
+                </div>
+              ))}
+            </div>
+          ) : questions.length === 0 ? (
+            <div className="px-5 py-12 text-center text-sm text-zinc-500">
+              No questions found. Start by creating one!
+            </div>
+          ) : (
+            <div className="divide-y divide-white/10">
+              {questions.map((q) => {
+                const contentBlocks = Array.isArray((q as any).content_json)
+                  ? (q as any).content_json
+                  : [];
+
+                return (
+                  <div key={q.id}>
+                    <div className={`grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center ${q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION" ? "bg-white/[0.02]" : ""}`}>
+                      <div className="font-mono text-[10px] text-zinc-500 truncate" title={q.id}>
+                        {q.id}
+                      </div>
+
+                      <button
+                        onClick={() =>
+                          setExpandedId(expandedId === q.id ? null : q.id)
+                        }
+                        className="truncate text-white text-left hover:text-red-300 transition cursor-pointer"
+                      >
+                        <div 
+                          className="text-sm font-medium text-white truncate max-w-[200px]"
+                          title={q.content_json?.[0]?.content?.substring(0, 100) || "Question Content"}
+                        >
+                          {q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}
+                        </div>
+                      </button>
+
+                      <div className="text-xs text-zinc-400">
+                        {typeLabel(q.question_type)}
+                      </div>
+
+                      <div>
+                        <span className="text-xs text-zinc-400">
+                          {q.difficulty}
+                        </span>
+                      </div>
+
+                      <div className="truncate text-[10px] text-zinc-500 leading-tight">
+                        {q.topic?.chapter?.section?.name && (
+                          <span className="text-zinc-400">{q.topic.chapter.section.name} &gt; </span>
+                        )}
+                        {q.topic?.chapter?.name && (
+                          <span className="text-zinc-400">{q.topic.chapter.name} &gt; </span>
+                        )}
+                        <span className="text-zinc-300 font-medium">{q.topic?.name || "—"}</span>
+                      </div>
+
+                      <div>
+                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${getStatusColor(q.approval_status)}`}>
+                          {q.approval_status.replace(/_/g, " ")}
+                        </span>
+                        {q.approval_status === "NEEDS_REVISION" && q.rejection_note && (
+                          <div className="text-[10px] text-red-400 mt-1 truncate" title={q.rejection_note}>
+                            {q.rejection_note}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-1">
+                        {canSeeActions(q) && (
+                          <>
+                            {canEdit(q) && (
+                              <Link href={`/teacher/questions/${q.id}/edit`}
+                                className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-xs text-zinc-300 transition hover:bg-white/[0.06]">
+                                Edit
+                              </Link>
+                            )}
+                            {userRole === "INTERN" && q.created_by === userId && (q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION") && (
+                              <button onClick={() => handleSubmitReview(q.id)} disabled={submittingId === q.id}
+                                className="rounded-lg border border-red-500/30 bg-red-500/10 px-2 py-1 text-[10px] font-medium text-red-200 transition hover:bg-red-500/15 disabled:opacity-50">
+                                {submittingId === q.id ? "Submitting…" : "Submit"}
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
-                    {q.approval_status === "NEEDS_REVISION" && q.rejection_note && (
-                      <span className="rounded bg-red-500/20 px-2 py-0.5 text-[10px] text-red-300">
-                        Feedback: {q.rejection_note}
-                      </span>
+
+                    {/* Expanded content preview with LaTeX rendering */}
+                    {expandedId === q.id && contentBlocks.length > 0 && (
+                      <div className="border-t border-white/5 bg-white/[0.02] px-5 py-4">
+                        <div className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-2">
+                          Content Preview
+                        </div>
+                        <ContentBlockRenderer blocks={contentBlocks} />
+                        {q.topic?.chapter && (
+                          <div className="mt-3 text-xs text-zinc-500">
+                            {q.topic.chapter.section?.course?.name ?? "Course"} → {q.topic.chapter.name} → {q.topic.name}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
-                  <h3 className="text-lg font-semibold text-white">
-                    {q.content_json?.[0]?.content?.substring(0, 50) || "Question Content"}
-                    {q.content_json?.[0]?.content?.length > 50 ? "..." : ""}
-                  </h3>
-                  <div className="flex flex-wrap gap-2 text-sm text-zinc-400">
-                    <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-                      {q.topic ? `${q.topic.chapter?.section?.course?.name || ''} → ${q.topic.name}` : "Unknown Topic"}
-                    </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-                      {q.question_type.replace(/_/g, " ")}
-                    </span>
-                  </div>
-                </div>
-
-                <span className={`rounded-full border px-3 py-1 text-xs font-medium ${getStatusColor(q.approval_status)}`}>
-                  {q.approval_status.replace(/_/g, " ")}
-                </span>
-              </div>
-
-              {/* Action buttons — only for questions the user owns (or admin) */}
-              {canSeeActions(q) && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {canEdit(q) && (
-                    <Link href={`/teacher/questions/${q.id}/edit`}
-                      className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
-                      Edit
-                    </Link>
-                  )}
-                  {userRole === "INTERN" && q.created_by === userId && (q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION") && (
-                    <button onClick={() => handleSubmitReview(q.id)} disabled={submittingId === q.id}
-                      className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/15 disabled:opacity-50">
-                      {submittingId === q.id ? "Submitting…" : "Submit for Review"}
-                    </button>
-                  )}
-                </div>
-              )}
-            </Panel>
-          ))
-        )}
-      </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </Panel>
     </>
   );
 }

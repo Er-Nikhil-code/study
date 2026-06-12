@@ -296,7 +296,7 @@ export default function AdminQuestionsPage() {
       {/* Questions list */}
       <Panel className="mt-4 p-0 overflow-x-auto">
         <div className="min-w-[800px]">
-          <div className="grid grid-cols-[80px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
             <div>ID</div>
             <div>Title</div>
             <div>Type</div>
@@ -311,9 +311,9 @@ export default function AdminQuestionsPage() {
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className="grid grid-cols-[80px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4"
+                  className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4"
                 >
-                  <div className="h-4 w-12 animate-pulse rounded bg-white/10" />
+                  <div className="h-4 w-64 animate-pulse rounded bg-white/10" />
                   <div className="h-4 w-48 animate-pulse rounded bg-white/10" />
                   <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
                   <div className="h-4 w-16 animate-pulse rounded bg-white/10" />
@@ -336,9 +336,9 @@ export default function AdminQuestionsPage() {
 
                 return (
                   <div key={q.id}>
-                    <div className="grid grid-cols-[80px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center">
-                      <div className="font-mono text-[10px] text-zinc-500" title={q.id}>
-                        ...{q.id.slice(-6)}
+                    <div className="grid grid-cols-[280px_minmax(0,2fr)_minmax(0,1fr)_80px_minmax(150px,2fr)_120px_140px] gap-3 px-5 py-4 text-sm items-center">
+                      <div className="font-mono text-[10px] text-zinc-500 truncate" title={q.id}>
+                        {q.id}
                       </div>
 
                       <button
@@ -374,7 +374,13 @@ export default function AdminQuestionsPage() {
                       </div>
 
                       <div className="text-xs text-zinc-400 truncate">
-                        {q.creator ? `${q.creator.first_name || ""} ${q.creator.last_name || ""}`.trim() || "Admin" : q.created_by}
+                        {q.creator || q.created_by ? (
+                          <UserHoverCard userId={q.created_by}>
+                            {q.creator ? `${q.creator.first_name || ""} ${q.creator.last_name || ""}`.trim() || "Admin" : q.created_by}
+                          </UserHoverCard>
+                        ) : (
+                          "Admin"
+                        )}
                       </div>
 
                       <div className="flex items-center gap-1">

@@ -8,6 +8,7 @@ import {
   Bell, BellOff, Check, CheckCheck, Trophy, Flame,
   ShieldCheck, BookOpen, Megaphone, Star,
 } from "lucide-react";
+import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
   RANK_UPDATE:        { icon: <Trophy size={16} />,    color: "text-yellow-400 bg-yellow-400/10" },
@@ -155,6 +156,11 @@ export default function NotificationsPage() {
                               </div>
                             </div>
                             <p className={`text-sm leading-relaxed ${!n.is_read ? "text-zinc-300 font-medium" : "text-zinc-400"}`}>{n.message}</p>
+                            {n.data_json?.question_content && (
+                              <div className="mt-3 bg-black/40 border border-white/5 rounded-xl p-4 text-sm text-zinc-300 max-h-40 overflow-y-auto">
+                                <ContentBlockRenderer blocks={n.data_json.question_content} />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </Panel>

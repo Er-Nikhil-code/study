@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export type UserRole = "STUDENT" | "INTERN" | "TEACHER" | "ADMIN";
 
@@ -38,8 +38,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       setAuth: (user, accessToken) => {
-        localStorage.setItem("accessToken", accessToken);
-
+        // Token is already set by authService, so we just update Zustand state
         set({
           user,
           accessToken,
@@ -48,8 +47,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        localStorage.removeItem("accessToken");
-
+        // Token removal is handled by authService or logout logic
         set({
           user: null,
           accessToken: null,
@@ -59,6 +57,24 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "codify-auth",
+      storage: createJSONStorage(() => ({
+        getItem: (name) => {
+          return localStorage.getItem(name) || sessionStorage.getItem(name);
+        },
+        setItem: (name, value) => {
+          if (sessionStorage.getItem('sessionOnly') === 'true') {
+            sessionStorage.setItem(name, value);
+            localStorage.removeItem(name);
+          } else {
+            localStorage.setItem(name, value);
+            sessionStorage.removeItem(name);
+          }
+        },
+        removeItem: (name) => {
+          localStorage.removeItem(name);
+          sessionStorage.removeItem(name);
+        }
+      })),
     },
   ),
 );

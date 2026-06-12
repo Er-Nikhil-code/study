@@ -17,7 +17,10 @@ export default function HierarchyManagerPage() {
 
   // Forms state
   const [showCourseForm, setShowCourseForm] = useState(false);
-  const [courseForm, setCourseForm] = useState({ name: "", code: "", description: "" });
+  const [courseForm, setCourseForm] = useState({ 
+    name: "", code: "", description: "",
+    price: 0, discount_price: 0, status: "DRAFT" as "DRAFT" | "PUBLISHED" | "HIDDEN", launch_date: ""
+  });
 
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
   const [sectionForm, setSectionForm] = useState({ name: "", description: "", order: 1 });
@@ -51,8 +54,21 @@ export default function HierarchyManagerPage() {
       alert("Course description cannot exceed 30 words.");
       return;
     }
-    await HierarchyService.createCourse(courseForm);
-    setCourseForm({ name: "", code: "", description: "" });
+    
+    const payload: any = { ...courseForm };
+    if (!isAdmin) {
+      delete payload.price;
+      delete payload.discount_price;
+      delete payload.status;
+      delete payload.launch_date;
+    } else {
+      payload.price = Number(payload.price);
+      payload.discount_price = Number(payload.discount_price);
+      if (!payload.launch_date) delete payload.launch_date;
+    }
+
+    await HierarchyService.createCourse(payload);
+    setCourseForm({ name: "", code: "", description: "", price: 0, discount_price: 0, status: "DRAFT", launch_date: "" });
     setShowCourseForm(false);
     fetchHierarchy();
   };
@@ -156,9 +172,35 @@ export default function HierarchyManagerPage() {
               </div>
               <textarea required value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500 min-h-[60px]" placeholder="Course description..." />
             </div>
-            <div className="flex gap-2">
-              <button type="submit" className="rounded-md bg-white px-4 py-2 text-sm font-medium text-black">Save Course</button>
-              <button type="button" onClick={() => setShowCourseForm(false)} className="rounded-md bg-zinc-800 px-4 py-2 text-sm text-white">Cancel</button>
+
+            {isAdmin && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+                <div>
+                  <label className="text-xs text-zinc-400">Status</label>
+                  <select value={courseForm.status} onChange={e => setCourseForm({...courseForm, status: e.target.value as any})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500">
+                    <option value="DRAFT">Draft</option>
+                    <option value="PUBLISHED">Published</option>
+                    <option value="HIDDEN">Hidden</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-zinc-400">Launch Date</label>
+                  <input type="date" value={courseForm.launch_date} onChange={e => setCourseForm({...courseForm, launch_date: e.target.value})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+                </div>
+                <div>
+                  <label className="text-xs text-zinc-400">Base Price (₹)</label>
+                  <input type="number" min="0" value={courseForm.price} onChange={e => setCourseForm({...courseForm, price: Number(e.target.value)})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+                </div>
+                <div>
+                  <label className="text-xs text-zinc-400">Discount Price (₹)</label>
+                  <input type="number" min="0" value={courseForm.discount_price} onChange={e => setCourseForm({...courseForm, discount_price: Number(e.target.value)})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-2 mt-2">
+              <button type="submit" className="rounded-md bg-white px-4 py-2 text-sm font-medium text-black hover:bg-zinc-200 transition">Save Course</button>
+              <button type="button" onClick={() => setShowCourseForm(false)} className="rounded-md bg-zinc-800 px-4 py-2 text-sm text-white hover:bg-zinc-700 transition">Cancel</button>
             </div>
           </form>
         </Panel>
@@ -174,7 +216,37 @@ export default function HierarchyManagerPage() {
             hierarchy.map((course) => (
               <Panel key={course.id} className="space-y-4 border-l-4 border-l-red-500">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-white">{course.name} <span className="text-zinc-500 text-sm ml-2">({course.code})</span></h3>
+                  <div>
+                    <h3 className="text-lg font-bold text-white flex items-center gap-3">
+                      {course.name} <span className="text-zinc-500 text-sm">({course.code})</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${
+                        course.status === 'PUBLISHED' ? 'bg-emerald-500/20 text-emerald-400' :
+                        course.status === 'HIDDEN' ? 'bg-red-500/20 text-red-400' :
+                        'bg-zinc-500/20 text-zinc-400'
+                      }`}>
+                        {course.status}
+                      </span>
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1 text-xs">
+                      {(course.price > 0 || course.discount_price > 0) && (
+                        <div className="flex items-center gap-2 text-zinc-400 bg-white/5 px-2 py-1 rounded">
+                          {course.discount_price > 0 ? (
+                            <>
+                              <span className="line-through opacity-50">₹{course.price}</span>
+                              <span className="text-emerald-400 font-semibold">₹{course.discount_price}</span>
+                            </>
+                          ) : (
+                            <span className="text-zinc-300 font-semibold">₹{course.price}</span>
+                          )}
+                        </div>
+                      )}
+                      {course.launch_date && (
+                        <div className="text-zinc-500">
+                          Launch: {new Date(course.launch_date).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <div className="flex items-center gap-3">
                     <button onClick={() => setActiveCourseId(course.id)} className="text-xs text-red-400 hover:text-white">+ Add Section</button>
                     {isAdmin && (

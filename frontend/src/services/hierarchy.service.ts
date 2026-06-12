@@ -9,7 +9,7 @@ export const HierarchyService = {
     return api.post("/admin/hierarchy/reorder", items).then((r) => r.data);
   },
 
-  createCourse(data: { name: string; code: string; description: string }) {
+  createCourse(data: { name: string; code: string; description: string; price?: number; discount_price?: number; status?: 'DRAFT' | 'PUBLISHED' | 'HIDDEN'; launch_date?: string }) {
     return api.post("/admin/hierarchy/courses", data).then((r) => r.data);
   },
 
@@ -25,7 +25,7 @@ export const HierarchyService = {
     return api.post("/admin/hierarchy/topics", data).then((r) => r.data);
   },
 
-  updateCourse(id: string, data: { name?: string; code?: string; description?: string }) {
+  updateCourse(id: string, data: { name?: string; code?: string; description?: string; price?: number; discount_price?: number; status?: 'DRAFT' | 'PUBLISHED' | 'HIDDEN'; launch_date?: string }) {
     return api.patch(`/admin/hierarchy/courses/${id}`, data).then((r) => r.data);
   },
 

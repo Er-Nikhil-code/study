@@ -27,6 +27,18 @@ const quicksand = Quicksand({
 
 // Main Home Page Component
 export default function HomePage() {
+  const router = useRouter();
+  const { isAuthenticated, user } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === "ADMIN") router.push("/admin");
+      else if (user.role === "TEACHER") router.push("/teacher");
+      else if (user.role === "INTERN") router.push("/intern/dashboard");
+      else router.push("/student/dashboard");
+    }
+  }, [isAuthenticated, user, router]);
+
   const [authView, setAuthView] = useState<
     "login" | "signup" | "forgot-password"
   >("login");
@@ -420,6 +432,7 @@ function LoginFormEmbedded({
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -438,7 +451,7 @@ function LoginFormEmbedded({
 
     setIsLoading(true);
     try {
-      const res = await authService.login(email, password);
+      const res = await authService.login(email, password, rememberMe);
 
       // Update Zustand store so Navbar and all components see the user immediately
       if (res.user && res.accessToken) {
@@ -520,7 +533,7 @@ function LoginFormEmbedded({
 
       <div className="flex items-center justify-between mt-2">
         <label className="flex items-center gap-2 cursor-pointer group">
-          <input type="checkbox" className="rounded bg-black/40 border-white/10 text-red-500 focus:ring-red-500/20 focus:ring-offset-0" />
+          <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="rounded bg-black/40 border-white/10 text-red-500 focus:ring-red-500/20 focus:ring-offset-0" />
           <span className="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors">Remember me</span>
         </label>
         <button
@@ -744,7 +757,7 @@ function RegisterFormEmbedded({
               maxLength={6}
               className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
                 errors.otp ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-              } text-white text-center text-3xl tracking-[0.5em] placeholder-zinc-700 font-mono focus:outline-none focus:ring-1 ${errors.otp ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+              } text-white text-center text-3xl tracking-[0.2em] placeholder-zinc-700 font-mono focus:outline-none focus:ring-1 ${errors.otp ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
             />
             {errors.otp && (
               <p className="text-red-400 text-xs mt-1.5 text-center">{errors.otp}</p>

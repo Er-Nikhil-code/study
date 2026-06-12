@@ -204,7 +204,7 @@ export class QuestionsService {
         type: "CUSTOM",
         title: "Question Approved ✅",
         message: `Your question (ID: ${question.id}) has been approved.`,
-        data_json: { question_id: questionId },
+        data_json: { question_id: questionId, question_content: question.content_json },
       },
     });
 
@@ -244,7 +244,7 @@ export class QuestionsService {
         type: "CUSTOM",
         title: "Question Needs Revision",
         message: `Your question (ID: ${question.id}) needs changes: ${note}`,
-        data_json: { question_id: questionId, note },
+        data_json: { question_id: questionId, note, question_content: question.content_json },
       },
     });
 

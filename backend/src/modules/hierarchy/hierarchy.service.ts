@@ -12,10 +12,10 @@ export class HierarchyService {
   }
 
   // Course
-  createCourse(data: { name: string; code: string; description: string; created_by?: string }) {
+  createCourse(data: { name: string; code: string; description: string; created_by?: string; price?: number; discount_price?: number; status?: 'DRAFT' | 'PUBLISHED' | 'HIDDEN'; launch_date?: Date }) {
     return this.prisma.course.create({ data });
   }
-  async updateCourse(id: string, userId: string, role: string, data: { name?: string; code?: string; description?: string }) {
+  async updateCourse(id: string, userId: string, role: string, data: { name?: string; code?: string; description?: string; price?: number; discount_price?: number; status?: 'DRAFT' | 'PUBLISHED' | 'HIDDEN'; launch_date?: Date }) {
     await this.checkCoursePermission(id, userId, role);
     return this.prisma.course.update({ where: { id }, data });
   }
@@ -129,7 +129,14 @@ export class HierarchyService {
 
   // Full Hierarchy
   async getFullHierarchy(userId?: string) {
+    let userRole = null;
+    if (userId) {
+      const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+      userRole = user?.role;
+    }
+
     const courses = await this.prisma.course.findMany({
+      where: userRole === 'STUDENT' ? { status: 'PUBLISHED' } : {},
       include: {
         sections: {
           include: {

@@ -6,8 +6,9 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import Panel from "@/components/ui/Panel";
 import { HierarchyService } from "@/services/hierarchy.service";
 import Link from "next/link";
-import { BookOpen, Edit2, X } from "lucide-react";
+import { BookOpen, Edit2, X, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
+import { CartService } from "@/services/cart.service";
 
 export default function CoursesPage() {
   const queryClient = useQueryClient();
@@ -23,14 +24,30 @@ export default function CoursesPage() {
     staleTime: 0,
   });
 
+  const { data: cart } = useQuery({
+    queryKey: ["cart"],
+    queryFn: () => CartService.getCart(),
+    enabled: user?.role === "STUDENT",
+  });
+
+  const cartCourseIds = new Set(cart?.items?.map((item: any) => item.course_id) || []);
+
   const error = queryError ? "Failed to load courses." : null;
 
   return (
     <>
-      <SectionTitle
-        title="Available Courses"
-        subtitle="Select a course to view its curriculum and take practice tests."
-      />
+      <div className="flex items-center justify-between">
+        <SectionTitle
+          title="Available Courses"
+          subtitle="Select a course to view its curriculum and take practice tests."
+        />
+        {user?.role === "STUDENT" && (
+          <Link href="/student/cart" className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 transition border border-white/10">
+            <ShoppingCart size={16} />
+            Cart {cart?.items?.length > 0 && <span className="bg-red-500 text-white rounded-full px-2 py-0.5 text-xs">{cart.items.length}</span>}
+          </Link>
+        )}
+      </div>
 
       {editingCourse && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
@@ -148,11 +165,23 @@ export default function CoursesPage() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white tracking-tight line-clamp-2 leading-snug group-hover:text-red-100 transition-colors">{course.name}</h3>
-                      {canSeeCodeAndId && (
-                        <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-2 mt-2">
+                        {canSeeCodeAndId && (
                           <span className="text-[10px] uppercase tracking-wider font-semibold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-full">{course.code}</span>
-                        </div>
-                      )}
+                        )}
+                        {(course.price > 0 || course.discount_price > 0) && (
+                          <div className="flex items-center gap-2 text-zinc-400 bg-white/5 px-2 py-0.5 rounded text-xs font-medium">
+                            {course.discount_price > 0 ? (
+                              <>
+                                <span className="line-through opacity-50">₹{course.price}</span>
+                                <span className="text-emerald-400">₹{course.discount_price}</span>
+                              </>
+                            ) : (
+                              <span className="text-emerald-400">₹{course.price}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
@@ -180,20 +209,34 @@ export default function CoursesPage() {
                         </span>
                         Enrolled
                       </div>
+                    ) : cartCourseIds.has(course.id) ? (
+                      <Link href="/student/cart" className="block w-full rounded-xl bg-white/10 py-2.5 text-center text-sm font-bold text-white shadow hover:bg-white/20 transition-all border border-white/10">
+                        Go to Cart
+                      </Link>
                     ) : (
                       <button
                         onClick={async (e) => {
                           e.preventDefault();
                           try {
-                            await HierarchyService.enrollCourse(course.id);
-                            queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
+                            if (course.price > 0 || course.discount_price > 0) {
+                              await CartService.addToCart(course.id);
+                              queryClient.invalidateQueries({ queryKey: ["cart"] });
+                            } else {
+                              // Free course enrollment
+                              await HierarchyService.enrollCourse(course.id);
+                              queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
+                            }
                           } catch (err) {
-                            alert("Failed to enroll. Please try again.");
+                            alert("Failed to add to cart or enroll. Please try again.");
                           }
                         }}
-                        className="w-full rounded-xl bg-gradient-to-r from-red-600 to-red-500 py-2.5 text-center text-sm font-bold text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:from-red-500 hover:to-red-400 transition-all active:scale-[0.98]"
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-500 py-2.5 text-center text-sm font-bold text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:from-red-500 hover:to-red-400 transition-all active:scale-[0.98]"
                       >
-                        Enroll Now
+                        {(course.price > 0 || course.discount_price > 0) ? (
+                          <>
+                            <ShoppingCart size={16} /> Add to Cart
+                          </>
+                        ) : "Enroll for Free"}
                       </button>
                     )}
                   </div>

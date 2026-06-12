@@ -9,7 +9,7 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -22,6 +22,21 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    if (error.response?.status === 401) {
+      if (typeof window !== "undefined") {
+        const publicPages = ["/", "/register", "/forgot-password", "/reset-password"];
+        if (!publicPages.includes(window.location.pathname)) {
+          localStorage.removeItem("codify-auth");
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("user");
+          sessionStorage.removeItem("accessToken");
+          sessionStorage.removeItem("refreshToken");
+          sessionStorage.removeItem("user");
+          window.location.href = "/";
+        }
+      }
+    }
     return Promise.reject(error);
   },
 );

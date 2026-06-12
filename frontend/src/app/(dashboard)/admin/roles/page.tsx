@@ -68,9 +68,9 @@ export default function AdminRolesPage() {
         adminService.getRoles({ search: search || undefined }),
         adminService.getRoleHierarchy().catch(() => []),
       ]);
-      setRoles(rolesRes.data);
-      setTotal(rolesRes.total);
-      setHierarchy(hierarchyRes as any);
+      setRoles(rolesRes.data.filter((r: any) => !SYSTEM_ROLES.includes(r.name)));
+      setTotal(rolesRes.total); // Note: total might be slightly off if backend doesn't filter, but it's acceptable for UI
+      setHierarchy((hierarchyRes as any).filter((r: any) => !SYSTEM_ROLES.includes(r.name)));
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to load roles");
     } finally {

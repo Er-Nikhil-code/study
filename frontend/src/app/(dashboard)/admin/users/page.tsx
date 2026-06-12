@@ -10,7 +10,7 @@ import adminService, { type AdminUser } from "@/services/admin.service";
 import { getChessRoleName } from "@/lib/role";
 
 const ROLES = ["ALL", "STUDENT", "INTERN", "TEACHER", "ADMIN"];
-const ASSIGNABLE_ROLES = ["STUDENT", "INTERN", "TEACHER", "ADMIN"];
+const ASSIGNABLE_ROLES = ["STUDENT", "INTERN", "TEACHER"];
 const PAGE_SIZE = 15;
 
 export default function AdminUsersPage() {
@@ -469,7 +469,6 @@ export default function AdminUsersPage() {
                   <option value="STUDENT" className="bg-zinc-900">{getChessRoleName("STUDENT")}</option>
                   <option value="INTERN" className="bg-zinc-900">{getChessRoleName("INTERN")}</option>
                   <option value="TEACHER" className="bg-zinc-900">{getChessRoleName("TEACHER")}</option>
-                  <option value="ADMIN" className="bg-zinc-900">{getChessRoleName("ADMIN")}</option>
                 </select>
               </div>
 

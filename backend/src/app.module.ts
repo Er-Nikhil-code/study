@@ -19,6 +19,8 @@ import { HierarchyModule } from "./modules/hierarchy/hierarchy.module";
 import { NotesModule } from "./modules/notes/notes.module";
 import { SocketModule } from "./modules/socket/socket.module";
 import { TeacherModule } from "./modules/teacher/teacher.module";
+import { CartModule } from "./modules/cart/cart.module";
+import { PaymentModule } from "./modules/payment/payment.module";
 import { CleanupService } from "./jobs/cleanup.service";
 import { KeepAliveService } from "./jobs/keep-alive.service";
 
@@ -69,6 +71,8 @@ import { KeepAliveService } from "./jobs/keep-alive.service";
     NotesModule,
     SocketModule,
     TeacherModule,
+    CartModule,
+    PaymentModule,
   ],
   providers: [
     CleanupService, 

@@ -28,7 +28,7 @@ class AuthService {
     // Add token to requests if available
     this.api.interceptors.request.use((config) => {
       if (typeof window !== "undefined") {
-        const token = localStorage.getItem("accessToken");
+        const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -49,6 +49,9 @@ class AuthService {
               localStorage.removeItem("accessToken");
               localStorage.removeItem("refreshToken");
               localStorage.removeItem("user");
+              sessionStorage.removeItem("accessToken");
+              sessionStorage.removeItem("refreshToken");
+              sessionStorage.removeItem("user");
               window.location.href = "/";
             }
           }
@@ -83,10 +86,11 @@ class AuthService {
   }
 
   async login(data: LoginRequest): Promise<LoginResponse>;
-  async login(email: string, password: string): Promise<LoginResponse>;
+  async login(email: string, password: string, rememberMe?: boolean): Promise<LoginResponse>;
   async login(
     emailOrData: string | LoginRequest,
     password?: string,
+    rememberMe: boolean = false
   ): Promise<LoginResponse> {
     const loginData: LoginRequest =
       typeof emailOrData === "string"
@@ -100,9 +104,24 @@ class AuthService {
 
     // Store tokens
     if (typeof window !== "undefined") {
-      localStorage.setItem("accessToken", response.data.accessToken);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      if (!rememberMe) {
+        sessionStorage.setItem('sessionOnly', 'true');
+      } else {
+        sessionStorage.removeItem('sessionOnly');
+      }
+
+      const storage = rememberMe ? localStorage : sessionStorage;
+      // Clear both just in case
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("refreshToken");
+      sessionStorage.removeItem("user");
+
+      storage.setItem("accessToken", response.data.accessToken);
+      storage.setItem("refreshToken", response.data.refreshToken);
+      storage.setItem("user", JSON.stringify(response.data.user));
     }
 
     return response.data;

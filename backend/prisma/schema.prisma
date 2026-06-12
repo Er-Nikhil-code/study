@@ -46,6 +46,8 @@ model User {
   course_enrollments    CourseEnrollment[]
   topic_progress        TopicProgress[]
   questions             Question[]
+  cart                  Cart?
+  orders                Order[]
 
   @@index([email])
   @@index([role])
@@ -100,8 +102,15 @@ model Course {
   created_by      String?   // User ID of the teacher/admin who created it
   created_at      DateTime  @default(now())
 
+  status          CourseStatus @default(DRAFT)
+  launch_date     DateTime?
+  price           Float?
+  discount_price  Float?
+
   sections        Section[]
   enrollments     CourseEnrollment[]
+  cart_items      CartItem[]
+  order_items     OrderItem[]
 
   @@index([code])
 }
@@ -575,4 +584,71 @@ enum NotificationType {
   TEACHER_APPROVED
   TEST_PUBLISHED
   CUSTOM
+}
+
+enum CourseStatus {
+  DRAFT       // Hidden from students, visible to teachers/interns
+  PUBLISHED   // Visible and active
+  HIDDEN      // Explicitly hidden
+}
+
+model Cart {
+  id          String   @id @default(cuid())
+  user_id     String   @unique
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  items       CartItem[]
+}
+
+model CartItem {
+  id          String   @id @default(cuid())
+  cart_id     String
+  cart        Cart     @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  course_id   String
+  course      Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  added_at    DateTime @default(now())
+
+  @@unique([cart_id, course_id])
+}
+
+model Order {
+  id                  String       @id @default(cuid())
+  user_id             String
+  user                User         @relation(fields: [user_id], references: [id])
+  total_amount        Float
+  status              OrderStatus  @default(PENDING)
+  razorpay_order_id   String?      @unique
+  razorpay_payment_id String?      @unique
+  razorpay_signature  String?
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
+
+  items               OrderItem[]
+  invoice             Invoice?
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  order_id    String
+  order       Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  course_id   String
+  course      Course   @relation(fields: [course_id], references: [id])
+  price_paid  Float    // Store the price at the time of purchase
+}
+
+model Invoice {
+  id              String   @id @default(cuid())
+  order_id        String   @unique
+  order           Order    @relation(fields: [order_id], references: [id])
+  invoice_number  String   @unique
+  file_url        String?
+  issued_at       DateTime @default(now())
 }

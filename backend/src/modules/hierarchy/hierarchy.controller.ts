@@ -23,7 +23,7 @@ export class HierarchyController {
 
   @Post("courses")
   @Roles("TEACHER", "ADMIN")
-  createCourse(@Request() req: any, @Body() data: { name: string; code: string; description: string }) {
+  createCourse(@Request() req: any, @Body() data: { name: string; code: string; description: string; price?: number; discount_price?: number; status?: 'DRAFT' | 'PUBLISHED' | 'HIDDEN'; launch_date?: Date }) {
     return this.hierarchyService.createCourse({ ...data, created_by: req.user.sub });
   }
 
@@ -35,7 +35,7 @@ export class HierarchyController {
 
   @Patch("courses/:id")
   @Roles("TEACHER", "ADMIN")
-  updateCourse(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; code?: string; description?: string }) {
+  updateCourse(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; code?: string; description?: string; price?: number; discount_price?: number; status?: 'DRAFT' | 'PUBLISHED' | 'HIDDEN'; launch_date?: Date }) {
     return this.hierarchyService.updateCourse(id, req.user.sub, req.user.role, data);
   }
 

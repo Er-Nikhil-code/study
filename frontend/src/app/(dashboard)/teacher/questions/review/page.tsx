@@ -8,6 +8,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import { QuestionsService } from "@/services/questions.service";
 import authService from "@/services/auth.service";
+import UserHoverCard from "@/components/ui/UserHoverCard";
 
 const navItems = [
   { label: "Teacher home", href: "/teacher" },
@@ -146,7 +147,7 @@ export default function ReviewQuestionsPage() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-2">
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
-                    Intern: {q.created_by.slice(0, 8)}...
+                    Intern: <UserHoverCard userId={q.created_by}>{q.created_by.slice(0, 8)}...</UserHoverCard>
                   </div>
                   <h3 className="text-lg font-semibold text-white">
                     {q.content_json?.[0]?.content?.substring(0, 50) || "Question Content"}
@@ -210,6 +211,16 @@ export default function ReviewQuestionsPage() {
                   {JSON.stringify(reviewQ.answer_key, null, 2)}
                 </div>
               </div>
+
+              {/* Solution */}
+              {reviewQ.solution_json && reviewQ.solution_json.length > 0 && (
+                <div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-2">Solution</div>
+                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-white">
+                    <ContentBlockRenderer blocks={reviewQ.solution_json} />
+                  </div>
+                </div>
+              )}
 
               {/* Reject Note Input */}
               <div className="pt-4 border-t border-white/10">
