@@ -19,5 +19,9 @@ export const NotesService = {
 
   getApprovedNotes(topicId: string) {
     return api.get(`/notes/topic/${topicId}`).then(res => res.data);
+  },
+
+  deleteNote(id: string) {
+    return api.delete(`/notes/${id}`).then(res => res.data);
   }
 };

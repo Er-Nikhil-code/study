@@ -49,6 +49,18 @@ export const HierarchyService = {
     return api.patch(`/admin/hierarchy/topics/${id}`, data).then((r) => r.data);
   },
 
+  deleteSection(id: string) {
+    return api.delete(`/admin/hierarchy/sections/${id}`).then((r) => r.data);
+  },
+
+  deleteChapter(id: string) {
+    return api.delete(`/admin/hierarchy/chapters/${id}`).then((r) => r.data);
+  },
+
+  deleteTopic(id: string) {
+    return api.delete(`/admin/hierarchy/topics/${id}`).then((r) => r.data);
+  },
+
   markNotesViewed(topicId: string) {
     return api.post(`/admin/hierarchy/topics/${topicId}/view-notes`).then((r) => r.data);
   },

@@ -10,7 +10,7 @@ import CourseLeaderboard from "@/components/ui/CourseLeaderboard";
 import { api } from "@/lib/api";
 import { adminService } from "@/services/admin.service";
 import { useAuthStore } from "@/store/auth.store";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { CartService } from "@/services/cart.service";
 import { useRouter } from "next/navigation";
 
@@ -97,7 +97,6 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   const toggleSection = (id: string) => setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
   const toggleChapter = (id: string) => setExpandedChapters(prev => ({ ...prev, [id]: !prev[id] }));
 
-  const isCreatorOrAdmin = user?.role === "ADMIN" || (course && user?.id === course.created_by);
   const canSeeCode = user?.role === "ADMIN" || user?.role === "TEACHER";
 
   // --- Add Handlers ---

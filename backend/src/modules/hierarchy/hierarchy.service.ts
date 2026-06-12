@@ -33,7 +33,7 @@ export class HierarchyService {
   }
   private async preserveQuestions(params: { courseId?: string, sectionId?: string, chapterId?: string, topicId?: string }) {
     // Find all topics affected
-    let topics = [];
+    let topics: Array<{ id: string }> = [];
     if (params.topicId) {
       topics = [{ id: params.topicId }];
     } else if (params.chapterId) {
