@@ -15,7 +15,10 @@ export default function CoursesPage() {
   const user = useAuthStore((s) => s.user);
 
   const [editingCourse, setEditingCourse] = useState<any>(null);
-  const [editForm, setEditForm] = useState({ name: "", code: "", description: "" });
+  const [editForm, setEditForm] = useState({ 
+    name: "", code: "", description: "",
+    price: 0, discount_price: 0, status: "DRAFT" as "DRAFT" | "PUBLISHED" | "HIDDEN", launch_date: ""
+  });
   const countWords = (str: string) => str.trim() ? str.trim().split(/\s+/).length : 0;
   const [saving, setSaving] = useState(false);
   const { data: courses = [], isLoading: loading, error: queryError } = useQuery({
@@ -91,6 +94,51 @@ export default function CoursesPage() {
                   placeholder="Enter course description..."
                 />
               </div>
+
+              {user?.role === "ADMIN" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Status</label>
+                    <select 
+                      value={editForm.status} 
+                      onChange={e => setEditForm({...editForm, status: e.target.value as any})} 
+                      className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50"
+                    >
+                      <option value="DRAFT">Draft</option>
+                      <option value="PUBLISHED">Published</option>
+                      <option value="HIDDEN">Hidden</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Launch Date</label>
+                    <input 
+                      type="date" 
+                      value={editForm.launch_date?.split('T')[0] || ""} 
+                      onChange={e => setEditForm({...editForm, launch_date: e.target.value})} 
+                      className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Base Price (₹)</label>
+                    <input 
+                      type="number" min="0" 
+                      value={editForm.price} 
+                      onChange={e => setEditForm({...editForm, price: Number(e.target.value)})} 
+                      className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-500 mb-1 block">Discount Price (₹)</label>
+                    <input 
+                      type="number" min="0" 
+                      value={editForm.discount_price} 
+                      onChange={e => setEditForm({...editForm, discount_price: Number(e.target.value)})} 
+                      className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                    />
+                  </div>
+                </div>
+              )}
+
               <button 
                 onClick={async () => {
                   if (countWords(editForm.description) > 30) {
@@ -99,7 +147,19 @@ export default function CoursesPage() {
                   }
                   setSaving(true);
                   try {
-                    await HierarchyService.updateCourse(editingCourse.id, editForm);
+                    const payload: any = { ...editForm };
+                    if (user?.role !== "ADMIN") {
+                      delete payload.price;
+                      delete payload.discount_price;
+                      delete payload.status;
+                      delete payload.launch_date;
+                    } else {
+                      payload.price = Number(payload.price);
+                      payload.discount_price = Number(payload.discount_price);
+                      if (!payload.launch_date) delete payload.launch_date;
+                    }
+
+                    await HierarchyService.updateCourse(editingCourse.id, payload);
                     queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
                     setEditingCourse(null);
                   } catch (e) {
@@ -149,7 +209,15 @@ export default function CoursesPage() {
                     onClick={(e) => {
                       e.preventDefault();
                       setEditingCourse(course);
-                      setEditForm({ name: course.name, code: course.code, description: course.description || "" });
+                      setEditForm({ 
+                        name: course.name, 
+                        code: course.code, 
+                        description: course.description || "",
+                        price: course.price || 0,
+                        discount_price: course.discount_price || 0,
+                        status: course.status || "DRAFT",
+                        launch_date: course.launch_date || ""
+                      });
                     }}
                     className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-zinc-400 hover:text-white hover:bg-white/20 opacity-0 group-hover:opacity-100 transition-all z-10 backdrop-blur-sm"
                     title="Edit Course"
