@@ -47,7 +47,11 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        // Token removal is handled by authService or logout logic
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        sessionStorage.removeItem("accessToken");
+        sessionStorage.removeItem("refreshToken");
+        
         set({
           user: null,
           accessToken: null,
