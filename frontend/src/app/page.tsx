@@ -8,7 +8,7 @@ import { useAuthStore, AuthUser } from "@/store/auth.store";
 import Logo from "@/components/ui/Logo";
 
 const QUOTES = [
-  { greeting: "Welcome, Champion!", body: "Your journey to success starts here. Learn smarter, practice harder, and turn every challenge into an opportunity to achieve your dream score." },
+  { greeting: "Welcome to Codify!", body: "Codify is your all-in-one learning platform for exam preparation, coding, mock tests, PYQs, notes, quizzes, and AI-powered practice. Learn smarter, track progress, and achieve your dream score." },
   { greeting: "Welcome to your success zone!", body: "Every question you solve, every test you attempt, and every lesson you complete brings you one step closer to your goal." },
   { greeting: "Dream big, prepare bigger.", body: "You've arrived at the perfect place to master concepts, sharpen skills, and conquer your exams with confidence." },
   { greeting: "Welcome, Future Achiever!", body: "Great results are built through consistent effort. Start today, stay focused, and watch your hard work transform into success." },

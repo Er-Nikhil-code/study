@@ -6,7 +6,7 @@ import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { CartService } from "@/services/cart.service";
 import { PaymentService } from "@/services/payment.service";
-import { Trash2, CreditCard } from "lucide-react";
+import { Trash2, CreditCard, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function CartPage() {

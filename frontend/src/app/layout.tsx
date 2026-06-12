@@ -15,13 +15,18 @@ export const metadata: Metadata = {
     template: "%s | CODIFY",
     default: "CODIFY",
   },
-  description: "Codify is the ultimate next-generation learning platform. Experience seamless educational content management, intelligent question banks, and powerful performance analytics designed for modern educators and students.",
+  description: "Codify is your all-in-one learning platform for exam preparation, coding, mock tests, PYQs, notes, quizzes, and AI-powered practice. Learn smarter, track progress, and achieve your dream score.",
   keywords: "Codify, LMS, Learning Management System, EdTech, Online Testing, Performance Analytics, Education",
+  metadataBase: new URL("https://www.codify.today"),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "CODIFY",
-    description: "The ultimate next-generation learning platform with intelligent content management and analytics.",
+    description: "Codify is your all-in-one learning platform for exam preparation, coding, mock tests, PYQs, notes, quizzes, and AI-powered practice. Learn smarter, track progress, and achieve your dream score.",
     type: "website",
     siteName: "CODIFY",
+    url: "https://www.codify.today",
   },
 };
 
