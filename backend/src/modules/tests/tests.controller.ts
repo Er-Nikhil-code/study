@@ -101,6 +101,34 @@ export class TestsController {
 
   /* ── Teacher / Admin endpoints ── */
 
+  @Get("manage/list")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  async listTeacherTests(
+    @Request() req: any,
+    @Query("topic_id") topicId?: string,
+    @Query("course_id") courseId?: string,
+    @Query("section_id") sectionId?: string,
+    @Query("chapter_id") chapterId?: string,
+    @Query("search") search?: string,
+    @Query("created_only") createdOnly?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+  ) {
+    const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
+    return this.testsService.listTeacherTests(req.user.sub, req.user.role, {
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
+      topicId,
+      courseId,
+      sectionId,
+      chapterId,
+      search,
+      createdOnly: createdOnly === "true",
+    });
+  }
+
   @Get(":id/preview")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("TEACHER", "ADMIN")
@@ -145,9 +173,15 @@ export class TestsController {
       passing_marks?: number;
       positive_marks?: number;
       negative_marks?: number;
+      start_time?: string;
+      end_time?: string;
     },
   ) {
-    return this.testsService.updateTest(id, req.user.sub, req.user.role, body);
+    return this.testsService.updateTest(id, req.user.sub, req.user.role, {
+      ...body,
+      start_time: body.start_time ? new Date(body.start_time) : undefined,
+      end_time: body.end_time ? new Date(body.end_time) : undefined,
+    });
   }
 
   @Post(":id/publish")
@@ -155,7 +189,7 @@ export class TestsController {
   @Roles("TEACHER", "ADMIN")
   @HttpCode(HttpStatus.OK)
   async publishTest(@Param("id") id: string, @Request() req: any) {
-    return this.testsService.publishTest(id, req.user.sub);
+    return this.testsService.publishTest(id, req.user.sub, req.user.role);
   }
 
   @Delete(":id")
@@ -178,6 +212,23 @@ export class TestsController {
       id,
       body.question_ids,
       req.user.sub,
+      req.user.role,
+    );
+  }
+
+  @Put(":id/questions")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  async updateQuestions(
+    @Param("id") id: string,
+    @Request() req: any,
+    @Body() body: { question_ids: string[] },
+  ) {
+    return this.testsService.updateTestQuestions(
+      id,
+      body.question_ids,
+      req.user.sub,
+      req.user.role,
     );
   }
 }

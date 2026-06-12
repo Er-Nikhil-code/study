@@ -84,6 +84,16 @@ export default function TestDetailsPage() {
         <SectionTitle
           title={test.title}
           subtitle={test.description || "Ready when you are."}
+          action={
+            user && (user.role === "ADMIN" || test.created_by === user.id) ? (
+              <Link
+                href={`/teacher/tests/${testId}/edit`}
+                className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/20"
+              >
+                Edit Test
+              </Link>
+            ) : null
+          }
         />
 
         <Panel accent className="mt-6 mb-8">

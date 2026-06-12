@@ -32,4 +32,16 @@ export const TestsService = {
   getAttemptResult(attemptId: string) {
     return api.get(`/tests/any/attempt/${attemptId}/result`);
   },
+
+  getTeacherTests(params?: any) {
+    return api.get("/tests/manage/list", { params }).then(res => res.data);
+  },
+
+  update(id: string, data: any) {
+    return api.patch(`/tests/${id}`, data).then(res => res.data);
+  },
+
+  updateQuestions(id: string, questionIds: string[]) {
+    return api.put(`/tests/${id}/questions`, { question_ids: questionIds }).then(res => res.data);
+  },
 };

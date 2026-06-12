@@ -89,14 +89,14 @@ export class TestsService {
       positive_marks?: number;
       negative_marks?: number;
       section_config?: any;
+      start_time?: Date | null;
+      end_time?: Date | null;
     },
   ) {
     const test = await this.prisma.test.findUnique({ where: { id: testId } });
     if (!test) throw new NotFoundException("Test not found");
     if (role !== "ADMIN" && test.created_by !== userId)
       throw new ForbiddenException("Not the test creator");
-    if (test.status !== "DRAFT")
-      throw new BadRequestException("Can only edit draft tests");
 
     return this.prisma.test.update({
       where: { id: testId },
@@ -107,13 +107,13 @@ export class TestsService {
     });
   }
 
-  async publishTest(testId: string, userId: string) {
+  async publishTest(testId: string, userId: string, role: string) {
     const test = await this.prisma.test.findUnique({
       where: { id: testId },
       include: { _count: { select: { test_questions: true } } },
     });
     if (!test) throw new NotFoundException("Test not found");
-    if (test.created_by !== userId)
+    if (role !== "ADMIN" && test.created_by !== userId)
       throw new ForbiddenException("Not the test creator");
     if (test._count.test_questions === 0)
       throw new BadRequestException("Cannot publish a test with no questions");
@@ -141,14 +141,10 @@ export class TestsService {
     });
   }
 
-  async addQuestionsToTest(
-    testId: string,
-    questionIds: string[],
-    userId: string,
-  ) {
+  async addQuestionsToTest(testId: string, questionIds: string[], userId: string, role: string) {
     const test = await this.prisma.test.findUnique({ where: { id: testId } });
     if (!test) throw new NotFoundException("Test not found");
-    if (test.created_by !== userId)
+    if (role !== "ADMIN" && test.created_by !== userId)
       throw new ForbiddenException("Not the test creator");
 
     const existingCount = await this.prisma.testQuestion.count({
@@ -166,6 +162,79 @@ export class TestsService {
     });
 
     return { message: `${questionIds.length} questions added` };
+  }
+
+  async updateTestQuestions(testId: string, questionIds: string[], userId: string, role: string) {
+    const test = await this.prisma.test.findUnique({ where: { id: testId } });
+    if (!test) throw new NotFoundException("Test not found");
+    if (role !== "ADMIN" && test.created_by !== userId)
+      throw new ForbiddenException("Not the test creator");
+
+    await this.prisma.testQuestion.deleteMany({
+      where: { test_id: testId },
+    });
+
+    await this.prisma.testQuestion.createMany({
+      data: questionIds.map((qId, idx) => ({
+        test_id: testId,
+        question_id: qId,
+        order: idx + 1,
+        section: 0,
+      })),
+    });
+
+    return { message: "Test questions updated successfully" };
+  }
+
+  async listTeacherTests(userId: string, role: string, filters: { skip?: number; take?: number; topicId?: string; courseId?: string; sectionId?: string; chapterId?: string; search?: string; createdOnly?: boolean }) {
+    const where: any = {};
+    if (role !== "ADMIN" || filters.createdOnly) {
+      where.created_by = userId;
+    }
+
+    if (filters.search) {
+      where.title = { contains: filters.search, mode: "insensitive" };
+    }
+    if (filters.topicId) {
+      where.topic_id = filters.topicId;
+    } else if (filters.chapterId) {
+      where.topic = { chapter_id: filters.chapterId };
+    } else if (filters.sectionId) {
+      where.topic = { chapter: { section_id: filters.sectionId } };
+    } else if (filters.courseId) {
+      where.topic = { chapter: { section: { course_id: filters.courseId } } };
+    }
+
+    const [tests, total] = await Promise.all([
+      this.prisma.test.findMany({
+        where,
+        skip: filters.skip || 0,
+        take: filters.take || 20,
+        orderBy: { created_at: "desc" },
+        include: {
+          _count: { select: { test_questions: true, attempts: true } },
+          topic: {
+            select: {
+              name: true,
+              chapter: {
+                select: {
+                  name: true,
+                  section: {
+                    select: {
+                      name: true,
+                      course: { select: { name: true } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+      }),
+      this.prisma.test.count({ where }),
+    ]);
+
+    return { data: tests, total };
   }
 
   /* ════════════════════════════════════════════
@@ -698,6 +767,15 @@ export class TestsService {
         longest_streak: longestStreak,
       },
     });
+
+    return {
+      id: attemptId,
+      score: totalScore,
+      max_score: maxScore,
+      correct: correctCount,
+      wrong: wrongCount,
+      skipped: test.total_marks - (correctCount + wrongCount), // rough estimate
+    };
   }
 
   async recordDailyActivity(userId: string, type: string) {
@@ -784,6 +862,7 @@ export class TestsService {
     if (attempt.status === "IN_PROGRESS")
       throw new BadRequestException("Attempt not yet submitted");
 
+    return attempt;
   }
 
   /* ════════════════════════════════════════════
