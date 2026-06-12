@@ -61,7 +61,7 @@ export const HierarchyService = {
     return api.delete(`/admin/hierarchy/courses/${courseId}/staff/${userId}`).then(r => r.data);
   },
 
-  assignSectionManager(sectionId: string, managerId: string) {
+  assignSectionManager(sectionId: string, managerId: string | null) {
     return api.patch(`/admin/hierarchy/sections/${sectionId}/assign`, { manager_id: managerId }).then(r => r.data);
   }
 };

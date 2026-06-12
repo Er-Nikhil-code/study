@@ -181,6 +181,12 @@ export class AdminController {
     return this.adminService.getRoleHierarchy();
   }
 
+  @Post("roles/seed")
+  @HttpCode(HttpStatus.OK)
+  async seedRoles() {
+    return this.adminService.seedRoles();
+  }
+
   @Post("roles")
   async createRole(@Body() body: any) {
     return this.adminService.createRole(body);

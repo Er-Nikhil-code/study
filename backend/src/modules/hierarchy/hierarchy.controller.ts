@@ -71,7 +71,7 @@ export class HierarchyController {
 
   @Patch("sections/:id/assign")
   @Roles("ADMIN")
-  assignSectionManager(@Param("id") id: string, @Request() req: any, @Body() data: { manager_id: string }) {
+  assignSectionManager(@Param("id") id: string, @Request() req: any, @Body() data: { manager_id: string | null }) {
     return this.hierarchyService.assignSectionManager(id, data.manager_id, req.user.role);
   }
 

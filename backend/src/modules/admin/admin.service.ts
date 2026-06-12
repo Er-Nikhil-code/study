@@ -136,12 +136,22 @@ export class AdminService {
       }
 
       if (search) {
+        const searchParts = search.trim().split(/\s+/);
         where.OR = [
           { id: search },
           { email: { contains: search, mode: "insensitive" } },
           { first_name: { contains: search, mode: "insensitive" } },
           { last_name: { contains: search, mode: "insensitive" } },
         ];
+        
+        if (searchParts.length > 1) {
+          where.OR.push({
+            AND: [
+              { first_name: { contains: searchParts[0], mode: "insensitive" } },
+              { last_name: { contains: searchParts.slice(1).join(" "), mode: "insensitive" } }
+            ]
+          });
+        }
       }
 
       const [users, total] = await Promise.all([
@@ -560,6 +570,36 @@ export class AdminService {
       include: { children: true },
       orderBy: { level: 'asc' }
     });
+  }
+
+  async seedRoles() {
+    // Basic Custom Roles for default seed
+    const contentManager = await this.prisma.role.upsert({
+      where: { name: 'CONTENT_MANAGER' },
+      update: {},
+      create: {
+        name: 'CONTENT_MANAGER',
+        description: 'Manages curriculum and questions',
+        designation: 'Content Manager',
+        level: 1,
+        permissions_json: ["manage_hierarchy", "manage_questions", "create_question"],
+      }
+    });
+
+    await this.prisma.role.upsert({
+      where: { name: 'MODERATOR' },
+      update: {},
+      create: {
+        name: 'MODERATOR',
+        description: 'Reviews notes and challenges',
+        designation: 'Moderator',
+        level: 2,
+        parent_id: contentManager.id,
+        permissions_json: ["review_notes", "manage_challenges", "review_challenge"],
+      }
+    });
+
+    return { message: "Roles seeded successfully" };
   }
 
   async createRole(data: any) {

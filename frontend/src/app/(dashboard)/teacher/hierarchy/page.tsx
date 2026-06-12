@@ -178,11 +178,20 @@ export default function HierarchyManagerPage() {
     if (!assigningSectionId || !selectedManagerId) return;
     try {
       await HierarchyService.assignSectionManager(assigningSectionId, selectedManagerId);
-      setSelectedManagerId("");
       setAssigningSectionId(null);
+      setSelectedManagerId("");
       fetchHierarchy();
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to assign section manager");
+      alert(err?.response?.data?.message || "Failed to assign manager");
+    }
+  };
+
+  const handleRemoveManager = async (sectionId: string) => {
+    try {
+      await HierarchyService.assignSectionManager(sectionId, null);
+      fetchHierarchy();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to remove manager");
     }
   };
 
@@ -337,10 +346,10 @@ export default function HierarchyManagerPage() {
                       <select required value={selectedStaffId} onChange={e => setSelectedStaffId(e.target.value)} className="text-xs bg-black border border-white/10 rounded px-2 py-1 text-white">
                         <option value="">Select Staff to Assign</option>
                         <optgroup label="Knights">
-                          {knights.map(k => <option key={k.id} value={k.id}>{k.first_name} {k.last_name} ({k.email})</option>)}
-                        </optgroup>
-                        <optgroup label="Pawns">
-                          {interns.map(i => <option key={i.id} value={i.id}>{i.first_name} {i.last_name} ({i.email})</option>)}
+                          {knights
+                            .filter(k => !course.staff?.some((s: any) => s.user_id === k.id))
+                            .map(k => <option key={k.id} value={k.id}>{k.first_name} {k.last_name} ({k.email})</option>)
+                          }
                         </optgroup>
                       </select>
                       <button type="submit" className="text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded">Assign</button>
@@ -378,11 +387,14 @@ export default function HierarchyManagerPage() {
                   {course.sections?.map((section: any) => (
                     <div key={section.id} className="space-y-2">
                       <div className="flex items-center justify-between group">
-                        <h4 className="text-md font-semibold text-zinc-200">
-                          Section: {section.name}
+                        <h4 className="text-md font-semibold text-zinc-200 flex items-center">
+                          <span>Section: {section.name}</span>
                           {section.manager && (
-                            <span className="ml-3 text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <span className="ml-3 flex items-center text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
                               Managed by: {section.manager.first_name} {section.manager.last_name}
+                              {isAdmin && (
+                                <button onClick={() => handleRemoveManager(section.id)} className="ml-2 text-red-400 hover:text-red-300 transition-colors" title="Remove Manager">×</button>
+                              )}
                             </span>
                           )}
                         </h4>
@@ -402,7 +414,7 @@ export default function HierarchyManagerPage() {
                         <form onSubmit={handleAssignManager} className="flex gap-2 p-2 bg-blue-900/10 rounded border border-blue-500/20 mb-2">
                           <select required value={selectedManagerId} onChange={e => setSelectedManagerId(e.target.value)} className="text-xs bg-black border border-white/10 rounded px-2 py-1 text-white">
                             <option value="">Select Knight to Manage Section</option>
-                            {course.staff?.filter((s:any) => s.user.role === 'TEACHER').map((s:any) => (
+                            {course.staff?.filter((s:any) => s.user.role === 'TEACHER' && s.user_id !== section.managed_by).map((s:any) => (
                               <option key={s.user_id} value={s.user_id}>{s.user.first_name} {s.user.last_name}</option>
                             ))}
                           </select>

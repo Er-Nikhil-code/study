@@ -176,7 +176,7 @@ export class HierarchyService {
     });
   }
 
-  async assignSectionManager(sectionId: string, managerId: string, role: string) {
+  async assignSectionManager(sectionId: string, managerId: string | null, role: string) {
     if (role !== "ADMIN") throw new ForbiddenException("Only admin can assign section managers");
     
     return this.prisma.section.update({
