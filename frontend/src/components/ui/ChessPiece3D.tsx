@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, Float, ContactShadows } from "@react-three/drei";
+import { OrbitControls, Environment, Float, ContactShadows, useCursor } from "@react-three/drei";
 import * as THREE from "three";
 
 interface ChessPieceProps {
@@ -103,33 +103,86 @@ const King = () => {
 };
 
 const WarriorPiece = () => {
+  const groupRef = useRef<THREE.Group>(null);
+  const [hovered, setHovered] = useState(false);
+  const [clicked, setClicked] = useState(false);
+
+  useCursor(hovered);
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      // Bouncy scale on hover
+      const targetScale = hovered ? 1.2 : 1;
+      groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale } as THREE.Vector3, 0.15);
+      
+      // Playful bounce & wobble on hover
+      if (hovered && !clicked) {
+        groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 10) * 0.1;
+      } else {
+        groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, 0.1);
+      }
+      
+      // Wild spin on click
+      if (clicked) {
+        groupRef.current.rotation.y += delta * 20;
+        if (groupRef.current.rotation.y > Math.PI * 4) { // Double spin!
+          groupRef.current.rotation.y = groupRef.current.rotation.y % (Math.PI * 2);
+          setClicked(false);
+        }
+      } else {
+        groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, 0, 0.1);
+      }
+    }
+  });
+
   return (
-    <group position={[0, -1, 0]}>
-      {/* Base */}
-      <mesh material={pieceMaterial} position={[0, 0.2, 0]}>
-        <cylinderGeometry args={[0.9, 1, 0.4, 32]} />
+    <group 
+      ref={groupRef}
+      position={[0, 0.5, 0]}
+      onPointerOver={(e) => { e.stopPropagation(); setHovered(true); }}
+      onPointerOut={(e) => { e.stopPropagation(); setHovered(false); }}
+      onClick={(e) => { e.stopPropagation(); setClicked(true); }}
+    >
+      {/* Shield (Center) */}
+      <mesh material={pieceMaterial} position={[0, 0, 0.3]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[1.2, 1.2, 0.2, 32]} />
       </mesh>
-      {/* Body */}
-      <mesh material={pieceMaterial} position={[0, 1.5, 0]}>
-        <cylinderGeometry args={[0.6, 0.8, 2.6, 32]} />
+      {/* Shield Boss (center bump) */}
+      <mesh material={pieceMaterial} position={[0, 0, 0.45]}>
+        <sphereGeometry args={[0.3, 16, 16]} />
       </mesh>
-      {/* Top collar */}
-      <mesh material={pieceMaterial} position={[0, 2.9, 0]}>
-        <cylinderGeometry args={[0.8, 0.6, 0.4, 32]} />
-      </mesh>
-      {/* Battlements (Rook top) */}
-      <mesh material={pieceMaterial} position={[0.6, 3.3, 0]}>
-        <boxGeometry args={[0.3, 0.4, 0.3]} />
-      </mesh>
-      <mesh material={pieceMaterial} position={[-0.6, 3.3, 0]}>
-        <boxGeometry args={[0.3, 0.4, 0.3]} />
-      </mesh>
-      <mesh material={pieceMaterial} position={[0, 3.3, 0.6]}>
-        <boxGeometry args={[0.3, 0.4, 0.3]} />
-      </mesh>
-      <mesh material={pieceMaterial} position={[0, 3.3, -0.6]}>
-        <boxGeometry args={[0.3, 0.4, 0.3]} />
-      </mesh>
+      
+      {/* Sword 1 (backslash) */}
+      <group position={[0, 0, -0.1]} rotation={[0, 0, -Math.PI / 4]}>
+        <mesh material={pieceMaterial} position={[0, 0, 0]}>
+          <boxGeometry args={[0.15, 3, 0.05]} />
+        </mesh>
+        <mesh material={pieceMaterial} position={[0, -1.2, 0]}>
+          <boxGeometry args={[0.6, 0.1, 0.1]} />
+        </mesh>
+        <mesh material={pieceMaterial} position={[0, -1.5, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 0.5]} />
+        </mesh>
+        <mesh material={pieceMaterial} position={[0, -1.8, 0]}>
+          <sphereGeometry args={[0.15]} />
+        </mesh>
+      </group>
+
+      {/* Sword 2 (forward slash) */}
+      <group position={[0, 0, -0.2]} rotation={[0, 0, Math.PI / 4]}>
+        <mesh material={pieceMaterial} position={[0, 0, 0]}>
+          <boxGeometry args={[0.15, 3, 0.05]} />
+        </mesh>
+        <mesh material={pieceMaterial} position={[0, -1.2, 0]}>
+          <boxGeometry args={[0.6, 0.1, 0.1]} />
+        </mesh>
+        <mesh material={pieceMaterial} position={[0, -1.5, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 0.5]} />
+        </mesh>
+        <mesh material={pieceMaterial} position={[0, -1.8, 0]}>
+          <sphereGeometry args={[0.15]} />
+        </mesh>
+      </group>
     </group>
   );
 };
