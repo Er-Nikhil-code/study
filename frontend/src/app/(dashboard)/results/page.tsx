@@ -29,7 +29,7 @@ export default function ResultsPage() {
 
         <Panel className="mt-6 overflow-x-auto p-0">
           <div className="min-w-[800px]">
-            <div className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+            <div className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
               <div>Test</div><div>Score</div><div>Date</div><div>Attempt</div><div>Time</div><div>Action</div>
             </div>
 

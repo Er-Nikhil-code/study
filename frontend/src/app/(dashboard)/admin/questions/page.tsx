@@ -296,7 +296,7 @@ export default function AdminQuestionsPage() {
       {/* Questions list */}
       <Panel className="mt-4 p-0 overflow-x-auto">
         <div className="min-w-[800px]">
-          <div className="grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-left">
+          <div className="grid grid-cols-[140px_minmax(200px,2fr)_140px_100px_minmax(150px,2fr)_120px_140px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
             <div>ID</div>
             <div>Title</div>
             <div>Type</div>

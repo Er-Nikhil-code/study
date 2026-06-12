@@ -328,7 +328,7 @@ export default function AdminRolesPage() {
       {view === "list" && (
         <Panel className="mt-6 p-0 overflow-x-auto">
           <div className="min-w-[800px]">
-            <div className="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1.5fr)_80px_80px_100px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+            <div className="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1.5fr)_80px_80px_100px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
               <div>Name</div><div>Designation</div><div>Reports To</div><div>Level</div><div>Perms</div><div>Actions</div>
             </div>
             {loading ? (

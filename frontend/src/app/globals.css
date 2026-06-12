@@ -133,3 +133,7 @@ button {
 .loader-glow        { animation: loader-glow-pulse   2s ease-in-out infinite; }
 .loader-bar         { animation: loader-bar           1.8s ease-in-out infinite; }
 .loader-text        { animation: loader-fade-in       0.6s ease forwards; }
+
+th {
+  text-align: center !important;
+}

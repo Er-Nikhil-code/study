@@ -68,7 +68,7 @@ export default function TeacherInternsPage() {
       ) : (
         <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {pawns.map((pawn: any) => (
-            <Panel key={intern.id} className="flex flex-col relative overflow-hidden group">
+            <Panel key={pawn.id} className="flex flex-col relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:scale-110 transition-transform">
                 <Users size={120} />
               </div>
@@ -81,7 +81,7 @@ export default function TeacherInternsPage() {
                   <h3 className="text-lg font-bold text-white tracking-tight">
                     {pawn.first_name} {pawn.last_name}
                   </h3>
-                  <p className="text-xs text-zinc-400">{intern.email}</p>
+                  <p className="text-xs text-zinc-400">{pawn.email}</p>
                 </div>
               </div>
 
@@ -91,7 +91,7 @@ export default function TeacherInternsPage() {
                     <FileQuestion size={14} className="text-blue-400" />
                     <span className="text-xs font-medium">Submitted</span>
                   </div>
-                  <p className="text-xl font-bold text-white">{intern.stats.total_submitted}</p>
+                  <p className="text-xl font-bold text-white">{pawn.stats.total_submitted}</p>
                 </div>
                 
                 <div className="rounded-lg bg-zinc-900/50 p-3 border border-white/5">
@@ -100,7 +100,7 @@ export default function TeacherInternsPage() {
                     <span className="text-xs font-medium">Approval</span>
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <p className="text-xl font-bold text-white">{intern.stats.approval_rate}</p>
+                    <p className="text-xl font-bold text-white">{pawn.stats.approval_rate}</p>
                     <span className="text-sm font-semibold text-emerald-500">%</span>
                   </div>
                 </div>

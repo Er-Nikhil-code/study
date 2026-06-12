@@ -241,7 +241,7 @@ export default function AdminUsersPage() {
       {/* Users table */}
       <Panel className="mt-4 p-0 overflow-x-auto">
         <div className="min-w-[900px]">
-          <div className="grid grid-cols-[200px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div className="grid grid-cols-[200px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_120px_160px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
           <div>ID</div>
           <div>Name</div>
           <div>Role</div>
@@ -326,7 +326,7 @@ export default function AdminUsersPage() {
                       onChange={(e) => handleTeacherAssign(user.id, e.target.value)}
                     >
                       <option value="">No Knight Assigned</option>
-                      {(knights || []).map((t: any) => (
+                      {(teachers || []).map((t: any) => (
                         <option key={t.id} value={t.id}>
                           {t.first_name || "—"} {t.last_name || ""}
                         </option>

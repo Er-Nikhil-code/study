@@ -46,7 +46,7 @@ export default function LeaderboardPage() {
         <Panel className="mt-4 overflow-hidden p-0 overflow-x-auto">
         <div className="min-w-[800px]">
           {/* Header */}
-          <div className="grid grid-cols-[60px_minmax(0,1fr)_90px_70px_80px_70px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div className="grid grid-cols-[60px_minmax(0,1fr)_90px_70px_80px_70px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
             <div>Rank</div><div>Name</div><div>Score</div><div>Tests</div><div>Accuracy</div><div>Streak</div>
           </div>
 

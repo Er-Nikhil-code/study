@@ -45,7 +45,7 @@ export default function CourseLeaderboard({ courseId }: { courseId: string }) {
       <Panel className="p-0 overflow-hidden border border-white/10">
         <div className="overflow-x-auto min-w-[600px]">
           {/* Header */}
-          <div className="grid grid-cols-[60px_minmax(0,1fr)_90px_70px_80px_70px] gap-3 border-b border-white/10 bg-black/40 px-5 py-3 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div className="grid grid-cols-[60px_minmax(0,1fr)_90px_70px_80px_70px] gap-3 border-b border-white/10 bg-black/40 px-5 py-3 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
             <div>Rank</div><div>Name</div><div>Score</div><div>Tests</div><div>Accuracy</div><div>Streak</div>
           </div>
 
