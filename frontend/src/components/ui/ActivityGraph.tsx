@@ -23,14 +23,14 @@ const getISTDateString = (d: Date) => {
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export default function ActivityGraph({ data = [], mixedData = [], theme = 'emerald', userName }: ActivityGraphProps) {
-  // Generate last 365 days in IST
+  // Generate last 6 months in IST
   const days = useMemo(() => {
     const todayLocal = new Date();
     // Start by finding today in IST
     const utcToday = todayLocal.getTime() + (todayLocal.getTimezoneOffset() * 60000);
     const todayIST = new Date(utcToday + (3600000 * 5.5));
     
-    const lastYearIST = new Date(todayIST.getFullYear(), todayIST.getMonth(), todayIST.getDate() - 364);
+    const lastYearIST = new Date(todayIST.getFullYear(), todayIST.getMonth(), todayIST.getDate() - 179);
     
     const dataMap = new Map<string, number>();
     data.forEach(d => dataMap.set(d.date, d.count));

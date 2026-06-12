@@ -16,6 +16,7 @@ interface HoverUserInfo {
   profile_picture?: string;
   created_at: string;
   custom_role?: { name: string } | null;
+  assigned_teacher?: { first_name: string; last_name: string } | null;
 }
 
 export default function UserHoverCard({ userId, children }: UserHoverCardProps) {
@@ -106,8 +107,20 @@ export default function UserHoverCard({ userId, children }: UserHoverCardProps) 
                   </span>
                 </div>
                 <div className="mt-1 text-[10px] text-zinc-600 font-mono truncate" title={userInfo.id}>
-                  ID: {userInfo.id.slice(-8)}
+                  ID: {userInfo.id}
                 </div>
+                {userInfo.role !== 'ADMIN' && userInfo.role !== 'STUDENT' && (
+                  <div className="mt-1.5 pt-1.5 border-t border-zinc-800 text-[10px] text-zinc-400 flex items-center gap-1">
+                    <span className="text-zinc-500">Reports to:</span>
+                    <span className="font-medium text-zinc-300">
+                      {userInfo.role === 'TEACHER' 
+                        ? 'Admin' 
+                        : (userInfo.assigned_teacher 
+                            ? `${userInfo.assigned_teacher.first_name} ${userInfo.assigned_teacher.last_name}` 
+                            : 'Admin')}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}

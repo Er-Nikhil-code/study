@@ -9,6 +9,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import ActivityGraph from "@/components/ui/ActivityGraph";
 import { api } from "@/lib/api";
 import adminService from "@/services/admin.service";
+import { HierarchyService } from "@/services/hierarchy.service";
 import { getChessRoleName } from "@/lib/role";
 
 export default function AdminUserProfilePage() {
@@ -33,6 +34,11 @@ export default function AdminUserProfilePage() {
       const res = await api.get(`/admin/users/${userId}`);
       return res.data;
     },
+  });
+
+  const { data: courses = [] } = useQuery({
+    queryKey: ["courses", "hierarchy"],
+    queryFn: () => HierarchyService.getFullHierarchy(),
   });
 
   const updateMutation = useMutation({
@@ -245,14 +251,16 @@ export default function AdminUserProfilePage() {
                   <span className="text-zinc-500">Enrolled Course</span>
                   {isEditing ? (
                     <div className="flex w-full items-center gap-2">
-                      <input
-                        type="text"
+                      <select
                         value={editForm.course_enrolled}
                         onChange={e => setEditForm({ ...editForm, course_enrolled: e.target.value })}
-                        placeholder="No Course Enrolled"
-                        disabled
-                        className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-zinc-500 cursor-not-allowed outline-none"
-                      />
+                        className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-red-500/50"
+                      >
+                        <option value="">No Course Enrolled</option>
+                        {courses.map((c: any) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
                       {editForm.course_enrolled && (
                         <button
                           type="button"
@@ -265,7 +273,9 @@ export default function AdminUserProfilePage() {
                       )}
                     </div>
                   ) : (
-                    <span className="text-zinc-300">{user.course_enrolled || "—"}</span>
+                    <span className="text-zinc-300">
+                      {courses.find((c: any) => c.id === user.course_enrolled)?.name || user.course_enrolled || "—"}
+                    </span>
                   )}
                 </div>
                 {user.assigned_teacher && (
@@ -299,7 +309,7 @@ export default function AdminUserProfilePage() {
                   </div>
 
                   <div>
-                    <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">365-Day Activity Graph</h4>
+                    <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">6-Month Activity Graph</h4>
                     <ActivityGraph data={user.activity_graph || []} userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
                   </div>
                 </Panel>
@@ -325,7 +335,7 @@ export default function AdminUserProfilePage() {
                 <Panel className="p-6 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
                   <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">Teacher Contributions</h3>
                   <div>
-                    <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">365-Day Activity Graph</h4>
+                    <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">6-Month Activity Graph</h4>
                     <ActivityGraph mixedData={mixedData} theme="mixed" userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
                   </div>
                 </Panel>
@@ -336,7 +346,7 @@ export default function AdminUserProfilePage() {
               <Panel className="p-6 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
                 <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider mb-4 border-b border-emerald-500/10 pb-2">Student Activity</h3>
                 <div>
-                  <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">Test Attempts (Last 365 Days)</h4>
+                  <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">Test Attempts (Last 6 Months)</h4>
                   <ActivityGraph data={user.activity_graph || []} theme="emerald" userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
                 </div>
               </Panel>
