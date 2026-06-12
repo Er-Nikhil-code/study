@@ -77,7 +77,6 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
 
   const handleLogout = () => {
     logout();
-    router.push("/");
   };
 
   return (

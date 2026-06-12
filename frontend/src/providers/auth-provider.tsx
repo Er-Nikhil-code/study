@@ -20,7 +20,7 @@ export default function AuthProvider({ children }: Props) {
   useEffect(() => {
     async function bootstrap() {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
 
         if (!token) {
           logout();
@@ -37,11 +37,21 @@ export default function AuthProvider({ children }: Props) {
 
         const { data } = await api.get("/auth/me");
 
-        // Use the FRESH token from /auth/me which includes role in JWT payload
         const freshToken = data.accessToken || token;
-        localStorage.setItem("accessToken", freshToken);
+        
+        // If it was in sessionStorage, keep it in sessionStorage
+        if (sessionStorage.getItem("accessToken")) {
+          sessionStorage.setItem("accessToken", freshToken);
+        } else {
+          localStorage.setItem("accessToken", freshToken);
+        }
+        
         if (data.refreshToken) {
-          localStorage.setItem("refreshToken", data.refreshToken);
+          if (sessionStorage.getItem("refreshToken")) {
+            sessionStorage.setItem("refreshToken", data.refreshToken);
+          } else {
+            localStorage.setItem("refreshToken", data.refreshToken);
+          }
         }
 
         setAuth(data.user, freshToken);

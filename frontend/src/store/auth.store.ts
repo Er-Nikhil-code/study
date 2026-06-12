@@ -49,8 +49,12 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        localStorage.removeItem("codify-auth");
         sessionStorage.removeItem("accessToken");
         sessionStorage.removeItem("refreshToken");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("codify-auth");
         
         set({
           user: null,
