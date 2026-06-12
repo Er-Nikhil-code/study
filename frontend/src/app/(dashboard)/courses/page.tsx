@@ -17,7 +17,7 @@ export default function CoursesPage() {
   const [editingCourse, setEditingCourse] = useState<any>(null);
   const [editForm, setEditForm] = useState({ 
     name: "", code: "", description: "",
-    price: 0, discount_price: 0, status: "DRAFT" as "DRAFT" | "PUBLISHED" | "HIDDEN", launch_date: ""
+    price: "" as number | string, discount_price: "" as number | string, status: "DRAFT" as "DRAFT" | "PUBLISHED" | "HIDDEN", launch_date: ""
   });
   const countWords = (str: string) => str.trim() ? str.trim().split(/\s+/).length : 0;
   const [saving, setSaving] = useState(false);
@@ -123,7 +123,7 @@ export default function CoursesPage() {
                     <input 
                       type="number" min="0" 
                       value={editForm.price} 
-                      onChange={e => setEditForm({...editForm, price: Number(e.target.value)})} 
+                      onChange={e => setEditForm({...editForm, price: e.target.value ? Number(e.target.value) : ""})} 
                       className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
                     />
                   </div>
@@ -132,7 +132,7 @@ export default function CoursesPage() {
                     <input 
                       type="number" min="0" 
                       value={editForm.discount_price} 
-                      onChange={e => setEditForm({...editForm, discount_price: Number(e.target.value)})} 
+                      onChange={e => setEditForm({...editForm, discount_price: e.target.value ? Number(e.target.value) : ""})} 
                       className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
                     />
                   </div>
@@ -154,9 +154,13 @@ export default function CoursesPage() {
                       delete payload.status;
                       delete payload.launch_date;
                     } else {
-                      payload.price = Number(payload.price);
-                      payload.discount_price = Number(payload.discount_price);
-                      if (!payload.launch_date) delete payload.launch_date;
+                      payload.price = payload.price === "" ? null : Number(payload.price);
+                      payload.discount_price = payload.discount_price === "" ? null : Number(payload.discount_price);
+                      if (!payload.launch_date) {
+                        payload.launch_date = null;
+                      } else {
+                        payload.launch_date = new Date(payload.launch_date).toISOString();
+                      }
                     }
 
                     await HierarchyService.updateCourse(editingCourse.id, payload);
@@ -213,8 +217,8 @@ export default function CoursesPage() {
                         name: course.name, 
                         code: course.code, 
                         description: course.description || "",
-                        price: course.price || 0,
-                        discount_price: course.discount_price || 0,
+                        price: course.price || "",
+                        discount_price: course.discount_price || "",
                         status: course.status || "DRAFT",
                         launch_date: course.launch_date || ""
                       });

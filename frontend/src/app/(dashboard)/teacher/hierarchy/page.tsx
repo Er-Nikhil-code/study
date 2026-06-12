@@ -19,7 +19,7 @@ export default function HierarchyManagerPage() {
   const [showCourseForm, setShowCourseForm] = useState(false);
   const [courseForm, setCourseForm] = useState({ 
     name: "", code: "", description: "",
-    price: 0, discount_price: 0, status: "DRAFT" as "DRAFT" | "PUBLISHED" | "HIDDEN", launch_date: ""
+    price: "" as number | string, discount_price: "" as number | string, status: "DRAFT" as "DRAFT" | "PUBLISHED" | "HIDDEN", launch_date: ""
   });
 
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
@@ -62,13 +62,17 @@ export default function HierarchyManagerPage() {
       delete payload.status;
       delete payload.launch_date;
     } else {
-      payload.price = Number(payload.price);
-      payload.discount_price = Number(payload.discount_price);
-      if (!payload.launch_date) delete payload.launch_date;
+      payload.price = payload.price === "" ? null : Number(payload.price);
+      payload.discount_price = payload.discount_price === "" ? null : Number(payload.discount_price);
+      if (!payload.launch_date) {
+        payload.launch_date = null;
+      } else {
+        payload.launch_date = new Date(payload.launch_date).toISOString();
+      }
     }
 
     await HierarchyService.createCourse(payload);
-    setCourseForm({ name: "", code: "", description: "", price: 0, discount_price: 0, status: "DRAFT", launch_date: "" });
+    setCourseForm({ name: "", code: "", description: "", price: "", discount_price: "", status: "DRAFT", launch_date: "" });
     setShowCourseForm(false);
     fetchHierarchy();
   };
@@ -189,11 +193,11 @@ export default function HierarchyManagerPage() {
                 </div>
                 <div>
                   <label className="text-xs text-zinc-400">Base Price (₹)</label>
-                  <input type="number" min="0" value={courseForm.price} onChange={e => setCourseForm({...courseForm, price: Number(e.target.value)})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+                  <input type="number" min="0" value={courseForm.price} onChange={e => setCourseForm({...courseForm, price: e.target.value ? Number(e.target.value) : ""})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
                 </div>
                 <div>
                   <label className="text-xs text-zinc-400">Discount Price (₹)</label>
-                  <input type="number" min="0" value={courseForm.discount_price} onChange={e => setCourseForm({...courseForm, discount_price: Number(e.target.value)})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+                  <input type="number" min="0" value={courseForm.discount_price} onChange={e => setCourseForm({...courseForm, discount_price: e.target.value ? Number(e.target.value) : ""})} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
                 </div>
               </div>
             )}
