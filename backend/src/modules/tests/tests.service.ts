@@ -56,7 +56,7 @@ export class TestsService {
         positive_marks: data.positive_marks,
         negative_marks: data.negative_marks,
         section_config: data.section_config,
-        status: "DRAFT",
+        status: "PUBLISHED",
       },
     });
 

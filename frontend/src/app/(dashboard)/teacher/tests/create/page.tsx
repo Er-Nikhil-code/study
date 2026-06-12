@@ -194,7 +194,7 @@ export default function CreateTestPage() {
               </div>
 
               <button type="submit" disabled={loading} className="w-full mt-4 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg disabled:opacity-50">
-                {loading ? "Creating..." : "Create Draft Test"}
+                {loading ? "Publishing..." : "Publish Test"}
               </button>
             </div>
           </Panel>
