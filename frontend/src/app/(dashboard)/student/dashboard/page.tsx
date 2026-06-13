@@ -121,61 +121,6 @@ export default function StudentDashboardPage() {
             </div>
           </div>
 
-          {/* Recent tests */}
-          <div className="mt-6">
-            <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Recent Tests</h3>
-            {studentData.recent_tests.length === 0 ? (
-              <Panel><p className="text-sm text-zinc-500">No tests taken yet.</p></Panel>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {studentData.recent_tests.map((t) => (
-                  <Link key={t.attempt_id} href={`/results/${t.attempt_id}?testId=${t.test_id}&view=analysis`}>
-                    <Panel className="p-4 hover:bg-white/[0.04] transition cursor-pointer h-full">
-                      <div className="flex flex-col h-full justify-between">
-                        <div>
-                          <h4 className="text-sm font-medium text-white mb-1 truncate">{t.test_title}</h4>
-                          <span className="text-xs text-zinc-500 bg-white/5 px-2 py-0.5 rounded border border-white/5">
-                            {t.practice_mode ? "Practice" : `Attempt #${t.attempt_no}`}
-                          </span>
-                        </div>
-                        <div className="mt-4 text-xl font-semibold text-red-400">
-                          {t.score ?? "—"}<span className="text-sm text-zinc-500 font-normal">/{t.max_score}</span>
-                        </div>
-                      </div>
-                    </Panel>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Upcoming Tests */}
-          <div className="mt-8" id="scheduled">
-            <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Upcoming Tests</h3>
-            {!upcomingTests?.data?.length ? (
-              <Panel>
-                <p className="text-sm text-zinc-500">No upcoming tests available right now.</p>
-              </Panel>
-            ) : (
-              <div className="space-y-2">
-                {upcomingTests.data.slice(0, 5).map((t) => (
-                  <Link key={t.id} href={`/tests/${t.id}`}>
-                    <Panel className="p-3 hover:bg-white/[0.04] transition cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="text-sm text-white">{t.title}</span>
-                          <span className="ml-2 text-xs text-zinc-500">{t.duration_minutes} min · {t._count.test_questions} Qs</span>
-                        </div>
-                        <span className="text-xs text-red-300 border border-red-500/20 bg-red-500/10 px-2 py-0.5 rounded-full">
-                          {t.total_marks} marks
-                        </span>
-                      </div>
-                    </Panel>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
 
           {/* Enrolled Courses Progress */}
           <div className="mt-8">

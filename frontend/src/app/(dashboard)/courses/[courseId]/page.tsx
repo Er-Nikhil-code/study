@@ -494,7 +494,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                             cx="50" cy="50" r="48" 
                             stroke="currentColor" 
                             strokeWidth="2.5" 
-                            fill="transparent" 
+                            fill="none" 
                             strokeDasharray={`${segmentLength} ${circ}`}
                             transform={`rotate(${rotation}, 50, 50)`}
                             strokeLinecap="round"
@@ -506,7 +506,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                               cx="50" cy="50" r="48" 
                               stroke="currentColor" 
                               strokeWidth="2.5" 
-                              fill="transparent" 
+                              fill="none" 
                               strokeDasharray={`${pct * segmentLength} ${circ}`}
                               transform={`rotate(${rotation}, 50, 50)`}
                               strokeLinecap="round"
@@ -518,7 +518,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                             cx="50" cy="50" r="48" 
                             stroke="transparent" 
                             strokeWidth="10" 
-                            fill="transparent" 
+                            fill="none" 
                             strokeDasharray={`${segmentLength} ${circ}`}
                             transform={`rotate(${rotation}, 50, 50)`}
                           />

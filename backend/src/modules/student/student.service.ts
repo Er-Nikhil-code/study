@@ -27,7 +27,7 @@ export class StudentService {
    * ════════════════════════════════════════════ */
   async getDetailedActivityGraph(userId: string) {
     const oneYearAgo = new Date();
-    oneYearAgo.setDate(oneYearAgo.getDate() - 180);
+    oneYearAgo.setDate(oneYearAgo.getDate() - 90);
 
     const [
       notesCreated,
