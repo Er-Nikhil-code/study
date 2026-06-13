@@ -339,7 +339,7 @@ export default function CoursesPage() {
           ))}
         </div>
       ) : (
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-8 grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           {(user?.role === "ADMIN" || user?.role === "TEACHER") && (
             <Panel 
               className="relative flex flex-col items-center justify-center p-6 border-2 border-dashed border-white/20 hover:border-red-500/50 hover:bg-red-500/5 transition-all cursor-pointer min-h-[250px] group"

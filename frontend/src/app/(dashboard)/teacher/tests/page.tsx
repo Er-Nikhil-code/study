@@ -195,7 +195,7 @@ export default function TeacherTestsPage() {
         />
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="mt-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         {loading ? (
           <div className="py-12 text-center text-sm text-zinc-500 lg:col-span-3">
             Loading tests...
