@@ -39,6 +39,17 @@ export interface StudentDashboard {
     progress_percentage: number;
   }[];
   activity_graph?: { date: string; count: number; details?: { type: string; count: number }[] }[];
+  marks_history?: {
+    attempt_id: string;
+    test_title: string;
+    score: number;
+    max_score: number;
+    percentage: number;
+    submitted_at: string;
+    attempt_no: number;
+    course_id?: string;
+    course_name?: string;
+  }[];
 }
 
 export interface TestListItem {
