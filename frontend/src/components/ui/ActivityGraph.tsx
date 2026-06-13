@@ -23,21 +23,25 @@ const getISTDateString = (d: Date) => {
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export default function ActivityGraph({ data = [], userName }: ActivityGraphProps) {
-  // Generate last 6 months in IST
+  // Generate exactly 3 full months (Current month and 2 previous months)
   const days = useMemo(() => {
     const todayLocal = new Date();
     // Start by finding today in IST
     const utcToday = todayLocal.getTime() + (todayLocal.getTimezoneOffset() * 60000);
     const todayIST = new Date(utcToday + (3600000 * 5.5));
     
-    const lastYearIST = new Date(todayIST.getFullYear(), todayIST.getMonth(), todayIST.getDate() - 179);
+    // Calculate the start date: 1st day of (current month - 2)
+    const startDate = new Date(todayIST.getFullYear(), todayIST.getMonth() - 2, 1);
+    
+    // Calculate the end date: last day of current month
+    const endDate = new Date(todayIST.getFullYear(), todayIST.getMonth() + 1, 0);
     
     const dataMap = new Map<string, { count: number; details?: { type: string; count: number }[] }>();
     data.forEach(d => dataMap.set(d.date, { count: d.count, details: d.details }));
 
     const result = [];
 
-    for (let d = new Date(lastYearIST); d <= todayIST; d.setDate(d.getDate() + 1)) {
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const { dateStr } = getISTDateString(d);
       const dData = dataMap.get(dateStr) || { count: 0, details: [] };
       result.push({
