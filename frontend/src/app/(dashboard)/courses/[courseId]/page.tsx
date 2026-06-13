@@ -999,8 +999,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
           </div>
 
-          <div className="w-full lg:w-80 shrink-0 space-y-6">
-            {isCreatorOrAdmin && (
+          {isCreatorOrAdmin && (
+            <div className="w-full lg:w-80 shrink-0 space-y-6">
               <Panel className="bg-zinc-900/50 border-white/10 relative z-20">
                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <Users size={18} className="text-red-400" /> Course Knights
@@ -1056,10 +1056,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   )}
                 </div>
               </Panel>
-            )}
-
-
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Bottom Section: Leaderboard and Enrolled Students side by side */}
