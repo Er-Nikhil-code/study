@@ -100,7 +100,6 @@ export default function AdminHomePage() {
         <StatCard label="Warriors" value={stats?.totalStudents ?? "—"} loading={loading} />
         <StatCard label="Knights" value={stats?.totalTeachers ?? "—"} loading={loading} />
         <StatCard label="Pawns" value={stats?.totalInterns ?? "—"} loading={loading} />
-        <StatCard label="Custom Roles" value={stats?.totalRoles ?? "—"} loading={loading} />
       </div>
 
       {/* Quick actions */}

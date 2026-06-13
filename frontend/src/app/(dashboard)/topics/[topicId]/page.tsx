@@ -28,7 +28,7 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
 
   // Challenge modal state
   const [selectedNote, setSelectedNote] = useState<any>(null);
-  const [challengeReason, setChallengeReason] = useState("INCORRECT");
+  const [challengeReason, setChallengeReason] = useState("WRONG_EXPLANATION");
   const [challengeDesc, setChallengeDesc] = useState("");
 
   const { user } = useAuthStore();
@@ -265,8 +265,9 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                   onChange={(e) => setChallengeReason(e.target.value)}
                   className="w-full rounded border border-white/10 bg-black px-3 py-2 text-white outline-none focus:border-red-500"
                 >
-                  <option value="INCORRECT">Incorrect Information</option>
-                  <option value="OUT_OF_SYLLABUS">Out of Syllabus</option>
+                  <option value="WRONG_EXPLANATION">Incorrect Information / Wrong Explanation</option>
+                  <option value="TYPO">Typo / Grammatical Error</option>
+                  <option value="UNCLEAR_WORDING">Unclear Wording</option>
                   <option value="OTHER">Other Issue</option>
                 </select>
               </div>

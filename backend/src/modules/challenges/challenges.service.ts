@@ -59,10 +59,17 @@ export class ChallengesService {
       select: { role: true, assigned_teacher_id: true }
     });
 
-    // Route to Teacher if created by Intern
-    const assignedToId = creatorUser?.role === "INTERN" && creatorUser.assigned_teacher_id
-      ? creatorUser.assigned_teacher_id
-      : creatorId;
+    let assignedToId = creatorId;
+
+    if (!creatorUser) {
+      // Creator no longer exists in DB! Assign to first available admin to prevent foreign key constraint failure.
+      const firstAdmin = await this.prisma.user.findFirst({ where: { role: "ADMIN" } });
+      if (!firstAdmin) throw new BadRequestException("Cannot submit challenge: creator not found and no admin available.");
+      assignedToId = firstAdmin.id;
+    } else if (creatorUser.role === "INTERN" && creatorUser.assigned_teacher_id) {
+      // Route to Teacher if created by Intern
+      assignedToId = creatorUser.assigned_teacher_id;
+    }
 
     // Create the challenge — auto-assign
     const challenge = await this.prisma.challenge.create({
