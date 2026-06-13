@@ -974,40 +974,39 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 )}
               </Panel>
             ))}
-            </div>
-            
 
-            {course.sections?.length === 0 && !addingSection && (
-              <Panel className="border border-dashed border-white/10 bg-white/[0.01] text-center py-12">
-                <BookOpen size={32} className="mx-auto text-zinc-600 mb-3" />
-                <p className="text-sm font-medium text-zinc-400 mb-4">Curriculum is empty for this course.</p>
-                {isCreatorOrAdmin && (
-                  <button 
-                    onClick={() => setAddingSection(true)}
-                    className="inline-flex items-center gap-2 rounded bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20 transition"
-                  >
-                    <Plus size={16} /> Add First Section
-                  </button>
-                )}
-              </Panel>
-            )}
-
-            {/* Leaderboard Moved Here to match course box width */}
-            <div className="relative w-full mt-12">
-              {user?.role === "STUDENT" && !course.is_enrolled && (
-                <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center border border-white/10 shadow-2xl">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-900 border border-white/10 text-zinc-500 mb-4 shadow-inner">
-                    <Lock size={32} />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Leaderboard Locked</h3>
-                  <p className="text-zinc-400 max-w-sm text-center text-sm">
-                    Enroll in the course to view rankings, compare scores, and compete with other warriors.
-                  </p>
-                </div>
+              {course.sections?.length === 0 && !addingSection && (
+                <Panel className="border border-dashed border-white/10 bg-white/[0.01] text-center py-12 mt-8">
+                  <BookOpen size={32} className="mx-auto text-zinc-600 mb-3" />
+                  <p className="text-sm font-medium text-zinc-400 mb-4">Curriculum is empty for this course.</p>
+                  {isCreatorOrAdmin && (
+                    <button 
+                      onClick={() => setAddingSection(true)}
+                      className="inline-flex items-center gap-2 rounded bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20 transition"
+                    >
+                      <Plus size={16} /> Add First Section
+                    </button>
+                  )}
+                </Panel>
               )}
-              <CourseLeaderboard courseId={courseId} />
-            </div>
 
+              {/* Leaderboard Matches Course Box Width */}
+              <div className="relative w-full mt-12">
+                {String(user?.role) === "STUDENT" && !course?.is_enrolled && (
+                  <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center border border-white/10 shadow-2xl">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-900 border border-white/10 text-zinc-500 mb-4 shadow-inner">
+                      <Lock size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Leaderboard Locked</h3>
+                    <p className="text-zinc-400 max-w-sm text-center text-sm">
+                      Enroll in the course to view rankings, compare scores, and compete with other warriors.
+                    </p>
+                  </div>
+                )}
+                <CourseLeaderboard courseId={courseId} />
+              </div>
+
+            </div>
           </div>
 
           {isCreatorOrAdmin && (
