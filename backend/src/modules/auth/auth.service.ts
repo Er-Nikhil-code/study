@@ -37,6 +37,7 @@ export class AuthService {
       where: { id: userId },
       include: { 
         custom_role: true,
+        assigned_teacher: { select: { first_name: true, last_name: true } },
         course_enrollments: {
           include: { course: true }
         }

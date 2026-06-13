@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from 'react';
+"use client";
+import React, { useMemo, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ActivityGraphProps {
   data?: { date: string; count: number; details?: { type: string; count: number }[] }[];
@@ -104,6 +106,11 @@ export default function ActivityGraph({ data = [], userName }: ActivityGraphProp
 
   const [hoveredDay, setHoveredDay] = useState<any | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleMouseEnter = (e: React.MouseEvent, day: any) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -213,18 +220,19 @@ export default function ActivityGraph({ data = [], userName }: ActivityGraphProp
         </div>
       </div>
 
-      {hoveredDay && (
+      {mounted && hoveredDay && createPortal(
         <div 
-          className="fixed z-50 pointer-events-none px-3 py-2 text-xs font-medium text-zinc-200 bg-zinc-900 border border-white/10 rounded-md shadow-2xl whitespace-nowrap"
+          className="fixed z-[99999] pointer-events-none px-3 py-2 text-xs font-medium text-zinc-200 bg-zinc-900 border border-white/10 rounded-md shadow-2xl whitespace-nowrap"
           style={{ 
             left: `${tooltipPos.x}px`, 
             top: `${tooltipPos.y}px`,
-            transform: 'translate(-50%, -120%)'
+            transform: 'translate(-50%, -100%)'
           }}
         >
           {getTooltip(hoveredDay)}
           <div className="absolute left-1/2 -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-zinc-900 border-r border-b border-white/10 rotate-45" />
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

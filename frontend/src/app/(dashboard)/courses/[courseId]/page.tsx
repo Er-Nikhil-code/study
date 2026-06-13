@@ -344,7 +344,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
       {/* Elegant, minimal loading overlay that keeps the current page visible */}
       {loading && (
         <div className="fixed top-24 right-8 z-50 flex items-center gap-2 rounded-full bg-black/80 border border-white/10 px-4 py-2 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in slide-in-from-top-4">
-          null
+          <Loader2 className="animate-spin text-red-500" size={14} />
           <span className="text-xs font-medium text-white">Syncing...</span>
         </div>
       )}
@@ -494,7 +494,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                   { value: "", label: "No Manager" },
                                   ...(knights?.data?.map((k: any) => ({
                                     value: k.id,
-                                    label: k.name || k.first_name || k.email || "Unknown User"
+                                    label: [k.first_name, k.last_name].filter(Boolean).join(" ") || k.name || k.email || "Unknown User",
+                                    subLabel: k.id,
+                                    image: k.profile_picture
                                   })) || [])
                                 ]}
                                 value={section.managed_by || ""}
@@ -817,6 +819,17 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 )}
               </Panel>
             )}
+
+            {isCreatorOrAdmin && (
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={handleDeleteCourse}
+                  className="text-xs text-zinc-600 hover:text-red-500 transition-colors"
+                >
+                  Delete Course
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="w-full lg:w-80 shrink-0 space-y-6">
@@ -832,7 +845,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         { value: "", label: "Assign a Knight...", disabled: true },
                         ...(knights?.data?.map((k: any) => ({
                           value: k.id,
-                          label: `${k.name || 'Unknown'} (${k.email})`,
+                          label: [k.first_name, k.last_name].filter(Boolean).join(" ") || k.name || k.email || "Unknown User",
+                          subLabel: k.id,
+                          image: k.profile_picture,
                           disabled: course.staff?.some((s: any) => s.user_id === k.id)
                         })) || [])
                       ]}
@@ -884,11 +899,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   className="w-full flex items-center justify-between text-left group"
                 >
                   <div className="flex items-center gap-2">
-                    <Users size={18} className="text-blue-400 group-hover:text-blue-300 transition-colors" />
+                    <Users size={18} className="text-zinc-400 group-hover:text-red-400 transition-colors" />
                     <h3 className="text-lg font-bold text-white group-hover:text-zinc-200 transition-colors">Enrolled Students</h3>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full border border-blue-400/20 shadow-[0_0_10px_rgba(96,165,250,0.1)]">Total: {enrollments?.length ?? course.enrollment_count ?? 0}</span>
+                    <span className="text-xs font-bold text-red-400 bg-red-400/10 px-3 py-1 rounded-full border border-red-400/20 shadow-[0_0_10px_rgba(248,113,113,0.1)]">Total: {enrollments?.length ?? course.enrollment_count ?? 0}</span>
                     {isStudentsOpen ? <ChevronDown size={18} className="text-zinc-500" /> : <ChevronRight size={18} className="text-zinc-500" />}
                   </div>
                 </button>
@@ -919,19 +934,19 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         }
 
                         return filtered.map((e: any) => (
-                          <div key={e.user.id} className="flex items-center gap-3 bg-black/40 hover:bg-black/60 border border-white/5 rounded-xl p-2.5 transition-colors">
+                          <div key={e.user.id} className="flex items-center gap-3 bg-zinc-900/30 hover:bg-red-500/5 border border-white/[0.03] hover:border-red-500/20 rounded-xl p-2.5 transition-colors group/item">
                             {e.user.profile_picture ? (
                               <img src={e.user.profile_picture} alt={e.user.first_name || e.user.email} className="w-9 h-9 rounded-full object-cover shrink-0 bg-white/10" />
                             ) : (
-                              <div className="w-9 h-9 rounded-full shrink-0 bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">
+                              <div className="w-9 h-9 rounded-full shrink-0 bg-zinc-800 text-zinc-400 flex items-center justify-center font-bold text-xs">
                                 {e.user.first_name?.charAt(0)?.toUpperCase() || e.user.email?.charAt(0)?.toUpperCase() || "U"}
                               </div>
                             )}
                             <div className="min-w-0 flex-1">
-                              <Link href={`/admin/users/${e.user.id}`} className="text-sm text-white font-medium truncate hover:text-red-400 hover:underline transition block">
+                              <Link href={`/admin/users/${e.user.id}`} className="text-sm text-zinc-300 font-medium truncate hover:text-red-400 transition block">
                                 {[e.user.first_name, e.user.last_name].filter(Boolean).join(" ") || "Unknown User"}
                               </Link>
-                              <p className="text-[10px] text-zinc-500 font-mono truncate" title={e.user.id}>ID: {e.user.id}</p>
+                              <p className="text-[10px] text-zinc-500 font-mono truncate mt-0.5" title={e.user.id}>{e.user.id}</p>
                             </div>
                           </div>
                         ));
@@ -942,18 +957,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               </Panel>
             )}
 
-            {isCreatorOrAdmin && (
-              <Panel className="bg-red-500/5 border-red-500/20">
-                <h3 className="text-lg font-bold text-red-400 mb-2">Danger Zone</h3>
-                <p className="text-xs text-red-400/70 mb-4">Deleting the course will permanently remove all its contents, sections, chapters, topics, and tests.</p>
-                <button
-                  onClick={handleDeleteCourse}
-                  className="w-full rounded-lg bg-red-600/20 border border-red-500/30 px-4 py-2.5 text-sm font-medium text-red-400 hover:bg-red-600 hover:text-white transition-all active:scale-[0.98]"
-                >
-                  Delete Course
-                </button>
-              </Panel>
-            )}
+
           </div>
         </div>
 

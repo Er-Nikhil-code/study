@@ -6,6 +6,8 @@ import { ChevronDown, Search, Check } from "lucide-react";
 interface Option {
   value: string;
   label: string;
+  subLabel?: string;
+  image?: string;
   disabled?: boolean;
 }
 
@@ -53,10 +55,21 @@ export default function SearchableSelect({
         onClick={() => setIsOpen(!isOpen)}
         className="flex w-full items-center justify-between rounded-lg bg-black border border-white/10 px-3 py-2 text-sm text-white hover:border-red-500/50 focus:border-red-500/50 outline-none transition-colors"
       >
-        <span className="truncate text-left flex-1 text-zinc-300">
-          {selectedOption ? selectedOption.label : <span className="text-zinc-500">{placeholder}</span>}
-        </span>
-        <ChevronDown size={16} className={`ml-2 shrink-0 text-zinc-500 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        <div className="truncate text-left flex-1 text-zinc-300 flex items-center min-w-0 pr-2">
+          {selectedOption ? (
+            <>
+              {selectedOption.image ? (
+                <img src={selectedOption.image} alt={selectedOption.label} className="w-5 h-5 rounded-full mr-2 object-cover bg-white/10 shrink-0" />
+              ) : selectedOption.subLabel ? (
+                 <div className="w-5 h-5 rounded-full mr-2 bg-zinc-800 text-zinc-400 flex items-center justify-center shrink-0 text-[10px] font-bold">
+                   {selectedOption.label.charAt(0).toUpperCase()}
+                 </div>
+              ) : null}
+              <span className="truncate">{selectedOption.label}</span>
+            </>
+          ) : <span className="text-zinc-500">{placeholder}</span>}
+        </div>
+        <ChevronDown size={16} className={`shrink-0 text-zinc-500 transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
       {/* Dropdown Menu */}
@@ -100,7 +113,17 @@ export default function SearchableSelect({
                     ${value === opt.value ? "bg-white/5 font-medium text-white" : ""}
                   `}
                 >
-                  <span className="truncate flex-1">{opt.label}</span>
+                  {opt.image ? (
+                    <img src={opt.image} alt={opt.label} className="w-7 h-7 rounded-full mr-3 object-cover bg-white/10 shrink-0" />
+                  ) : opt.subLabel ? (
+                    <div className="w-7 h-7 rounded-full mr-3 bg-zinc-800 text-zinc-400 flex items-center justify-center shrink-0 text-[11px] font-bold">
+                      {opt.label.charAt(0).toUpperCase()}
+                    </div>
+                  ) : null}
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    <span className="truncate block">{opt.label}</span>
+                    {opt.subLabel && <span className="truncate block text-[10px] text-zinc-500 font-mono mt-0.5" title={opt.subLabel}>{opt.subLabel}</span>}
+                  </div>
                   {value === opt.value && <Check size={14} className="text-red-500 shrink-0 ml-2" />}
                 </button>
               ))

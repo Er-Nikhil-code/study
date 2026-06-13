@@ -9,6 +9,7 @@ import { User, Lock, Phone, BookOpen, Camera, X, Upload, Eye } from "lucide-reac
 import { toast } from "sonner";
 import { getChessRoleName } from "@/lib/role";
 import ChessPiece3D from "@/components/ui/ChessPiece3D";
+import AppLoader from "@/components/ui/AppLoader";
 
 /**
  * Compress an image file using canvas.
@@ -164,11 +165,9 @@ export default function ProfilePage() {
 
   if (!user || !profileData) {
     return (
-      <>
-        <div className="flex h-64 items-center justify-center">
-          null
-        </div>
-      </>
+      <div className="flex h-64 items-center justify-center relative">
+        <AppLoader />
+      </div>
     );
   }
 
@@ -326,13 +325,21 @@ export default function ProfilePage() {
           <Panel className="p-5 bg-[linear-gradient(135deg,rgba(239,68,68,0.1),transparent)]">
             <h3 className="text-sm font-medium text-white flex items-center gap-2 mb-4">
               <BookOpen size={16} className="text-red-400" />
-              Course Information
+              Information
             </h3>
             <div className="space-y-4">
               {user.role === "STUDENT" && (
                 <div>
                   <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Enrolled In</p>
                   <p className="text-sm text-white mt-1 font-medium">{profileData.course_enrolled || "N/A"}</p>
+                </div>
+              )}
+              {user.role === "INTERN" && profileData.assigned_teacher && (
+                <div>
+                  <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Reports To</p>
+                  <p className="text-sm text-white mt-1 font-medium">
+                    {profileData.assigned_teacher.first_name} {profileData.assigned_teacher.last_name}
+                  </p>
                 </div>
               )}
               <div>
@@ -342,6 +349,14 @@ export default function ProfilePage() {
               <div>
                 <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Email Address</p>
                 <p className="text-sm text-white mt-1 break-all">{user.email}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Last Login</p>
+                <p className="text-sm text-white mt-1">
+                  {profileData.last_login_at 
+                    ? new Date(profileData.last_login_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) 
+                    : "Never"}
+                </p>
               </div>
             </div>
           </Panel>
