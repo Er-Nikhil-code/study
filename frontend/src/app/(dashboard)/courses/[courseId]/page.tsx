@@ -357,7 +357,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               </Link>
               <SectionTitle 
                 title={course.name} 
-                subtitle={canSeeCode ? `Course Code: ${course.code}` : "Course Curriculum"} 
+                subtitle={canSeeCode ? `Course Code: ${course.code} • Creator: ${course.creator?.first_name || "Admin"}` : "Course Curriculum"} 
               />
             </div>
             <div className="flex items-center gap-4">
@@ -464,7 +464,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         </div>
                       </form>
                     ) : (
-                      <div className="flex flex-col">
+                      <div className="flex items-center flex-wrap gap-4">
                         <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
                           {section.name}
                           {isCreatorOrAdmin && (
@@ -485,10 +485,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           )}
                         </h3>
                         {isCreatorOrAdmin && (
-                          <div className="mt-1.5 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                            <Shield size={12} className="text-emerald-400" />
-                            <span className="text-[11px] text-zinc-500 font-medium">MANAGER:</span>
-                            <div className="w-48">
+                          <div className="flex items-center gap-2 border-l border-white/10 pl-4" onClick={(e) => e.stopPropagation()}>
+                            <Shield size={14} className="text-emerald-500/70" />
+                            <span className="text-[11px] text-zinc-500 font-medium tracking-wider">MANAGER:</span>
+                            <div className="w-44 relative z-20">
                               <SearchableSelect
                                 options={[
                                   { value: "", label: "No Manager" },
@@ -905,7 +905,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       />
                       <Search size={14} className="absolute left-3 top-2.5 text-zinc-500" />
                     </div>
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
                       {(() => {
                         const filtered = (enrollments || []).filter((e: any) => {
                           const term = searchStudent.toLowerCase();
