@@ -1028,24 +1028,17 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
             {/* Enrolled Students */}
             {user?.role === "ADMIN" && (
-              <Panel className="bg-zinc-900/50 border-white/10 relative z-10 w-full h-full flex flex-col">
-                <button
-                  onClick={() => setIsStudentsOpen(!isStudentsOpen)}
-                  className="w-full flex items-center justify-between text-left group"
-                >
-                  <div className="flex items-center gap-2">
-                    <Users size={18} className="text-zinc-400 group-hover:text-red-400 transition-colors" />
-                    <h3 className="text-lg font-bold text-white group-hover:text-zinc-200 transition-colors">Enrolled Students</h3>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-red-400 bg-red-400/10 px-3 py-1 rounded-full border border-red-400/20 shadow-[0_0_10px_rgba(248,113,113,0.1)]">Total: {enrollments?.length ?? course.enrollment_count ?? 0}</span>
-                    {isStudentsOpen ? <ChevronDown size={18} className="text-zinc-500" /> : <ChevronRight size={18} className="text-zinc-500" />}
-                  </div>
-                </button>
+              <div className="mt-8 w-full flex flex-col h-full">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-white">Enrolled Students</h2>
+                  <span className="text-[10px] font-bold text-red-400 bg-red-400/10 px-2.5 py-1 rounded-md border border-red-400/20 uppercase tracking-wider">
+                    Total: {enrollments?.length ?? course.enrollment_count ?? 0}
+                  </span>
+                </div>
                 
-                {isStudentsOpen && (
-                  <div className="mt-5 pt-5 border-t border-white/5 flex-1 flex flex-col">
-                    <div className="relative mb-4">
+                <Panel className="p-0 overflow-hidden border border-white/10 relative z-10 w-full flex-1 flex flex-col">
+                  <div className="p-4 border-b border-white/5 bg-black/40">
+                    <div className="relative">
                       <input
                         type="text"
                         placeholder="Search by name or ID..."
@@ -1054,77 +1047,82 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           setSearchStudent(e.target.value);
                           setStudentPage(1);
                         }}
-                        className="w-full rounded-xl bg-black/40 border border-white/10 pl-9 pr-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500/50 transition-colors"
+                        className="w-full rounded-lg bg-zinc-900/80 border border-white/10 pl-9 pr-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500/50 transition-colors"
                       />
                       <Search size={14} className="absolute left-3 top-2.5 text-zinc-500" />
                     </div>
-                    <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
-                      {(() => {
-                        const filtered = (enrollments || []).filter((e: any) => {
-                          const term = searchStudent.toLowerCase();
-                          const name = `${e.user.first_name || ""} ${e.user.last_name || ""}`.toLowerCase();
-                          const id = e.user.id.toLowerCase();
-                          return name.includes(term) || id.includes(term);
-                        });
-                        
-                        if (filtered.length === 0) {
-                          return <p className="text-xs text-zinc-500 text-center py-6">{searchStudent ? "No students match your search." : "No students enrolled yet."}</p>;
-                        }
-
-                        const totalPages = Math.ceil(filtered.length / 5);
-                        const paginated = filtered.slice((studentPage - 1) * 5, studentPage * 5);
-
+                  </div>
+                  
+                  <div className="flex-1 flex flex-col h-full bg-zinc-900/20">
+                    {(() => {
+                      const filtered = (enrollments || []).filter((e: any) => {
+                        const term = searchStudent.toLowerCase();
+                        const name = `${e.user.first_name || ""} ${e.user.last_name || ""}`.toLowerCase();
+                        const id = e.user.id.toLowerCase();
+                        return name.includes(term) || id.includes(term);
+                      });
+                      
+                      if (filtered.length === 0) {
                         return (
-                          <div className="flex flex-col h-full">
-                            <div className="flex-1 space-y-2">
-                              {paginated.map((e: any) => (
-                                <div key={e.user.id} className="flex items-center gap-3 bg-zinc-900/30 hover:bg-red-500/5 border border-white/[0.03] hover:border-red-500/20 rounded-xl p-2.5 transition-colors group/item">
-                                  {e.user.profile_picture ? (
-                                    <img src={e.user.profile_picture} alt={e.user.first_name || e.user.email} className="w-9 h-9 rounded-full object-cover shrink-0 bg-white/10" />
-                                  ) : (
-                                    <div className="w-9 h-9 rounded-full shrink-0 bg-zinc-800 text-zinc-400 flex items-center justify-center font-bold text-xs">
-                                      {e.user.first_name?.charAt(0)?.toUpperCase() || e.user.email?.charAt(0)?.toUpperCase() || "U"}
-                                    </div>
-                                  )}
-                                  <div className="min-w-0 flex-1">
-                                    <Link href={`/admin/users/${e.user.id}`} className="text-sm text-zinc-300 font-medium truncate hover:text-red-400 transition block">
-                                      {[e.user.first_name, e.user.last_name].filter(Boolean).join(" ") || "Unknown User"}
-                                    </Link>
-                                    <p className="text-xs text-zinc-400 font-mono break-all mt-0.5" title={e.user.id}>{e.user.id}</p>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                            
-                            {/* Pagination Controls */}
-                            {totalPages > 1 && (
-                              <div className="flex justify-between items-center mt-4 pt-3 border-t border-white/5 px-2">
-                                <button
-                                  disabled={studentPage === 1}
-                                  onClick={() => setStudentPage(p => Math.max(1, p - 1))}
-                                  className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                                >
-                                  <ChevronLeft size={16} className="text-zinc-400" />
-                                </button>
-                                <span className="text-[10px] text-zinc-500 font-mono tracking-wider uppercase">
-                                  Page {studentPage} of {totalPages}
-                                </span>
-                                <button
-                                  disabled={studentPage === totalPages}
-                                  onClick={() => setStudentPage(p => Math.min(totalPages, p + 1))}
-                                  className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                                >
-                                  <ChevronRight size={16} className="text-zinc-400" />
-                                </button>
-                              </div>
-                            )}
+                          <div className="flex-1 flex items-center justify-center p-8">
+                            <p className="text-sm text-zinc-500 text-center">{searchStudent ? "No students match your search." : "No students enrolled yet."}</p>
                           </div>
                         );
-                      })()}
-                    </div>
+                      }
+
+                      const totalPages = Math.ceil(filtered.length / 5);
+                      const paginated = filtered.slice((studentPage - 1) * 5, studentPage * 5);
+
+                      return (
+                        <div className="flex flex-col h-full">
+                          <div className="divide-y divide-white/5">
+                            {paginated.map((e: any) => (
+                              <div key={e.user.id} className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-white/[0.02] group/item">
+                                {e.user.profile_picture ? (
+                                  <img src={e.user.profile_picture} alt={e.user.first_name || e.user.email} className="w-10 h-10 rounded-full object-cover shrink-0 border border-white/10" />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-full shrink-0 bg-zinc-800 border border-white/5 text-zinc-400 flex items-center justify-center font-bold text-sm">
+                                    {e.user.first_name?.charAt(0)?.toUpperCase() || e.user.email?.charAt(0)?.toUpperCase() || "U"}
+                                  </div>
+                                )}
+                                <div className="min-w-0 flex-1">
+                                  <Link href={`/admin/users/${e.user.id}`} className="text-sm text-white font-medium truncate hover:text-red-400 transition block">
+                                    {[e.user.first_name, e.user.last_name].filter(Boolean).join(" ") || "Unknown User"}
+                                  </Link>
+                                  <p className="text-[10px] text-zinc-500 font-mono break-all mt-1 uppercase tracking-wider" title={e.user.id}>{e.user.id}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* Pagination Controls */}
+                          {totalPages > 1 && (
+                            <div className="flex justify-between items-center mt-auto border-t border-white/10 bg-black/40 px-4 py-3">
+                              <button
+                                disabled={studentPage === 1}
+                                onClick={() => setStudentPage(p => Math.max(1, p - 1))}
+                                className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <ChevronLeft size={16} className="text-zinc-400" />
+                              </button>
+                              <span className="text-[10px] text-zinc-500 font-mono tracking-wider uppercase font-semibold">
+                                Page {studentPage} of {totalPages}
+                              </span>
+                              <button
+                                disabled={studentPage === totalPages}
+                                onClick={() => setStudentPage(p => Math.min(totalPages, p + 1))}
+                                className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <ChevronRight size={16} className="text-zinc-400" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
-                )}
-              </Panel>
+                </Panel>
+              </div>
             )}
           </div>
         )}
