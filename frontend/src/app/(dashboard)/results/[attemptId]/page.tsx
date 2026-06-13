@@ -161,47 +161,24 @@ export default function ResultDetailPage() {
                       {/* Options */}
                       <div className="space-y-3 w-full mb-8">
                         {(() => {
-                          let optionsToRender = q.options_json?.options;
-                          
-                          // If no options exist (e.g., True/False or Fill in the Blanks without explicit options)
-                          // we can try to synthesize them or at least show the correct answer elegantly.
-                          if (!optionsToRender || optionsToRender.length === 0) {
-                            if (q.question_type === 'TRUE_FALSE') {
-                              optionsToRender = [
-                                { id: 'true', text: 'True' },
-                                { id: 'false', text: 'False' }
-                              ];
-                            } else {
-                              // For other types like NUMERICAL or FILL_BLANK, we just show the correct answer as a single "option"
-                              // and if the user answered differently, we show their answer as well.
-                              const correctAnsText = q.answer_key?.correct_option || q.answer_key?.answer?.toString() || JSON.stringify(q.answer_key);
-                              const userAnsText = r ? (r.answer_json?.correct_option || r.answer_json?.answer?.toString() || JSON.stringify(r.answer_json)) : null;
-                              
-                              if (r && r.is_correct === false) {
-                                optionsToRender = [
-                                  { id: 'correct', text: correctAnsText, isActualCorrect: true },
-                                  { id: 'user', text: userAnsText, isUserWrong: true }
-                                ];
-                              } else {
-                                optionsToRender = [
-                                  { id: 'correct', text: correctAnsText, isActualCorrect: true }
-                                ];
-                              }
-                            }
-                          }
+                          const optionsToRender = q.options_json?.options || [];
 
                           return optionsToRender.map((opt: any) => {
                             let isCorrectOption = false;
                             let isSelectedOption = false;
 
-                            if (opt.isActualCorrect) {
-                              isCorrectOption = true;
-                            } else if (opt.isUserWrong) {
-                              isSelectedOption = true;
+                            // Check correct options
+                            if (Array.isArray(q.answer_key?.correct_options)) {
+                              isCorrectOption = q.answer_key.correct_options.includes(opt.id);
                             } else {
-                              // Standard multiple choice or True/False
-                              isCorrectOption = q.answer_key?.correct_option === opt.id || q.answer_key?.answer?.toString() === opt.id;
-                              isSelectedOption = r?.answer_json?.correct_option === opt.id || r?.answer_json?.answer?.toString() === opt.id;
+                              isCorrectOption = q.answer_key?.correct_option === opt.id;
+                            }
+                            
+                            // Check selected options
+                            if (Array.isArray(r?.answer_json?.correct_options)) {
+                              isSelectedOption = r.answer_json.correct_options.includes(opt.id);
+                            } else {
+                              isSelectedOption = r?.answer_json?.correct_option === opt.id;
                             }
                             
                             let borderColor = "border-white/10";

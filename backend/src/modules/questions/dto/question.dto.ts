@@ -33,8 +33,8 @@ export const SingleCorrectMCQSchema = BaseQuestionSchema.extend({
           text: z.string(),
         }),
       )
-      .min(2)
-      .max(6),
+      .min(4)
+      .max(4),
   }),
   answer_key: z.object({
     correct_option: OptionIdSchema,
@@ -54,8 +54,8 @@ export const MultipleCorrectMCQSchema = BaseQuestionSchema.extend({
           text: z.string(),
         }),
       )
-      .min(2)
-      .max(6),
+      .min(4)
+      .max(4),
   }),
   answer_key: z.object({
     correct_options: z.array(OptionIdSchema).min(1),
@@ -102,8 +102,13 @@ export const ImageBasedSchema = BaseQuestionSchema.extend({
 export const NumericalSchema = BaseQuestionSchema.extend({
   type: z.literal("NUMERICAL"),
   content_json: z.array(ContentBlockSchema).min(1),
-  options_json: z.any().optional(),
-  answer_key: z.any().optional(),
+  options_json: z.object({
+    options: z.array(z.object({ id: OptionIdSchema, text: z.string() })).min(4).max(4),
+  }),
+  answer_key: z.object({
+    correct_option: OptionIdSchema,
+    answer: z.number().optional(), // legacy fallback
+  }),
 });
 
 // True/False
@@ -111,10 +116,11 @@ export const TrueFalseSchema = BaseQuestionSchema.extend({
   type: z.literal("TRUE_FALSE"),
   content_json: z.array(ContentBlockSchema).min(1),
   options_json: z.object({
-    options: z.array(z.object({ id: OptionIdSchema, text: z.string() })).optional()
-  }).optional(),
+    options: z.array(z.object({ id: OptionIdSchema, text: z.string() })).min(2).max(2)
+  }),
   answer_key: z.object({
-    answer: z.boolean(),
+    correct_option: OptionIdSchema,
+    answer: z.boolean().optional(), // legacy fallback
   }),
 });
 
@@ -123,9 +129,10 @@ export const FillBlankSchema = BaseQuestionSchema.extend({
   type: z.literal("FILL_BLANK"),
   content_json: z.array(ContentBlockSchema).min(1),
   options_json: z.object({
-    options: z.array(z.object({ id: OptionIdSchema, text: z.string() })).optional()
-  }).optional(),
+    options: z.array(z.object({ id: OptionIdSchema, text: z.string() })).min(4).max(4)
+  }),
   answer_key: z.object({
+    correct_option: OptionIdSchema,
     blanks: z
       .array(
         z.object({
@@ -134,7 +141,7 @@ export const FillBlankSchema = BaseQuestionSchema.extend({
           case_sensitive: z.boolean().default(false),
         }),
       )
-      .min(1),
+      .optional(), // legacy fallback
   }),
 });
 

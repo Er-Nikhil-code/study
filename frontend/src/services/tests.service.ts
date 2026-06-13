@@ -44,4 +44,8 @@ export const TestsService = {
   updateQuestions(id: string, questionIds: string[]) {
     return api.put(`/tests/${id}/questions`, { question_ids: questionIds }).then(res => res.data);
   },
+
+  deleteTest(id: string) {
+    return api.delete(`/tests/${id}`).then(res => res.data);
+  },
 };

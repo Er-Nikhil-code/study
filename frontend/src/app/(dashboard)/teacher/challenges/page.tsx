@@ -5,6 +5,7 @@ import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { ChallengesService } from "@/services/challenges.service";
 import RichTextEditor from "@/components/ui/RichTextEditor";
+import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import { Edit2, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
@@ -147,14 +148,20 @@ export default function TeacherChallengesPage() {
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
                     {challenge.id}
                   </div>
-                  <h3 className="mt-2 text-lg font-semibold text-white flex items-center gap-2">
-                    {challenge.question?.title || "Unknown Question"}
+                  <div className="mt-2 text-base font-semibold text-white flex items-center gap-2">
+                    {challenge.question ? (
+                      <div className="line-clamp-2 max-w-3xl overflow-hidden">
+                        <ContentBlockRenderer blocks={challenge.question.content_json || []} />
+                      </div>
+                    ) : (
+                      "Unknown Question"
+                    )}
                     {challenge.question && (
                       <Link href={`/admin/questions`} target="_blank" className="text-zinc-500 hover:text-white transition">
                         <ExternalLink size={14} />
                       </Link>
                     )}
-                  </h3>
+                  </div>
                   <p className="mt-1 text-sm text-zinc-400">
                     Submitted by: {challenge.created_by?.first_name || challenge.created_by?.email || "Warrior"}
                   </p>

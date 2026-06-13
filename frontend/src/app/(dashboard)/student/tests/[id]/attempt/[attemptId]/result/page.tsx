@@ -143,58 +143,47 @@ export default function TestResultPage() {
                 <div className="space-y-3">
                   <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Options</div>
                   {(() => {
-                    let optionsToRender = q.options_json?.options;
-                    
-                    if (!optionsToRender || optionsToRender.length === 0) {
-                      if (q.question_type === 'TRUE_FALSE') {
-                        optionsToRender = [
-                          { id: 'true', text: 'True' },
-                          { id: 'false', text: 'False' }
-                        ];
-                      } else {
-                        const correctAnsText = q.answer_key?.correct_option || q.answer_key?.answer?.toString() || JSON.stringify(q.answer_key);
-                        const userAnsText = studentAnsId ? studentAnsId.toString() : null;
-                        
-                        if (response && isIncorrect) {
-                          optionsToRender = [
-                            { id: 'correct', text: correctAnsText, isActualCorrect: true },
-                            { id: 'user', text: userAnsText, isUserWrong: true }
-                          ];
-                        } else {
-                          optionsToRender = [
-                            { id: 'correct', text: correctAnsText, isActualCorrect: true }
-                          ];
-                        }
-                      }
-                    }
+                    const optionsToRender = q.options_json?.options || [];
 
                     return optionsToRender.map((opt: any) => {
                       let isActualCorrect = false;
                       let isStudentMarked = false;
 
-                      if (opt.isActualCorrect) {
-                        isActualCorrect = true;
-                      } else if (opt.isUserWrong) {
-                        isStudentMarked = true;
+                      // Check correct options
+                      if (Array.isArray(q.answer_key?.correct_options)) {
+                        isActualCorrect = q.answer_key.correct_options.includes(opt.id);
                       } else {
-                        isActualCorrect = correctAnsId === opt.id || correctAnsId === opt.text || q.answer_key?.answer?.toString() === opt.id;
-                        isStudentMarked = studentAnsId === opt.id || studentAnsId === opt.text || response?.answer_json?.answer?.toString() === opt.id;
+                        isActualCorrect = correctAnsId === opt.id;
+                      }
+                      
+                      // Check student selected options
+                      if (Array.isArray(response?.answer_json?.correct_options)) {
+                        isStudentMarked = response.answer_json.correct_options.includes(opt.id);
+                      } else {
+                        isStudentMarked = studentAnsId === opt.id;
                       }
 
-                      let bg = "bg-white/5 border-white/5";
-                      if (isActualCorrect) bg = "bg-emerald-500/10 border-emerald-500/30 text-emerald-300";
-                      else if (isStudentMarked && !isActualCorrect) bg = "bg-red-500/10 border-red-500/30 text-red-300";
+                      let borderColor = "border-white/10";
+                      let bgColor = "bg-white/[0.02]";
+                      let icon = null;
+
+                      if (isActualCorrect) {
+                        borderColor = "border-emerald-500";
+                        bgColor = "bg-emerald-500/10";
+                        icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
+                      } else if (isStudentMarked && !isActualCorrect) {
+                        borderColor = "border-red-500";
+                        bgColor = "bg-red-500/10";
+                        icon = <span className="text-red-500 ml-auto font-bold text-lg">✗</span>;
+                      }
 
                       return (
-                        <div key={opt.id} className={`p-3 rounded-lg border ${bg} flex items-center justify-between`}>
-                          <div className="flex items-center gap-3">
-                            <span className="font-bold opacity-50">{opt.id}.</span>
-                            <span>{opt.text}</span>
-                          </div>
-                          <div className="flex gap-2">
-                            {isActualCorrect && <CheckCircle className="w-4 h-4 text-emerald-400" />}
-                            {isStudentMarked && !isActualCorrect && <XCircle className="w-4 h-4 text-red-400" />}
-                          </div>
+                        <div 
+                          key={opt.id} 
+                          className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all ${borderColor} ${bgColor}`}
+                        >
+                          <div className="text-zinc-200 text-base flex-1">{opt.text}</div>
+                          {icon}
                         </div>
                       );
                     });

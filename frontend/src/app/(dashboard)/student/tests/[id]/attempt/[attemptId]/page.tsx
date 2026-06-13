@@ -125,11 +125,20 @@ export default function ExamInterfacePage() {
 
   const saveResponseToBackend = async (tqId: string, ans: any, marked: boolean) => {
     try {
+      let answerJson = {};
+      if (ans !== null && ans !== undefined) {
+        if (Array.isArray(ans)) {
+          answerJson = { correct_options: ans };
+        } else {
+          answerJson = { correct_option: ans };
+        }
+      }
+
       await TestsService.saveAnswer(attemptId, {
         test_question_id: tqId,
         question_id: questions.find((q:any) => q.id === tqId)?.question_id,
         topic_id: testData.topic_id,
-        answer_json: ans ? { correct_option: ans } : {}, // Currently assuming MCQ Single Correct format for MVP
+        answer_json: answerJson,
         marked_for_review: marked
       });
     } catch (err) {
@@ -192,7 +201,21 @@ export default function ExamInterfacePage() {
 
   const handleOptionSelect = (optionId: string) => {
     const tqId = currentQ.id;
-    setAnswers(prev => ({ ...prev, [tqId]: optionId }));
+    const isMulti = currentQ.question?.type === "MULTIPLE_CORRECT" || currentQ.question?.question_type === "MULTIPLE_CORRECT";
+    
+    setAnswers(prev => {
+      if (isMulti) {
+        const currentAns = Array.isArray(prev[tqId]) ? prev[tqId] : [];
+        if (currentAns.includes(optionId)) {
+          const newAns = currentAns.filter((id: string) => id !== optionId);
+          return { ...prev, [tqId]: newAns.length > 0 ? newAns : null };
+        } else {
+          return { ...prev, [tqId]: [...currentAns, optionId] };
+        }
+      } else {
+        return { ...prev, [tqId]: optionId };
+      }
+    });
     // We do NOT change status immediately until they hit Save & Next.
     // However, if they just click the palette to navigate away, it won't be saved unless we auto-save.
     // To match TCS iON, answers are only locked in when clicking "Save & Next" or "Mark for Review & Next".
@@ -273,7 +296,11 @@ export default function ExamInterfacePage() {
 
             <div className="space-y-3 max-w-2xl">
               {currentQ?.question?.options_json?.options?.map((opt: any) => {
-                const isSelected = answers[currentQ.id] === opt.id;
+                const isMulti = currentQ.question?.type === "MULTIPLE_CORRECT" || currentQ.question?.question_type === "MULTIPLE_CORRECT";
+                const isSelected = isMulti 
+                  ? (Array.isArray(answers[currentQ.id]) && answers[currentQ.id].includes(opt.id))
+                  : answers[currentQ.id] === opt.id;
+                  
                 return (
                   <label 
                     key={opt.id} 
@@ -283,14 +310,18 @@ export default function ExamInterfacePage() {
                   >
                     <div className="relative flex items-center justify-center mt-0.5">
                       <input 
-                        type="radio" 
+                        type={isMulti ? "checkbox" : "radio"} 
                         name={`q_${currentQ.id}`} 
                         checked={isSelected}
                         onChange={() => handleOptionSelect(opt.id)}
                         className="peer sr-only"
                       />
-                      <div className={`w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center ${isSelected ? 'border-blue-600' : 'border-zinc-400'}`}>
-                        {isSelected && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
+                      <div className={`w-5 h-5 flex items-center justify-center transition-all ${isMulti ? 'rounded' : 'rounded-full'} border-2 ${isSelected ? 'border-blue-600' : 'border-zinc-400'}`}>
+                        {isSelected && (
+                          isMulti 
+                            ? <Check className="w-3.5 h-3.5 text-blue-600 font-bold" />
+                            : <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />
+                        )}
                       </div>
                     </div>
                     <div className="text-zinc-800 text-base">{opt.text}</div>

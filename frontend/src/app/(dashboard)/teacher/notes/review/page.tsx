@@ -13,6 +13,14 @@ export default function ReviewNotesPage() {
   const [activeNote, setActiveNote] = useState<any | null>(null);
   const [editedContent, setEditedContent] = useState("");
   const [rejectionNote, setRejectionNote] = useState("");
+  const [userRole, setUserRole] = useState("");
+  
+  useEffect(() => {
+    import("@/store/auth.store").then(mod => {
+      const user = mod.useAuthStore.getState().user;
+      if (user) setUserRole(user.role || "");
+    });
+  }, []);
 
   const fetchNotes = async () => {
     try {
@@ -48,6 +56,20 @@ export default function ReviewNotesPage() {
       fetchNotes();
     } catch (err) {
       alert("Failed to review note.");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!activeNote) return;
+    if (!confirm("Are you sure you want to permanently delete this note?")) return;
+    try {
+      await NotesService.deleteNote(activeNote.id);
+      setActiveNote(null);
+      setEditedContent("");
+      setRejectionNote("");
+      fetchNotes();
+    } catch (err) {
+      alert("Failed to delete note.");
     }
   };
 
@@ -137,9 +159,14 @@ export default function ReviewNotesPage() {
                     <button onClick={() => handleAction("APPROVED")} className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg">
                       Approve & Publish
                     </button>
-                    <button onClick={() => handleAction("REJECTED")} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg">
+                    <button onClick={() => handleAction("REJECTED")} className="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-lg">
                       Reject & Send Back
                     </button>
+                    {userRole === "ADMIN" && (
+                      <button onClick={handleDelete} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg">
+                        Delete Note
+                      </button>
+                    )}
                   </div>
                 </div>
               </Panel>

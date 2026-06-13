@@ -81,6 +81,16 @@ export default function TeacherTestsPage() {
     return test.created_by === userId;
   };
 
+  const handleDeleteTest = async (testId: string) => {
+    if (!confirm("Are you sure you want to delete this test? This action cannot be undone.")) return;
+    try {
+      await TestsService.deleteTest(testId);
+      handleRefresh();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to delete test");
+    }
+  };
+
   return (
     <>
       <SectionTitle
@@ -251,9 +261,14 @@ export default function TeacherTestsPage() {
                   Preview
                 </Link>
                 {canEdit(test) && (
-                  <Link href={`/teacher/tests/${test.id}/edit`} className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
-                    Edit
-                  </Link>
+                  <>
+                    <Link href={`/teacher/tests/${test.id}/edit`} className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
+                      Edit
+                    </Link>
+                    <button onClick={() => handleDeleteTest(test.id)} className="rounded-full border border-red-500/30 bg-white/[0.03] px-4 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/10">
+                      Delete
+                    </button>
+                  </>
                 )}
               </div>
             </Panel>

@@ -96,20 +96,20 @@ Below is the curriculum context for the questions you need to generate:
 
     let optionsInstruction = 'Provide exactly 4 options per question.';
     if (questionType === 'TRUE_FALSE') {
-      optionsInstruction = 'Provide exactly 2 options per question: "True" (id: "1") and "False" (id: "2").';
+      optionsInstruction = 'Provide exactly 2 options per question: "True" (id: "A") and "False" (id: "B").';
     } else if (questionType === 'FILL_BLANK') {
       optionsInstruction = 'Provide exactly 4 options per question. One of them should be the exact text that goes in the blank.';
     } else if (questionType === 'MULTIPLE_CORRECT') {
-      optionsInstruction = 'Provide exactly 4 options per question, where multiple options might be correct (but output a single string of correct ids separated by commas for the answerKey, e.g. "1,3").';
+      optionsInstruction = 'Provide exactly 4 options per question, where multiple options might be correct (but output a single string of correct ids separated by commas for the answerKey, e.g. "A,C").';
     } else if (questionType === 'NUMERICAL') {
       optionsInstruction = 'Provide exactly 4 options per question. One of them must be the correct numerical answer.';
     } else if (questionType === 'ASSERTION_REASON') {
       optionsInstruction = `This is an Assertion-Reasoning question. The questionText MUST clearly state both the "Assertion (A): [statement]" and "Reason (R): [statement]".
 Provide exactly 4 standard options with these exact texts:
-1: "Both Assertion (A) and Reason (R) are true and R is the correct explanation of A."
-2: "Both Assertion (A) and Reason (R) are true but R is NOT the correct explanation of A."
-3: "Assertion (A) is true but Reason (R) is false."
-4: "Assertion (A) is false but Reason (R) is true."`;
+A: "Both Assertion (A) and Reason (R) are true and R is the correct explanation of A."
+B: "Both Assertion (A) and Reason (R) are true but R is NOT the correct explanation of A."
+C: "Assertion (A) is true but Reason (R) is false."
+D: "Assertion (A) is false but Reason (R) is true."`;
     }
 
     const prompt = `${hierarchyContextStr}
