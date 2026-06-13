@@ -14,7 +14,7 @@ export const TestsService = {
   },
 
   getPayload(id: string) {
-    return api.get(`/tests/${id}/payload`).then(r => r.data);
+    return api.get(`/tests/${id}/preview`).then(r => r.data);
   },
 
   startAttempt(id: string) {

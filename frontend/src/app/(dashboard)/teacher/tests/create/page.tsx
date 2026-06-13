@@ -160,14 +160,14 @@ export default function CreateTestPage() {
                 </div>
               )}
 
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="block text-sm text-zinc-400 mb-1">Launch Date (Start)</label>
-                  <input type="datetime-local" value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+              <div className="flex flex-col xl:flex-row gap-4">
+                <div className="flex-1 min-w-0">
+                  <label className="block text-sm text-zinc-400 mb-1 truncate">Launch Date (Start)</label>
+                  <input type="datetime-local" value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 min-w-0" />
                 </div>
-                <div className="flex-1">
-                  <label className="block text-sm text-zinc-400 mb-1">End Date</label>
-                  <input type="datetime-local" value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500" />
+                <div className="flex-1 min-w-0">
+                  <label className="block text-sm text-zinc-400 mb-1 truncate">End Date</label>
+                  <input type="datetime-local" value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 min-w-0" />
                 </div>
               </div>
 
