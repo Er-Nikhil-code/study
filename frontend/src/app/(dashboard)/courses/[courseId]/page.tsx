@@ -471,8 +471,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   const overallPct = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
 
                   return (
-                    <div className="relative flex items-center justify-center w-64 h-64 shrink-0 mt-8 xl:sticky xl:top-32" onMouseLeave={() => setHoveredRingSection(null)}>
-                      <svg className={`absolute inset-0 w-full h-full overflow-visible z-20 pointer-events-none ${overallPct > 0 ? 'animate-[spin_40s_linear_infinite]' : ''}`} viewBox="0 0 100 100">
+                    <div className="relative flex items-center justify-center w-64 h-64 shrink-0 mt-8 xl:sticky xl:top-32 group/container" onMouseLeave={() => setHoveredRingSection(null)}>
+                      <svg className={`absolute inset-0 w-full h-full overflow-visible z-20 pointer-events-none ${overallPct > 0 ? 'animate-[spin_40s_linear_infinite] group-hover/container:[animation-play-state:paused]' : ''}`} viewBox="0 0 100 100">
                         {course.sections.map((sec: any, i: number) => {
                           const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
                           const total = tTopics.length;
@@ -531,7 +531,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       </div>
                       
                       {/* Tooltip */}
-                      <div className={`absolute -bottom-10 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wider px-5 py-3 rounded-xl whitespace-nowrap shadow-[0_10px_40px_rgba(239,68,68,0.2)] pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95'}`}>
+                      <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wider px-5 py-3 rounded-xl whitespace-nowrap shadow-[0_10px_40px_rgba(239,68,68,0.2)] pointer-events-none z-50 transition-all duration-200">
                         {hoveredRingSection ? (
                           <div className="flex flex-col items-center gap-1.5">
                             <span className="text-zinc-400 text-[10px] uppercase max-w-[200px] truncate">{hoveredRingSection.name}</span>
