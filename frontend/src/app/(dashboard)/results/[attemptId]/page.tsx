@@ -154,63 +154,82 @@ export default function ResultDetailPage() {
                     <div className="flex-1 overflow-y-auto p-6 relative bg-zinc-950/30">
                       
                       {/* Question Content */}
-                      <div className="text-lg font-medium text-zinc-200 mb-8 max-w-4xl leading-relaxed">
+                      <div className="text-lg font-medium text-zinc-200 mb-8 w-full leading-relaxed">
                         <ContentBlockRenderer blocks={q.content_json || []} />
                       </div>
 
                       {/* Options */}
-                      <div className="space-y-3 max-w-2xl mb-8">
-                        {q.options_json?.options?.map((opt: any) => {
-                          const isCorrectOption = q.answer_key?.correct_option === opt.id || q.answer_key?.answer === opt.text;
-                          const isSelectedOption = r?.answer_json?.correct_option === opt.id || r?.answer_json?.answer === opt.text;
+                      <div className="space-y-3 w-full mb-8">
+                        {(() => {
+                          let optionsToRender = q.options_json?.options;
                           
-                          let borderColor = "border-white/10";
-                          let bgColor = "bg-white/[0.02]";
-                          let icon = null;
-
-                          if (isCorrectOption) {
-                            borderColor = "border-emerald-500";
-                            bgColor = "bg-emerald-500/10";
-                            icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
-                          } else if (isSelectedOption && !isCorrectOption) {
-                            borderColor = "border-red-500";
-                            bgColor = "bg-red-500/10";
-                            icon = <span className="text-red-500 ml-auto font-bold text-lg">✗</span>;
+                          // If no options exist (e.g., True/False or Fill in the Blanks without explicit options)
+                          // we can try to synthesize them or at least show the correct answer elegantly.
+                          if (!optionsToRender || optionsToRender.length === 0) {
+                            if (q.question_type === 'TRUE_FALSE') {
+                              optionsToRender = [
+                                { id: 'true', text: 'True' },
+                                { id: 'false', text: 'False' }
+                              ];
+                            } else {
+                              // For other types like NUMERICAL or FILL_BLANK, we just show the correct answer as a single "option"
+                              // and if the user answered differently, we show their answer as well.
+                              const correctAnsText = q.answer_key?.correct_option || q.answer_key?.answer?.toString() || JSON.stringify(q.answer_key);
+                              const userAnsText = r ? (r.answer_json?.correct_option || r.answer_json?.answer?.toString() || JSON.stringify(r.answer_json)) : null;
+                              
+                              if (r && r.is_correct === false) {
+                                optionsToRender = [
+                                  { id: 'correct', text: correctAnsText, isActualCorrect: true },
+                                  { id: 'user', text: userAnsText, isUserWrong: true }
+                                ];
+                              } else {
+                                optionsToRender = [
+                                  { id: 'correct', text: correctAnsText, isActualCorrect: true }
+                                ];
+                              }
+                            }
                           }
 
-                          return (
-                            <div 
-                              key={opt.id} 
-                              className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all ${borderColor} ${bgColor}`}
-                            >
-                              <div className="text-zinc-200 text-base flex-1">{opt.text}</div>
-                              {icon}
-                            </div>
-                          );
-                        })}
-                      </div>
+                          return optionsToRender.map((opt: any) => {
+                            let isCorrectOption = false;
+                            let isSelectedOption = false;
 
-                      {/* Your Answer Fallback (if not multiple choice) */}
-                      {!q.options_json?.options && (
-                        <div className="grid gap-3 sm:grid-cols-2 mb-8">
-                          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                            <div className="text-xs uppercase tracking-wide text-zinc-500 mb-2 font-semibold">Your Answer</div>
-                            <div className="text-sm text-white bg-black/20 p-3 rounded-lg border border-white/5 font-mono">
-                              {r ? (
-                                r.answer_json?.correct_option || r.answer_json?.answer?.toString() || JSON.stringify(r.answer_json)
-                              ) : (
-                                <span className="text-zinc-500 italic">Skipped</span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-                            <div className="text-xs uppercase tracking-wide text-emerald-400 mb-2 font-semibold">Correct Answer</div>
-                            <div className="text-sm text-emerald-200 bg-emerald-950/30 p-3 rounded-lg border border-emerald-500/10 font-mono">
-                              {q.answer_key?.correct_option || q.answer_key?.answer?.toString() || JSON.stringify(q.answer_key)}
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                            if (opt.isActualCorrect) {
+                              isCorrectOption = true;
+                            } else if (opt.isUserWrong) {
+                              isSelectedOption = true;
+                            } else {
+                              // Standard multiple choice or True/False
+                              isCorrectOption = q.answer_key?.correct_option === opt.id || q.answer_key?.answer?.toString() === opt.id;
+                              isSelectedOption = r?.answer_json?.correct_option === opt.id || r?.answer_json?.answer?.toString() === opt.id;
+                            }
+                            
+                            let borderColor = "border-white/10";
+                            let bgColor = "bg-white/[0.02]";
+                            let icon = null;
+
+                            if (isCorrectOption) {
+                              borderColor = "border-emerald-500";
+                              bgColor = "bg-emerald-500/10";
+                              icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
+                            } else if (isSelectedOption && !isCorrectOption) {
+                              borderColor = "border-red-500";
+                              bgColor = "bg-red-500/10";
+                              icon = <span className="text-red-500 ml-auto font-bold text-lg">✗</span>;
+                            }
+
+                            return (
+                              <div 
+                                key={opt.id} 
+                                className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all ${borderColor} ${bgColor}`}
+                              >
+                                <div className="text-zinc-200 text-base flex-1">{opt.text}</div>
+                                {icon}
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
 
                       {/* Solution */}
                       {q.solution_json && (

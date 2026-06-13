@@ -909,7 +909,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
         {/* Bottom Section: Leaderboard and Enrolled Students side by side */}
         {(user?.role === "ADMIN" || user?.role === "STUDENT" || user?.role === "TEACHER") && (
-          <div className="mt-12 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 max-w-7xl mx-auto items-start">
+          <div className="mt-12 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 w-full items-start">
             
             {/* Leaderboard */}
             <div className="relative w-full">
@@ -997,7 +997,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
         {/* Delete Course Button */}
         {isCreatorOrAdmin && (
-          <div className="mt-8 flex justify-end max-w-7xl mx-auto">
+          <div className="mt-8 flex justify-end w-full">
             <button
               onClick={handleDeleteCourse}
               className="rounded-xl border border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm font-bold text-red-400 transition-all hover:bg-red-600 hover:text-white hover:border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]"
