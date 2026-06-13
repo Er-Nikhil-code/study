@@ -199,13 +199,13 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                             <>
                               <button
                                 onClick={() => { setEditingNoteId(note.id); setEditNoteForm({ title: note.title, content_html: note.content_html }); }}
-                                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
+                                className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-opacity bg-white/5 px-2 py-1 rounded"
                               >
                                 <Edit2 size={12} /> Edit
                               </button>
                               <button
                                 onClick={() => handleDeleteNote(note.id)}
-                                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
+                                className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 transition-opacity bg-white/5 px-2 py-1 rounded"
                               >
                                 <Trash2 size={12} /> Delete
                               </button>
@@ -213,17 +213,17 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                           )}
                           <button
                             onClick={() => handleDownloadPdf(note.id, note.title)}
-                            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
+                            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-blue-400 transition-opacity bg-white/5 px-2 py-1 rounded"
                             title="Download as PDF"
                           >
                             <Download size={14} /> PDF
                           </button>
                           <button
                             onClick={() => setSelectedNote(note)}
-                            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
-                            title="Challenge Note"
+                            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 transition-opacity bg-white/5 px-2 py-1 rounded"
+                            title="Review Note"
                           >
-                            <ShieldAlert size={14} /> Report
+                            <ShieldAlert size={14} /> Review
                           </button>
                         </div>
                       </div>
@@ -246,7 +246,7 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
       {selectedNote && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <Panel className="w-full max-w-lg border border-red-900/50">
-            <h2 className="text-lg font-bold text-white mb-4">Report Issue with Note</h2>
+            <h2 className="text-lg font-bold text-white mb-4">Review Note</h2>
             <p className="text-sm text-zinc-400 mb-6">Found a mistake in "{selectedNote.title}"? Let us know so it can be fixed.</p>
             
             <form onSubmit={submitChallenge} className="space-y-4">

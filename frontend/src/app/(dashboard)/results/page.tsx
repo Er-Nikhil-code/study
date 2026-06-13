@@ -96,7 +96,7 @@ export default function ResultsPage() {
                     className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_60px] gap-3 px-6 py-5 text-xs items-center hover:bg-white/[0.04] transition-colors group cursor-pointer"
                   >
                     <div className="truncate text-white text-left font-medium group-hover:text-red-400 transition-colors">{r.test_title}</div>
-                    <div className="text-white font-medium text-center">{r.score ?? "—"}<span className="text-zinc-500">/{r.total_marks}</span></div>
+                    <div className="text-white font-medium text-center">{r.score ?? "—"}<span className="text-zinc-500">/{r.max_score ?? r.total_marks}</span></div>
                     <div className="text-zinc-400 text-center">{r.submitted_at ? new Date(r.submitted_at).toLocaleDateString() : "—"}</div>
                     <div className="text-center flex justify-center">
                       {r.attempt_no === 1 ? (

@@ -330,6 +330,10 @@ export class StudentService {
               title: true,
               total_marks: true,
               duration_minutes: true,
+              positive_marks: true,
+              test_questions: {
+                include: { question: { select: { marks: true } } }
+              }
             },
           },
           _count: { select: { responses: true } },
@@ -347,7 +351,7 @@ export class StudentService {
         test_title: a.test.title,
         total_marks: a.test.total_marks,
         score: a.score,
-        max_score: a.max_score,
+        max_score: a.test.test_questions?.reduce((acc, tq) => acc + (a.test.positive_marks || tq.marks_override || tq.question?.marks || 0), 0) || a.max_score,
         percentile: a.percentile,
         rank: a.rank,
         attempt_no: a.attempt_no,

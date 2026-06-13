@@ -152,6 +152,9 @@ export class ChallengesService {
               solution_json: true,
             },
           },
+          note: {
+            select: { id: true, title: true, content_html: true },
+          },
           created_by: {
             select: { id: true, first_name: true, last_name: true, email: true },
           },

@@ -288,11 +288,13 @@ export class TestsService {
     const test = await this.prisma.test.findUnique({
       where: { id: testId },
       include: {
+        test_questions: { include: { question: { select: { marks: true } } } },
         _count: { select: { test_questions: true, attempts: true } },
       },
     });
     if (!test) throw new NotFoundException("Test not found");
-    return test;
+    const actualTotal = test.test_questions.reduce((acc, tq) => acc + (test.positive_marks || tq.marks_override || tq.question?.marks || 0), 0) || test.total_marks;
+    return { ...test, total_marks: actualTotal };
   }
 
   async getTestPreview(testId: string, userId: string, role: string) {
@@ -322,7 +324,8 @@ export class TestsService {
       },
     });
     if (!test) throw new NotFoundException("Test not found");
-    return test;
+    const actualTotal = test.test_questions.reduce((acc, tq) => acc + (test.positive_marks || tq.marks_override || tq.question?.marks || 0), 0) || test.total_marks;
+    return { ...test, total_marks: actualTotal };
   }
 
   /* ════════════════════════════════════════════
@@ -378,6 +381,8 @@ export class TestsService {
           order: tq.order,
           section: tq.section,
           ...tq.question,
+          marks: test.positive_marks || tq.marks_override || tq.question.marks,
+          negative_marks: test.negative_marks ?? tq.question.negative_marks ?? 0,
         })),
         responses,
         duration_minutes: test.duration_minutes,
@@ -412,6 +417,8 @@ export class TestsService {
         order: tq.order,
         section: tq.section,
         ...tq.question,
+        marks: test.positive_marks || tq.marks_override || tq.question.marks,
+        negative_marks: test.negative_marks ?? tq.question.negative_marks ?? 0,
       })),
       responses: [],
       duration_minutes: test.duration_minutes,
@@ -508,12 +515,16 @@ export class TestsService {
     let wrongCount = 0;
 
     for (const response of attempt.responses) {
+      const testQuestion = attempt.test.test_questions.find(tq => tq.id === response.test_question_id);
+      const pMarks = attempt.test.positive_marks || testQuestion?.marks_override || response.question.marks;
+      const nMarks = attempt.test.negative_marks ?? response.question.negative_marks;
+
       const result = this.scoreResponse(
         response.answer_json,
         response.question.answer_key as any,
         response.question.question_type,
-        response.question.marks,
-        response.question.negative_marks,
+        pMarks,
+        nMarks,
       );
 
       await this.prisma.response.update({
@@ -900,6 +911,12 @@ export class TestsService {
    * ════════════════════════════════════════════ */
 
   async getTestLeaderboard(testId: string, currentUserId: string) {
+    const test = await this.prisma.test.findUnique({
+      where: { id: testId },
+      include: { test_questions: { include: { question: { select: { marks: true } } } } }
+    });
+    const actualMaxScore = test?.test_questions.reduce((acc, tq) => acc + (test?.positive_marks || tq.marks_override || tq.question?.marks || 0), 0) || 0;
+
     const attempts = await this.prisma.attempt.findMany({
       where: {
         test_id: testId,
@@ -928,7 +945,7 @@ export class TestsService {
       rank: index + 1,
       attempt_id: a.id,
       score: a.score,
-      max_score: a.max_score,
+      max_score: actualMaxScore > 0 ? actualMaxScore : a.max_score,
       time_taken_sec: a.time_taken_sec,
       submitted_at: a.submitted_at,
       user: a.user

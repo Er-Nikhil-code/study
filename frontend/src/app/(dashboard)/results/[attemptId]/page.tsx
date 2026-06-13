@@ -91,7 +91,7 @@ export default function ResultDetailPage() {
   const skipped = Math.max(0, testQuestions.length - responses.length);
   const timeTaken = data.time_taken_sec ? `${Math.floor(data.time_taken_sec / 60)}m ${data.time_taken_sec % 60}s` : "—";
   
-  const calculatedTotalMarks = testQuestions.reduce((acc: number, tq: any) => acc + (tq.marks_override ?? tq.question.marks), 0) || data.test?.total_marks;
+  const calculatedTotalMarks = testQuestions.reduce((acc: number, tq: any) => acc + (data.test?.positive_marks || tq.marks_override || tq.question.marks), 0) || data.test?.total_marks;
 
 
   return (
@@ -148,7 +148,7 @@ export default function ResultDetailPage() {
                       <div className="font-bold text-lg text-white">Question {idx + 1}</div>
                       <div className="flex items-center gap-4 text-sm font-medium">
                         <span className="bg-zinc-800 px-3 py-1 rounded-full">
-                          Marks: <span className="text-emerald-400">+{tq.marks_override ?? q.marks}</span> | <span className="text-red-400">-{q.negative_marks ?? 0}</span>
+                          Marks: <span className="text-emerald-400">+{data.test?.positive_marks || tq.marks_override || q.marks}</span> | <span className="text-red-400">-{data.test?.negative_marks ?? q.negative_marks ?? 0}</span>
                         </span>
                         {viewMode !== "analysis" && (
                           <span className={`px-3 py-1 rounded-full border ${
@@ -165,12 +165,12 @@ export default function ResultDetailPage() {
                     <div className="flex-1 overflow-y-auto p-6 relative bg-zinc-950/30">
                       
                       {/* Question Content */}
-                      <div className="text-lg font-medium text-zinc-200 mb-8 w-full leading-relaxed">
+                      <div className="text-base font-medium text-zinc-200 mb-8 w-full leading-relaxed">
                         <ContentBlockRenderer blocks={q.content_json || []} />
                       </div>
 
                       {/* Options */}
-                      <div className="space-y-3 w-full mb-8">
+                      <div className="space-y-3 w-full mb-6">
                         {(() => {
                           const optionsToRender = q.options_json?.options || [];
 
@@ -185,15 +185,11 @@ export default function ResultDetailPage() {
                                 let bgColor = "bg-white/[0.02]";
                                 let icon = null;
 
-                                if (viewMode === "analysis" && isCorrectOption) {
+                                if (isCorrectOption) {
                                   borderColor = "border-emerald-500";
                                   bgColor = "bg-emerald-500/10";
                                   icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
-                                } else if (isSelectedOption && isCorrectOption) {
-                                  borderColor = "border-emerald-500";
-                                  bgColor = "bg-emerald-500/10";
-                                  icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
-                                } else if (isSelectedOption && !isCorrectOption) {
+                                } else if (isSelectedOption) {
                                   borderColor = "border-red-500";
                                   bgColor = "bg-red-500/10";
                                   icon = <span className="text-red-500 ml-auto font-bold text-lg">✗</span>;
@@ -201,7 +197,7 @@ export default function ResultDetailPage() {
 
                                 return (
                                   <div key={opt} className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all ${borderColor} ${bgColor}`}>
-                                    <div className="text-zinc-200 text-base flex-1">{opt}</div>
+                                    <div className="text-zinc-200 text-sm flex-1">{opt}</div>
                                     {icon}
                                   </div>
                                 );
@@ -276,15 +272,11 @@ export default function ResultDetailPage() {
                             let bgColor = "bg-white/[0.02]";
                             let icon = null;
 
-                            if (viewMode === "analysis" && isCorrectOption) {
+                            if (isCorrectOption) {
                               borderColor = "border-emerald-500";
                               bgColor = "bg-emerald-500/10";
                               icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
-                            } else if (isSelectedOption && isCorrectOption) {
-                              borderColor = "border-emerald-500";
-                              bgColor = "bg-emerald-500/10";
-                              icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
-                            } else if (isSelectedOption && !isCorrectOption) {
+                            } else if (isSelectedOption) {
                               borderColor = "border-red-500";
                               bgColor = "bg-red-500/10";
                               icon = <span className="text-red-500 ml-auto font-bold text-lg">✗</span>;
@@ -295,7 +287,7 @@ export default function ResultDetailPage() {
                                 key={opt.id} 
                                 className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all ${borderColor} ${bgColor}`}
                               >
-                                <div className="text-zinc-200 text-base flex-1">{opt.text}</div>
+                                <div className="text-zinc-200 text-sm flex-1">{opt.text}</div>
                                 {icon}
                               </div>
                             );
@@ -305,18 +297,18 @@ export default function ResultDetailPage() {
 
                       {/* Solution */}
                       {q.solution_json && (
-                        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5 mt-8 mb-6">
-                          <div className="text-xs uppercase tracking-wide text-zinc-400 mb-3 font-semibold flex items-center gap-2">
+                        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 mt-6">
+                          <div className="text-xs uppercase tracking-wide text-zinc-400 mb-2 font-semibold flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             Solution & Explanation
                           </div>
-                          <div className="text-sm text-zinc-300 leading-relaxed">
+                          <div className="text-xs text-zinc-300 leading-relaxed">
                             {typeof q.solution_json === 'string' ? q.solution_json : <ContentBlockRenderer blocks={Array.isArray(q.solution_json) ? q.solution_json : []} />}
                           </div>
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between mt-8 border-t border-white/10 pt-6">
+                      <div className="flex items-center justify-between mt-6 border-t border-white/10 pt-4">
                         <button
                           onClick={() => setChallengeQ({ ...q, responseId: r?.id })}
                           className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 transition flex items-center gap-2"

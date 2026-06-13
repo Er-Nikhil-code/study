@@ -247,8 +247,8 @@ export default function TestDetailsPage() {
                         Q{idx + 1}
                       </span>
                       <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-zinc-400">
-                        {tq.question.question_type.replace(/_/g, " ")} · {tq.question.difficulty} · {tq.question.marks} marks
-                        {tq.question.negative_marks > 0 && <span className="text-red-400 ml-1">(−{tq.question.negative_marks})</span>}
+                        {tq.question.question_type.replace(/_/g, " ")} · {tq.question.difficulty} · {test.positive_marks || tq.marks_override || tq.question.marks} marks
+                        {(test.negative_marks ?? tq.question.negative_marks) > 0 && <span className="text-red-400 ml-1">(−{test.negative_marks ?? tq.question.negative_marks})</span>}
                       </span>
                     </div>
                   </div>

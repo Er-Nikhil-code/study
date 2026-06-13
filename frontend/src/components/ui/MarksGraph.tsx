@@ -53,7 +53,10 @@ export default function MarksGraph({
       if (h.attempt_no > 1 && !showReattempts) return false;
 
       return true;
-    });
+    }).map((h, i) => ({
+      ...h,
+      chart_id: `${h.test_title}____${i}`
+    }));
   }, [history, selectedCourse, showFirstAttempts, showReattempts]);
 
   const topWeak = weakTopics.slice(0, 3);
@@ -109,10 +112,13 @@ export default function MarksGraph({
             <LineChart data={filteredHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
               <XAxis 
-                dataKey="test_title" 
+                dataKey="chart_id" 
                 stroke="#ffffff30" 
                 tick={{ fill: '#ffffff60', fontSize: 10 }}
-                tickFormatter={(val) => val.length > 12 ? val.substring(0, 12) + '...' : val}
+                tickFormatter={(val) => {
+                  const title = val.split('____')[0];
+                  return title.length > 12 ? title.substring(0, 12) + '...' : title;
+                }}
                 tickMargin={10}
               />
               <YAxis 

@@ -150,16 +150,20 @@ export default function TeacherChallengesPage() {
                   </div>
                   <div className="mt-2 text-base font-semibold text-white flex items-center gap-2">
                     {challenge.question ? (
-                      <div className="line-clamp-2 max-w-3xl overflow-hidden">
-                        <ContentBlockRenderer blocks={challenge.question.content_json || []} />
+                      <>
+                        <div className="line-clamp-2 max-w-3xl overflow-hidden">
+                          <ContentBlockRenderer blocks={challenge.question.content_json || []} />
+                        </div>
+                        <Link href={`/admin/questions`} target="_blank" className="text-zinc-500 hover:text-white transition">
+                          <ExternalLink size={14} />
+                        </Link>
+                      </>
+                    ) : challenge.note ? (
+                      <div className="line-clamp-2 max-w-3xl overflow-hidden text-blue-400">
+                        Note: {challenge.note.title}
                       </div>
                     ) : (
-                      "Unknown Question"
-                    )}
-                    {challenge.question && (
-                      <Link href={`/admin/questions`} target="_blank" className="text-zinc-500 hover:text-white transition">
-                        <ExternalLink size={14} />
-                      </Link>
+                      "Unknown Content"
                     )}
                   </div>
                   <p className="mt-1 text-sm text-zinc-400">
@@ -199,13 +203,15 @@ export default function TeacherChallengesPage() {
                   >
                     {processingId === challenge.id ? "..." : "Accept (No Edits)"}
                   </button>
-                  <button
-                    onClick={() => openModal(challenge.id, "REVISE_CONTENT", challenge.question)}
-                    disabled={processingId === challenge.id}
-                    className="rounded-full flex items-center gap-2 border border-purple-500/20 bg-purple-500/10 px-4 py-2 text-sm font-medium text-purple-200 transition hover:bg-purple-500/15 disabled:opacity-50"
-                  >
-                    <Edit2 size={14} /> Accept & Edit Question
-                  </button>
+                  {challenge.question && (
+                    <button
+                      onClick={() => openModal(challenge.id, "REVISE_CONTENT", challenge.question)}
+                      disabled={processingId === challenge.id}
+                      className="rounded-full flex items-center gap-2 border border-purple-500/20 bg-purple-500/10 px-4 py-2 text-sm font-medium text-purple-200 transition hover:bg-purple-500/15 disabled:opacity-50"
+                    >
+                      <Edit2 size={14} /> Accept & Edit Question
+                    </button>
+                  )}
                   <button
                     onClick={() => openModal(challenge.id, "REJECT")}
                     disabled={processingId === challenge.id}
