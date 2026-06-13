@@ -748,7 +748,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                         {!editingTopic && (
                                           <div className="flex items-center gap-2 mt-auto pt-3 border-t border-white/5">
                                             {topic.has_notes && (
-                                              <Link href={`/topics/${topic.id}/notes`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition-colors">
+                                              <Link href={`/topics/${topic.id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition-colors">
                                                 <FileText size={14} /> Notes
                                               </Link>
                                             )}
@@ -820,16 +820,6 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               </Panel>
             )}
 
-            {isCreatorOrAdmin && (
-              <div className="flex justify-end mt-4">
-                <button
-                  onClick={handleDeleteCourse}
-                  className="text-xs text-zinc-600 hover:text-red-500 transition-colors"
-                >
-                  Delete Course
-                </button>
-              </div>
-            )}
           </div>
 
           <div className="w-full lg:w-80 shrink-0 space-y-6">
@@ -975,6 +965,17 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 </div>
               )}
               <CourseLeaderboard courseId={courseId} />
+            </div>
+          )}
+
+          {isCreatorOrAdmin && (
+            <div className="mt-12 flex justify-end pb-8 max-w-5xl">
+              <button
+                onClick={handleDeleteCourse}
+                className="rounded-xl border border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm font-bold text-red-400 transition-all hover:bg-red-600 hover:text-white hover:border-red-500 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+              >
+                Delete Course
+              </button>
             </div>
           )}
         </div>
