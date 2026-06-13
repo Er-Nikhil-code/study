@@ -1062,7 +1062,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
         {/* Bottom Section: Leaderboard and Enrolled Students side by side */}
         {(user?.role === "ADMIN" || user?.role === "STUDENT" || user?.role === "TEACHER") && (
-          <div className="mt-12 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 w-full items-start">
+          <div className={`mt-12 grid grid-cols-1 ${user?.role === "ADMIN" ? "lg:grid-cols-[2fr_1fr]" : ""} gap-8 w-full items-start`}>
             
             {/* Leaderboard */}
             <div className="relative w-full">
