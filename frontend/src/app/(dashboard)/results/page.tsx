@@ -16,7 +16,7 @@ export default function ResultsPage() {
   const [page, setPage] = useState(0);
   const [viewChallenge, setViewChallenge] = useState<any>(null);
   const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
-  const PAGE_SIZE = 15;
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     setLoading(true);
@@ -59,8 +59,8 @@ export default function ResultsPage() {
 
         <Panel className="mt-6 overflow-x-auto p-0">
           <div className="min-w-full">
-            <div className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_60px] gap-3 border-b border-white/10 px-6 py-5 text-[10px] uppercase tracking-[0.2em] text-zinc-500 bg-white/[0.02]">
-              <div className="text-left font-semibold">Test</div>
+            <div className="grid grid-cols-5 gap-3 border-b border-white/10 px-6 py-5 text-[10px] uppercase tracking-[0.2em] text-zinc-500 bg-white/[0.02]">
+              <div className="text-center font-semibold">Test</div>
               <div className="text-center font-semibold">Score</div>
               <div className="text-center font-semibold">Date</div>
               <div className="text-center font-semibold">Attempt</div>
@@ -70,8 +70,8 @@ export default function ResultsPage() {
             {loading ? (
               <div className="divide-y divide-white/10">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_60px] gap-3 px-6 py-5 items-center">
-                    <div className="h-5 w-32 rounded-md bg-white/5 animate-pulse" />
+                  <div key={i} className="grid grid-cols-5 gap-3 px-6 py-5 items-center">
+                    <div className="h-5 w-32 rounded-md bg-white/5 animate-pulse mx-auto" />
                     <div className="h-5 w-10 rounded-md bg-white/5 animate-pulse mx-auto" />
                     <div className="h-5 w-16 rounded-md bg-white/5 animate-pulse mx-auto" />
                     <div className="h-5 w-10 rounded-md bg-white/5 animate-pulse mx-auto" />
@@ -93,9 +93,9 @@ export default function ResultsPage() {
                   <Link 
                     href={`/results/${r.attempt_id}?testId=${r.test_id}&view=analysis`} 
                     key={r.attempt_id} 
-                    className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_60px] gap-3 px-6 py-5 text-xs items-center hover:bg-white/[0.04] transition-colors group cursor-pointer"
+                    className="grid grid-cols-5 gap-3 px-6 py-5 text-xs items-center hover:bg-white/[0.04] transition-colors group cursor-pointer"
                   >
-                    <div className="truncate text-white text-left font-medium group-hover:text-red-400 transition-colors">{r.test_title}</div>
+                    <div className="truncate text-white text-center font-medium group-hover:text-red-400 transition-colors">{r.test_title}</div>
                     <div className="text-white font-medium text-center">{r.score ?? "—"}<span className="text-zinc-500">/{r.max_score ?? r.total_marks}</span></div>
                     <div className="text-zinc-400 text-center">{r.submitted_at ? new Date(r.submitted_at).toLocaleDateString() : "—"}</div>
                     <div className="text-center flex justify-center">

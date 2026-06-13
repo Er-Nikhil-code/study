@@ -7,6 +7,13 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 
+// Helper to get strict UTC midnight for the IST day
+function getISTMidnight(d = new Date()) {
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  const ist = new Date(utc + (3600000 * 5.5));
+  return new Date(Date.UTC(ist.getFullYear(), ist.getMonth(), ist.getDate()));
+}
+
 @Injectable()
 export class TestsService {
   private readonly logger = new Logger(TestsService.name);
@@ -731,20 +738,31 @@ export class TestsService {
 
     let currentStreak = 0;
     let longestStreak = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getISTMidnight();
 
     let checkDate = new Date(today);
-    for (const activity of activities) {
-      const actDate = new Date(activity.activity_date);
-      actDate.setHours(0, 0, 0, 0);
+
+    const uniqueISTDates = new Set<number>();
+    const normalizedActivities: Date[] = [];
+    for (const act of activities) {
+      const actMidnight = getISTMidnight(new Date(act.activity_date));
+      if (!uniqueISTDates.has(actMidnight.getTime())) {
+        uniqueISTDates.add(actMidnight.getTime());
+        normalizedActivities.push(actMidnight);
+      }
+    }
+
+    for (const actMidnight of normalizedActivities) {
       const diff = Math.floor(
-        (checkDate.getTime() - actDate.getTime()) / (1000 * 60 * 60 * 24),
+        (checkDate.getTime() - actMidnight.getTime()) / (1000 * 60 * 60 * 24),
       );
 
-      if (diff === 0 || diff === 1) {
+      if (diff === 0) {
+        if (currentStreak === 0) currentStreak = 1;
+        checkDate = actMidnight;
+      } else if (diff === 1) {
         currentStreak++;
-        checkDate = actDate;
+        checkDate = actMidnight;
       } else {
         break;
       }
@@ -753,20 +771,18 @@ export class TestsService {
     // Recalculate longest
     let tempStreak = 0;
     let prevDate: Date | null = null;
-    for (const activity of activities) {
-      const d = new Date(activity.activity_date);
-      d.setHours(0, 0, 0, 0);
+    for (const actMidnight of normalizedActivities) {
       if (!prevDate) {
         tempStreak = 1;
       } else {
         const gap = Math.floor(
-          (prevDate.getTime() - d.getTime()) / (1000 * 60 * 60 * 24),
+          (prevDate.getTime() - actMidnight.getTime()) / (1000 * 60 * 60 * 24),
         );
         if (gap === 1) tempStreak++;
-        else tempStreak = 1;
+        else if (gap > 1) tempStreak = 1;
       }
       longestStreak = Math.max(longestStreak, tempStreak);
-      prevDate = d;
+      prevDate = actMidnight;
     }
 
     await this.prisma.userStats.upsert({
@@ -792,8 +808,7 @@ export class TestsService {
   }
 
   async recordDailyActivity(userId: string, type: string) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getISTMidnight();
 
     await this.prisma.dailyActivity.upsert({
       where: {
