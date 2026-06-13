@@ -24,10 +24,10 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
   const [notes, setNotes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Challenge modal state
   const [selectedNote, setSelectedNote] = useState<any>(null);
   const [challengeReason, setChallengeReason] = useState("WRONG_EXPLANATION");
   const [challengeDesc, setChallengeDesc] = useState("");
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const { user } = useAuthStore();
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -77,11 +77,12 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
         reason: challengeReason,
         description: challengeDesc
       });
-      alert("Challenge submitted successfully!");
       setSelectedNote(null);
       setChallengeDesc("");
+      setShowSuccessPopup(true);
+      setTimeout(() => setShowSuccessPopup(false), 3000);
     } catch (err: any) {
-      alert("Failed to submit challenge.");
+      alert("Failed to submit review.");
     }
   };
 
@@ -279,6 +280,23 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                 <button type="button" onClick={() => setSelectedNote(null)} className="flex-1 rounded bg-zinc-800 px-4 py-2 text-white hover:bg-zinc-700">Cancel</button>
               </div>
             </form>
+          </Panel>
+        </div>
+      )}
+
+      {/* Custom Success Popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <Panel className="w-full max-w-sm border border-emerald-500/30 bg-zinc-950 p-8 text-center animate-in fade-in zoom-in duration-200">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 mb-6">
+              <div className="h-8 w-8 rounded-sm bg-emerald-500 flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Review Submitted!</h3>
+            <p className="text-sm text-zinc-400">The note creator has been notified.</p>
           </Panel>
         </div>
       )}

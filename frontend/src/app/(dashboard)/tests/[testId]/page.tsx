@@ -235,7 +235,7 @@ export default function TestDetailsPage() {
           </Panel>
         )}
 
-        {test.test_questions && test.test_questions.length > 0 && (
+        {test.test_questions && test.test_questions.length > 0 && test.test_questions[0]?.question?.question_type && (
           <Panel className="mt-8 border-white/10 bg-white/[0.02]">
             <h3 className="text-lg font-bold text-white mb-6">Test Questions (Preview)</h3>
             <div className="space-y-6">

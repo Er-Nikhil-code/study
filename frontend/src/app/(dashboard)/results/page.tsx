@@ -132,7 +132,7 @@ export default function ResultsPage() {
         
         <Panel className="mt-6 overflow-hidden p-0">
           <div className="grid grid-cols-[1fr_80px_100px] gap-3 border-b border-white/10 px-6 py-5 text-[10px] uppercase tracking-[0.2em] text-zinc-500 bg-white/[0.02]">
-            <div className="text-left font-semibold">Question Challenge</div>
+            <div className="text-left font-semibold">Review Request</div>
             <div className="text-center font-semibold">Status</div>
             <div className="text-right font-semibold">Date</div>
           </div>
@@ -160,8 +160,8 @@ export default function ResultsPage() {
               {challenges.map((c) => (
                 <div key={c.id} className="flex flex-col gap-2 px-6 py-4 hover:bg-white/[0.02] transition-colors">
                   <div className="grid grid-cols-[1fr_80px_100px] gap-3 text-xs items-center">
-                    <div className="text-white font-medium truncate" title={c.reason || "Challenged"}>
-                      {c.question?.content_json?.[0]?.data?.text || c.reason || "Question Challenge"}
+                    <div className="text-white font-medium truncate" title={c.reason || "Review"}>
+                      {c.question?.content_json?.[0]?.data?.text || c.note?.title || c.reason || "Review Request"}
                     </div>
                     <div className="flex justify-center">
                       {c.status === "PENDING" && <span className="rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2 py-0.5 text-yellow-300 text-[10px]">Pending</span>}
@@ -202,6 +202,7 @@ export default function ResultsPage() {
               <div>Status: <span className="text-white">{viewChallenge.status}</span></div>
               <div>Date: <span className="text-white">{new Date(viewChallenge.created_at).toLocaleDateString()}</span></div>
               {viewChallenge.question && <div>Question ID: <span className="text-white font-mono">{viewChallenge.question.id}</span></div>}
+              {viewChallenge.note && <div>Note ID: <span className="text-white font-mono">{viewChallenge.note.id}</span></div>}
             </div>
 
             <div className="space-y-6">
@@ -258,6 +259,16 @@ export default function ResultsPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {viewChallenge.note && (
+                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                  <h4 className="text-xs uppercase tracking-wide text-zinc-500 mb-4">Note Content</h4>
+                  <div className="text-base text-zinc-200 mb-6">
+                    <div className="font-bold mb-4 text-white text-lg">{viewChallenge.note.title}</div>
+                    <div className="prose max-w-none prose-invert text-zinc-300" dangerouslySetInnerHTML={{ __html: viewChallenge.note.content_html }} />
+                  </div>
                 </div>
               )}
             </div>

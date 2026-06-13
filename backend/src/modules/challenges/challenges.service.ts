@@ -443,7 +443,7 @@ export class ChallengesService {
           },
         },
         note: {
-          select: { id: true, title: true },
+          select: { id: true, title: true, content_html: true },
         }
       },
     });
