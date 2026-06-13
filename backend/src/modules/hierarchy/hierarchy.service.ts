@@ -200,7 +200,10 @@ export class HierarchyService {
       update: { notes_viewed: true }
     });
 
-    if (progress.notes_viewed && progress.tests_completed && !progress.is_completed) {
+    const notesCount = await this.prisma.note.count({ where: { topic_id: topicId, approval_status: 'APPROVED' } });
+    const requireNotes = notesCount > 0;
+
+    if ((progress.notes_viewed || !requireNotes) && progress.tests_completed && !progress.is_completed) {
       await this.prisma.topicProgress.update({
         where: { id: progress.id },
         data: { is_completed: true, completed_at: new Date() }
@@ -216,7 +219,10 @@ export class HierarchyService {
       update: { tests_completed: true }
     });
 
-    if (progress.notes_viewed && progress.tests_completed && !progress.is_completed) {
+    const notesCount = await this.prisma.note.count({ where: { topic_id: topicId, approval_status: 'APPROVED' } });
+    const requireNotes = notesCount > 0;
+
+    if ((progress.notes_viewed || !requireNotes) && progress.tests_completed && !progress.is_completed) {
       await this.prisma.topicProgress.update({
         where: { id: progress.id },
         data: { is_completed: true, completed_at: new Date() }

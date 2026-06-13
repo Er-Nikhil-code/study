@@ -122,4 +122,10 @@ export class HierarchyController {
   deleteTopic(@Param("id") id: string, @Request() req: any) {
     return this.hierarchyService.deleteTopic(id, req.user.sub, req.user.role);
   }
+
+  @Post("topics/:id/view-notes")
+  @Roles("STUDENT", "INTERN", "TEACHER", "ADMIN")
+  viewNotes(@Param("id") id: string, @Request() req: any) {
+    return this.hierarchyService.markNotesViewed(id, req.user.sub);
+  }
 }
