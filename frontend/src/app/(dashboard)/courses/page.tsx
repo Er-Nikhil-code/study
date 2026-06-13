@@ -389,7 +389,7 @@ export default function CoursesPage() {
                       <BookOpen size={28} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-br from-red-500 to-red-400 line-clamp-2 leading-snug drop-shadow-sm group-hover:from-red-400 group-hover:to-red-300 transition-all">{course.name}</h3>
+                      <h3 className="text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400 tracking-wide leading-relaxed drop-shadow-sm group-hover:from-white group-hover:to-zinc-300 transition-all">{course.name}</h3>
                       <div className="flex flex-wrap items-center gap-2 mt-2">
                         {canSeeCodeAndId && (
                           <span className="whitespace-nowrap shrink-0 text-[10px] uppercase tracking-wider font-semibold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-md">{course.code}</span>
