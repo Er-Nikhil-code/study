@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import adminService from "@/services/admin.service";
@@ -340,7 +341,11 @@ export default function AdminNotificationsPage() {
                             Sent to
                           </span>
                           <span className="text-xs text-zinc-300 font-medium">
-                            {n.user ? `${n.user.first_name} ${n.user.last_name} (${n.user.email})` : n.user_id}
+                            {n.user ? (
+                              <Link href={`/admin/users/${n.user_id}`} className="hover:text-red-400 hover:underline transition">
+                                {n.user.first_name} {n.user.last_name} ({n.user.email})
+                              </Link>
+                            ) : n.user_id}
                           </span>
                         </div>
                       </div>

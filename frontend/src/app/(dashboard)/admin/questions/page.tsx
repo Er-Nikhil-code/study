@@ -374,9 +374,9 @@ export default function AdminQuestionsPage() {
                       <div className="text-xs text-zinc-400 flex justify-center items-center text-center min-w-0 w-full">
                         {q.creator || q.created_by ? (
                           <UserHoverCard userId={q.created_by}>
-                            <span className="block truncate max-w-[120px] text-center mx-auto">
+                            <Link href={`/admin/users/${q.created_by}`} className="block truncate max-w-[120px] text-center mx-auto hover:text-red-400 hover:underline transition">
                               {q.creator ? ((q.creator.first_name?.split(' ')[0]) || "King") : q.created_by}
-                            </span>
+                            </Link>
                           </UserHoverCard>
                         ) : (
                           <span className="block truncate max-w-[120px] text-center mx-auto">King</span>

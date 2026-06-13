@@ -142,9 +142,9 @@ export default function AdminHomePage() {
                         {u.first_name?.charAt(0) || u.email?.charAt(0) || "U"}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm text-white truncate">
+                        <Link href={`/admin/users/${u.id}`} className="text-sm text-white truncate hover:text-red-400 hover:underline transition block">
                           {[u.first_name, u.last_name].filter(Boolean).join(" ") || u.email}
-                        </p>
+                        </Link>
                         <p className="text-xs text-zinc-600 truncate">{getChessRoleName(u.role)}</p>
                       </div>
                     </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Panel from "@/components/ui/Panel";
 import adminService from "@/services/admin.service";
@@ -68,9 +69,9 @@ export default function AdminEnrollmentsPage() {
                           <User size={14} />
                         </div>
                         <div>
-                          <p className="font-medium text-zinc-200">
-                            {enrollment.user?.first_name || ""} {enrollment.user?.last_name || ""}
-                          </p>
+                          <Link href={`/admin/users/${enrollment.user?.id}`} className="font-medium text-zinc-200 hover:text-red-400 hover:underline transition">
+                            {enrollment.user?.first_name || "Unknown"} {enrollment.user?.last_name || ""}
+                          </Link>
                           <p className="text-xs text-zinc-500">{enrollment.user?.email}</p>
                         </div>
                       </div>

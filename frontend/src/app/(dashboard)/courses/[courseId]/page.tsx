@@ -6,7 +6,7 @@ import Panel from "@/components/ui/Panel";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { HierarchyService } from "@/services/hierarchy.service";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield, Loader2, Search } from "lucide-react";
 import CourseLeaderboard from "@/components/ui/CourseLeaderboard";
 import { api } from "@/lib/api";
 import { adminService } from "@/services/admin.service";
@@ -48,6 +48,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
+  const [searchStudent, setSearchStudent] = useState("");
+  const [isStudentsOpen, setIsStudentsOpen] = useState(false);
 
   // Forms for adding
   const [addingSection, setAddingSection] = useState(false);
@@ -426,7 +428,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             {course.sections?.map((section: any, idx: number) => (
               <Panel 
                 key={section.id} 
-                className={`p-0 overflow-hidden border ${draggedItem?.id === section.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === null && draggedItem?.type === "SECTION" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-950/50 shadow-md relative`}
+                className={`p-0 overflow-hidden border ${draggedItem?.id === section.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === null && draggedItem?.type === "SECTION" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-950/40 backdrop-blur-md shadow-2xl relative rounded-2xl transition-all duration-300 hover:border-white/10`}
                 draggable={isCreatorOrAdmin}
                 onDragStart={(e) => handleDragStart(e, section.id, "SECTION", null, idx)}
                 onDragOver={(e) => handleDragOver(e, "SECTION", null, idx)}
@@ -435,7 +437,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               >
                 <div 
                   onClick={() => toggleSection(section.id)}
-                  className="w-full flex items-center justify-between p-5 bg-gradient-to-r from-zinc-900 to-zinc-900/50 hover:from-zinc-800 hover:to-zinc-800/50 transition-colors cursor-pointer border-b border-white/5"
+                  className="w-full flex items-center justify-between p-5 bg-white/[0.02] hover:bg-white/[0.04] transition-all cursor-pointer border-b border-white/5"
                 >
                   <div className="flex items-center gap-4 flex-1">
                     {isCreatorOrAdmin && (
@@ -462,32 +464,57 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         </div>
                       </form>
                     ) : (
-                      <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                        {section.name}
+                      <div className="flex flex-col">
+                        <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                          {section.name}
+                          {isCreatorOrAdmin && (
+                            <div className="flex items-center gap-1">
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); setEditingSection(section.id); setEditSectionForm({ name: section.name, description: section.description || "" }); }}
+                                className="p-1.5 rounded-full hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button 
+                                onClick={(e) => handleDeleteSection(e, section.id)}
+                                className="p-1.5 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-400 transition-colors"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          )}
+                        </h3>
                         {isCreatorOrAdmin && (
-                          <div className="flex items-center gap-1">
-                            <button 
-                              onClick={(e) => { e.stopPropagation(); setEditingSection(section.id); setEditSectionForm({ name: section.name, description: section.description || "" }); }}
-                              className="p-1.5 rounded-full hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
-                            >
-                              <Edit2 size={14} />
-                            </button>
-                            <button 
-                              onClick={(e) => handleDeleteSection(e, section.id)}
-                              className="p-1.5 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-400 transition-colors"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                          <div className="mt-1.5 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                            <Shield size={12} className="text-emerald-400" />
+                            <span className="text-[11px] text-zinc-500 font-medium">MANAGER:</span>
+                            <div className="w-48">
+                              <SearchableSelect
+                                options={[
+                                  { value: "", label: "No Manager" },
+                                  ...(knights?.data?.map((k: any) => ({
+                                    value: k.id,
+                                    label: k.name || k.first_name || k.email || "Unknown User"
+                                  })) || [])
+                                ]}
+                                value={section.managed_by || ""}
+                                onChange={async (val) => {
+                                  await HierarchyService.assignSectionManager(section.id, val || null);
+                                  fetchCourse();
+                                }}
+                                placeholder="Assign Manager..."
+                              />
+                            </div>
                           </div>
                         )}
-                      </h3>
+                      </div>
                     )}
                   </div>
                   <div className="flex items-center gap-4">
                     {isCreatorOrAdmin && (
                       <button 
                         onClick={(e) => { e.stopPropagation(); setAddingChapterTo(section.id); setExpandedSections(prev => ({...prev, [section.id]: true})); }}
-                        className="text-xs bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 px-3 py-1.5 rounded transition-colors"
+                        className="text-xs font-medium bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-zinc-400 hover:text-red-400 px-4 py-2 rounded-xl transition-all shadow-sm"
                       >
                         + Add Chapter
                       </button>
@@ -583,7 +610,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                 {isCreatorOrAdmin && (
                                   <button 
                                     onClick={(e) => { e.stopPropagation(); setAddingTopicTo(chapter.id); setExpandedChapters(prev => ({...prev, [chapter.id]: true})); }}
-                                    className="text-xs bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white px-2 py-1 rounded transition-colors"
+                                    className="text-[11px] font-medium bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-zinc-400 hover:text-red-400 px-3 py-1.5 rounded-lg transition-all shadow-sm"
                                   >
                                     + Add Topic
                                   </button>
@@ -794,7 +821,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
           <div className="w-full lg:w-80 shrink-0 space-y-6">
             {isCreatorOrAdmin && (
-              <Panel className="bg-zinc-900/50 border-white/10">
+              <Panel className="bg-zinc-900/50 border-white/10 relative z-20">
                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <Users size={18} className="text-red-400" /> Course Knights
                 </h3>
@@ -849,67 +876,69 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               </Panel>
             )}
 
-            {isCreatorOrAdmin && (
-              <Panel className="bg-zinc-900/50 border-white/10">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Shield size={18} className="text-emerald-400" /> Section Managers
-                </h3>
-                <p className="text-xs text-zinc-400 mb-4">Assign Knights to manage specific sections.</p>
-                <div className="space-y-4">
-                  {course.sections?.map((section: any) => (
-                    <div key={section.id} className="flex flex-col gap-1.5 bg-black/40 border border-white/5 rounded-lg p-3">
-                      <p className="text-sm text-white font-medium truncate">{section.name}</p>
-                      <SearchableSelect
-                        options={[
-                          { value: "", label: "No Manager" },
-                          ...(knights?.data?.map((k: any) => ({
-                            value: k.id,
-                            label: k.name || k.email || "Unknown User"
-                          })) || [])
-                        ]}
-                        value={section.managed_by || ""}
-                        onChange={async (val) => {
-                          await HierarchyService.assignSectionManager(section.id, val || null);
-                          fetchCourse();
-                        }}
-                        placeholder="Search for manager..."
-                      />
-                    </div>
-                  ))}
-                  {course.sections?.length === 0 && (
-                    <p className="text-xs text-zinc-500 text-center py-2">Create sections to assign managers.</p>
-                  )}
-                </div>
-              </Panel>
-            )}
 
             {user?.role === "ADMIN" && (
-              <Panel className="bg-zinc-900/50 border-white/10">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Users size={18} className="text-blue-400" /> Enrolled Students
-                </h3>
-                <p className="text-xs text-zinc-400 mb-4">Total: {enrollments?.length ?? course.enrollment_count ?? 0}</p>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                  {enrollments?.length > 0 ? (
-                    enrollments.map((e: any) => (
-                      <div key={e.user.id} className="flex items-center gap-3 bg-black/40 border border-white/5 rounded-lg p-2">
-                        {e.user.profile_picture ? (
-                          <img src={e.user.profile_picture} alt={e.user.first_name || e.user.email} className="w-8 h-8 rounded-full object-cover shrink-0 bg-white/10" />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full shrink-0 bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">
-                            {e.user.first_name?.charAt(0)?.toUpperCase() || e.user.email?.charAt(0)?.toUpperCase() || "U"}
+              <Panel className="bg-zinc-900/50 border-white/10 relative z-10">
+                <button
+                  onClick={() => setIsStudentsOpen(!isStudentsOpen)}
+                  className="w-full flex items-center justify-between text-left group"
+                >
+                  <div className="flex items-center gap-2">
+                    <Users size={18} className="text-blue-400 group-hover:text-blue-300 transition-colors" />
+                    <h3 className="text-lg font-bold text-white group-hover:text-zinc-200 transition-colors">Enrolled Students</h3>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full border border-blue-400/20 shadow-[0_0_10px_rgba(96,165,250,0.1)]">Total: {enrollments?.length ?? course.enrollment_count ?? 0}</span>
+                    {isStudentsOpen ? <ChevronDown size={18} className="text-zinc-500" /> : <ChevronRight size={18} className="text-zinc-500" />}
+                  </div>
+                </button>
+                
+                {isStudentsOpen && (
+                  <div className="mt-5 pt-5 border-t border-white/5">
+                    <div className="relative mb-4">
+                      <input
+                        type="text"
+                        placeholder="Search by name or ID..."
+                        value={searchStudent}
+                        onChange={(e) => setSearchStudent(e.target.value)}
+                        className="w-full rounded-xl bg-black/40 border border-white/10 pl-9 pr-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500/50 transition-colors"
+                      />
+                      <Search size={14} className="absolute left-3 top-2.5 text-zinc-500" />
+                    </div>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                      {(() => {
+                        const filtered = (enrollments || []).filter((e: any) => {
+                          const term = searchStudent.toLowerCase();
+                          const name = `${e.user.first_name || ""} ${e.user.last_name || ""}`.toLowerCase();
+                          const id = e.user.id.toLowerCase();
+                          return name.includes(term) || id.includes(term);
+                        });
+                        
+                        if (filtered.length === 0) {
+                          return <p className="text-xs text-zinc-500 text-center py-6">{searchStudent ? "No students match your search." : "No students enrolled yet."}</p>;
+                        }
+
+                        return filtered.map((e: any) => (
+                          <div key={e.user.id} className="flex items-center gap-3 bg-black/40 hover:bg-black/60 border border-white/5 rounded-xl p-2.5 transition-colors">
+                            {e.user.profile_picture ? (
+                              <img src={e.user.profile_picture} alt={e.user.first_name || e.user.email} className="w-9 h-9 rounded-full object-cover shrink-0 bg-white/10" />
+                            ) : (
+                              <div className="w-9 h-9 rounded-full shrink-0 bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">
+                                {e.user.first_name?.charAt(0)?.toUpperCase() || e.user.email?.charAt(0)?.toUpperCase() || "U"}
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <Link href={`/admin/users/${e.user.id}`} className="text-sm text-white font-medium truncate hover:text-red-400 hover:underline transition block">
+                                {[e.user.first_name, e.user.last_name].filter(Boolean).join(" ") || "Unknown User"}
+                              </Link>
+                              <p className="text-[10px] text-zinc-500 font-mono truncate" title={e.user.id}>ID: {e.user.id}</p>
+                            </div>
                           </div>
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm text-white font-medium truncate">{[e.user.first_name, e.user.last_name].filter(Boolean).join(" ") || "Unknown User"}</p>
-                          <p className="text-[10px] text-zinc-500 font-mono truncate">ID: {e.user.id}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-xs text-zinc-500 text-center py-2">No students enrolled yet.</p>
-                  )}
-                </div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+                )}
               </Panel>
             )}
 
