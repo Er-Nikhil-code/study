@@ -158,7 +158,7 @@ class AdminService {
   }
 
   async assignRole(userId: string, roleName: string): Promise<void> {
-    await api.post("/admin/roles/assign", { user_id: userId, role_name: roleName });
+    await api.post("/admin/roles/assign", { userId: userId, roleName: roleName });
   }
 
   async seedRoles(): Promise<void> {

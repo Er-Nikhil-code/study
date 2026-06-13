@@ -309,7 +309,13 @@ export default function EditTestPage() {
             {questions.length === 0 ? (
               <p className="text-zinc-500 p-4 border border-white/5 rounded">No questions found matching the selected filters.</p>
             ) : (
-              questions.map(q => (
+              [...questions].sort((a, b) => {
+                const aSelected = selectedQuestionIds.has(a.id);
+                const bSelected = selectedQuestionIds.has(b.id);
+                if (aSelected && !bSelected) return -1;
+                if (!aSelected && bSelected) return 1;
+                return 0;
+              }).map(q => (
                 <div key={q.id} className={`p-4 rounded-lg border cursor-pointer transition-colors ${selectedQuestionIds.has(q.id) ? 'bg-red-900/20 border-red-500' : 'bg-zinc-900 border-white/5 hover:border-white/20'}`} onClick={() => toggleQuestion(q.id)}>
                   <div className="flex items-start gap-3">
                     <div className="mt-1">

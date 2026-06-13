@@ -605,30 +605,38 @@ export class AdminService {
 
   async seedRoles() {
     // Basic Custom Roles for default seed
-    const contentManager = await this.prisma.role.upsert({
-      where: { name: 'CONTENT_MANAGER' },
-      update: {},
-      create: {
-        name: 'CONTENT_MANAGER',
-        description: 'Manages curriculum and questions',
-        designation: 'Content Manager',
-        level: 1,
-        permissions_json: ["manage_hierarchy", "manage_questions", "create_question"],
-      }
+    let contentManager = await this.prisma.role.findUnique({
+      where: { name: 'CONTENT_MANAGER' }
     });
 
-    await this.prisma.role.upsert({
-      where: { name: 'MODERATOR' },
-      update: {},
-      create: {
-        name: 'MODERATOR',
-        description: 'Reviews notes and challenges',
-        designation: 'Moderator',
-        level: 2,
-        parent_id: contentManager.id,
-        permissions_json: ["review_notes", "manage_challenges", "review_challenge"],
-      }
+    if (!contentManager) {
+      contentManager = await this.prisma.role.create({
+        data: {
+          name: 'CONTENT_MANAGER',
+          description: 'Manages curriculum and questions',
+          designation: 'Content Manager',
+          level: 1,
+          permissions_json: ["manage_hierarchy", "manage_questions", "create_question"],
+        }
+      });
+    }
+
+    let moderator = await this.prisma.role.findUnique({
+      where: { name: 'MODERATOR' }
     });
+
+    if (!moderator) {
+      moderator = await this.prisma.role.create({
+        data: {
+          name: 'MODERATOR',
+          description: 'Reviews notes and challenges',
+          designation: 'Moderator',
+          level: 2,
+          parent_id: contentManager.id,
+          permissions_json: ["review_notes", "manage_challenges", "review_challenge"],
+        }
+      });
+    }
 
     return { message: "Roles seeded successfully" };
   }

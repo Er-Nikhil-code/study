@@ -315,7 +315,14 @@ export default function AdminRolesPage() {
           ) : hierarchy.length === 0 ? (
             <div className="text-center py-8 text-sm text-zinc-500">
               No hierarchy configured.
-              <button onClick={async () => { await adminService.seedRoles(); fetchRoles(); }}
+              <button onClick={async () => { 
+                try {
+                  await adminService.seedRoles(); 
+                  await fetchRoles(); 
+                } catch(e: any) {
+                  alert(e.response?.data?.message || e.message);
+                }
+              }}
                 className="ml-2 text-red-400 hover:text-red-300 underline">Seed default roles</button>
             </div>
           ) : (
