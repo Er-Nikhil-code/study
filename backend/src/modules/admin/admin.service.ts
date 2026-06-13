@@ -485,6 +485,7 @@ export class AdminService {
           take,
           orderBy: { created_at: "desc" },
           include: {
+            creator: { select: { first_name: true, last_name: true } },
             topic: {
               select: {
                 id: true,

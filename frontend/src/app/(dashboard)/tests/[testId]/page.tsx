@@ -140,6 +140,14 @@ export default function TestDetailsPage() {
                 {starting ? "Starting…" : "Start Attempt"}
               </button>
             )}
+            {(user?.role === "ADMIN" || test.created_by === user?.id) && (
+              <Link
+                href={`/teacher/tests/${test.id}/edit`}
+                className="rounded-full border border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm font-medium text-red-200 transition hover:bg-red-500/15"
+              >
+                Edit Test
+              </Link>
+            )}
             <button
               onClick={() => router.back()}
               className="rounded-full border border-white/10 bg-white/[0.03] px-6 py-2.5 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]"

@@ -2,7 +2,7 @@ import { api } from "@/lib/api";
 
 export const TestsService = {
   getAll() {
-    return api.get("/tests");
+    return api.get("/tests").then(r => r.data);
   },
 
   create(data: any) {
@@ -10,11 +10,11 @@ export const TestsService = {
   },
 
   getById(id: string) {
-    return api.get(`/tests/${id}`);
+    return api.get(`/tests/${id}`).then(r => r.data);
   },
 
   getPayload(id: string) {
-    return api.get(`/tests/${id}/payload`);
+    return api.get(`/tests/${id}/payload`).then(r => r.data);
   },
 
   startAttempt(id: string) {
@@ -30,7 +30,7 @@ export const TestsService = {
   },
 
   getAttemptResult(attemptId: string) {
-    return api.get(`/tests/any/attempt/${attemptId}/result`);
+    return api.get(`/tests/any/attempt/${attemptId}/result`).then(r => r.data);
   },
 
   getTeacherTests(params?: any) {
