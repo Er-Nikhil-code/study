@@ -292,8 +292,9 @@ class StudentApiService {
 
   /* Challenge */
   async submitChallenge(data: {
-    response_id: string;
-    question_id: string;
+    response_id?: string;
+    question_id?: string;
+    note_id?: string;
     reason: string;
     description: string;
   }): Promise<any> {

@@ -77,10 +77,7 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
     e.preventDefault();
     try {
       await studentService.submitChallenge({
-        response_id: "",
-        question_id: "", // Since it's a note challenge, the backend will use note_id, but wait, the frontend submitChallenge might need updating to support note_id. Let's pass it anyway.
-        // Actually, studentService.submitChallenge doesn't have note_id typed, but we can pass it as any
-        ...({ note_id: selectedNote.id } as any),
+        note_id: selectedNote.id,
         reason: challengeReason,
         description: challengeDesc
       });
