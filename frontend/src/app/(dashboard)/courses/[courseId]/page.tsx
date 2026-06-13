@@ -472,7 +472,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
                   return (
                     <div className="relative flex items-center justify-center w-64 h-64 shrink-0 mt-8 xl:sticky xl:top-32" onMouseLeave={() => setHoveredRingSection(null)}>
-                      <svg className={`w-full h-full overflow-visible ${overallPct > 0 ? 'animate-[spin_40s_linear_infinite]' : ''}`} viewBox="0 0 100 100">
+                      <svg className={`absolute inset-0 w-full h-full overflow-visible z-20 pointer-events-none ${overallPct > 0 ? 'animate-[spin_40s_linear_infinite]' : ''}`} viewBox="0 0 100 100">
                         {course.sections.map((sec: any, i: number) => {
                           const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
                           const total = tTopics.length;
@@ -483,7 +483,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           return (
                             <g 
                               key={sec.id} 
-                              className="cursor-crosshair transition-all duration-300 hover:opacity-80 group/ring"
+                              className="cursor-help transition-all duration-300 hover:opacity-80 group/ring pointer-events-auto"
                               onMouseEnter={() => setHoveredRingSection({ name: sec.name, pct: Math.round(pct * 100), comp, total })}
                             >
                               {/* Background Segment */}
@@ -514,7 +514,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                               <circle 
                                 cx="50" cy="50" r="48" 
                                 stroke="transparent" 
-                                strokeWidth="20" 
+                                strokeWidth="30" 
                                 fill="transparent" 
                                 strokeDasharray={`${segmentLength} ${circ}`}
                                 transform={`rotate(${rotation}, 50, 50)`}
@@ -524,14 +524,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         })}
                       </svg>
                       {/* Logo stays upright */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center group-hover:scale-110 transition-transform pointer-events-auto z-10">
-                        <div className="w-[140%] h-[140%] drop-shadow-[0_0_30px_rgba(239,68,68,0.4)]">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center group-hover:scale-110 transition-transform pointer-events-none z-10">
+                        <div className="w-[140%] h-[140%] drop-shadow-[0_0_30px_rgba(239,68,68,0.4)] pointer-events-auto">
                           <ChessPiece3D role="STUDENT" />
                         </div>
                       </div>
                       
                       {/* Tooltip */}
-                      <div className={`absolute top-[110%] left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wider px-5 py-3 rounded-xl whitespace-nowrap shadow-2xl pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
+                      <div className={`absolute -bottom-10 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wider px-5 py-3 rounded-xl whitespace-nowrap shadow-[0_10px_40px_rgba(239,68,68,0.2)] pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95'}`}>
                         {hoveredRingSection ? (
                           <div className="flex flex-col items-center gap-1.5">
                             <span className="text-zinc-400 text-[10px] uppercase max-w-[200px] truncate">{hoveredRingSection.name}</span>
