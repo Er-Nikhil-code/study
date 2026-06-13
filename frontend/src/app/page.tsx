@@ -8,16 +8,26 @@ import { useAuthStore, AuthUser } from "@/store/auth.store";
 import Logo from "@/components/ui/Logo";
 
 const QUOTES = [
-  { greeting: "Welcome to Codify, Warrior!", body: "Your training ground awaits. Here, every mock test, PYQ, and coding challenge is designed to forge your skills for the ultimate battle." },
-  { greeting: "Rise, Warrior!", body: "The path to success is paved with relentless practice. Do not surrender to difficult questions; conquer them and claim your victory." },
-  { greeting: "Embrace the struggle.", body: "Every incorrect answer is a lesson, every tough test is armor. True warriors are not born; they are forged through perseverance." },
-  { greeting: "Your battlefield awaits.", body: "Stand tall. Your ambition is your weapon, and Codify is your shield. Prepare smarter, fight harder, and never yield." },
-  { greeting: "Warriors do not quit.", body: "When the concepts are tough and the exams loom near, remember why you started. Push forward, for glory belongs to the resilient." },
-  { greeting: "Victory demands discipline.", body: "Success is not an accident. It is the result of countless hours of invisible labor. Keep grinding, Warrior." },
-  { greeting: "Sharpen your mind.", body: "Like a blade on a whetstone, every quiz and assessment hones your intellect. Prepare yourself for the ultimate triumph." },
-  { greeting: "The arena is yours.", body: "You have entered the zone where champions are made. Overcome your doubts, tackle the syllabus, and emerge victorious." },
-  { greeting: "No retreat, no surrender.", body: "Setbacks are merely setups for legendary comebacks. Pick up your pen, face the challenge, and fight for your dream score." },
-  { greeting: "Welcome to the vanguard.", body: "You are part of an elite rank of learners who refuse to settle for mediocrity. Train fiercely, Warrior, and the world will know your name." },
+  { greeting: "“To subdue the enemy without fighting is the acme of skill.”", body: "— Sun Tzu" },
+  { greeting: "“The supreme art of war is to subdue the enemy without fighting.”", body: "— Sun Tzu" },
+  { greeting: "“It is much safer to be feared than loved.”", body: "— Machiavelli" },
+  { greeting: "“For laws are silent among arms.”", body: "— Cicero" },
+  { greeting: "“We make war that we may live in peace.”", body: "— Aristotle" },
+  { greeting: "“The people must fight for its law as for its walls.”", body: "— Heraclitus" },
+  { greeting: "“In war, leave always some room to fortune.”", body: "— Polybius" },
+  { greeting: "“Learning without thought is labor lost; thought without learning is perilous.”", body: "— Confucius" },
+  { greeting: "“Anyone who holds a true opinion without understanding is like a blind man on the right road.”", body: "— Plato" },
+  { greeting: "“The beginning is the most important part of any work.”", body: "— Plato" },
+  { greeting: "“Much learning does not teach understanding.”", body: "— Heraclitus" },
+  { greeting: "“Truth gains more even by the errors…”", body: "— John Stuart Mill" },
+  { greeting: "“Those who cannot remember the past are condemned to repeat it.”", body: "— George Santayana" },
+  { greeting: "“Learning is a kind of natural food for the mind.”", body: "— Cicero" },
+  { greeting: "“It is not that we have a short space of time, but that we waste much of it.”", body: "— Seneca" },
+  { greeting: "“While we are postponing, life speeds by.”", body: "— Seneca" },
+  { greeting: "“While thou livest, while thou hast time, be good.”", body: "— Marcus Aurelius" },
+  { greeting: "“Never let the future disturb you.”", body: "— Marcus Aurelius" },
+  { greeting: "“It does not matter how slowly you go so long as you do not stop.”", body: "— Confucius" },
+  { greeting: "“Pass through this short time in an orderly way.”", body: "— Marcus Aurelius" },
 ];
 
 const quicksand = Quicksand({ 
