@@ -361,13 +361,14 @@ export class QuestionsService {
       }
 
       if (filters?.search) {
-        const isLikelyId = filters.search.length >= 10;
-        where.OR = [
-          ...(isLikelyId ? [{ id: filters.search }] : []),
-          { id: { contains: filters.search, mode: "insensitive" } },
-          { content_json: { string_contains: filters.search } },
-          { options_json: { string_contains: filters.search } },
-        ];
+        const searchPattern = `%${filters.search}%`;
+        const matchingRecords = await this.prisma.$queryRaw<{ id: string }[]>`
+          SELECT id FROM "Question" 
+          WHERE "id" ILIKE ${searchPattern} 
+             OR "content_json"::text ILIKE ${searchPattern} 
+             OR "options_json"::text ILIKE ${searchPattern}
+        `;
+        where.id = { in: matchingRecords.map((r) => r.id) };
       }
 
       const [questions, total] = await Promise.all([

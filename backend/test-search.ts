@@ -2,18 +2,18 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.time('search');
-  const res = await prisma.question.findMany({
+  const search = "modern";
+  const questions = await prisma.question.findMany({
     where: {
       OR: [
-        { id: { contains: "search_term", mode: "insensitive" } },
-        { content_json: { string_contains: "search_term" } }
+        { id: { contains: search, mode: 'insensitive' } },
+        { content_json: { string_contains: search } }
       ]
-    },
-    take: 10
+    }
   });
-  console.timeEnd('search');
-  console.log('Results:', res.length);
+  console.log("Questions found:", questions.length);
+  if (questions.length > 0) {
+    console.log(questions[0].content_json);
+  }
 }
-
-main().catch(e => console.error(e)).finally(() => prisma.$disconnect());
+main().catch(console.error).finally(() => prisma.$disconnect());

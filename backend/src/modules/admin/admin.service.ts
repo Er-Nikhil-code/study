@@ -472,10 +472,14 @@ export class AdminService {
       if (topic_id) where.topic_id = topic_id;
 
       if (search) {
-        where.OR = [
-          { id: { contains: search, mode: "insensitive" } },
-          { content_json: { string_contains: search } }
-        ];
+        const searchPattern = `%${search}%`;
+        const matchingRecords = await this.prisma.$queryRaw<{ id: string }[]>`
+          SELECT id FROM "Question" 
+          WHERE "id" ILIKE ${searchPattern} 
+             OR "content_json"::text ILIKE ${searchPattern} 
+             OR "options_json"::text ILIKE ${searchPattern}
+        `;
+        where.id = { in: matchingRecords.map((r) => r.id) };
       }
 
       const [questions, total] = await Promise.all([
