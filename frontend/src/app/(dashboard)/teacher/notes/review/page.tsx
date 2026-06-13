@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { NotesService } from "@/services/notes.service";
@@ -60,7 +61,15 @@ export default function ReviewNotesPage() {
 
   return (
     <>
-      <SectionTitle title="Notes Review Queue" subtitle="Approve or reject study materials submitted by Pawns" />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <SectionTitle title="Notes Review Queue" subtitle="Approve or reject study materials submitted by Pawns" />
+        <Link 
+          href="/intern/notes/create" 
+          className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_15px_rgba(220,38,38,0.5)] transition hover:bg-red-500 hover:shadow-[0_0_25px_rgba(220,38,38,0.6)]"
+        >
+          Create Notes
+        </Link>
+      </div>
 
       {loading ? (
         <p className="mt-6 text-zinc-500">Loading queue...</p>

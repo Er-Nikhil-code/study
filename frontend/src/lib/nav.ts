@@ -83,15 +83,10 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
   }
 
   // Notes
-  const notesSubItems: NavItem[] = [];
-  if (hasPerm("create_notes") || user.role === "INTERN" || user.role === "TEACHER") {
-    notesSubItems.push({ label: "Create Notes", href: "/intern/notes/create", icon: PlusCircle });
-  }
   if (hasPerm("review_notes") || user.role === "TEACHER" || user.role === "ADMIN") {
-    notesSubItems.push({ label: "Review Notes", href: "/teacher/notes/review", icon: CheckSquare });
-  }
-  if (notesSubItems.length > 0) {
-    items.push({ label: "Notes", href: "#", icon: FileEdit, subItems: notesSubItems });
+    items.push({ label: "Notes", href: "/teacher/notes/review", icon: FileEdit });
+  } else if (hasPerm("create_notes") || user.role === "INTERN") {
+    items.push({ label: "Notes", href: "/intern/notes/create", icon: FileEdit });
   }
 
   // Challenges
@@ -112,9 +107,6 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
   // User Management
   if (hasPerm("manage_users")) {
     items.push({ label: "Users & Roles", href: "/admin/users", icon: Users });
-  }
-  if (hasPerm("manage_roles")) {
-    items.push({ label: "Custom Roles", href: "/admin/roles", icon: Shield });
   }
 
   // System & Notifications

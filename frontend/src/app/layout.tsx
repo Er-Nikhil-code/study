@@ -8,6 +8,7 @@ import SocketProvider from "@/providers/socket-provider";
 import ToastProvider from "@/providers/toast-provider";
 import RealtimeEvents from "@/components/realtime/RealtimeEvents";
 import ServerPing from "@/components/ServerPing";
+import Footer from "@/components/layout/Footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -37,7 +38,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="min-h-screen flex flex-col">
         <QueryProvider>
           <ThemeProvider>
             <AuthProvider>
@@ -45,7 +46,10 @@ export default function RootLayout({
                 <ToastProvider>
                   <RealtimeEvents />
                   <ServerPing />
-                  {children}
+                  <main className="flex-1 flex flex-col">
+                    {children}
+                  </main>
+                  <Footer />
                 </ToastProvider>
               </SocketProvider>
             </AuthProvider>

@@ -8,7 +8,6 @@ export const adminNavItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Enrollments", href: "/admin/enrollments", icon: ShoppingCart },
-  { label: "Roles", href: "/admin/roles", icon: Shield },
   { label: "Questions", href: "/admin/questions", icon: FileQuestion },
   { label: "Approvals", href: "/admin/approvals", icon: CheckSquare },
   { label: "Challenges", href: "/admin/challenges", icon: ShieldAlert },
