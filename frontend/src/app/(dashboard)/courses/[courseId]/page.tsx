@@ -992,6 +992,22 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               </Panel>
             )}
 
+            {/* Leaderboard Moved Here to match course box width */}
+            <div className="relative w-full mt-12">
+              {user?.role === "STUDENT" && !course.is_enrolled && (
+                <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center border border-white/10 shadow-2xl">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-900 border border-white/10 text-zinc-500 mb-4 shadow-inner">
+                    <Lock size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Leaderboard Locked</h3>
+                  <p className="text-zinc-400 max-w-sm text-center text-sm">
+                    Enroll in the course to view rankings, compare scores, and compete with other warriors.
+                  </p>
+                </div>
+              )}
+              <CourseLeaderboard courseId={courseId} />
+            </div>
+
           </div>
 
           {isCreatorOrAdmin && (
@@ -1055,30 +1071,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
           )}
         </div>
 
-        {/* Bottom Section: Leaderboard and Enrolled Students side by side */}
-        {(user?.role === "ADMIN" || user?.role === "STUDENT" || user?.role === "TEACHER") && (
-          <div className={`mt-12 grid grid-cols-1 ${user?.role === "ADMIN" ? "lg:grid-cols-[2fr_1fr]" : ""} gap-8 w-full items-start`}>
+        {/* Bottom Section: Enrolled Students */}
+        {user?.role === "ADMIN" && (
+          <div className="mt-12 w-full items-start">
             
-            {/* Leaderboard */}
-            <div className="relative w-full">
-              {user?.role === "STUDENT" && !course.is_enrolled && (
-                <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center border border-white/10 shadow-2xl">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-900 border border-white/10 text-zinc-500 mb-4 shadow-inner">
-                    <Lock size={32} />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Leaderboard Locked</h3>
-                  <p className="text-zinc-400 max-w-sm text-center text-sm">
-                    Enroll in the course to view rankings, compare scores, and compete with other warriors.
-                  </p>
-                </div>
-              )}
-              <CourseLeaderboard courseId={courseId} />
-            </div>
-
             {/* Enrolled Students */}
-            {user?.role === "ADMIN" && (
-              <div className="mt-8 w-full flex flex-col h-full">
-                <div className="flex items-center justify-between mb-4">
+            <div className="mt-8 w-full flex flex-col h-full">
+              <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-white">Enrolled Students</h2>
                   <span className="text-[10px] font-bold text-red-400 bg-red-400/10 px-2.5 py-1 rounded-md border border-red-400/20 uppercase tracking-wider">
                     Total: {enrollments?.length ?? course.enrollment_count ?? 0}
@@ -1172,9 +1171,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   </div>
                 </Panel>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
         {/* Delete Course Button */}
         {isCreatorOrAdmin && (
