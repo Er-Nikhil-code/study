@@ -6,7 +6,7 @@ import studentService from "@/services/student.service";
 import Panel from "@/components/ui/Panel";
 import { useAuthStore } from "@/store/auth.store";
 import ActivityGraph from "@/components/ui/ActivityGraph";
-
+import MarksGraph from "@/components/ui/MarksGraph";
 import ChessPiece3D from "@/components/ui/ChessPiece3D";
 
 export default function StudentDashboardPage() {
@@ -100,64 +100,53 @@ export default function StudentDashboardPage() {
             </Panel>
           </div>
 
-          {/* Activity Graph */}
-          {studentData.activity_graph && (
-            <div className="mt-6">
-              <ActivityGraph data={studentData.activity_graph} userName={name} />
-            </div>
-          )}
-
-          {/* Recent tests + Weak topics */}
-          <div className="mt-6 grid gap-6 lg:grid-cols-2" id="analytics">
-            {/* Recent tests */}
-            <div>
-              <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Recent Tests</h3>
-              {studentData.recent_tests.length === 0 ? (
-                <Panel><p className="text-sm text-zinc-500">No tests taken yet.</p></Panel>
+          {/* Graph Section: Activity Graph & Marks Line Graph */}
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6" id="analytics">
+            <div className="flex flex-col">
+              {studentData.activity_graph ? (
+                <ActivityGraph data={studentData.activity_graph} userName={name} />
               ) : (
-                <div className="space-y-2">
-                  {studentData.recent_tests.map((t) => (
-                    <Link key={t.attempt_id} href={`/results/${t.attempt_id}?testId=${t.test_id}`}>
-                      <Panel className="p-3 hover:bg-white/[0.04] transition cursor-pointer">
-                        <div className="flex items-center justify-between">
-                          <div className="truncate">
-                            <span className="text-sm text-white">{t.test_title}</span>
-                            <span className="ml-2 text-xs text-zinc-500">
-                              {t.practice_mode ? "Practice" : `Attempt #${t.attempt_no}`}
-                            </span>
-                          </div>
-                          <div className="text-sm font-medium text-white">{t.score ?? "—"}<span className="text-zinc-500">/{t.max_score}</span></div>
-                        </div>
-                      </Panel>
-                    </Link>
-                  ))}
-                </div>
+                <Panel className="flex-1 flex items-center justify-center min-h-[300px]">
+                  <p className="text-zinc-500 text-sm">Activity data not available</p>
+                </Panel>
               )}
             </div>
+            
+            <div className="flex flex-col">
+              <MarksGraph 
+                history={studentData.marks_history || []} 
+                weakTopics={studentData.weak_topics || []}
+                enrolledCourses={studentData.enrolled_courses || []} 
+              />
+            </div>
+          </div>
 
-            {/* Weak topics */}
-            <div>
-              <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Weak Topics</h3>
-              {studentData.weak_topics.length === 0 ? (
-                <Panel><p className="text-sm text-zinc-500">No weak areas detected yet.</p></Panel>
-              ) : (
-                <div className="space-y-2">
-                  {studentData.weak_topics.map((t) => (
-                    <Panel key={t.topic_id} className="p-3">
-                      <div className="flex items-center justify-between">
+          {/* Recent tests */}
+          <div className="mt-6">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Recent Tests</h3>
+            {studentData.recent_tests.length === 0 ? (
+              <Panel><p className="text-sm text-zinc-500">No tests taken yet.</p></Panel>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {studentData.recent_tests.map((t) => (
+                  <Link key={t.attempt_id} href={`/results/${t.attempt_id}?testId=${t.test_id}&view=analysis`}>
+                    <Panel className="p-4 hover:bg-white/[0.04] transition cursor-pointer h-full">
+                      <div className="flex flex-col h-full justify-between">
                         <div>
-                          <span className="text-sm text-white">{t.topic_name}</span>
-                          <span className="ml-2 text-xs text-zinc-500">{t.subject} → {t.chapter}</span>
+                          <h4 className="text-sm font-medium text-white mb-1 truncate">{t.test_title}</h4>
+                          <span className="text-xs text-zinc-500 bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                            {t.practice_mode ? "Practice" : `Attempt #${t.attempt_no}`}
+                          </span>
                         </div>
-                        <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-xs text-red-300">
-                          {t.wrong_count} wrong
-                        </span>
+                        <div className="mt-4 text-xl font-semibold text-red-400">
+                          {t.score ?? "—"}<span className="text-sm text-zinc-500 font-normal">/{t.max_score}</span>
+                        </div>
                       </div>
                     </Panel>
-                  ))}
-                </div>
-              )}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Upcoming Tests */}

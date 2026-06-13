@@ -176,6 +176,49 @@ export class StudentService {
     // Activity graph (last 180 days)
     const activity_graph = await this.getDetailedActivityGraph(userId);
 
+    // Marks History (all scored attempts)
+    const allAttempts = await this.prisma.attempt.findMany({
+      where: { user_id: userId, status: "SCORED" },
+      orderBy: { submitted_at: "asc" },
+      select: {
+        id: true,
+        score: true,
+        max_score: true,
+        submitted_at: true,
+        attempt_no: true,
+        test: {
+          select: {
+            title: true,
+            topic: {
+              select: {
+                chapter: {
+                  select: {
+                    section: {
+                      select: {
+                        course: { select: { id: true, name: true } }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const marks_history = allAttempts.map(a => ({
+      attempt_id: a.id,
+      test_title: a.test.title,
+      score: a.score,
+      max_score: a.max_score,
+      percentage: a.max_score ? Math.round(((a.score || 0) / a.max_score) * 100) : 0,
+      submitted_at: a.submitted_at,
+      attempt_no: a.attempt_no,
+      course_id: a.test?.topic?.chapter?.section?.course?.id,
+      course_name: a.test?.topic?.chapter?.section?.course?.name
+    }));
+
     return {
       current_streak: stats?.current_streak ?? 0,
       longest_streak: stats?.longest_streak ?? 0,
@@ -202,6 +245,7 @@ export class StudentService {
       enrolled_course: enrolledCourseName,
       enrolled_courses: courseProgressList,
       activity_graph,
+      marks_history,
     };
   }
 

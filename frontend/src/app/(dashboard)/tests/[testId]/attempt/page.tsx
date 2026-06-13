@@ -215,7 +215,7 @@ export default function AttemptPage() {
     try {
       await studentService.submitAttempt(testId, attemptId);
       if (timerRef.current) clearInterval(timerRef.current);
-      router.push(`/results/${attemptId}?testId=${testId}`);
+      router.push(`/results/${attemptId}?testId=${testId}&view=result`);
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to submit");
       setSubmitting(false);

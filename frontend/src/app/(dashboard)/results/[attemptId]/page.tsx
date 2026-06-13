@@ -22,6 +22,7 @@ export default function ResultDetailPage() {
   const searchParams = useSearchParams();
   const attemptId = params.attemptId as string;
   const testId = searchParams.get("testId") || "";
+  const viewMode = searchParams.get("view") || "result";
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
@@ -171,13 +172,17 @@ export default function ResultDetailPage() {
                               const opts = ["True", "False"];
                               return opts.map(opt => {
                                 const isCorrectOption = q.answer_key?.answer === (opt === "True");
-                                const isSelectedOption = r?.answer_json?.answer === (opt === "True");
+                                const isSelectedOption = viewMode === "result" && r?.answer_json?.answer === (opt === "True");
                                 
                                 let borderColor = "border-white/10";
                                 let bgColor = "bg-white/[0.02]";
                                 let icon = null;
 
-                                if (isCorrectOption) {
+                                if (viewMode === "analysis" && isCorrectOption) {
+                                  borderColor = "border-emerald-500";
+                                  bgColor = "bg-emerald-500/10";
+                                  icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
+                                } else if (isSelectedOption && isCorrectOption) {
                                   borderColor = "border-emerald-500";
                                   bgColor = "bg-emerald-500/10";
                                   icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
@@ -209,8 +214,8 @@ export default function ResultDetailPage() {
                                   return (
                                     <div key={i} className={`p-4 rounded-xl border-2 transition-all ${match ? "border-emerald-500 bg-emerald-500/10" : "border-red-500 bg-red-500/10"}`}>
                                       <div className="text-xs uppercase text-zinc-500 mb-1">Blank {blank.position}</div>
-                                      <div className="text-zinc-200">Your Answer: <span className={match ? "text-emerald-400" : "text-red-400"}>{studentVal || "—"}</span></div>
-                                      {!match && <div className="text-emerald-400 mt-1">Correct Answer: {expected}</div>}
+                                      {viewMode === "result" && <div className="text-zinc-200">Your Answer: <span className={match ? "text-emerald-400" : "text-red-400"}>{studentVal || "—"}</span></div>}
+                                      {(!match || viewMode === "analysis") && viewMode === "analysis" && <div className="text-emerald-400 mt-1">Correct Answer: {expected}</div>}
                                     </div>
                                   );
                                });
@@ -224,9 +229,9 @@ export default function ResultDetailPage() {
                                const match = studentVal !== undefined && studentVal !== null && diff <= tolerance;
 
                                return (
-                                  <div key="numerical" className={`p-4 rounded-xl border-2 transition-all ${match ? "border-emerald-500 bg-emerald-500/10" : "border-red-500 bg-red-500/10"}`}>
-                                    <div className="text-zinc-200">Your Answer: <span className={match ? "text-emerald-400" : "text-red-400"}>{studentVal ?? "—"}</span></div>
-                                    {!match && <div className="text-emerald-400 mt-1">Correct Answer: {expected} {tolerance > 0 ? `(±${tolerance})` : ""}</div>}
+                                  <div key="numerical" className={`p-4 rounded-xl border-2 transition-all ${match && viewMode === "result" ? "border-emerald-500 bg-emerald-500/10" : !match && viewMode === "result" ? "border-red-500 bg-red-500/10" : "border-emerald-500 bg-emerald-500/10"}`}>
+                                    {viewMode === "result" && <div className="text-zinc-200">Your Answer: <span className={match ? "text-emerald-400" : "text-red-400"}>{studentVal ?? "—"}</span></div>}
+                                    {(!match || viewMode === "analysis") && viewMode === "analysis" && <div className="text-emerald-400 mt-1">Correct Answer: {expected} {tolerance > 0 ? `(±${tolerance})` : ""}</div>}
                                   </div>
                                );
                             }
@@ -252,17 +257,23 @@ export default function ResultDetailPage() {
                             }
                             
                             // Check selected options
-                            if (Array.isArray(r?.answer_json?.selected_options)) {
-                              isSelectedOption = r.answer_json.selected_options.includes(opt.id);
-                            } else {
-                              isSelectedOption = r?.answer_json?.selected_option === opt.id;
+                            if (viewMode === "result") {
+                              if (Array.isArray(r?.answer_json?.selected_options)) {
+                                isSelectedOption = r.answer_json.selected_options.includes(opt.id);
+                              } else {
+                                isSelectedOption = r?.answer_json?.selected_option === opt.id;
+                              }
                             }
                             
                             let borderColor = "border-white/10";
                             let bgColor = "bg-white/[0.02]";
                             let icon = null;
 
-                            if (isCorrectOption) {
+                            if (viewMode === "analysis" && isCorrectOption) {
+                              borderColor = "border-emerald-500";
+                              bgColor = "bg-emerald-500/10";
+                              icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
+                            } else if (isSelectedOption && isCorrectOption) {
                               borderColor = "border-emerald-500";
                               bgColor = "bg-emerald-500/10";
                               icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
@@ -286,7 +297,7 @@ export default function ResultDetailPage() {
                       </div>
 
                       {/* Solution */}
-                      {q.solution_json && (
+                      {viewMode === "analysis" && q.solution_json && (
                         <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5 mt-8 mb-6">
                           <div className="text-xs uppercase tracking-wide text-blue-400 mb-3 font-semibold flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>

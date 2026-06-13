@@ -353,10 +353,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
       )}
       
       <div className={`transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'} w-[95%] max-w-[1800px] mx-auto`}>
-        <div className="mb-6 flex justify-between items-start">
-            <div className="flex items-center gap-6">
-              <div>
-                <Link href="/courses" className="text-sm text-zinc-400 hover:text-white flex items-center gap-1 mb-4">
+        {/* Hero Header matching Student Dashboard */}
+        <div className="mb-6 flex items-center justify-between gap-6 bg-gradient-to-r from-red-500/10 to-transparent p-6 rounded-2xl relative min-h-[160px]">
+          <div className="z-10 w-full">
+            <div className="flex justify-between items-start w-full">
+              <div className="flex flex-col gap-2">
+                <Link href="/courses" className="text-sm text-zinc-400 hover:text-white flex items-center gap-1 mb-2">
                   <ChevronLeft size={16} /> Back to Courses
                 </Link>
                 <SectionTitle 
@@ -406,143 +408,148 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   } 
                 />
               </div>
-              </div>
-            <div className="flex items-center gap-4">
-              {user?.role === "STUDENT" && !course.is_enrolled && (
-                <button
-                  onClick={async () => {
-                    try {
-                      if (course.price > 0 || course.discount_price > 0) {
-                        await CartService.addToCart(course.id);
-                        queryClient.invalidateQueries({ queryKey: ["cart"] });
-                        router.push("/student/cart");
-                      } else {
-                        await HierarchyService.enrollCourse(course.id);
-                        queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
-                        fetchCourse();
+
+              <div className="flex items-center gap-4 z-20 relative">
+                {user?.role === "STUDENT" && !course.is_enrolled && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        if (course.price > 0 || course.discount_price > 0) {
+                          await CartService.addToCart(course.id);
+                          queryClient.invalidateQueries({ queryKey: ["cart"] });
+                          router.push("/student/cart");
+                        } else {
+                          await HierarchyService.enrollCourse(course.id);
+                          queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
+                          fetchCourse();
+                        }
+                      } catch (e) {
+                        alert("Failed to enroll or add to cart");
                       }
-                    } catch (e) {
-                      alert("Failed to enroll or add to cart");
-                    }
-                  }}
-                  className="rounded-xl bg-gradient-to-r from-red-600 to-red-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:from-red-500 hover:to-red-400 transition-all active:scale-[0.98] flex items-center gap-2"
-                >
-                  <Lock size={16} />
-                  {(course.price > 0 || course.discount_price > 0) ? "Add to Cart" : "Enroll Now"}
-                </button>
-              )}
-              {isCreatorOrAdmin && (
-                <button 
-                  onClick={() => setAddingSection(!addingSection)}
-                  className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 transition shadow-lg shadow-red-500/20"
-                >
-                  <Plus size={16} /> Add Section
-                </button>
-              )}
+                    }}
+                    className="rounded-xl bg-gradient-to-r from-red-600 to-red-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:from-red-500 hover:to-red-400 transition-all active:scale-[0.98] flex items-center gap-2"
+                  >
+                    <Lock size={16} />
+                    {(course.price > 0 || course.discount_price > 0) ? "Add to Cart" : "Enroll Now"}
+                  </button>
+                )}
+                {isCreatorOrAdmin && (
+                  <button 
+                    onClick={() => setAddingSection(!addingSection)}
+                    className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 transition shadow-lg shadow-red-500/20"
+                  >
+                    <Plus size={16} /> Add Section
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-
-          <div className="flex flex-col lg:flex-row gap-8 w-full mt-4">
-            <div className="flex-1 flex flex-col xl:flex-row-reverse gap-10 items-start w-full">
+          
+          {/* Subtle background glow */}
+          <div className="absolute right-0 top-0 bottom-0 w-64 bg-[radial-gradient(ellipse_at_center,rgba(255,50,50,0.15)_0%,transparent_70%)] pointer-events-none" />
+          
+          {/* Overall Progress Ring and Logo */}
+          {user?.role === "STUDENT" && course.is_enrolled && (
+            (() => {
+              const S = course.sections?.length || 0;
+              if (S === 0) return null;
               
-              {/* Overall Progress Ring beside sections */}
-              {user?.role === "STUDENT" && course.is_enrolled && (
-                (() => {
-                  const S = course.sections?.length || 0;
-                  if (S === 0) return null;
-                  
-                  const r = 48;
-                  const circ = 2 * Math.PI * r;
-                  // If all sections are 100% complete, remove gaps to form a perfect full circle
-                  const allCompleted = course.sections.every((sec: any) => {
-                    const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
-                    const total = tTopics.length;
-                    const comp = tTopics.filter((t:any) => t?.is_completed).length;
-                    return total > 0 && comp === total;
-                  });
-                  
-                  const gapAngle = allCompleted ? 0 : (S > 1 ? 8 : 0);
-                  const segmentAngle = (360 / S) - gapAngle;
-                  const segmentLength = (segmentAngle / 360) * circ;
+              const r = 48;
+              const circ = 2 * Math.PI * r;
+              // If all sections are 100% complete, remove gaps to form a perfect full circle
+              const allCompleted = course.sections.every((sec: any) => {
+                const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
+                const total = tTopics.length;
+                const comp = tTopics.filter((t:any) => t?.is_completed).length;
+                return total > 0 && comp === total;
+              });
+              
+              const gapAngle = allCompleted ? 0 : (S > 1 ? 8 : 0);
+              const segmentAngle = (360 / S) - gapAngle;
+              const segmentLength = (segmentAngle / 360) * circ;
 
-                  // Overall completion
-                  const totalTopics = course.sections?.flatMap((s:any) => s.chapters?.flatMap((c:any) => c.topics || []) || [])?.length || 0;
-                  const completedTopics = course.sections?.flatMap((s:any) => s.chapters?.flatMap((c:any) => c.topics || []) || [])?.filter((t:any) => t?.is_completed)?.length || 0;
-                  const overallPct = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
+              // Overall completion
+              const totalTopics = course.sections?.flatMap((s:any) => s.chapters?.flatMap((c:any) => c.topics || []) || [])?.length || 0;
+              const completedTopics = course.sections?.flatMap((s:any) => s.chapters?.flatMap((c:any) => c.topics || []) || [])?.filter((t:any) => t?.is_completed)?.length || 0;
+              const overallPct = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
 
-                  return (
-                    <div className="relative flex items-center justify-center w-40 h-40 md:w-56 md:h-56 xl:w-64 xl:h-64 shrink-0 mx-auto xl:mx-0 mt-8 xl:sticky xl:top-32 group/container" onMouseLeave={() => setHoveredRingSection(null)}>
-                      <svg className={`absolute inset-0 w-full h-full overflow-visible z-20 pointer-events-none ${overallPct > 0 ? 'animate-[spin_40s_linear_infinite] group-hover/container:[animation-play-state:paused]' : ''}`} viewBox="0 0 100 100">
-                        {course.sections.map((sec: any, i: number) => {
-                          const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
-                          const total = tTopics.length;
-                          const comp = tTopics.filter((t:any) => t?.is_completed).length;
-                          const pct = total === 0 ? 0 : comp / total;
-                          const rotation = (360 / S) * i - 90 + (gapAngle / 2);
+              return (
+                <div className="hidden md:flex absolute right-10 top-1/2 -translate-y-1/2 w-40 h-40 z-10 shrink-0 group/container items-center justify-center" onMouseLeave={() => setHoveredRingSection(null)}>
+                  <svg className={`absolute inset-0 w-full h-full overflow-visible z-20 pointer-events-none ${overallPct > 0 ? 'animate-[spin_40s_linear_infinite] group-hover/container:[animation-play-state:paused]' : ''}`} viewBox="0 0 100 100">
+                    {course.sections.map((sec: any, i: number) => {
+                      const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
+                      const total = tTopics.length;
+                      const comp = tTopics.filter((t:any) => t?.is_completed).length;
+                      const pct = total === 0 ? 0 : comp / total;
+                      const rotation = (360 / S) * i - 90 + (gapAngle / 2);
 
-                          return (
-                            <g 
-                              key={sec.id} 
-                              className="cursor-help transition-all duration-300 hover:opacity-80 group/ring pointer-events-auto"
-                              onMouseEnter={() => setHoveredRingSection({ name: sec.name, pct: Math.round(pct * 100), comp, total })}
-                            >
-                              {/* Background Segment */}
-                              <circle 
-                                cx="50" cy="50" r="48" 
-                                stroke="currentColor" 
-                                strokeWidth="1.5" 
-                                fill="transparent" 
-                                strokeDasharray={`${segmentLength} ${circ}`}
-                                transform={`rotate(${rotation}, 50, 50)`}
-                                strokeLinecap="round"
-                                className="text-white/10" 
-                              />
-                              {/* Foreground Segment */}
-                              {pct > 0 && (
-                                <circle 
-                                  cx="50" cy="50" r="48" 
-                                  stroke="currentColor" 
-                                  strokeWidth="1.5" 
-                                  fill="transparent" 
-                                  strokeDasharray={`${pct * segmentLength} ${circ}`}
-                                  transform={`rotate(${rotation}, 50, 50)`}
-                                  strokeLinecap="round"
-                                  className="text-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.9)] transition-all duration-1000 ease-out" 
-                                />
-                              )}
-                              {/* Invisible larger hit area for easier hover */}
-                              <circle 
-                                cx="50" cy="50" r="48" 
-                                stroke="transparent" 
-                                strokeWidth="10" 
-                                fill="transparent" 
-                                strokeDasharray={`${segmentLength} ${circ}`}
-                                transform={`rotate(${rotation}, 50, 50)`}
-                              />
-                            </g>
-                          );
-                        })}
-                      </svg>
-                      {/* Logo stays upright */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-                        <div className="w-[140%] h-[140%] drop-shadow-[0_0_30px_rgba(239,68,68,0.4)] pointer-events-auto">
-                          <ChessPiece3D role="STUDENT" progressPct={overallPct} />
-                        </div>
-                      </div>
-                      
-                      {/* Tooltip */}
-                      <div className={`absolute -bottom-10 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wider px-5 py-3 rounded-xl whitespace-nowrap shadow-[0_10px_40px_rgba(239,68,68,0.2)] pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95'}`}>
-                        {hoveredRingSection && (
-                          <div className="flex flex-col items-center gap-1.5">
-                            <span className="text-zinc-400 text-[10px] uppercase max-w-[200px] truncate">{hoveredRingSection.name}</span>
-                            <span className="text-red-400 font-bold">{hoveredRingSection.pct}% COMPLETED ({hoveredRingSection.comp}/{hoveredRingSection.total})</span>
-                          </div>
-                        )}
-                      </div>
+                      return (
+                        <g 
+                          key={sec.id} 
+                          className="cursor-help transition-all duration-300 hover:opacity-80 group/ring pointer-events-auto"
+                          onMouseEnter={() => setHoveredRingSection({ name: sec.name, pct: Math.round(pct * 100), comp, total })}
+                        >
+                          {/* Background Segment */}
+                          <circle 
+                            cx="50" cy="50" r="48" 
+                            stroke="currentColor" 
+                            strokeWidth="2.5" 
+                            fill="transparent" 
+                            strokeDasharray={`${segmentLength} ${circ}`}
+                            transform={`rotate(${rotation}, 50, 50)`}
+                            strokeLinecap="round"
+                            className="text-white/10" 
+                          />
+                          {/* Foreground Segment */}
+                          {pct > 0 && (
+                            <circle 
+                              cx="50" cy="50" r="48" 
+                              stroke="currentColor" 
+                              strokeWidth="2.5" 
+                              fill="transparent" 
+                              strokeDasharray={`${pct * segmentLength} ${circ}`}
+                              transform={`rotate(${rotation}, 50, 50)`}
+                              strokeLinecap="round"
+                              className="text-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.9)] transition-all duration-1000 ease-out" 
+                            />
+                          )}
+                          {/* Invisible larger hit area for easier hover */}
+                          <circle 
+                            cx="50" cy="50" r="48" 
+                            stroke="transparent" 
+                            strokeWidth="10" 
+                            fill="transparent" 
+                            strokeDasharray={`${segmentLength} ${circ}`}
+                            transform={`rotate(${rotation}, 50, 50)`}
+                          />
+                        </g>
+                      );
+                    })}
+                  </svg>
+                  {/* Logo stays upright */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                    <div className="w-[120%] h-[120%] drop-shadow-[0_0_30px_rgba(239,68,68,0.4)] pointer-events-auto">
+                      <ChessPiece3D role="STUDENT" progressPct={overallPct} />
                     </div>
-                  );
-                })()
-              )}
+                  </div>
+                  
+                  {/* Tooltip */}
+                  <div className={`absolute -bottom-10 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wider px-5 py-3 rounded-xl whitespace-nowrap shadow-[0_10px_40px_rgba(239,68,68,0.2)] pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95'}`}>
+                    {hoveredRingSection && (
+                      <div className="flex flex-col items-center gap-1.5">
+                        <span className="text-zinc-400 text-[10px] uppercase max-w-[200px] truncate">{hoveredRingSection.name}</span>
+                        <span className="text-red-400 font-bold">{hoveredRingSection.pct}% COMPLETED ({hoveredRingSection.comp}/{hoveredRingSection.total})</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()
+          )}
+        </div>
+
+          <div className="flex flex-col gap-8 w-full mt-4">
+            <div className="flex-1 flex flex-col gap-10 items-start w-full">
 
               <div className="flex-1 space-y-8 min-w-0 w-full">
             {addingSection && (
@@ -935,7 +942,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                                       <CheckCircle size={14} /> Re-attempt
                                                     </Link>
                                                     {topic.latest_attempt_id && (
-                                                      <Link href={`/results/${topic.latest_attempt_id}?testId=${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors whitespace-nowrap">
+                                                      <Link href={`/results/${topic.latest_attempt_id}?testId=${topic.test_id}&view=analysis`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors whitespace-nowrap">
                                                         <BarChart2 size={14} /> Analysis
                                                       </Link>
                                                     )}

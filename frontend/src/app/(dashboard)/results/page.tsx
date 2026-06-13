@@ -29,44 +29,57 @@ export default function ResultsPage() {
 
         <Panel className="mt-6 overflow-x-auto p-0">
           <div className="min-w-[800px]">
-            <div className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
-              <div>Test</div><div>Score</div><div>Date</div><div>Attempt</div><div>Time</div><div>Action</div>
+            <div className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 border-b border-white/10 px-6 py-5 text-xs uppercase tracking-[0.2em] text-zinc-500 bg-white/[0.02]">
+              <div className="text-left font-semibold">Test</div>
+              <div className="text-center font-semibold">Score</div>
+              <div className="text-center font-semibold">Date</div>
+              <div className="text-center font-semibold">Attempt</div>
+              <div className="text-center font-semibold">Time</div>
+              <div className="text-center font-semibold">Action</div>
             </div>
 
             {loading ? (
               <div className="divide-y divide-white/10">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 px-5 py-4">
-                    <div className="h-4 w-40 hidden rounded bg-white/10" />
-                    <div className="h-4 w-12 hidden rounded bg-white/10" />
-                    <div className="h-4 w-16 hidden rounded bg-white/10" />
-                    <div className="h-4 w-8 hidden rounded bg-white/10" />
-                    <div className="h-4 w-10 hidden rounded bg-white/10" />
-                    <div className="h-4 w-14 hidden rounded bg-white/10" />
+                  <div key={i} className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 px-6 py-5 items-center">
+                    <div className="h-5 w-48 rounded-md bg-white/5 animate-pulse" />
+                    <div className="h-5 w-12 rounded-md bg-white/5 animate-pulse mx-auto" />
+                    <div className="h-5 w-20 rounded-md bg-white/5 animate-pulse mx-auto" />
+                    <div className="h-5 w-12 rounded-md bg-white/5 animate-pulse mx-auto" />
+                    <div className="h-5 w-10 rounded-md bg-white/5 animate-pulse mx-auto" />
+                    <div className="h-8 w-16 rounded-md bg-white/5 animate-pulse mx-auto" />
                   </div>
                 ))}
               </div>
             ) : results.length === 0 ? (
-              <div className="px-5 py-12 text-center text-sm text-zinc-500">No results yet. Take a test to see your scores here.</div>
+              <div className="px-5 py-16 flex flex-col items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                  <span className="text-2xl">📝</span>
+                </div>
+                <h3 className="text-white font-medium mb-1">No results yet</h3>
+                <p className="text-sm text-zinc-500">Take a test to see your scores and analysis here.</p>
+              </div>
             ) : (
               <div className="divide-y divide-white/10">
                 {results.map((r) => (
-                  <div key={r.attempt_id} className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 px-5 py-4 text-sm items-center text-center">
-                    <div className="truncate text-white">{r.test_title}</div>
-                    <div className="text-white font-medium">{r.score ?? "—"}<span className="text-zinc-500">/{r.total_marks}</span></div>
-                    <div className="text-xs text-zinc-500">{r.submitted_at ? new Date(r.submitted_at).toLocaleDateString() : "—"}</div>
-                    <div className="text-xs">
+                  <div key={r.attempt_id} className="grid grid-cols-[minmax(0,2fr)_80px_100px_80px_80px_100px] gap-3 px-6 py-5 text-sm items-center hover:bg-white/[0.02] transition-colors group">
+                    <div className="truncate text-white text-left font-medium group-hover:text-red-400 transition-colors">{r.test_title}</div>
+                    <div className="text-white font-medium text-center">{r.score ?? "—"}<span className="text-zinc-500">/{r.total_marks}</span></div>
+                    <div className="text-xs text-zinc-400 text-center">{r.submitted_at ? new Date(r.submitted_at).toLocaleDateString() : "—"}</div>
+                    <div className="text-xs text-center flex justify-center">
                       {r.attempt_no === 1 ? (
-                        <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-red-300">1st</span>
+                        <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-emerald-300 font-medium tracking-wide">1st</span>
                       ) : (
-                        <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-red-300">Re #{r.attempt_no}</span>
+                        <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-0.5 text-orange-300 font-medium tracking-wide">Re #{r.attempt_no}</span>
                       )}
                     </div>
-                    <div className="text-xs text-zinc-500">{r.time_taken_sec ? `${Math.floor(r.time_taken_sec / 60)}m` : "—"}</div>
-                    <Link href={`/results/${r.attempt_id}?testId=${r.test_id}`}
-                      className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs text-red-300 transition hover:bg-red-500/20 text-center">
-                      View
-                    </Link>
+                    <div className="text-xs text-zinc-400 text-center font-mono">{r.time_taken_sec ? `${Math.floor(r.time_taken_sec / 60)}m` : "—"}</div>
+                    <div className="flex justify-center">
+                      <Link href={`/results/${r.attempt_id}?testId=${r.test_id}&view=analysis`}
+                        className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/20 hover:border-red-500/50 hover:shadow-[0_0_10px_rgba(239,68,68,0.2)] text-center w-full">
+                        View
+                      </Link>
+                    </div>
                   </div>
                 ))}
               </div>
