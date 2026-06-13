@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 type SectionTitleProps = {
   title: string;
-  subtitle?: string;
+  subtitle?: string | ReactNode;
   action?: ReactNode;
   className?: string;
 };

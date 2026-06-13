@@ -361,7 +361,36 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 </Link>
                 <SectionTitle 
                   title={course.name} 
-                  subtitle={canSeeCode ? `Course Code: ${course.code} • Creator: ${course.creator?.first_name || "Admin"}` : "Course Curriculum"} 
+                  subtitle={
+                    canSeeCode ? (
+                      <span className="flex items-center gap-1.5 flex-wrap">
+                        <span>Course Code: {course.code}</span>
+                        <span>•</span>
+                        <span className="relative group/creator flex items-center gap-1 cursor-help">
+                          Creator: <span className="text-zinc-300 hover:text-white transition-colors">{course.creator ? `${course.creator.first_name} ${course.creator.last_name || ''}`.trim() : "King"}</span>
+                          
+                          {course.creator && (
+                            <span className="absolute top-full left-0 mt-2 opacity-0 group-hover/creator:opacity-100 group-hover/creator:translate-y-0 translate-y-1 pointer-events-none transition-all duration-200 z-50">
+                              <span className="bg-black/90 backdrop-blur-md border border-white/10 shadow-2xl rounded-xl p-3 w-64 flex items-start gap-3 pointer-events-auto">
+                                {course.creator.profile_picture ? (
+                                  <img src={course.creator.profile_picture} alt={course.creator.first_name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-white/10" />
+                                ) : (
+                                  <span className="w-10 h-10 rounded-full shrink-0 bg-zinc-800 border border-white/5 text-zinc-400 flex items-center justify-center font-bold text-sm">
+                                    {course.creator.first_name?.charAt(0)?.toUpperCase() || "U"}
+                                  </span>
+                                )}
+                                <span className="min-w-0 flex-1 flex flex-col gap-0.5">
+                                  <span className="text-sm font-medium text-white truncate">{course.creator.first_name} {course.creator.last_name}</span>
+                                  <span className="text-[10px] text-zinc-400 font-mono truncate" title={course.creator.id}>{course.creator.id}</span>
+                                  <span className="text-xs text-red-400 font-medium truncate">{course.creator.email}</span>
+                                </span>
+                              </span>
+                            </span>
+                          )}
+                        </span>
+                      </span>
+                    ) : "Course Curriculum"
+                  } 
                 />
               </div>
               
