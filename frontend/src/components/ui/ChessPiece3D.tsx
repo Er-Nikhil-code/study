@@ -109,6 +109,8 @@ const WarriorPiece = () => {
 
   useCursor(hovered);
 
+  const spinVelocity = useRef(0);
+
   useFrame((state, delta) => {
     if (groupRef.current) {
       // Bouncy scale on hover
@@ -116,21 +118,30 @@ const WarriorPiece = () => {
       groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale } as THREE.Vector3, 0.15);
       
       // Playful bounce & wobble on hover
-      if (hovered && !clicked) {
+      if (hovered && spinVelocity.current < 0.1) {
         groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 10) * 0.1;
       } else {
         groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, 0.1);
       }
       
-      // Wild spin on click
+      // Wild spin on click with gentle decay
       if (clicked) {
-        groupRef.current.rotation.y += delta * 20;
-        if (groupRef.current.rotation.y > Math.PI * 4) { // Double spin!
-          groupRef.current.rotation.y = groupRef.current.rotation.y % (Math.PI * 2);
-          setClicked(false);
-        }
+        spinVelocity.current = 30; // Powerful initial spin
+        setClicked(false);
+      }
+      
+      if (spinVelocity.current > 0.1) {
+        groupRef.current.rotation.y += spinVelocity.current * delta;
+        spinVelocity.current *= 0.96; // Smoothly and gently drop the speed
       } else {
-        groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, 0, 0.1);
+        // Gently magnet back to the nearest forward-facing position (multiple of 2*PI)
+        const currentY = groupRef.current.rotation.y;
+        const twoPi = Math.PI * 2;
+        const remainder = currentY % twoPi;
+        let targetY = currentY - remainder;
+        if (remainder > Math.PI) targetY += twoPi;
+        
+        groupRef.current.rotation.y = THREE.MathUtils.lerp(currentY, targetY, 0.05);
       }
     }
   });
