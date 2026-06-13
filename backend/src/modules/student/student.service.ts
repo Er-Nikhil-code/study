@@ -386,9 +386,9 @@ export class StudentService {
       startDate.setDate(now.getDate() - 30);
     }
 
-    // Aggregate scores from attempts in the period
     const whereClause: any = {
       status: "SCORED",
+      attempt_no: 1, // Only count first attempts for leaderboard points
       submitted_at: { gte: startDate },
       user: { role: targetRole as any },
     };
@@ -407,7 +407,7 @@ export class StudentService {
             first_name: true,
             last_name: true,
             user_stats: {
-              select: { current_streak: true, avg_accuracy: true },
+              select: { current_streak: true },
             },
           },
         },
@@ -421,6 +421,7 @@ export class StudentService {
         user_id: string;
         name: string;
         total_score: number;
+        total_max_score: number;
         tests: number;
         accuracy: number;
         streak: number;
@@ -435,19 +436,33 @@ export class StudentService {
             [a.user.first_name, a.user.last_name].filter(Boolean).join(" ") ||
             "Anonymous",
           total_score: 0,
+          total_max_score: 0,
           tests: 0,
-          accuracy: a.user.user_stats?.avg_accuracy ?? 0,
+          accuracy: 0,
           streak: a.user.user_stats?.current_streak ?? 0,
         };
       }
       userMap[a.user_id].total_score += a.score || 0;
+      userMap[a.user_id].total_max_score += a.max_score || 0;
       userMap[a.user_id].tests++;
     }
 
     const rows = Object.values(userMap)
+      .map((u) => {
+        u.accuracy = u.total_max_score > 0 ? (u.total_score / u.total_max_score) * 100 : 0;
+        return u;
+      })
       .sort((a, b) => b.total_score - a.total_score)
       .slice(0, take)
-      .map((u, idx) => ({ ...u, rank: idx + 1 }));
+      .map((u, idx) => ({
+        user_id: u.user_id,
+        name: u.name,
+        total_score: u.total_score,
+        tests: u.tests,
+        accuracy: u.accuracy,
+        streak: u.streak,
+        rank: idx + 1,
+      }));
 
     return { period, data: rows };
   }

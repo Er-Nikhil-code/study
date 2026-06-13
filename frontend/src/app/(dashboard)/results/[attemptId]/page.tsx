@@ -145,7 +145,7 @@ export default function ResultDetailPage() {
                   <Panel className="p-0 overflow-hidden flex flex-col h-full border border-white/10 relative">
                     {/* Header */}
                     <div className="bg-zinc-900/80 text-white flex items-center justify-between px-6 py-4 shrink-0 border-b border-white/10 shadow-sm">
-                      <div className="font-bold text-lg text-blue-400">Question {idx + 1}</div>
+                      <div className="font-bold text-lg text-white">Question {idx + 1}</div>
                       <div className="flex items-center gap-4 text-sm font-medium">
                         <span className="bg-zinc-800 px-3 py-1 rounded-full">
                           Marks: <span className="text-emerald-400">+{tq.marks_override ?? q.marks}</span> | <span className="text-red-400">-{q.negative_marks ?? 0}</span>
@@ -304,9 +304,9 @@ export default function ResultDetailPage() {
                       </div>
 
                       {/* Solution */}
-                      {viewMode === "analysis" && q.solution_json && (
-                        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5 mt-8 mb-6">
-                          <div className="text-xs uppercase tracking-wide text-blue-400 mb-3 font-semibold flex items-center gap-2">
+                      {q.solution_json && (
+                        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5 mt-8 mb-6">
+                          <div className="text-xs uppercase tracking-wide text-zinc-400 mb-3 font-semibold flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             Solution & Explanation
                           </div>
@@ -319,9 +319,9 @@ export default function ResultDetailPage() {
                       <div className="flex items-center justify-between mt-8 border-t border-white/10 pt-6">
                         <button
                           onClick={() => setChallengeQ({ ...q, responseId: r?.id })}
-                          className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-2 text-sm font-medium text-red-400/70 transition hover:bg-red-500/10 hover:text-red-300 flex items-center gap-2"
+                          className="text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 transition flex items-center gap-2"
                         >
-                          ⚡ Challenge This Question
+                          Review
                         </button>
                         <div className="text-xs text-zinc-500 text-right">
                           {q.topic?.chapter?.section?.course?.name ?? "Course"} → {q.topic?.chapter?.name} → {q.topic?.name}
@@ -345,7 +345,7 @@ export default function ResultDetailPage() {
                       <button 
                         onClick={() => setActiveQuestionIdx(Math.min(testQuestions.length - 1, idx + 1))}
                         disabled={idx === testQuestions.length - 1}
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-md text-sm font-bold transition flex items-center gap-2 disabled:opacity-50"
+                        className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md text-sm font-bold transition flex items-center gap-2 disabled:opacity-50"
                       >
                         Next →
                       </button>
@@ -365,7 +365,7 @@ export default function ResultDetailPage() {
           <div className="w-full lg:w-80 shrink-0">
             <Panel className="p-0 overflow-hidden sticky top-6">
               
-              <div className="h-12 bg-blue-600 text-white flex items-center px-5 text-sm font-bold shadow-inner">
+              <div className="h-12 bg-zinc-900 border-b border-white/10 text-white flex items-center px-5 text-sm font-bold shadow-inner">
                 Test Navigation
               </div>
 
@@ -396,7 +396,7 @@ export default function ResultDetailPage() {
                       <button
                         key={tq.id}
                         onClick={() => setActiveQuestionIdx(idx)}
-                        className={`w-full aspect-square flex items-center justify-center rounded-lg text-sm font-bold shadow-sm transition hover:scale-105 ${bgClass} ${isCurrent ? 'ring-2 ring-offset-2 ring-offset-zinc-950 ring-blue-500' : ''}`}
+                        className={`w-full aspect-square flex items-center justify-center rounded-lg text-sm font-bold shadow-sm transition hover:scale-105 ${bgClass} ${isCurrent ? 'ring-2 ring-offset-2 ring-offset-zinc-950 ring-white/50' : ''}`}
                       >
                         {idx + 1}
                       </button>
@@ -425,8 +425,8 @@ export default function ResultDetailPage() {
               </div>
             ) : (
               <>
-                <h3 className="text-lg font-semibold text-white mb-1">Challenge Question</h3>
-                <p className="text-sm text-zinc-400 mb-4">Are you sure you want to challenge this question?</p>
+                <h3 className="text-lg font-semibold text-white mb-1">Review Question</h3>
+                <p className="text-sm text-zinc-400 mb-4">Are you sure you want to flag this question for review?</p>
 
                 <div className="space-y-4">
                   <div>
@@ -441,7 +441,7 @@ export default function ResultDetailPage() {
                   <div>
                     <label className="block text-xs font-medium text-gray-300 mb-2 uppercase tracking-wide">Description</label>
                     <textarea value={challengeDesc} onChange={(e) => setChallengeDesc(e.target.value)}
-                      placeholder="Reason for challenge..."
+                      placeholder="Reason for review..."
                       className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30 min-h-[100px]" />
                   </div>
                 </div>
@@ -450,8 +450,8 @@ export default function ResultDetailPage() {
                   <button onClick={() => { setChallengeQ(null); setChallengeDesc(""); }}
                     className="rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-400 transition hover:text-white">Cancel</button>
                   <button onClick={handleChallenge} disabled={challengeLoading || !challengeDesc.trim()}
-                    className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
-                    {challengeLoading ? "Submitting…" : "Submit Challenge"}
+                    className="rounded-xl bg-zinc-800 border border-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50">
+                    {challengeLoading ? "Submitting…" : "Submit Review"}
                   </button>
                 </div>
               </>

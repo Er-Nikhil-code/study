@@ -221,7 +221,7 @@ const AnimatedPiece = ({ role, progressPct }: { role: string, progressPct?: numb
       
       // Fast spin for the first 3 seconds, easing out
       if (elapsed < 3) {
-        const spinSpeed = 15 * Math.pow(1 - elapsed / 3, 2); 
+        const spinSpeed = 40 * Math.pow(1 - elapsed / 3, 3); 
         groupRef.current.rotation.y += spinSpeed * delta;
       }
 

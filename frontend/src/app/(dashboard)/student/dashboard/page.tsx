@@ -146,14 +146,14 @@ export default function StudentDashboardPage() {
               <Panel className="overflow-hidden p-0 flex-1 flex flex-col">
                 <div className="overflow-x-auto">
                   <div className="min-w-full">
-                    <div className="grid grid-cols-[40px_minmax(0,1fr)_50px_50px_60px_50px] gap-2 border-b border-white/10 px-4 py-4 text-[9px] uppercase tracking-[0.2em] text-zinc-500 text-center">
+                    <div className="grid grid-cols-[40px_minmax(120px,2.5fr)_minmax(60px,1fr)_minmax(60px,1fr)_minmax(80px,1fr)_minmax(60px,1fr)] gap-2 border-b border-white/10 px-4 py-4 text-[9px] uppercase tracking-[0.2em] text-zinc-500 text-center">
                       <div>Rank</div><div className="text-left">Name</div><div className="text-left">Score</div><div>Tests</div><div>Accuracy</div><div>Streak</div>
                     </div>
 
                     {loadingLeaderboard ? (
                       <div className="divide-y divide-white/10">
                         {[...Array(5)].map((_, i) => (
-                          <div key={i} className="grid grid-cols-[40px_minmax(0,1fr)_50px_50px_60px_50px] gap-2 px-4 py-4">
+                          <div key={i} className="grid grid-cols-[40px_minmax(120px,2.5fr)_minmax(60px,1fr)_minmax(60px,1fr)_minmax(80px,1fr)_minmax(60px,1fr)] gap-2 px-4 py-4">
                             <div className="h-4 w-6 mx-auto rounded bg-white/10 animate-pulse" />
                             <div className="h-4 w-24 rounded bg-white/10 animate-pulse" />
                             <div className="h-4 w-8 rounded bg-white/10 animate-pulse text-left" />
@@ -169,7 +169,7 @@ export default function StudentDashboardPage() {
                       <div className="divide-y divide-white/10">
                         {leaderboardRes.data.map((row: any) => (
                           <div key={row.user_id}
-                            className={`grid grid-cols-[40px_minmax(0,1fr)_50px_50px_60px_50px] gap-2 px-4 py-3 text-xs items-center ${
+                            className={`grid grid-cols-[40px_minmax(120px,2.5fr)_minmax(60px,1fr)_minmax(60px,1fr)_minmax(80px,1fr)_minmax(60px,1fr)] gap-2 px-4 py-3 text-xs items-center ${
                               row.rank <= 3 ? "bg-white/[0.02]" : ""
                             }`}>
                             <div className={`font-bold text-center ${
