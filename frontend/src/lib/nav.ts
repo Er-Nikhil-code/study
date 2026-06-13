@@ -78,15 +78,8 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
   }
 
   // Tests
-  const testSubItems: NavItem[] = [];
-  if (hasPerm("create_test") || user.role === "TEACHER") {
-    testSubItems.push({ label: "Create Test", href: "/teacher/tests/create", icon: PlusCircle });
-  }
-  if (hasPerm("manage_tests") || user.role === "TEACHER" || user.role === "ADMIN") {
-    testSubItems.push({ label: "Manage Tests", href: "/teacher/tests", icon: FileText });
-  }
-  if (testSubItems.length > 0) {
-    items.push({ label: "Tests", href: "#", icon: FileText, subItems: testSubItems });
+  if (hasPerm("manage_tests") || hasPerm("create_test") || user.role === "TEACHER") {
+    items.push({ label: "Tests", href: "/teacher/tests", icon: FileText });
   }
 
   // Notes
