@@ -81,7 +81,7 @@ export default function CartPage() {
         prefill: {
           name: user ? `${user.first_name || ""} ${user.last_name || ""}`.trim() : "Student",
           email: user?.email || "",
-          contact: "", // Prevent Razorpay from auto-filling a personal number cached from browser history
+          contact: " ", // Use a single space to prevent Razorpay from falling back to browser cookies while keeping the box visually empty
         },
         theme: {
           color: "#EF4444",
