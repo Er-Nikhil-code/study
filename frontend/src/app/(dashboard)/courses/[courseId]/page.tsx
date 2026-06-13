@@ -6,8 +6,9 @@ import Panel from "@/components/ui/Panel";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { HierarchyService } from "@/services/hierarchy.service";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield, Loader2, Search } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield, Loader2, Search, Swords } from "lucide-react";
 import CourseLeaderboard from "@/components/ui/CourseLeaderboard";
+import ChessPiece3D from "@/components/ui/ChessPiece3D";
 import { api } from "@/lib/api";
 import { adminService } from "@/services/admin.service";
 import { useAuthStore } from "@/store/auth.store";
@@ -76,6 +77,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   const [draggedItem, setDraggedItem] = useState<{ id: string; type: "SECTION" | "CHAPTER" | "TOPIC"; sourceParentId: string | null; index: number } | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [dragOverParentId, setDragOverParentId] = useState<string | null>(null);
+  const [hoveredRingSection, setHoveredRingSection] = useState<{name: string, pct: number, comp: number, total: number} | null>(null);
 
   const fetchCourse = (isInitial = false) => {
     setLoading(true);
@@ -349,16 +351,112 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
         </div>
       )}
       
-      <div className={`transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'} w-[90%]`}>
         <div className="mb-6 flex justify-between items-start">
-            <div>
-              <Link href="/courses" className="text-sm text-zinc-400 hover:text-white flex items-center gap-1 mb-4">
-                <ChevronLeft size={16} /> Back to Courses
-              </Link>
-              <SectionTitle 
-                title={course.name} 
-                subtitle={canSeeCode ? `Course Code: ${course.code} • Creator: ${course.creator?.first_name || "Admin"}` : "Course Curriculum"} 
-              />
+            <div className="flex items-center gap-6">
+              <div>
+                <Link href="/courses" className="text-sm text-zinc-400 hover:text-white flex items-center gap-1 mb-4">
+                  <ChevronLeft size={16} /> Back to Courses
+                </Link>
+                <SectionTitle 
+                  title={course.name} 
+                  subtitle={canSeeCode ? `Course Code: ${course.code} • Creator: ${course.creator?.first_name || "Admin"}` : "Course Curriculum"} 
+                />
+              </div>
+              
+              {user?.role === "STUDENT" && course.is_enrolled && (
+                (() => {
+                  const S = course.sections?.length || 0;
+                  if (S === 0) return null;
+                  
+                  const r = 18;
+                  const circ = 2 * Math.PI * r;
+                  const gapAngle = S > 1 ? 8 : 0;
+                  const segmentAngle = (360 / S) - gapAngle;
+                  const segmentLength = (segmentAngle / 360) * circ;
+
+                  // Overall completion
+                  const totalTopics = course.sections?.flatMap((s:any) => s.chapters?.flatMap((c:any) => c.topics || []) || [])?.length || 0;
+                  const completedTopics = course.sections?.flatMap((s:any) => s.chapters?.flatMap((c:any) => c.topics || []) || [])?.filter((t:any) => t?.is_completed)?.length || 0;
+                  const overallPct = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
+
+                  return (
+                    <div className="relative flex items-center justify-center w-14 h-14 shrink-0 mt-4" onMouseLeave={() => setHoveredRingSection(null)}>
+                      <svg className="w-14 h-14 overflow-visible" viewBox="0 0 40 40">
+                        {course.sections.map((sec: any, i: number) => {
+                          const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
+                          const total = tTopics.length;
+                          const comp = tTopics.filter((t:any) => t?.is_completed).length;
+                          const pct = total === 0 ? 0 : comp / total;
+                          const rotation = (360 / S) * i - 90 + (gapAngle / 2);
+
+                          return (
+                            <g 
+                              key={sec.id} 
+                              className="cursor-crosshair transition-all duration-300 hover:opacity-80"
+                              onMouseEnter={() => setHoveredRingSection({ name: sec.name, pct: Math.round(pct * 100), comp, total })}
+                            >
+                              {/* Background Segment */}
+                              <circle 
+                                cx="20" cy="20" r="18" 
+                                stroke="currentColor" 
+                                strokeWidth="3" 
+                                fill="transparent" 
+                                strokeDasharray={`${segmentLength} ${circ}`}
+                                transform={`rotate(${rotation}, 20, 20)`}
+                                strokeLinecap="round"
+                                className="text-white/10" 
+                              />
+                              {/* Foreground Segment */}
+                              {pct > 0 && (
+                                <circle 
+                                  cx="20" cy="20" r="18" 
+                                  stroke="currentColor" 
+                                  strokeWidth="3" 
+                                  fill="transparent" 
+                                  strokeDasharray={`${pct * segmentLength} ${circ}`}
+                                  transform={`rotate(${rotation}, 20, 20)`}
+                                  strokeLinecap="round"
+                                  className="text-red-500 drop-shadow-[0_0_6px_rgba(239,68,68,0.6)] transition-all duration-1000 ease-out" 
+                                />
+                              )}
+                              {/* Invisible larger hit area for easier hover */}
+                              <circle 
+                                cx="20" cy="20" r="18" 
+                                stroke="transparent" 
+                                strokeWidth="12" 
+                                fill="transparent" 
+                                strokeDasharray={`${segmentLength} ${circ}`}
+                                transform={`rotate(${rotation}, 20, 20)`}
+                              />
+                            </g>
+                          );
+                        })}
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center group-hover:scale-110 transition-transform pointer-events-auto">
+                        <div className="w-[120%] h-[120%]">
+                          <ChessPiece3D role="STUDENT" />
+                        </div>
+                      </div>
+                      
+                      {/* Tooltip */}
+                      <div className={`absolute top-full mt-3 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-[10px] font-semibold tracking-wider px-3 py-2 rounded-xl whitespace-nowrap shadow-2xl pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
+                        {hoveredRingSection ? (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-zinc-400 text-[9px] uppercase max-w-[150px] truncate">{hoveredRingSection.name}</span>
+                            <span className="text-red-400">{hoveredRingSection.pct}% COMPLETED ({hoveredRingSection.comp}/{hoveredRingSection.total})</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-zinc-400 text-[9px] uppercase">OVERALL PROGRESS</span>
+                            <span className="text-red-400">{overallPct}% COMPLETED</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()
+              )}
             </div>
             <div className="flex items-center gap-4">
               {user?.role === "STUDENT" && !course.is_enrolled && (
@@ -396,7 +494,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 w-full">
-            <div className="flex-1 space-y-8 max-w-4xl">
+            <div className="flex-1 space-y-8">
             {addingSection && (
               <Panel className="border border-red-500/30 bg-black/50">
                 <form onSubmit={handleCreateSection} className="flex flex-col gap-4">
