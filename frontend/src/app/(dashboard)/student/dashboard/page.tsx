@@ -180,7 +180,7 @@ export default function StudentDashboardPage() {
                             <div className="truncate text-white text-left">{row.name}</div>
                             <div className="text-white font-medium text-left">{row.total_score}</div>
                             <div className="text-zinc-400 text-center">{row.tests}</div>
-                            <div className="text-zinc-400 text-center">{row.accuracy ? `${Math.round(row.accuracy)}%` : "—"}</div>
+                            <div className="text-zinc-400 text-center">{row.accuracy !== undefined && row.accuracy !== null ? `${Math.round(row.accuracy)}%` : "—"}</div>
                             <div className="text-zinc-400 text-center">{row.streak}d</div>
                           </div>
                         ))}

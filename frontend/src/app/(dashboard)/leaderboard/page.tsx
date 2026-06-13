@@ -80,7 +80,7 @@ export default function LeaderboardPage() {
                   <div className="truncate text-white">{row.name}</div>
                   <div className="text-white font-medium">{row.total_score}</div>
                   <div className="text-zinc-400">{row.tests}</div>
-                  <div className="text-zinc-400">{row.accuracy ? `${Math.round(row.accuracy)}%` : "—"}</div>
+                  <div className="text-zinc-400">{row.accuracy !== undefined && row.accuracy !== null ? `${Math.round(row.accuracy)}%` : "—"}</div>
                   <div className="text-zinc-400">{row.streak}d</div>
                 </div>
               ))}

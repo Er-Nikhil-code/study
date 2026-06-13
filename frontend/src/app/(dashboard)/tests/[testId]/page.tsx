@@ -166,7 +166,8 @@ export default function TestDetailsPage() {
         </Panel>
 
         {leaderboardData && (
-          <Panel className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
+          <div className="w-full lg:w-1/2">
+            <Panel className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
             <h3 className="text-lg font-bold text-white mb-2">Leaderboard Analysis</h3>
             <p className="text-sm text-zinc-400 mb-6">
               Ranks are calculated based on the <strong>First Attempt</strong> only. Total participants: {leaderboardData.total_participants}
@@ -190,10 +191,10 @@ export default function TestDetailsPage() {
               <table className="w-full text-center text-sm text-zinc-300">
                 <thead className="bg-black/40 text-xs uppercase text-zinc-500">
                   <tr>
-                    <th className="px-4 py-3 rounded-tl-xl">Rank</th>
-                    <th className="px-4 py-3">Warrior</th>
-                    <th className="px-4 py-3">Score</th>
-                    <th className="px-4 py-3 rounded-tr-xl">Time Taken</th>
+                    <th className="px-4 py-3 rounded-tl-xl text-center w-1/4">Rank</th>
+                    <th className="px-4 py-3 text-center w-1/4">Warrior</th>
+                    <th className="px-4 py-3 text-center w-1/4">Score</th>
+                    <th className="px-4 py-3 rounded-tr-xl text-center w-1/4">Time Taken</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -209,7 +210,7 @@ export default function TestDetailsPage() {
                         <td className="px-4 py-3 font-medium">
                           {row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : row.rank === 3 ? '🥉' : `#${row.rank}`}
                         </td>
-                        <td className="px-4 py-3 flex items-center gap-2">
+                        <td className="px-4 py-3 flex items-center justify-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden">
                             {row.user?.profile_picture ? (
                               <Image src={row.user.profile_picture} alt="" width={24} height={24} className="w-full h-full object-cover" />
@@ -232,7 +233,8 @@ export default function TestDetailsPage() {
                 </tbody>
               </table>
             </div>
-          </Panel>
+            </Panel>
+          </div>
         )}
 
         {test.test_questions && test.test_questions.length > 0 && test.test_questions[0]?.question?.question_type && (
