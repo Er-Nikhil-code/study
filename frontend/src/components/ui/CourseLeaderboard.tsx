@@ -10,7 +10,7 @@ const PERIODS = [
   { value: "global", label: "All Time" },
 ] as const;
 
-export default function CourseLeaderboard({ courseId }: { courseId: string }) {
+export default function CourseLeaderboard({ courseId, headerActions }: { courseId: string, headerActions?: React.ReactNode }) {
   const [period, setPeriod] = useState<"weekly" | "monthly" | "global">("global");
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,17 +28,20 @@ export default function CourseLeaderboard({ courseId }: { courseId: string }) {
     <div className="mt-8">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-white">Course Leaderboard</h2>
-        <div className="flex gap-2 bg-black/40 p-1 rounded-xl border border-white/5">
-          {PERIODS.map((p) => (
-            <button key={p.value} onClick={() => setPeriod(p.value)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                period === p.value
-                  ? "bg-zinc-800 text-white shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-300"
-              }`}>
-              {p.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2 bg-black/40 p-1 rounded-xl border border-white/5">
+            {PERIODS.map((p) => (
+              <button key={p.value} onClick={() => setPeriod(p.value)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                  period === p.value
+                    ? "bg-zinc-800 text-white shadow-sm"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}>
+                {p.label}
+              </button>
+            ))}
+          </div>
+          {headerActions}
         </div>
       </div>
 
@@ -72,7 +75,7 @@ export default function CourseLeaderboard({ courseId }: { courseId: string }) {
               No warriors are currently active in this course.
             </div>
           ) : (
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-white/5 max-h-[350px] overflow-y-auto custom-scrollbar">
               {rows.map((row) => (
                 <div key={row.user_id}
                   className={`grid grid-cols-[80px_minmax(0,1fr)_100px_80px_100px_80px] gap-3 px-5 py-4 text-sm items-center transition-colors hover:bg-white/[0.02] ${

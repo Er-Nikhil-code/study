@@ -248,37 +248,39 @@ export default function AdminUserProfilePage() {
                   )}
                 </div>
 
-                <div className={`flex ${isEditing ? 'flex-col items-start gap-1' : 'justify-between items-center'}`}>
-                  <span className="text-zinc-500">Enrolled Course</span>
-                  {isEditing ? (
-                    <div className="flex w-full items-center gap-2">
-                      <select
-                        value={editForm.course_enrolled}
-                        onChange={e => setEditForm({ ...editForm, course_enrolled: e.target.value })}
-                        className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-red-500/50"
-                      >
-                        <option value="">No Course Enrolled</option>
-                        {courses.map((c: any) => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                      </select>
-                      {editForm.course_enrolled && (
-                        <button
-                          type="button"
-                          onClick={() => setEditForm({ ...editForm, course_enrolled: "" })}
-                          className="px-2 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded transition"
-                          title="Remove warrior from this course"
+                {user.role === "STUDENT" && (
+                  <div className={`flex ${isEditing ? 'flex-col items-start gap-1' : 'justify-between items-center'}`}>
+                    <span className="text-zinc-500">Enrolled Course</span>
+                    {isEditing ? (
+                      <div className="flex w-full items-center gap-2">
+                        <select
+                          value={editForm.course_enrolled}
+                          onChange={e => setEditForm({ ...editForm, course_enrolled: e.target.value })}
+                          className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-red-500/50"
                         >
-                          Unenroll
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-zinc-300">
-                      {courses.find((c: any) => c.id === user.course_enrolled)?.name || user.course_enrolled || "—"}
-                    </span>
-                  )}
-                </div>
+                          <option value="">No Course Enrolled</option>
+                          {courses.map((c: any) => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                          ))}
+                        </select>
+                        {editForm.course_enrolled && (
+                          <button
+                            type="button"
+                            onClick={() => setEditForm({ ...editForm, course_enrolled: "" })}
+                            className="px-2 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded transition"
+                            title="Remove warrior from this course"
+                          >
+                            Unenroll
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-zinc-300">
+                        {courses.find((c: any) => c.id === user.course_enrolled)?.name || user.course_enrolled || "—"}
+                      </span>
+                    )}
+                  </div>
+                )}
                 {user.assigned_teacher && (
                   <div className="flex justify-between items-center">
                     <span className="text-zinc-500">Knight</span>

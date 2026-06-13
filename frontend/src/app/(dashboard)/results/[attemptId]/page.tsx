@@ -83,10 +83,14 @@ export default function ResultDetailPage() {
   }
 
   const responses = data.responses || [];
+  const testQuestions = data.test?.test_questions || [];
   const correct = responses.filter((r: any) => r.is_correct === true).length;
   const wrong = responses.filter((r: any) => r.is_correct === false).length;
-  const skipped = (data.test?._count?.test_questions || 0) - responses.length;
+  const skipped = Math.max(0, testQuestions.length - responses.length);
   const timeTaken = data.time_taken_sec ? `${Math.floor(data.time_taken_sec / 60)}m ${data.time_taken_sec % 60}s` : "—";
+  
+  const calculatedTotalMarks = testQuestions.reduce((acc: number, tq: any) => acc + (tq.marks_override ?? tq.question.marks), 0) || data.test?.total_marks;
+
 
   return (
     <>
@@ -98,7 +102,7 @@ export default function ResultDetailPage() {
             <div>
               <div className="text-sm text-zinc-400">Overall Score</div>
               <div className="mt-2 text-4xl font-semibold tracking-tight text-white">
-                {data.score ?? 0}<span className="text-zinc-500 text-2xl">/{data.test?.total_marks}</span>
+                {data.score ?? 0}<span className="text-zinc-500 text-2xl">/{calculatedTotalMarks}</span>
               </div>
             </div>
             <div className="text-sm text-zinc-400">Time: <span className="font-semibold text-white">{timeTaken}</span></div>
@@ -116,23 +120,24 @@ export default function ResultDetailPage() {
         <h3 className="mt-8 text-sm uppercase tracking-[0.2em] text-zinc-500 mb-4">Question-by-Question Review</h3>
 
         <div className="space-y-3">
-          {responses.map((r: any, idx: number) => {
-            const q = r.question;
-            const isExpanded = expandedQ === r.id;
+          {testQuestions.map((tq: any, idx: number) => {
+            const q = tq.question;
+            const r = responses.find((resp: any) => resp.question_id === q.id);
+            const isExpanded = expandedQ === q.id;
 
             return (
-              <Panel key={r.id} className="p-0 overflow-hidden">
+              <Panel key={q.id} className="p-0 overflow-hidden">
                 <button
-                  onClick={() => setExpandedQ(isExpanded ? null : r.id)}
+                  onClick={() => setExpandedQ(isExpanded ? null : q.id)}
                   className="w-full text-left px-5 py-4 flex items-center justify-between gap-3"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <span className={`flex-shrink-0 h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold ${
-                      r.is_correct === true ? "bg-emerald-500/20 text-emerald-300"
-                        : r.is_correct === false ? "bg-red-500/20 text-red-300"
+                      r?.is_correct === true ? "bg-emerald-500/20 text-emerald-300"
+                        : r?.is_correct === false ? "bg-red-500/20 text-red-300"
                         : "bg-zinc-800 text-zinc-400"
                     }`}>
-                      {r.is_correct === true ? "✓" : r.is_correct === false ? "✗" : "—"}
+                      {r?.is_correct === true ? "✓" : r?.is_correct === false ? "✗" : "—"}
                     </span>
                     <div className="truncate">
                       <span className="text-sm text-white">{`Q${idx + 1}`}</span>
@@ -141,9 +146,9 @@ export default function ResultDetailPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-xs font-medium ${
-                      (r.marks_obtained ?? 0) > 0 ? "text-emerald-300" : (r.marks_obtained ?? 0) < 0 ? "text-red-400" : "text-zinc-500"
+                      (r?.marks_obtained ?? 0) > 0 ? "text-emerald-300" : (r?.marks_obtained ?? 0) < 0 ? "text-red-400" : "text-zinc-500"
                     }`}>
-                      {r.marks_obtained !== null ? (r.marks_obtained > 0 ? `+${r.marks_obtained}` : r.marks_obtained) : "0"}
+                      {r?.marks_obtained !== undefined && r?.marks_obtained !== null ? (r.marks_obtained > 0 ? `+${r.marks_obtained}` : r.marks_obtained) : "0"}
                     </span>
                     <span className="text-zinc-500 text-xs">{isExpanded ? "▲" : "▼"}</span>
                   </div>
@@ -156,21 +161,34 @@ export default function ResultDetailPage() {
 
                     {/* Your answer vs correct answer */}
                     <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
-                        <div className="text-xs uppercase tracking-wide text-zinc-500 mb-1">Your Answer</div>
-                        <div className="text-sm text-white">{JSON.stringify(r.answer_json)}</div>
+                      <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                        <div className="text-xs uppercase tracking-wide text-zinc-500 mb-2 font-semibold">Your Answer</div>
+                        <div className="text-sm text-white bg-black/20 p-3 rounded-lg border border-white/5 font-mono">
+                          {r ? (
+                            r.answer_json?.correct_option || r.answer_json?.answer?.toString() || JSON.stringify(r.answer_json)
+                          ) : (
+                            <span className="text-zinc-500 italic">Skipped</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-                        <div className="text-xs uppercase tracking-wide text-emerald-400 mb-1">Correct Answer</div>
-                        <div className="text-sm text-emerald-200">{JSON.stringify(q.answer_key)}</div>
+                      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                        <div className="text-xs uppercase tracking-wide text-emerald-400 mb-2 font-semibold">Correct Answer</div>
+                        <div className="text-sm text-emerald-200 bg-emerald-950/30 p-3 rounded-lg border border-emerald-500/10 font-mono">
+                          {q.answer_key?.correct_option || q.answer_key?.answer?.toString() || JSON.stringify(q.answer_key)}
+                        </div>
                       </div>
                     </div>
 
                     {/* Solution */}
                     {q.solution_json && (
-                      <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                        <div className="text-xs uppercase tracking-wide text-zinc-500 mb-2">Solution</div>
-                        <ContentBlockRenderer blocks={Array.isArray(q.solution_json) ? q.solution_json : []} />
+                      <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 mt-4">
+                        <div className="text-xs uppercase tracking-wide text-blue-400 mb-3 font-semibold flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          Solution & Explanation
+                        </div>
+                        <div className="text-sm text-zinc-300 leading-relaxed">
+                          {typeof q.solution_json === 'string' ? q.solution_json : <ContentBlockRenderer blocks={Array.isArray(q.solution_json) ? q.solution_json : []} />}
+                        </div>
                       </div>
                     )}
 

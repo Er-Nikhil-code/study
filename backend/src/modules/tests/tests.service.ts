@@ -807,6 +807,42 @@ export class TestsService {
             duration_minutes: true,
             total_marks: true,
             created_by: true,
+            _count: { select: { test_questions: true } },
+            test_questions: {
+              include: {
+                question: {
+                  select: {
+                    id: true,
+                    question_type: true,
+                    content_json: true,
+                    options_json: true,
+                    answer_key: true,
+                    solution_json: true,
+                    difficulty: true,
+                    marks: true,
+                    negative_marks: true,
+                    topic: {
+                      select: {
+                        id: true,
+                        name: true,
+                        chapter: {
+                          select: {
+                            name: true,
+                            section: { 
+                              select: { 
+                                name: true,
+                                course: { select: { name: true } }
+                              } 
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              orderBy: { order: "asc" },
+            },
           },
         },
         responses: {

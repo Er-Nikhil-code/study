@@ -752,30 +752,23 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                                 <FileText size={14} /> Notes
                                               </Link>
                                             )}
-                                            {topic.has_attempted_tests ? (
-                                              <>
-                                                <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors">
-                                                  <CheckCircle size={14} /> Re-attempt
-                                                </Link>
-                                                {topic.latest_attempt_id && (
-                                                  <Link href={`/results/${topic.latest_attempt_id}?testId=${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors">
-                                                    <BarChart2 size={14} /> Analysis
-                                                  </Link>
-                                                )}
-                                              </>
-                                            ) : (
+                                            
+                                            {user?.role === "ADMIN" || user?.role === "TEACHER" ? (
                                               <>
                                                 {topic.test_id ? (
-                                                  <div className="flex-1 flex gap-1 items-center">
-                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-medium text-white shadow-lg shadow-red-500/20 transition-all">
-                                                      <CheckCircle size={14} /> Take Test
+                                                  <>
+                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors">
+                                                      <FileText size={14} /> Test
+                                                    </Link>
+                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors">
+                                                      <BarChart2 size={14} /> Analysis
                                                     </Link>
                                                     {isCreatorOrAdmin && (
-                                                      <button onClick={(e) => handleDeleteTest(e, topic.test_id)} className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 transition-colors">
-                                                        <Trash2 size={14} />
-                                                      </button>
+                                                      <Link href={`/teacher/tests/${topic.test_id}/edit`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-xs font-medium text-blue-400 transition-colors">
+                                                        <Edit2 size={14} /> Edit
+                                                      </Link>
                                                     )}
-                                                  </div>
+                                                  </>
                                                 ) : isCreatorOrAdmin ? (
                                                   <Link href={`/teacher/tests/create?topic_id=${topic.id}&topic_name=${encodeURIComponent(topic.name)}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-medium text-white shadow-lg shadow-emerald-500/20 transition-all">
                                                     <Plus size={14} /> Create Test
@@ -784,6 +777,35 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                                   <span className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 text-xs font-medium text-zinc-500">
                                                     No Test Yet
                                                   </span>
+                                                )}
+                                              </>
+                                            ) : (
+                                              <>
+                                                {topic.has_attempted_tests ? (
+                                                  <>
+                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors">
+                                                      <CheckCircle size={14} /> Re-attempt
+                                                    </Link>
+                                                    {topic.latest_attempt_id && (
+                                                      <Link href={`/results/${topic.latest_attempt_id}?testId=${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors">
+                                                        <BarChart2 size={14} /> Analysis
+                                                      </Link>
+                                                    )}
+                                                  </>
+                                                ) : (
+                                                  <>
+                                                    {topic.test_id ? (
+                                                      <div className="flex-1 flex gap-1 items-center">
+                                                        <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-medium text-white shadow-lg shadow-red-500/20 transition-all">
+                                                          <CheckCircle size={14} /> Take Test
+                                                        </Link>
+                                                      </div>
+                                                    ) : (
+                                                      <span className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 text-xs font-medium text-zinc-500">
+                                                        No Test Yet
+                                                      </span>
+                                                    )}
+                                                  </>
                                                 )}
                                               </>
                                             )}
@@ -882,8 +904,32 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             )}
 
 
+          </div>
+        </div>
+
+        {/* Bottom Section: Leaderboard and Enrolled Students side by side */}
+        {(user?.role === "ADMIN" || user?.role === "STUDENT" || user?.role === "TEACHER") && (
+          <div className="mt-12 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 max-w-7xl mx-auto items-start">
+            
+            {/* Leaderboard */}
+            <div className="relative w-full">
+              {user?.role === "STUDENT" && !course.is_enrolled && (
+                <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center border border-white/10 shadow-2xl">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-900 border border-white/10 text-zinc-500 mb-4 shadow-inner">
+                    <Lock size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Leaderboard Locked</h3>
+                  <p className="text-zinc-400 max-w-sm text-center text-sm">
+                    Enroll in the course to view rankings, compare scores, and compete with other warriors.
+                  </p>
+                </div>
+              )}
+              <CourseLeaderboard courseId={courseId} />
+            </div>
+
+            {/* Enrolled Students */}
             {user?.role === "ADMIN" && (
-              <Panel className="bg-zinc-900/50 border-white/10 relative z-10">
+              <Panel className="bg-zinc-900/50 border-white/10 relative z-10 w-full h-full flex flex-col">
                 <button
                   onClick={() => setIsStudentsOpen(!isStudentsOpen)}
                   className="w-full flex items-center justify-between text-left group"
@@ -899,7 +945,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 </button>
                 
                 {isStudentsOpen && (
-                  <div className="mt-5 pt-5 border-t border-white/5">
+                  <div className="mt-5 pt-5 border-t border-white/5 flex-1 flex flex-col">
                     <div className="relative mb-4">
                       <input
                         type="text"
@@ -910,7 +956,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       />
                       <Search size={14} className="absolute left-3 top-2.5 text-zinc-500" />
                     </div>
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                    <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
                       {(() => {
                         const filtered = (enrollments || []).filter((e: any) => {
                           const term = searchStudent.toLowerCase();
@@ -936,7 +982,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                               <Link href={`/admin/users/${e.user.id}`} className="text-sm text-zinc-300 font-medium truncate hover:text-red-400 transition block">
                                 {[e.user.first_name, e.user.last_name].filter(Boolean).join(" ") || "Unknown User"}
                               </Link>
-                              <p className="text-[10px] text-zinc-500 font-mono truncate mt-0.5" title={e.user.id}>{e.user.id}</p>
+                              <p className="text-xs text-zinc-400 font-mono break-all mt-0.5" title={e.user.id}>{e.user.id}</p>
                             </div>
                           </div>
                         ));
@@ -946,39 +992,21 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 )}
               </Panel>
             )}
-
-
           </div>
-        </div>
+        )}
 
-          {(user?.role === "ADMIN" || user?.role === "STUDENT") && (
-            <div className="mt-12 max-w-5xl relative">
-              {user?.role === "STUDENT" && !course.is_enrolled && (
-                <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center border border-white/10 shadow-2xl">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-900 border border-white/10 text-zinc-500 mb-4 shadow-inner">
-                    <Lock size={32} />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Leaderboard Locked</h3>
-                  <p className="text-zinc-400 max-w-sm text-center text-sm">
-                    Enroll in the course to view rankings, compare scores, and compete with other warriors.
-                  </p>
-                </div>
-              )}
-              <CourseLeaderboard courseId={courseId} />
-            </div>
-          )}
-
-          {isCreatorOrAdmin && (
-            <div className="mt-12 flex justify-end pb-8 max-w-5xl">
-              <button
-                onClick={handleDeleteCourse}
-                className="rounded-xl border border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm font-bold text-red-400 transition-all hover:bg-red-600 hover:text-white hover:border-red-500 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]"
-              >
-                Delete Course
-              </button>
-            </div>
-          )}
-        </div>
+        {/* Delete Course Button */}
+        {isCreatorOrAdmin && (
+          <div className="mt-8 flex justify-end max-w-7xl mx-auto">
+            <button
+              onClick={handleDeleteCourse}
+              className="rounded-xl border border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm font-bold text-red-400 transition-all hover:bg-red-600 hover:text-white hover:border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+            >
+              Delete Course
+            </button>
+          </div>
+        )}
+      </div>
     </>
   );
 }

@@ -122,7 +122,7 @@ export default function SearchableSelect({
                   ) : null}
                   <div className="flex-1 min-w-0 flex flex-col">
                     <span className="truncate block">{opt.label}</span>
-                    {opt.subLabel && <span className="truncate block text-[10px] text-zinc-500 font-mono mt-0.5" title={opt.subLabel}>{opt.subLabel}</span>}
+                    {opt.subLabel && <span className="block text-xs text-zinc-400 font-mono mt-0.5 break-all" title={opt.subLabel}>{opt.subLabel}</span>}
                   </div>
                   {value === opt.value && <Check size={14} className="text-red-500 shrink-0 ml-2" />}
                 </button>
