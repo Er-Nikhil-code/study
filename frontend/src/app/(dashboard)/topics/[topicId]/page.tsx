@@ -20,12 +20,8 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
 
   const [topicName, setTopicName] = useState<string>("Loading Topic...");
   const [courseId, setCourseId] = useState<string | null>(null);
-  
-  const [activeTab, setActiveTab] = useState<"NOTES" | "TESTS">("NOTES");
   const [themeMode, setThemeMode] = useState<"dark" | "light">("dark");
-  
   const [notes, setNotes] = useState<any[]>([]);
-  const [tests, setTests] = useState<TestListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Challenge modal state
@@ -59,13 +55,11 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
       if (!found) setTopicName("Topic details not found.");
     });
 
-    // 2. Fetch Notes & Tests concurrently
+    // 2. Fetch Notes
     Promise.all([
-      NotesService.getApprovedNotes(topicId).catch(() => []),
-      studentService.getTests({ topic_id: topicId, limit: 50 }).catch(() => ({ data: [] }))
-    ]).then(([notesData, testsData]) => {
+      NotesService.getApprovedNotes(topicId).catch(() => [])
+    ]).then(([notesData]) => {
       setNotes(notesData);
-      setTests(testsData.data || []);
       setLoading(false);
       
       // Mark notes as viewed in background if not empty
@@ -158,33 +152,16 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
             <ChevronLeft size={16} /> Back to Courses
           </Link>
         )}
-        <SectionTitle title={topicName} subtitle="Study notes and take practice tests for this topic." />
+        <SectionTitle title={topicName} subtitle="Study notes for this topic." />
       </div>
 
-      <div className="flex items-center gap-6 border-b border-white/10 mb-6">
-        <button
-          onClick={() => setActiveTab("NOTES")}
-          className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
-            activeTab === "NOTES" ? "border-red-500 text-white" : "border-transparent text-zinc-500 hover:text-zinc-300"
-          }`}
-        >
-          Study Notes
-        </button>
-        <button
-          onClick={() => setActiveTab("TESTS")}
-          className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
-            activeTab === "TESTS" ? "border-red-500 text-white" : "border-transparent text-zinc-500 hover:text-zinc-300"
-          }`}
-        >
-          Practice Tests
-        </button>
-      </div>
+
 
       {loading ? (
         <div className="hidden space-y-4">
           <div className="h-32 bg-white/5 rounded-xl w-full" />
         </div>
-      ) : activeTab === "NOTES" ? (
+      ) : (
         <div className="space-y-6 max-w-4xl pb-20">
           {notes.length > 0 && (
             <div className="flex justify-end mb-2">
@@ -261,14 +238,6 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                 </Panel>
               );
             })
-          )}
-        </div>
-      ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {tests.length === 0 ? (
-            <Panel className="col-span-2"><p className="text-zinc-500">No practice tests available for this topic.</p></Panel>
-          ) : (
-            tests.map(test => <TestCard key={test.id} test={test as any} />)
           )}
         </div>
       )}

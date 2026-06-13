@@ -688,7 +688,7 @@ export class TestsService {
 
   async updateUserStats(userId: string) {
     const attempts = await this.prisma.attempt.findMany({
-      where: { user_id: userId, status: "SCORED" },
+      where: { user_id: userId, status: "SCORED", attempt_no: 1 },
       select: { score: true, max_score: true },
     });
 
