@@ -50,6 +50,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
   const [searchStudent, setSearchStudent] = useState("");
+  const [studentPage, setStudentPage] = useState(1);
   const [isStudentsOpen, setIsStudentsOpen] = useState(false);
 
   // Forms for adding
@@ -1049,7 +1050,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         type="text"
                         placeholder="Search by name or ID..."
                         value={searchStudent}
-                        onChange={(e) => setSearchStudent(e.target.value)}
+                        onChange={(e) => {
+                          setSearchStudent(e.target.value);
+                          setStudentPage(1);
+                        }}
                         className="w-full rounded-xl bg-black/40 border border-white/10 pl-9 pr-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500/50 transition-colors"
                       />
                       <Search size={14} className="absolute left-3 top-2.5 text-zinc-500" />
@@ -1067,23 +1071,55 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           return <p className="text-xs text-zinc-500 text-center py-6">{searchStudent ? "No students match your search." : "No students enrolled yet."}</p>;
                         }
 
-                        return filtered.map((e: any) => (
-                          <div key={e.user.id} className="flex items-center gap-3 bg-zinc-900/30 hover:bg-red-500/5 border border-white/[0.03] hover:border-red-500/20 rounded-xl p-2.5 transition-colors group/item">
-                            {e.user.profile_picture ? (
-                              <img src={e.user.profile_picture} alt={e.user.first_name || e.user.email} className="w-9 h-9 rounded-full object-cover shrink-0 bg-white/10" />
-                            ) : (
-                              <div className="w-9 h-9 rounded-full shrink-0 bg-zinc-800 text-zinc-400 flex items-center justify-center font-bold text-xs">
-                                {e.user.first_name?.charAt(0)?.toUpperCase() || e.user.email?.charAt(0)?.toUpperCase() || "U"}
+                        const totalPages = Math.ceil(filtered.length / 5);
+                        const paginated = filtered.slice((studentPage - 1) * 5, studentPage * 5);
+
+                        return (
+                          <div className="flex flex-col h-full">
+                            <div className="flex-1 space-y-2">
+                              {paginated.map((e: any) => (
+                                <div key={e.user.id} className="flex items-center gap-3 bg-zinc-900/30 hover:bg-red-500/5 border border-white/[0.03] hover:border-red-500/20 rounded-xl p-2.5 transition-colors group/item">
+                                  {e.user.profile_picture ? (
+                                    <img src={e.user.profile_picture} alt={e.user.first_name || e.user.email} className="w-9 h-9 rounded-full object-cover shrink-0 bg-white/10" />
+                                  ) : (
+                                    <div className="w-9 h-9 rounded-full shrink-0 bg-zinc-800 text-zinc-400 flex items-center justify-center font-bold text-xs">
+                                      {e.user.first_name?.charAt(0)?.toUpperCase() || e.user.email?.charAt(0)?.toUpperCase() || "U"}
+                                    </div>
+                                  )}
+                                  <div className="min-w-0 flex-1">
+                                    <Link href={`/admin/users/${e.user.id}`} className="text-sm text-zinc-300 font-medium truncate hover:text-red-400 transition block">
+                                      {[e.user.first_name, e.user.last_name].filter(Boolean).join(" ") || "Unknown User"}
+                                    </Link>
+                                    <p className="text-xs text-zinc-400 font-mono break-all mt-0.5" title={e.user.id}>{e.user.id}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            {/* Pagination Controls */}
+                            {totalPages > 1 && (
+                              <div className="flex justify-between items-center mt-4 pt-3 border-t border-white/5 px-2">
+                                <button
+                                  disabled={studentPage === 1}
+                                  onClick={() => setStudentPage(p => Math.max(1, p - 1))}
+                                  className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                >
+                                  <ChevronLeft size={16} className="text-zinc-400" />
+                                </button>
+                                <span className="text-[10px] text-zinc-500 font-mono tracking-wider uppercase">
+                                  Page {studentPage} of {totalPages}
+                                </span>
+                                <button
+                                  disabled={studentPage === totalPages}
+                                  onClick={() => setStudentPage(p => Math.min(totalPages, p + 1))}
+                                  className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                >
+                                  <ChevronRight size={16} className="text-zinc-400" />
+                                </button>
                               </div>
                             )}
-                            <div className="min-w-0 flex-1">
-                              <Link href={`/admin/users/${e.user.id}`} className="text-sm text-zinc-300 font-medium truncate hover:text-red-400 transition block">
-                                {[e.user.first_name, e.user.last_name].filter(Boolean).join(" ") || "Unknown User"}
-                              </Link>
-                              <p className="text-xs text-zinc-400 font-mono break-all mt-0.5" title={e.user.id}>{e.user.id}</p>
-                            </div>
                           </div>
-                        ));
+                        );
                       })()}
                     </div>
                   </div>

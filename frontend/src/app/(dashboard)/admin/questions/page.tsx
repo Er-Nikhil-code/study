@@ -337,7 +337,7 @@ export default function AdminQuestionsPage() {
                 return (
                   <div key={q.id}>
                     <div className="grid grid-cols-[180px_minmax(200px,3fr)_120px_100px_minmax(150px,2fr)_100px_140px] gap-3 px-5 py-4 text-sm items-center text-center">
-                      <div className="font-mono text-[10px] text-zinc-500 truncate min-w-0" title={q.id}>
+                      <div className="font-mono text-[10px] text-zinc-500 break-all min-w-0" title={q.id}>
                         {q.id}
                       </div>
 
