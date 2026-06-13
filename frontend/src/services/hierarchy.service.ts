@@ -37,6 +37,10 @@ export const HierarchyService = {
     return api.post(`/admin/hierarchy/courses/${courseId}/enroll`).then((r) => r.data);
   },
 
+  getCourseEnrollments(courseId: string) {
+    return api.get(`/admin/hierarchy/courses/${courseId}/enrollments`).then((r) => r.data);
+  },
+
   updateSection(id: string, data: { name?: string; description?: string; order?: number }) {
     return api.patch(`/admin/hierarchy/sections/${id}`, data).then((r) => r.data);
   },

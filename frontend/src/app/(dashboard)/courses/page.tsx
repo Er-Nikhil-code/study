@@ -419,9 +419,9 @@ export default function CoursesPage() {
                     </div>
                     {user?.role === "ADMIN" ? (
                       <div className="flex flex-col gap-1.5 mt-3 pt-3 border-t border-white/5 text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
-                        <div className="flex justify-between items-center">
-                          <span>ID</span>
-                          <span className="text-zinc-400 break-all max-w-[200px]" title={course.id}>{course.id}</span>
+                        <div className="flex justify-between items-center gap-2">
+                          <span className="shrink-0">ID</span>
+                          <span className="text-zinc-400 truncate" title={course.id}>{course.id}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span>Price</span>
@@ -437,9 +437,9 @@ export default function CoursesPage() {
                         </div>
                       </div>
                     ) : user?.role === "TEACHER" && (
-                      <div className="flex justify-between items-center text-[10px] font-mono mt-3 pt-3 border-t border-white/5">
-                        <span className="text-zinc-600">ID</span>
-                        <span className="text-zinc-500 break-all max-w-[200px]">{course.id}</span>
+                      <div className="flex justify-between items-center gap-2 text-[10px] font-mono mt-3 pt-3 border-t border-white/5">
+                        <span className="text-zinc-600 shrink-0">ID</span>
+                        <span className="text-zinc-500 truncate" title={course.id}>{course.id}</span>
                       </div>
                     )}
                   </div>

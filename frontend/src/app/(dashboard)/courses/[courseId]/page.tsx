@@ -40,6 +40,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
     enabled: !!isCreatorOrAdmin,
   });
 
+  const { data: enrollments } = useQuery({
+    queryKey: ["course_enrollments", courseId],
+    queryFn: () => HierarchyService.getCourseEnrollments(courseId as string),
+    enabled: user?.role === "ADMIN",
+  });
+
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
 
@@ -872,6 +878,36 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   ))}
                   {course.sections?.length === 0 && (
                     <p className="text-xs text-zinc-500 text-center py-2">Create sections to assign managers.</p>
+                  )}
+                </div>
+              </Panel>
+            )}
+
+            {user?.role === "ADMIN" && (
+              <Panel className="bg-zinc-900/50 border-white/10">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <Users size={18} className="text-blue-400" /> Enrolled Students
+                </h3>
+                <p className="text-xs text-zinc-400 mb-4">Total: {enrollments?.length ?? course.enrollment_count ?? 0}</p>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                  {enrollments?.length > 0 ? (
+                    enrollments.map((e: any) => (
+                      <div key={e.user.id} className="flex items-center gap-3 bg-black/40 border border-white/5 rounded-lg p-2">
+                        {e.user.profile_picture ? (
+                          <img src={e.user.profile_picture} alt={e.user.first_name || e.user.email} className="w-8 h-8 rounded-full object-cover shrink-0 bg-white/10" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full shrink-0 bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">
+                            {e.user.first_name?.charAt(0)?.toUpperCase() || e.user.email?.charAt(0)?.toUpperCase() || "U"}
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-white font-medium truncate">{[e.user.first_name, e.user.last_name].filter(Boolean).join(" ") || "Unknown User"}</p>
+                          <p className="text-[10px] text-zinc-500 font-mono truncate">ID: {e.user.id}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-zinc-500 text-center py-2">No students enrolled yet.</p>
                   )}
                 </div>
               </Panel>

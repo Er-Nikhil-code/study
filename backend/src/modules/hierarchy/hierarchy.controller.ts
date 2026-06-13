@@ -33,6 +33,12 @@ export class HierarchyController {
     return this.hierarchyService.enrollCourse(id, req.user.sub);
   }
 
+  @Get("courses/:id/enrollments")
+  @Roles("ADMIN", "TEACHER")
+  getCourseEnrollments(@Param("id") id: string) {
+    return this.hierarchyService.getCourseEnrollments(id);
+  }
+
   @Patch("courses/:id")
   @Roles("TEACHER", "ADMIN")
   updateCourse(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; code?: string; description?: string; price?: number; discount_price?: number; status?: 'DRAFT' | 'PUBLISHED' | 'HIDDEN'; launch_date?: Date }) {

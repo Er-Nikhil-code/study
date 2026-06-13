@@ -172,6 +172,26 @@ export class HierarchyService {
     }
   }
 
+  async getCourseEnrollments(courseId: string) {
+    return this.prisma.courseEnrollment.findMany({
+      where: { course_id: courseId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            email: true,
+            role: true,
+            profile_picture: true,
+            created_at: true,
+          }
+        }
+      },
+      orderBy: { enrolled_at: 'desc' }
+    });
+  }
+
   // Topic Progress
   async markNotesViewed(topicId: string, userId: string) {
     const progress = await this.prisma.topicProgress.upsert({
