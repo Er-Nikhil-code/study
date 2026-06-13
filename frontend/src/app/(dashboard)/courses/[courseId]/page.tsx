@@ -980,8 +980,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               </Panel>
             ))}
             </div>
-            </div>
             
+
             {course.sections?.length === 0 && !addingSection && (
               <Panel className="border border-dashed border-white/10 bg-white/[0.01] text-center py-12">
                 <BookOpen size={32} className="mx-auto text-zinc-600 mb-3" />
