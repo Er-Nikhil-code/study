@@ -60,8 +60,8 @@ export default function CartPage() {
         key: keyData.key,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "Antigravity Chess",
-        description: "Course Purchase",
+        name: "CODIFY",
+        description: "Course Enrollment",
         order_id: orderData.orderId,
         handler: async function (response: any) {
           try {
@@ -79,8 +79,9 @@ export default function CartPage() {
           }
         },
         prefill: {
-          name: user ? `${user.first_name || ""} ${user.last_name || ""}`.trim() : "Warrior",
-          email: user?.email || "warrior@example.com",
+          name: user ? `${user.first_name || ""} ${user.last_name || ""}`.trim() : "Student",
+          email: user?.email || "",
+          contact: "", // Prevent Razorpay from auto-filling a personal number cached from browser history
         },
         theme: {
           color: "#EF4444",

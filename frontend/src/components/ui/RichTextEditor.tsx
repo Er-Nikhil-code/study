@@ -3,7 +3,13 @@
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import "react-quill-new/dist/quill.snow.css";
+import "katex/dist/katex.min.css"; // KaTeX CSS
 import "./RichTextEditor.css"; // Custom styling overrides
+
+import katex from "katex";
+if (typeof window !== "undefined") {
+  (window as any).katex = katex;
+}
 
 // Dynamic import of react-quill to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -67,7 +73,7 @@ export default function RichTextEditor({ value, onChange, placeholder, readOnly 
           [{ color: [] }, { background: [] }],
           [{ list: "ordered" }, { list: "bullet" }],
           ["blockquote", "code-block"],
-          ["link", "image", "video"],
+          ["link", "image", "video", "formula"],
           ["clean"],
         ],
         handlers: {
@@ -91,7 +97,8 @@ export default function RichTextEditor({ value, onChange, placeholder, readOnly 
     "code-block",
     "link",
     "image",
-    "video"
+    "video",
+    "formula"
   ];
 
   return (

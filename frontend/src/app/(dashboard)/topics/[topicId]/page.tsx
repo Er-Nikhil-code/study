@@ -7,10 +7,11 @@ import { HierarchyService } from "@/services/hierarchy.service";
 import { NotesService } from "@/services/notes.service";
 import studentService, { type TestListItem } from "@/services/student.service";
 import Link from "next/link";
-import { ChevronLeft, FileText, BookOpen, Clock, ShieldAlert, Edit2, Trash2 } from "lucide-react";
+import { ChevronLeft, FileText, BookOpen, Clock, ShieldAlert, Edit2, Trash2, Download } from "lucide-react";
 import TestCard from "@/components/tests/TestCard";
 import { useAuthStore } from "@/store/auth.store";
 import RichTextEditor from "@/components/ui/RichTextEditor";
+import html2pdf from "html2pdf.js";
 
 export default function TopicViewerPage({ params }: { params: Promise<{ topicId: string }> }) {
   const unwrappedParams = use(params);
@@ -111,8 +112,23 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
       await NotesService.deleteNote(noteId);
       setNotes(notes.filter(n => n.id !== noteId));
     } catch (err: any) {
-      alert("Failed to delete note");
+      alert("Failed to delete note.");
     }
+  };
+
+  const handleDownloadPdf = (noteId: string, title: string) => {
+    const element = document.getElementById(`note-content-${noteId}`);
+    if (!element) return;
+    
+    const opt = {
+      margin:       10,
+      filename:     `${title.replace(/[^a-zA-Z0-9]/g, '_')}_Notes.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(opt).from(element).save();
   };
 
   return (
@@ -199,6 +215,13 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                             </>
                           )}
                           <button
+                            onClick={() => handleDownloadPdf(note.id, note.title)}
+                            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
+                            title="Download as PDF"
+                          >
+                            <Download size={14} /> PDF
+                          </button>
+                          <button
                             onClick={() => setSelectedNote(note)}
                             className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 px-2 py-1 rounded"
                             title="Challenge Note"
@@ -207,10 +230,12 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                           </button>
                         </div>
                       </div>
-                      <div 
-                        className="prose prose-invert max-w-none text-zinc-300"
-                        dangerouslySetInnerHTML={{ __html: note.content_html }} 
-                      />
+                      <div id={`note-content-${note.id}`} className="bg-[#111] p-4 rounded-xl">
+                        <div 
+                          className="prose prose-invert max-w-none text-zinc-300"
+                          dangerouslySetInnerHTML={{ __html: note.content_html }} 
+                        />
+                      </div>
                     </>
                   )}
                 </Panel>
