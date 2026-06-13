@@ -2,11 +2,12 @@
 
 import React, { useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, Float, ContactShadows, useCursor } from "@react-three/drei";
+import { OrbitControls, Environment, Float, ContactShadows, useCursor, Text } from "@react-three/drei";
 import * as THREE from "three";
 
 interface ChessPieceProps {
   role: string;
+  progressPct?: number;
 }
 
 // Highly stylized glass/metallic material for the pieces
@@ -198,7 +199,7 @@ const WarriorPiece = () => {
   );
 };
 
-const AnimatedPiece = ({ role }: { role: string }) => {
+const AnimatedPiece = ({ role, progressPct }: { role: string, progressPct?: number }) => {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -215,11 +216,26 @@ const AnimatedPiece = ({ role }: { role: string }) => {
       {role === "STUDENT" ? <WarriorPiece /> : null}
       {role === "TEACHER" ? <Knight /> : null}
       {role === "ADMIN" ? <King /> : null}
+      
+      {progressPct !== undefined && (
+        <Text
+          position={[0, 0.5, 0.8]}
+          fontSize={0.6}
+          color="#ef4444"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.02}
+          outlineColor="#000000"
+        >
+          {`${progressPct}%`}
+          <meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.5} toneMapped={false} />
+        </Text>
+      )}
     </group>
   );
 };
 
-export default function ChessPiece3D({ role }: ChessPieceProps) {
+export default function ChessPiece3D({ role, progressPct }: ChessPieceProps) {
   return (
     <div className="w-full h-full relative">
       <Canvas camera={{ position: [0, 2, 8], fov: 45 }}>

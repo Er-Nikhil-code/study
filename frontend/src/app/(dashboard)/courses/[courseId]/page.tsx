@@ -443,7 +443,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 w-full mt-4">
-            <div className="flex-1 flex flex-col xl:flex-row-reverse gap-10 items-start">
+            <div className="flex-1 flex flex-col xl:flex-row-reverse gap-10 items-start w-full">
               
               {/* Overall Progress Ring beside sections */}
               {user?.role === "STUDENT" && course.is_enrolled && (
@@ -471,7 +471,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   const overallPct = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
 
                   return (
-                    <div className="relative flex items-center justify-center w-64 h-64 shrink-0 mt-8 xl:sticky xl:top-32 group/container" onMouseLeave={() => setHoveredRingSection(null)}>
+                    <div className="relative flex items-center justify-center w-40 h-40 md:w-56 md:h-56 xl:w-64 xl:h-64 shrink-0 mx-auto xl:mx-0 mt-8 xl:sticky xl:top-32 group/container" onMouseLeave={() => setHoveredRingSection(null)}>
                       <svg className={`absolute inset-0 w-full h-full overflow-visible z-20 pointer-events-none ${overallPct > 0 ? 'animate-[spin_40s_linear_infinite] group-hover/container:[animation-play-state:paused]' : ''}`} viewBox="0 0 100 100">
                         {course.sections.map((sec: any, i: number) => {
                           const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
@@ -514,7 +514,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                               <circle 
                                 cx="50" cy="50" r="48" 
                                 stroke="transparent" 
-                                strokeWidth="30" 
+                                strokeWidth="10" 
                                 fill="transparent" 
                                 strokeDasharray={`${segmentLength} ${circ}`}
                                 transform={`rotate(${rotation}, 50, 50)`}
@@ -524,23 +524,18 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         })}
                       </svg>
                       {/* Logo stays upright */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center group-hover:scale-110 transition-transform pointer-events-none z-10">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
                         <div className="w-[140%] h-[140%] drop-shadow-[0_0_30px_rgba(239,68,68,0.4)] pointer-events-auto">
-                          <ChessPiece3D role="STUDENT" />
+                          <ChessPiece3D role="STUDENT" progressPct={overallPct} />
                         </div>
                       </div>
                       
                       {/* Tooltip */}
-                      <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wider px-5 py-3 rounded-xl whitespace-nowrap shadow-[0_10px_40px_rgba(239,68,68,0.2)] pointer-events-none z-50 transition-all duration-200">
-                        {hoveredRingSection ? (
+                      <div className={`absolute -bottom-10 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wider px-5 py-3 rounded-xl whitespace-nowrap shadow-[0_10px_40px_rgba(239,68,68,0.2)] pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95'}`}>
+                        {hoveredRingSection && (
                           <div className="flex flex-col items-center gap-1.5">
                             <span className="text-zinc-400 text-[10px] uppercase max-w-[200px] truncate">{hoveredRingSection.name}</span>
                             <span className="text-red-400 font-bold">{hoveredRingSection.pct}% COMPLETED ({hoveredRingSection.comp}/{hoveredRingSection.total})</span>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-1.5">
-                            <span className="text-zinc-400 text-[10px] uppercase">OVERALL PROGRESS</span>
-                            <span className="text-red-400 font-bold">{overallPct}% COMPLETED</span>
                           </div>
                         )}
                       </div>
@@ -549,7 +544,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 })()
               )}
 
-              <div className="flex-1 space-y-8 min-w-0">
+              <div className="flex-1 space-y-8 min-w-0 w-full">
             {addingSection && (
               <Panel className="border border-red-500/30 bg-black/50">
                 <form onSubmit={handleCreateSection} className="flex flex-col gap-4">
