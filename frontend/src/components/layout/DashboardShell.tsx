@@ -40,7 +40,7 @@ export default function DashboardShell({
         isCollapsed={sidebarCollapsed} 
         setIsCollapsed={setSidebarCollapsed} 
       />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="w-full px-4 py-8 sm:px-6 lg:px-10 xl:px-12">
         <section className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">{children}</section>
       </main>
     </div>
