@@ -1129,10 +1129,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
         {/* Delete Course Button */}
         {isCreatorOrAdmin && (
-          <div className="mt-8 flex justify-end w-full">
+          <div className="mt-32 pb-12 flex justify-end w-full opacity-60 hover:opacity-100 transition-opacity">
             <button
               onClick={handleDeleteCourse}
-              className="rounded-xl border border-red-500/30 bg-red-500/10 px-6 py-2.5 text-sm font-bold text-red-400 transition-all hover:bg-red-600 hover:text-white hover:border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)] hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+              className="rounded-md border border-red-500/20 bg-red-500/5 px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-red-400 transition-all hover:bg-red-600 hover:text-white hover:border-red-500"
             >
               Delete Course
             </button>
