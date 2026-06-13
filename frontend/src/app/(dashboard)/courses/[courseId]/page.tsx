@@ -446,7 +446,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
           </div>
           
           {/* Subtle background glow */}
-          <div className="absolute right-0 top-0 bottom-0 w-64 bg-[radial-gradient(ellipse_at_center,rgba(255,50,50,0.15)_0%,transparent_70%)] pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-64 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.5)_0%,transparent_70%)] pointer-events-none" />
           
           {/* Overall Progress Ring and Logo */}
           {user?.role === "STUDENT" && course.is_enrolled && (
@@ -528,7 +528,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   </svg>
                   {/* Logo stays upright */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-                    <div className="w-[120%] h-[120%] drop-shadow-[0_0_30px_rgba(239,68,68,0.4)] pointer-events-auto">
+                    <div className="w-[120%] h-[120%] drop-shadow-[0_0_30px_rgba(0,0,0,0.6)] pointer-events-auto">
                       <ChessPiece3D role="STUDENT" progressPct={overallPct} />
                     </div>
                   </div>

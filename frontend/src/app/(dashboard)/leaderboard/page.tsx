@@ -30,7 +30,7 @@ export default function LeaderboardPage() {
         <SectionTitle title="Leaderboard" subtitle="See how you stack up against other warriors." />
 
         {/* Period tabs */}
-        <div className="mt-6 flex gap-2">
+        <div className="mt-6 flex gap-2 w-full lg:w-1/2">
           {PERIODS.map((p) => (
             <button key={p.value} onClick={() => setPeriod(p.value)}
               className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
@@ -43,23 +43,24 @@ export default function LeaderboardPage() {
           ))}
         </div>
 
+        <div className="w-full lg:w-1/2">
         <Panel className="mt-4 overflow-hidden p-0 overflow-x-auto">
-        <div className="min-w-[800px]">
+        <div className="min-w-[450px]">
           {/* Header */}
-          <div className="grid grid-cols-[60px_minmax(0,1fr)_90px_70px_80px_70px] gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
+          <div className="grid grid-cols-6 gap-3 border-b border-white/10 px-5 py-4 text-xs uppercase tracking-[0.2em] text-zinc-500 text-center">
             <div>Rank</div><div>Name</div><div>Score</div><div>Tests</div><div>Accuracy</div><div>Streak</div>
           </div>
 
           {loading ? (
             <div className="divide-y divide-white/10">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="grid grid-cols-[60px_minmax(0,1fr)_90px_70px_80px_70px] gap-3 px-5 py-4">
-                  <div className="h-4 w-8 hidden rounded bg-white/10" />
-                  <div className="h-4 w-32 hidden rounded bg-white/10" />
-                  <div className="h-4 w-12 hidden rounded bg-white/10" />
-                  <div className="h-4 w-8 hidden rounded bg-white/10" />
-                  <div className="h-4 w-10 hidden rounded bg-white/10" />
-                  <div className="h-4 w-8 hidden rounded bg-white/10" />
+                <div key={i} className="grid grid-cols-6 gap-3 px-5 py-4">
+                  <div className="h-4 w-8 hidden rounded bg-white/10 mx-auto" />
+                  <div className="h-4 w-32 hidden rounded bg-white/10 mx-auto" />
+                  <div className="h-4 w-12 hidden rounded bg-white/10 mx-auto" />
+                  <div className="h-4 w-8 hidden rounded bg-white/10 mx-auto" />
+                  <div className="h-4 w-10 hidden rounded bg-white/10 mx-auto" />
+                  <div className="h-4 w-8 hidden rounded bg-white/10 mx-auto" />
                 </div>
               ))}
             </div>
@@ -69,7 +70,7 @@ export default function LeaderboardPage() {
             <div className="divide-y divide-white/10">
               {rows.map((row) => (
                 <div key={row.user_id}
-                  className={`grid grid-cols-[60px_minmax(0,1fr)_90px_70px_80px_70px] gap-3 px-5 py-4 text-sm items-center ${
+                  className={`grid grid-cols-6 gap-3 px-5 py-4 text-sm items-center text-center ${
                     row.rank <= 3 ? "bg-white/[0.02]" : ""
                   }`}>
                   <div className={`font-bold ${
@@ -88,6 +89,7 @@ export default function LeaderboardPage() {
           )}
         </div>
         </Panel>
+        </div>
     </>
   );
 }

@@ -53,7 +53,7 @@ export default function StudentDashboardPage() {
           <ChessPiece3D role="STUDENT" />
         </div>
         {/* Subtle background glow */}
-        <div className="absolute right-0 top-0 bottom-0 w-64 bg-[radial-gradient(ellipse_at_center,rgba(255,50,50,0.15)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-64 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.5)_0%,transparent_70%)] pointer-events-none" />
       </div>
 
       {loading ? (
@@ -146,17 +146,17 @@ export default function StudentDashboardPage() {
               <Panel className="overflow-hidden p-0 flex-1 flex flex-col">
                 <div className="overflow-x-auto">
                   <div className="min-w-full">
-                    <div className="grid grid-cols-[40px_minmax(120px,2.5fr)_minmax(60px,1fr)_minmax(60px,1fr)_minmax(80px,1fr)_minmax(60px,1fr)] gap-2 border-b border-white/10 px-4 py-4 text-[9px] uppercase tracking-[0.2em] text-zinc-500 text-center">
-                      <div>Rank</div><div className="text-left">Name</div><div className="text-left">Score</div><div>Tests</div><div>Accuracy</div><div>Streak</div>
+                    <div className="grid grid-cols-6 gap-2 border-b border-white/10 px-4 py-4 text-[9px] uppercase tracking-[0.2em] text-zinc-500 text-center">
+                      <div>Rank</div><div>Name</div><div>Score</div><div>Tests</div><div>Accuracy</div><div>Streak</div>
                     </div>
 
                     {loadingLeaderboard ? (
                       <div className="divide-y divide-white/10">
                         {[...Array(5)].map((_, i) => (
-                          <div key={i} className="grid grid-cols-[40px_minmax(120px,2.5fr)_minmax(60px,1fr)_minmax(60px,1fr)_minmax(80px,1fr)_minmax(60px,1fr)] gap-2 px-4 py-4">
+                          <div key={i} className="grid grid-cols-6 gap-2 px-4 py-4">
                             <div className="h-4 w-6 mx-auto rounded bg-white/10 animate-pulse" />
-                            <div className="h-4 w-24 rounded bg-white/10 animate-pulse" />
-                            <div className="h-4 w-8 rounded bg-white/10 animate-pulse text-left" />
+                            <div className="h-4 w-24 mx-auto rounded bg-white/10 animate-pulse" />
+                            <div className="h-4 w-8 mx-auto rounded bg-white/10 animate-pulse" />
                             <div className="h-4 w-6 mx-auto rounded bg-white/10 animate-pulse" />
                             <div className="h-4 w-8 mx-auto rounded bg-white/10 animate-pulse" />
                             <div className="h-4 w-6 mx-auto rounded bg-white/10 animate-pulse" />
@@ -169,19 +169,19 @@ export default function StudentDashboardPage() {
                       <div className="divide-y divide-white/10">
                         {leaderboardRes.data.map((row: any) => (
                           <div key={row.user_id}
-                            className={`grid grid-cols-[40px_minmax(120px,2.5fr)_minmax(60px,1fr)_minmax(60px,1fr)_minmax(80px,1fr)_minmax(60px,1fr)] gap-2 px-4 py-3 text-xs items-center ${
+                            className={`grid grid-cols-6 gap-2 px-4 py-3 text-xs items-center text-center ${
                               row.rank <= 3 ? "bg-white/[0.02]" : ""
                             }`}>
-                            <div className={`font-bold text-center ${
+                            <div className={`font-bold ${
                               row.rank === 1 ? "text-red-300" : row.rank === 2 ? "text-zinc-300" : row.rank === 3 ? "text-red-600" : "text-zinc-500"
                             }`}>
                               {row.rank <= 3 ? ["🥇", "🥈", "🥉"][row.rank - 1] : `#${row.rank}`}
                             </div>
-                            <div className="truncate text-white text-left">{row.name}</div>
-                            <div className="text-white font-medium text-left">{row.total_score}</div>
-                            <div className="text-zinc-400 text-center">{row.tests}</div>
-                            <div className="text-zinc-400 text-center">{row.accuracy !== undefined && row.accuracy !== null ? `${Math.round(row.accuracy)}%` : "—"}</div>
-                            <div className="text-zinc-400 text-center">{row.streak}d</div>
+                            <div className="truncate text-white">{row.name}</div>
+                            <div className="text-white font-medium">{row.total_score}</div>
+                            <div className="text-zinc-400">{row.tests}</div>
+                            <div className="text-zinc-400">{row.accuracy !== undefined && row.accuracy !== null ? `${Math.round(row.accuracy)}%` : "—"}</div>
+                            <div className="text-zinc-400">{row.streak}d</div>
                           </div>
                         ))}
                       </div>

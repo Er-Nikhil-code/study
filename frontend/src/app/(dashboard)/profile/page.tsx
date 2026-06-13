@@ -314,7 +314,7 @@ export default function ProfilePage() {
         {/* Sidebar info */}
         <div className="space-y-6">
           <Panel className="p-0 overflow-hidden relative h-64 border border-white/10 bg-black/50">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,50,50,0.15)_0%,transparent_70%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.5)_0%,transparent_70%)] pointer-events-none" />
             <div className="absolute top-4 left-4 z-10">
               <h3 className="text-sm font-semibold uppercase tracking-widest text-zinc-400">Rank</h3>
               <p className="text-xl font-bold text-white">{getChessRoleName(user.role)}</p>

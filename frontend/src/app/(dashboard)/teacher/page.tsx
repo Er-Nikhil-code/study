@@ -52,7 +52,7 @@ export default function TeacherHomePage() {
           <ChessPiece3D role="TEACHER" />
         </div>
         {/* Subtle background glow */}
-        <div className="absolute right-0 top-0 bottom-0 w-64 bg-[radial-gradient(ellipse_at_center,rgba(255,50,50,0.15)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-64 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.5)_0%,transparent_70%)] pointer-events-none" />
       </div>
 
       {/* Stats Grid — 2×3 symmetric */}

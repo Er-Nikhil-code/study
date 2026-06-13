@@ -48,19 +48,19 @@ export default function CourseLeaderboard({ courseId, headerActions }: { courseI
       <Panel className="p-0 overflow-hidden border border-white/10">
         <div className="overflow-x-auto min-w-[450px]">
           {/* Header */}
-          <div className="grid grid-cols-[60px_minmax(0,1fr)_60px_60px_80px_60px] gap-3 border-b border-white/10 bg-black/40 px-4 py-3 text-[10px] uppercase tracking-[0.1em] text-zinc-500">
-            <div className="text-center">Rank</div>
-            <div className="text-left">Name</div>
-            <div className="text-center">Score</div>
-            <div className="text-center">Tests</div>
-            <div className="text-center">Accuracy</div>
-            <div className="text-center">Streak</div>
+          <div className="grid grid-cols-6 gap-3 border-b border-white/10 bg-black/40 px-4 py-3 text-[10px] uppercase tracking-[0.1em] text-zinc-500 text-center">
+            <div>Rank</div>
+            <div>Name</div>
+            <div>Score</div>
+            <div>Tests</div>
+            <div>Accuracy</div>
+            <div>Streak</div>
           </div>
 
           {loading ? (
             <div className="divide-y divide-white/5">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="grid grid-cols-[60px_minmax(0,1fr)_60px_60px_80px_60px] gap-3 px-4 py-3 bg-zinc-900/50">
+                <div key={i} className="grid grid-cols-6 gap-3 px-4 py-3 bg-zinc-900/50">
                   <div className="h-4 w-8 hidden rounded bg-white/10 mx-auto" />
                   <div className="h-4 w-32 hidden rounded bg-white/10" />
                   <div className="h-4 w-12 hidden rounded bg-white/10 mx-auto" />
@@ -78,19 +78,19 @@ export default function CourseLeaderboard({ courseId, headerActions }: { courseI
             <div className="divide-y divide-white/5 max-h-[350px] overflow-y-auto custom-scrollbar">
               {rows.map((row) => (
                 <div key={row.user_id}
-                  className={`grid grid-cols-[60px_minmax(0,1fr)_60px_60px_80px_60px] gap-3 px-4 py-3 text-sm items-center transition-colors hover:bg-white/[0.02] ${
+                  className={`grid grid-cols-6 gap-3 px-4 py-3 text-sm items-center transition-colors hover:bg-white/[0.02] text-center ${
                     row.rank <= 3 ? "bg-white/[0.02]" : "bg-zinc-900/30"
                   }`}>
-                  <div className={`font-bold text-center ${
+                  <div className={`font-bold ${
                     row.rank === 1 ? "text-amber-400" : row.rank === 2 ? "text-zinc-300" : row.rank === 3 ? "text-amber-600" : "text-zinc-500"
                   }`}>
                     {row.rank <= 3 ? ["🥇", "🥈", "🥉"][row.rank - 1] : `#${row.rank}`}
                   </div>
-                  <div className="truncate text-white font-medium text-left">{row.name}</div>
-                  <div className="text-white font-semibold text-center">{row.total_score}</div>
-                  <div className="text-zinc-400 text-center">{row.tests}</div>
-                  <div className="text-zinc-400 text-center">{row.accuracy !== undefined && row.accuracy !== null ? `${Math.round(row.accuracy)}%` : "—"}</div>
-                  <div className="text-zinc-400 text-center">{row.streak}d</div>
+                  <div className="truncate text-white font-medium">{row.name}</div>
+                  <div className="text-white font-semibold">{row.total_score}</div>
+                  <div className="text-zinc-400">{row.tests}</div>
+                  <div className="text-zinc-400">{row.accuracy !== undefined && row.accuracy !== null ? `${Math.round(row.accuracy)}%` : "—"}</div>
+                  <div className="text-zinc-400">{row.streak}d</div>
                 </div>
               ))}
             </div>
