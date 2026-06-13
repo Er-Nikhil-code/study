@@ -8,7 +8,6 @@ import { useAuthStore, AuthUser } from "@/store/auth.store";
 import Logo from "@/components/ui/Logo";
 
 const QUOTES = [
-  { greeting: "“To subdue the enemy without fighting is the acme of skill.”", body: "— Sun Tzu" },
   { greeting: "“The supreme art of war is to subdue the enemy without fighting.”", body: "— Sun Tzu" },
   { greeting: "“It is much safer to be feared than loved.”", body: "— Machiavelli" },
   { greeting: "“For laws are silent among arms.”", body: "— Cicero" },
@@ -30,9 +29,9 @@ const QUOTES = [
   { greeting: "“Pass through this short time in an orderly way.”", body: "— Marcus Aurelius" },
 ];
 
-const quicksand = Quicksand({ 
-  subsets: ["latin"], 
-  weight: ["300", "400", "500"] 
+const quicksand = Quicksand({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"]
 });
 
 // Main Home Page Component
@@ -104,13 +103,7 @@ export default function HomePage() {
         setDisplayedGreeting("");
         setDisplayedBody("");
         charIndexRef.current = 0;
-        setQuoteIndex((prev) => {
-          let next;
-          do {
-            next = Math.floor(Math.random() * QUOTES.length);
-          } while (next === prev && QUOTES.length > 1);
-          return next;
-        });
+        setQuoteIndex((prev) => (prev + 1) % QUOTES.length);
         setOpacity(1);
         setPhase("typing-greeting");
       }, 600);
@@ -330,7 +323,7 @@ export default function HomePage() {
         <div className="mb-10 md:mb-14 relative group cursor-default">
           {/* Subtle glow instead of intense gradient blur */}
           <div className="absolute -inset-4 bg-white/5 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-          
+
           <div className="relative transform transition-transform duration-500 group-hover:scale-[1.01]">
             <h1 className={`text-6xl md:text-7xl ${quicksand.className} font-medium tracking-[0.1em] uppercase flex items-center`}>
               <span className="text-white drop-shadow-md">
@@ -340,7 +333,7 @@ export default function HomePage() {
                 FY
               </span>
             </h1>
-            
+
             {/* Minimal static underline */}
             <div className="relative mt-4 h-[3px] w-16 rounded-full bg-gradient-to-r from-red-600 to-red-800 shadow-sm opacity-80 transition-all duration-500 group-hover:w-24"></div>
 
@@ -357,13 +350,13 @@ export default function HomePage() {
           className="min-h-[200px] md:min-h-[240px] w-full max-w-lg mt-4"
           style={{ opacity, transition: "opacity 0.8s ease-in-out" }}
         >
-          <h2 className={`text-lg md:text-xl font-light italic leading-snug mb-5 ${quicksand.className}`}>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-300 tracking-wide">
+          <h2 className={`text-xl md:text-2xl font-medium leading-snug mb-5 ${quicksand.className}`}>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-300">
               {displayedGreeting}
             </span>
             {phase === "typing-greeting" && <span className="elegant-cursor" />}
           </h2>
-          <p className="text-zinc-500 text-xs md:text-sm uppercase tracking-[0.2em] font-medium mt-2">
+          <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-light tracking-wide">
             {displayedBody}
             {phase === "typing-body" && <span className="elegant-cursor" />}
           </p>
@@ -384,21 +377,19 @@ export default function HomePage() {
           <div className="flex gap-2 mb-8 bg-black/40 p-1.5 rounded-xl border border-white/5 relative z-10">
             <button
               onClick={() => setAuthView("login")}
-              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all duration-500 text-sm tracking-wide ${
-                authView === "login"
-                  ? "bg-gradient-to-r from-red-600 to-rose-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)]"
-                  : "text-zinc-400 hover:text-white hover:bg-white/5"
-              }`}
+              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all duration-500 text-sm tracking-wide ${authView === "login"
+                ? "bg-gradient-to-r from-red-600 to-rose-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)]"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+                }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setAuthView("signup")}
-              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all duration-500 text-sm tracking-wide ${
-                authView === "signup"
-                  ? "bg-gradient-to-r from-red-600 to-rose-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)]"
-                  : "text-zinc-400 hover:text-white hover:bg-white/5"
-              }`}
+              className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all duration-500 text-sm tracking-wide ${authView === "signup"
+                ? "bg-gradient-to-r from-red-600 to-rose-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)]"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+                }`}
             >
               Sign Up
             </button>
@@ -512,9 +503,8 @@ function LoginFormEmbedded({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email address"
-            className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-              errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-            } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+            className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
           />
           {errors.email && (
             <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>
@@ -531,9 +521,8 @@ function LoginFormEmbedded({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-                errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+                } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
             />
             <button
               type="button"
@@ -707,9 +696,8 @@ function RegisterFormEmbedded({
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="First name"
-              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-                errors.firstName ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.firstName ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.firstName ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+                } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.firstName ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
             />
             {errors.firstName && (
               <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.firstName}</p>
@@ -738,9 +726,8 @@ function RegisterFormEmbedded({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
-              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-                errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-              } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+                } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
             />
             {errors.email && (
               <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>
@@ -769,9 +756,8 @@ function RegisterFormEmbedded({
               }
               placeholder="6-digit code"
               maxLength={6}
-              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-                errors.otp ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-              } text-white text-center text-3xl tracking-[0.2em] placeholder-zinc-700 font-mono focus:outline-none focus:ring-1 ${errors.otp ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.otp ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+                } text-white text-center text-3xl tracking-[0.2em] placeholder-zinc-700 font-mono focus:outline-none focus:ring-1 ${errors.otp ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
             />
             {errors.otp && (
               <p className="text-red-400 text-xs mt-1.5 text-center">{errors.otp}</p>
@@ -788,9 +774,8 @@ function RegisterFormEmbedded({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-                  errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-                } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+                className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+                  } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
               />
               <button
                 type="button"
@@ -813,7 +798,7 @@ function RegisterFormEmbedded({
           >
             {isLoading ? "Verifying..." : "Verify & Create Account"}
           </button>
-          
+
           <button
             type="button"
             onClick={() => setStep(1)}
@@ -888,7 +873,7 @@ function ForgotPasswordFormEmbedded({
         <div className="mt-6 mb-8">
           <h3 className="text-xl font-semibold text-white mb-2">Check your email</h3>
           <p className="text-zinc-400 text-sm">
-            We've sent a password reset link to <br/>
+            We've sent a password reset link to <br />
             <span className="text-white font-medium">{email}</span>
           </p>
         </div>
@@ -924,9 +909,8 @@ function ForgotPasswordFormEmbedded({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email address"
-          className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${
-            errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-          } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+          className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
+            } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
         />
         {errors.email && (
           <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>
