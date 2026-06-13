@@ -497,7 +497,9 @@ export class TestsService {
         },
         test: {
           include: {
-            test_questions: true,
+            test_questions: {
+              include: { question: { select: { marks: true } } }
+            },
           },
         },
       },
@@ -513,6 +515,11 @@ export class TestsService {
     let totalScore = 0;
     let correctCount = 0;
     let wrongCount = 0;
+    let actualMaxScore = 0;
+
+    for (const tq of attempt.test.test_questions) {
+      actualMaxScore += attempt.test.positive_marks || tq.marks_override || tq.question.marks || 0;
+    }
 
     for (const response of attempt.responses) {
       const testQuestion = attempt.test.test_questions.find(tq => tq.id === response.test_question_id);
@@ -552,6 +559,7 @@ export class TestsService {
       data: {
         status: "SCORED",
         score: totalScore,
+        max_score: actualMaxScore,
         submitted_at: new Date(),
         time_taken_sec: timeTaken,
       },
@@ -574,11 +582,11 @@ export class TestsService {
       });
     }
 
-    // Update user stats
-    await this.updateUserStats(userId);
-
     // Record daily activity for streak
     await this.recordDailyActivity(userId, "test_attempt");
+
+    // Update user stats
+    await this.updateUserStats(userId);
 
     this.logger.log(
       `✅ Attempt scored: ${attemptId} — ${totalScore}/${attempt.max_score} (${correctCount} correct, ${wrongCount} wrong, ${skipped} skipped)`,
@@ -820,6 +828,8 @@ export class TestsService {
             title: true,
             duration_minutes: true,
             total_marks: true,
+            positive_marks: true,
+            negative_marks: true,
             created_by: true,
             _count: { select: { test_questions: true } },
             test_questions: {

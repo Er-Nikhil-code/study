@@ -46,9 +46,9 @@ export default function CourseLeaderboard({ courseId, headerActions }: { courseI
       </div>
 
       <Panel className="p-0 overflow-hidden border border-white/10">
-        <div className="overflow-x-auto min-w-[600px]">
+        <div className="overflow-x-auto min-w-[450px]">
           {/* Header */}
-          <div className="grid grid-cols-[80px_minmax(0,1fr)_100px_80px_100px_80px] gap-3 border-b border-white/10 bg-black/40 px-5 py-3 text-xs uppercase tracking-[0.2em] text-zinc-500">
+          <div className="grid grid-cols-[60px_minmax(0,1fr)_60px_60px_80px_60px] gap-3 border-b border-white/10 bg-black/40 px-4 py-3 text-[10px] uppercase tracking-[0.1em] text-zinc-500">
             <div className="text-center">Rank</div>
             <div className="text-left">Name</div>
             <div className="text-center">Score</div>
@@ -60,7 +60,7 @@ export default function CourseLeaderboard({ courseId, headerActions }: { courseI
           {loading ? (
             <div className="divide-y divide-white/5">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="grid grid-cols-[80px_minmax(0,1fr)_100px_80px_100px_80px] gap-3 px-5 py-4 bg-zinc-900/50">
+                <div key={i} className="grid grid-cols-[60px_minmax(0,1fr)_60px_60px_80px_60px] gap-3 px-4 py-3 bg-zinc-900/50">
                   <div className="h-4 w-8 hidden rounded bg-white/10 mx-auto" />
                   <div className="h-4 w-32 hidden rounded bg-white/10" />
                   <div className="h-4 w-12 hidden rounded bg-white/10 mx-auto" />
@@ -78,7 +78,7 @@ export default function CourseLeaderboard({ courseId, headerActions }: { courseI
             <div className="divide-y divide-white/5 max-h-[350px] overflow-y-auto custom-scrollbar">
               {rows.map((row) => (
                 <div key={row.user_id}
-                  className={`grid grid-cols-[80px_minmax(0,1fr)_100px_80px_100px_80px] gap-3 px-5 py-4 text-sm items-center transition-colors hover:bg-white/[0.02] ${
+                  className={`grid grid-cols-[60px_minmax(0,1fr)_60px_60px_80px_60px] gap-3 px-4 py-3 text-sm items-center transition-colors hover:bg-white/[0.02] ${
                     row.rank <= 3 ? "bg-white/[0.02]" : "bg-zinc-900/30"
                   }`}>
                   <div className={`font-bold text-center ${

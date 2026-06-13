@@ -105,7 +105,7 @@ export default function ResultsPage() {
                         <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-2 py-0.5 text-orange-300 font-medium tracking-wide text-[10px]">Re #{r.attempt_no}</span>
                       )}
                     </div>
-                    <div className="text-zinc-400 text-center font-mono">{r.time_taken_sec ? `${Math.floor(r.time_taken_sec / 60)}m` : "—"}</div>
+                    <div className="text-zinc-400 text-center font-mono">{r.time_taken_sec ? `${Math.floor(r.time_taken_sec / 60)}m ${r.time_taken_sec % 60}s` : "—"}</div>
                   </Link>
                 ))}
               </div>
@@ -160,8 +160,18 @@ export default function ResultsPage() {
               {challenges.map((c) => (
                 <div key={c.id} className="flex flex-col gap-2 px-6 py-4 hover:bg-white/[0.02] transition-colors">
                   <div className="grid grid-cols-[1fr_80px_100px] gap-3 text-xs items-center">
-                    <div className="text-white font-medium truncate" title={c.reason || "Review"}>
-                      {c.question?.content_json?.[0]?.data?.text || c.note?.title || c.reason || "Review Request"}
+                    <div className="flex flex-col gap-1 overflow-hidden min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${c.note ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'bg-orange-500/20 text-orange-300 border border-orange-500/30'}`}>
+                          {c.note ? "Note" : "Question"}
+                        </span>
+                        <span className="text-xs text-zinc-400 truncate">
+                          {c.question?.topic?.name || c.note?.topic?.name || "Unknown Topic"}
+                        </span>
+                      </div>
+                      <div className="text-white font-medium text-sm truncate" title={c.reason || "Review"}>
+                        {c.question?.content_json?.[0]?.data?.text || c.note?.title || c.reason || "Review Request"}
+                      </div>
                     </div>
                     <div className="flex justify-center">
                       {c.status === "PENDING" && <span className="rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2 py-0.5 text-yellow-300 text-[10px]">Pending</span>}

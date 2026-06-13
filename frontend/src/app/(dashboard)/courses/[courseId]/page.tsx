@@ -998,7 +998,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               )}
 
               {/* Leaderboard Matches Course Box Width */}
-              <div className="relative w-full mt-12">
+              <div className="relative w-full lg:w-1/2 mt-12 pr-4">
                 {String(user?.role) === "STUDENT" && !course?.is_enrolled && (
                   <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center border border-white/10 shadow-2xl">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-900 border border-white/10 text-zinc-500 mb-4 shadow-inner">

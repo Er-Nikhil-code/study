@@ -439,11 +439,12 @@ export class ChallengesService {
             content_json: true,
             options_json: true,
             answer_key: true,
-            solution_json: true
+            solution_json: true,
+            topic: { select: { name: true } }
           },
         },
         note: {
-          select: { id: true, title: true, content_html: true },
+          select: { id: true, title: true, content_html: true, topic: { select: { name: true } } },
         }
       },
     });

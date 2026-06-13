@@ -41,7 +41,7 @@ export default function CreateTestPage() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    duration_minutes: 60,
+    duration_minutes: "" as number | "",
     positive_marks: 4,
     negative_marks: 1,
     passing_marks: "" as number | "",
@@ -184,7 +184,7 @@ export default function CreateTestPage() {
               <div className="flex gap-4">
                 <div className="flex-1">
                   <label className="block text-sm text-zinc-400 mb-1">Duration (mins)</label>
-                  <input type="number" required min="1" value={formData.duration_minutes} onChange={e => setFormData({...formData, duration_minutes: Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" />
+                  <input type="number" required min="1" value={formData.duration_minutes} onChange={e => setFormData({...formData, duration_minutes: e.target.value === '' ? '' : Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="e.g. 60" />
                 </div>
                 <div className="flex-1">
                   <label className="block text-sm text-zinc-400 mb-1">Total Marks</label>
