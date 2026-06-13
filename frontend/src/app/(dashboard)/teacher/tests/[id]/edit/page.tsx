@@ -175,7 +175,7 @@ export default function EditTestPage() {
     <>
       <SectionTitle title={`Edit Test`} subtitle="Update test details and selected questions" />
 
-      <form onSubmit={handleSubmit} className="mt-8 flex flex-col lg:flex-row gap-6">
+      <form onSubmit={handleSubmit} className="mt-8 flex flex-col lg:flex-row gap-6 items-stretch">
         {/* Left Col: Test Settings */}
         <div className="w-full lg:w-1/3 flex flex-col gap-6">
           <Panel>
@@ -305,7 +305,8 @@ export default function EditTestPage() {
             </div>
           </Panel>
 
-          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+          <div className="flex-1 relative min-h-[400px] lg:min-h-0">
+            <div className="absolute inset-0 overflow-y-auto space-y-3 pr-2">
             {questions.length === 0 ? (
               <p className="text-zinc-500 p-4 border border-white/5 rounded">No questions found matching the selected filters.</p>
             ) : (
@@ -347,6 +348,7 @@ export default function EditTestPage() {
                 </div>
               ))
             )}
+            </div>
           </div>
         </div>
       </form>

@@ -22,9 +22,10 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
   readOnly?: boolean;
+  themeMode?: "dark" | "light";
 }
 
-export default function RichTextEditor({ value, onChange, placeholder, readOnly = false }: RichTextEditorProps) {
+export default function RichTextEditor({ value, onChange, placeholder, readOnly = false, themeMode = "dark" }: RichTextEditorProps) {
   // Custom image upload handler
   const imageHandler = async () => {
     const input = document.createElement("input");
@@ -102,7 +103,7 @@ export default function RichTextEditor({ value, onChange, placeholder, readOnly 
   ];
 
   return (
-    <div className={`rich-text-container ${readOnly ? "read-only" : ""}`}>
+    <div className={`rich-text-container ${readOnly ? "read-only" : ""} theme-${themeMode}`}>
       <ReactQuill
         theme="snow"
         value={value}

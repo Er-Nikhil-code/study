@@ -97,7 +97,7 @@ export default function TestDetailsPage() {
         />
 
         <Panel accent className="mt-6 mb-8">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             <div className="rounded-2xl bg-white/[0.03] p-4">
               <div className="text-xs text-zinc-500">Duration</div>
               <div className="mt-1 text-xl font-semibold text-white">
@@ -111,9 +111,23 @@ export default function TestDetailsPage() {
               </div>
             </div>
             <div className="rounded-2xl bg-white/[0.03] p-4">
+              <div className="text-xs text-zinc-500">Marks / Question</div>
+              <div className="mt-1 text-xl font-semibold flex items-baseline gap-1.5">
+                <span className="text-emerald-400">+{test.positive_marks || 0}</span>
+                <span className="text-zinc-600 text-sm">/</span>
+                <span className="text-red-400">-{test.negative_marks || 0}</span>
+              </div>
+            </div>
+            <div className="rounded-2xl bg-white/[0.03] p-4">
               <div className="text-xs text-zinc-500">Total Marks</div>
               <div className="mt-1 text-xl font-semibold text-white">
                 {test.total_marks}
+              </div>
+            </div>
+            <div className="rounded-2xl bg-white/[0.03] p-4">
+              <div className="text-xs text-zinc-500">Passing Marks</div>
+              <div className="mt-1 text-xl font-semibold text-white">
+                {test.passing_marks ?? "N/A"}
               </div>
             </div>
             <div className="rounded-2xl bg-white/[0.03] p-4">
@@ -123,12 +137,6 @@ export default function TestDetailsPage() {
               </div>
             </div>
           </div>
-
-          {test.passing_marks != null && (
-            <p className="mt-4 text-sm text-zinc-400">
-              Passing marks: <span className="text-white font-medium">{test.passing_marks}</span>
-            </p>
-          )}
 
           <div className="mt-6 flex flex-wrap gap-3">
             {user?.role !== "TEACHER" && user?.role !== "ADMIN" && (

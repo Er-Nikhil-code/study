@@ -175,10 +175,10 @@ export default function ResultDetailPage() {
                             }
                             
                             // Check selected options
-                            if (Array.isArray(r?.answer_json?.correct_options)) {
-                              isSelectedOption = r.answer_json.correct_options.includes(opt.id);
+                            if (Array.isArray(r?.answer_json?.selected_options)) {
+                              isSelectedOption = r.answer_json.selected_options.includes(opt.id);
                             } else {
-                              isSelectedOption = r?.answer_json?.correct_option === opt.id;
+                              isSelectedOption = r?.answer_json?.selected_option === opt.id;
                             }
                             
                             let borderColor = "border-white/10";

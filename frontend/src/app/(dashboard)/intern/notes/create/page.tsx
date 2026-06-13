@@ -7,6 +7,7 @@ import { HierarchyService } from "@/services/hierarchy.service";
 import { NotesService } from "@/services/notes.service";
 import RichTextEditor from "@/components/ui/RichTextEditor";
 import { useAuthStore } from "@/store/auth.store";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function CreateNotePage() {
   const [topics, setTopics] = useState<any[]>([]);
@@ -25,6 +26,8 @@ export default function CreateNotePage() {
     title: "",
     content_html: ""
   });
+  
+  const [themeMode, setThemeMode] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
     // Extract hierarchy for cascaded dropdowns
@@ -146,11 +149,15 @@ export default function CreateNotePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-300 mb-2">Note Content</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-zinc-300">Note Content</label>
+              <ThemeToggle themeMode={themeMode} onChange={setThemeMode} />
+            </div>
             <RichTextEditor
               value={formData.content_html}
               onChange={(val) => setFormData({ ...formData, content_html: val })}
               placeholder="Write your note here using the formatting tools above..."
+              themeMode={themeMode}
             />
           </div>
 

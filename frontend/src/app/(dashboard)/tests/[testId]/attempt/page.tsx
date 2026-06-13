@@ -323,20 +323,45 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
 
   switch (q.question_type) {
     case "SINGLE_CORRECT":
+    case "ASSERTION_REASON":
+    case "FILL_BLANK":
+    case "NUMERICAL":
+      if (options.length > 0) {
+        return (
+          <div className="space-y-3">
+            {options.map((opt: any) => (
+              <button key={opt.id} onClick={() => setAnswer({ selected_option: opt.id })}
+                className={`w-full text-left rounded-xl border p-4 text-sm transition ${
+                  currentAnswer?.selected_option === opt.id
+                    ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-100"
+                    : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+                }`}>
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-current text-xs mr-3">{opt.id}</span>
+                {opt.text}
+              </button>
+            ))}
+          </div>
+        );
+      }
+      // Fallbacks if options are missing for some reason
+      if (q.question_type === "FILL_BLANK") {
+        return (
+          <input type="text" value={currentAnswer?.blanks?.[0] || ""} onChange={(e) => setAnswer({ blanks: { 0: e.target.value } })}
+            placeholder="Type your answer…"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30" />
+        );
+      }
+      if (q.question_type === "NUMERICAL") {
+        return (
+          <input type="number" step="any" value={currentAnswer?.value ?? ""} onChange={(e) => setAnswer({ value: e.target.value })}
+            placeholder="Enter numerical answer…"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30" />
+        );
+      }
       return (
-        <div className="space-y-3">
-          {options.map((opt: any) => (
-            <button key={opt.id} onClick={() => setAnswer({ selected_option: opt.id })}
-              className={`w-full text-left rounded-xl border p-4 text-sm transition ${
-                currentAnswer?.selected_option === opt.id
-                  ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-100"
-                  : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
-              }`}>
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-current text-xs mr-3">{opt.id}</span>
-              {opt.text}
-            </button>
-          ))}
-        </div>
+        <textarea value={currentAnswer?.text || ""} onChange={(e) => setAnswer({ text: e.target.value })}
+          placeholder="Enter your answer…"
+          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30 min-h-[120px]" />
       );
     case "MULTIPLE_CORRECT":
       return (
@@ -364,6 +389,20 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
         </div>
       );
     case "TRUE_FALSE":
+      if (options.length > 0) {
+        return (
+          <div className="flex gap-4">
+            {options.map((opt: any) => (
+              <button key={opt.id} onClick={() => setAnswer({ selected_option: opt.id })}
+                className={`flex-1 rounded-xl border p-4 text-center text-sm font-medium transition ${
+                  currentAnswer?.selected_option === opt.id
+                    ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-100"
+                    : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+                }`}>{opt.text}</button>
+            ))}
+          </div>
+        );
+      }
       return (
         <div className="flex gap-4">
           {["True", "False"].map((val) => (
@@ -375,18 +414,6 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
               }`}>{val}</button>
           ))}
         </div>
-      );
-    case "FILL_BLANK":
-      return (
-        <input type="text" value={currentAnswer?.blanks?.[0] || ""} onChange={(e) => setAnswer({ blanks: { 0: e.target.value } })}
-          placeholder="Type your answer…"
-          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30" />
-      );
-    case "NUMERICAL":
-      return (
-        <input type="number" step="any" value={currentAnswer?.value ?? ""} onChange={(e) => setAnswer({ value: e.target.value })}
-          placeholder="Enter numerical answer…"
-          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30" />
       );
     default:
       return (

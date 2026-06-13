@@ -12,6 +12,7 @@ import TestCard from "@/components/tests/TestCard";
 import { useAuthStore } from "@/store/auth.store";
 import RichTextEditor from "@/components/ui/RichTextEditor";
 import html2pdf from "html2pdf.js";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function TopicViewerPage({ params }: { params: Promise<{ topicId: string }> }) {
   const unwrappedParams = use(params);
@@ -21,6 +22,7 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
   const [courseId, setCourseId] = useState<string | null>(null);
   
   const [activeTab, setActiveTab] = useState<"NOTES" | "TESTS">("NOTES");
+  const [themeMode, setThemeMode] = useState<"dark" | "light">("dark");
   
   const [notes, setNotes] = useState<any[]>([]);
   const [tests, setTests] = useState<TestListItem[]>([]);
@@ -113,10 +115,20 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
     }
   };
 
-  const handleDownloadPdf = (noteId: string, title: string) => {
+  const handleDownloadPdf = async (noteId: string, title: string) => {
     const element = document.getElementById(`note-content-${noteId}`);
     if (!element) return;
     
+    // Temporarily switch to light mode for PDF generation
+    const originalClasses = element.className;
+    const contentDiv = element.querySelector('.prose');
+    const originalContentClasses = contentDiv?.className;
+
+    element.className = "bg-white p-6 rounded-xl text-black";
+    if (contentDiv) {
+      contentDiv.className = "prose max-w-none text-black"; // Removed prose-invert
+    }
+
     const opt = {
       margin:       10,
       filename:     `${title.replace(/[^a-zA-Z0-9]/g, '_')}_Notes.pdf`,
@@ -125,7 +137,13 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
-    html2pdf().set(opt as any).from(element).save();
+    await html2pdf().set(opt as any).from(element).save();
+
+    // Revert back to original dark mode styling
+    element.className = originalClasses;
+    if (contentDiv && originalContentClasses) {
+      contentDiv.className = originalContentClasses;
+    }
   };
 
   return (
@@ -168,6 +186,11 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
         </div>
       ) : activeTab === "NOTES" ? (
         <div className="space-y-6 max-w-4xl pb-20">
+          {notes.length > 0 && (
+            <div className="flex justify-end mb-2">
+              <ThemeToggle themeMode={themeMode} onChange={setThemeMode} />
+            </div>
+          )}
           {notes.length === 0 ? (
             <Panel><p className="text-zinc-500">No notes available for this topic yet.</p></Panel>
           ) : (
@@ -183,7 +206,7 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                       </div>
                       <div>
                         <label className="text-sm text-zinc-400 mb-1 block">Content</label>
-                        <RichTextEditor value={editNoteForm.content_html} onChange={val => setEditNoteForm({...editNoteForm, content_html: val})} placeholder="Edit note content..." />
+                        <RichTextEditor value={editNoteForm.content_html} onChange={val => setEditNoteForm({...editNoteForm, content_html: val})} placeholder="Edit note content..." themeMode={themeMode} />
                       </div>
                       <div className="flex gap-2 justify-end">
                         <button type="button" onClick={() => setEditingNoteId(null)} className="px-4 py-2 text-sm text-zinc-400 hover:text-white">Cancel</button>
@@ -227,9 +250,9 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                           </button>
                         </div>
                       </div>
-                      <div id={`note-content-${note.id}`} className="bg-[#111] p-4 rounded-xl">
+                      <div id={`note-content-${note.id}`} className={`p-4 rounded-xl ${themeMode === "light" ? "bg-white text-black" : "bg-[#111] text-zinc-300"}`}>
                         <div 
-                          className="prose prose-invert max-w-none text-zinc-300"
+                          className={`prose max-w-none ${themeMode === "light" ? "text-black" : "prose-invert text-zinc-300"}`}
                           dangerouslySetInnerHTML={{ __html: note.content_html }} 
                         />
                       </div>

@@ -352,7 +352,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
         </div>
       )}
       
-      <div className={`transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'} w-[90%]`}>
+      <div className={`transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'} w-[95%] max-w-7xl`}>
         <div className="mb-6 flex justify-between items-start">
             <div className="flex items-center gap-6">
               <div>
@@ -369,125 +369,44 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         <span className="relative group/creator flex items-center gap-1 cursor-help">
                           Creator: <span className="text-zinc-300 hover:text-white transition-colors">{course.creator ? `${course.creator.first_name} ${course.creator.last_name || ''}`.trim() : "King"}</span>
                           
-                          {course.creator && (
-                            <span className="absolute top-full left-0 mt-2 opacity-0 group-hover/creator:opacity-100 group-hover/creator:translate-y-0 translate-y-1 pointer-events-none transition-all duration-200 z-50">
-                              <span className="bg-black/90 backdrop-blur-md border border-white/10 shadow-2xl rounded-xl p-3 w-64 flex items-start gap-3 pointer-events-auto">
-                                {course.creator.profile_picture ? (
-                                  <img src={course.creator.profile_picture} alt={course.creator.first_name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-white/10" />
-                                ) : (
-                                  <span className="w-10 h-10 rounded-full shrink-0 bg-zinc-800 border border-white/5 text-zinc-400 flex items-center justify-center font-bold text-sm">
-                                    {course.creator.first_name?.charAt(0)?.toUpperCase() || "U"}
+                          <span className="absolute top-full left-0 mt-2 opacity-0 group-hover/creator:opacity-100 group-hover/creator:translate-y-0 translate-y-1 pointer-events-none transition-all duration-200 z-50">
+                            <span className="bg-black/90 backdrop-blur-md border border-white/10 shadow-2xl rounded-xl p-3 w-64 flex items-start gap-3 pointer-events-auto">
+                              {course.creator ? (
+                                <>
+                                  {course.creator.profile_picture ? (
+                                    <img src={course.creator.profile_picture} alt={course.creator.first_name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-white/10" />
+                                  ) : (
+                                    <span className="w-10 h-10 rounded-full shrink-0 bg-zinc-800 border border-white/5 text-zinc-400 flex items-center justify-center font-bold text-sm">
+                                      {course.creator.first_name?.charAt(0)?.toUpperCase() || "U"}
+                                    </span>
+                                  )}
+                                  <span className="min-w-0 flex-1 flex flex-col gap-0.5">
+                                    <span className="text-sm font-medium text-white truncate">{course.creator.first_name} {course.creator.last_name}</span>
+                                    <span className="text-[10px] text-zinc-400 font-mono truncate" title={course.creator.id}>{course.creator.id}</span>
+                                    <span className="text-xs text-red-400 font-medium truncate">{course.creator.email}</span>
                                   </span>
-                                )}
-                                <span className="min-w-0 flex-1 flex flex-col gap-0.5">
-                                  <span className="text-sm font-medium text-white truncate">{course.creator.first_name} {course.creator.last_name}</span>
-                                  <span className="text-[10px] text-zinc-400 font-mono truncate" title={course.creator.id}>{course.creator.id}</span>
-                                  <span className="text-xs text-red-400 font-medium truncate">{course.creator.email}</span>
-                                </span>
-                              </span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="w-10 h-10 rounded-full shrink-0 bg-red-950 border border-red-500/30 text-red-400 flex items-center justify-center font-bold text-xl shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                                    ♚
+                                  </span>
+                                  <span className="min-w-0 flex-1 flex flex-col gap-0.5">
+                                    <span className="text-sm font-bold text-white truncate drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">System King</span>
+                                    <span className="text-[10px] text-zinc-400 font-mono truncate uppercase tracking-widest mt-0.5">Supreme Admin</span>
+                                    <span className="text-[11px] text-red-400/80 font-medium truncate mt-0.5">Platform Managed</span>
+                                  </span>
+                                </>
+                              )}
                             </span>
-                          )}
+                          </span>
                         </span>
                       </span>
                     ) : "Course Curriculum"
                   } 
                 />
               </div>
-              
-              {user?.role === "STUDENT" && course.is_enrolled && (
-                (() => {
-                  const S = course.sections?.length || 0;
-                  if (S === 0) return null;
-                  
-                  const r = 18;
-                  const circ = 2 * Math.PI * r;
-                  const gapAngle = S > 1 ? 8 : 0;
-                  const segmentAngle = (360 / S) - gapAngle;
-                  const segmentLength = (segmentAngle / 360) * circ;
-
-                  // Overall completion
-                  const totalTopics = course.sections?.flatMap((s:any) => s.chapters?.flatMap((c:any) => c.topics || []) || [])?.length || 0;
-                  const completedTopics = course.sections?.flatMap((s:any) => s.chapters?.flatMap((c:any) => c.topics || []) || [])?.filter((t:any) => t?.is_completed)?.length || 0;
-                  const overallPct = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
-
-                  return (
-                    <div className="relative flex items-center justify-center w-14 h-14 shrink-0 mt-4" onMouseLeave={() => setHoveredRingSection(null)}>
-                      <svg className="w-14 h-14 overflow-visible" viewBox="0 0 40 40">
-                        {course.sections.map((sec: any, i: number) => {
-                          const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
-                          const total = tTopics.length;
-                          const comp = tTopics.filter((t:any) => t?.is_completed).length;
-                          const pct = total === 0 ? 0 : comp / total;
-                          const rotation = (360 / S) * i - 90 + (gapAngle / 2);
-
-                          return (
-                            <g 
-                              key={sec.id} 
-                              className="cursor-crosshair transition-all duration-300 hover:opacity-80"
-                              onMouseEnter={() => setHoveredRingSection({ name: sec.name, pct: Math.round(pct * 100), comp, total })}
-                            >
-                              {/* Background Segment */}
-                              <circle 
-                                cx="20" cy="20" r="18" 
-                                stroke="currentColor" 
-                                strokeWidth="3" 
-                                fill="transparent" 
-                                strokeDasharray={`${segmentLength} ${circ}`}
-                                transform={`rotate(${rotation}, 20, 20)`}
-                                strokeLinecap="round"
-                                className="text-white/10" 
-                              />
-                              {/* Foreground Segment */}
-                              {pct > 0 && (
-                                <circle 
-                                  cx="20" cy="20" r="18" 
-                                  stroke="currentColor" 
-                                  strokeWidth="3" 
-                                  fill="transparent" 
-                                  strokeDasharray={`${pct * segmentLength} ${circ}`}
-                                  transform={`rotate(${rotation}, 20, 20)`}
-                                  strokeLinecap="round"
-                                  className="text-red-500 drop-shadow-[0_0_6px_rgba(239,68,68,0.6)] transition-all duration-1000 ease-out" 
-                                />
-                              )}
-                              {/* Invisible larger hit area for easier hover */}
-                              <circle 
-                                cx="20" cy="20" r="18" 
-                                stroke="transparent" 
-                                strokeWidth="12" 
-                                fill="transparent" 
-                                strokeDasharray={`${segmentLength} ${circ}`}
-                                transform={`rotate(${rotation}, 20, 20)`}
-                              />
-                            </g>
-                          );
-                        })}
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center group-hover:scale-110 transition-transform pointer-events-auto">
-                        <div className="w-[120%] h-[120%]">
-                          <ChessPiece3D role="STUDENT" />
-                        </div>
-                      </div>
-                      
-                      {/* Tooltip */}
-                      <div className={`absolute top-full mt-3 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-[10px] font-semibold tracking-wider px-3 py-2 rounded-xl whitespace-nowrap shadow-2xl pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
-                        {hoveredRingSection ? (
-                          <div className="flex flex-col items-center gap-0.5">
-                            <span className="text-zinc-400 text-[9px] uppercase max-w-[150px] truncate">{hoveredRingSection.name}</span>
-                            <span className="text-red-400">{hoveredRingSection.pct}% COMPLETED ({hoveredRingSection.comp}/{hoveredRingSection.total})</span>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-0.5">
-                            <span className="text-zinc-400 text-[9px] uppercase">OVERALL PROGRESS</span>
-                            <span className="text-red-400">{overallPct}% COMPLETED</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })()
-              )}
-            </div>
+              </div>
             <div className="flex items-center gap-4">
               {user?.role === "STUDENT" && !course.is_enrolled && (
                 <button
@@ -523,8 +442,114 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-8 w-full">
-            <div className="flex-1 space-y-8">
+          <div className="flex flex-col lg:flex-row gap-8 w-full mt-4">
+            <div className="flex-1 flex gap-6 items-start">
+              
+              {/* Overall Progress Ring beside sections */}
+              {user?.role === "STUDENT" && course.is_enrolled && (
+                (() => {
+                  const S = course.sections?.length || 0;
+                  if (S === 0) return null;
+                  
+                  const r = 18;
+                  const circ = 2 * Math.PI * r;
+                  // If all sections are 100% complete, remove gaps to form a perfect full circle
+                  const allCompleted = course.sections.every((sec: any) => {
+                    const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
+                    const total = tTopics.length;
+                    const comp = tTopics.filter((t:any) => t?.is_completed).length;
+                    return total > 0 && comp === total;
+                  });
+                  
+                  const gapAngle = allCompleted ? 0 : (S > 1 ? 8 : 0);
+                  const segmentAngle = (360 / S) - gapAngle;
+                  const segmentLength = (segmentAngle / 360) * circ;
+
+                  // Overall completion
+                  const totalTopics = course.sections?.flatMap((s:any) => s.chapters?.flatMap((c:any) => c.topics || []) || [])?.length || 0;
+                  const completedTopics = course.sections?.flatMap((s:any) => s.chapters?.flatMap((c:any) => c.topics || []) || [])?.filter((t:any) => t?.is_completed)?.length || 0;
+                  const overallPct = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
+
+                  return (
+                    <div className="relative flex items-center justify-center w-28 h-28 shrink-0 mt-8" onMouseLeave={() => setHoveredRingSection(null)}>
+                      <svg className={`w-28 h-28 overflow-visible ${overallPct > 0 ? 'animate-[spin_40s_linear_infinite]' : ''}`} viewBox="0 0 40 40">
+                        {course.sections.map((sec: any, i: number) => {
+                          const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
+                          const total = tTopics.length;
+                          const comp = tTopics.filter((t:any) => t?.is_completed).length;
+                          const pct = total === 0 ? 0 : comp / total;
+                          const rotation = (360 / S) * i - 90 + (gapAngle / 2);
+
+                          return (
+                            <g 
+                              key={sec.id} 
+                              className="cursor-crosshair transition-all duration-300 hover:opacity-80"
+                              onMouseEnter={() => setHoveredRingSection({ name: sec.name, pct: Math.round(pct * 100), comp, total })}
+                            >
+                              {/* Background Segment */}
+                              <circle 
+                                cx="20" cy="20" r="18" 
+                                stroke="currentColor" 
+                                strokeWidth="3" 
+                                fill="transparent" 
+                                strokeDasharray={`${segmentLength} ${circ}`}
+                                transform={`rotate(${rotation}, 20, 20)`}
+                                strokeLinecap="round"
+                                className="text-white/10" 
+                              />
+                              {/* Foreground Segment */}
+                              {pct > 0 && (
+                                <circle 
+                                  cx="20" cy="20" r="18" 
+                                  stroke="currentColor" 
+                                  strokeWidth="3" 
+                                  fill="transparent" 
+                                  strokeDasharray={`${pct * segmentLength} ${circ}`}
+                                  transform={`rotate(${rotation}, 20, 20)`}
+                                  strokeLinecap="round"
+                                  className="text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] transition-all duration-1000 ease-out" 
+                                />
+                              )}
+                              {/* Invisible larger hit area for easier hover */}
+                              <circle 
+                                cx="20" cy="20" r="18" 
+                                stroke="transparent" 
+                                strokeWidth="12" 
+                                fill="transparent" 
+                                strokeDasharray={`${segmentLength} ${circ}`}
+                                transform={`rotate(${rotation}, 20, 20)`}
+                              />
+                            </g>
+                          );
+                        })}
+                      </svg>
+                      {/* Logo stays upright */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center group-hover:scale-110 transition-transform pointer-events-auto z-10">
+                        <div className="w-[130%] h-[130%]">
+                          <ChessPiece3D role="STUDENT" />
+                        </div>
+                      </div>
+                      
+                      {/* Tooltip */}
+                      <div className={`absolute top-[110%] left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-[10px] font-semibold tracking-wider px-4 py-2.5 rounded-xl whitespace-nowrap shadow-2xl pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
+                        {hoveredRingSection ? (
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-zinc-400 text-[10px] uppercase max-w-[200px] truncate">{hoveredRingSection.name}</span>
+                            <span className="text-red-400 text-xs">{hoveredRingSection.pct}% COMPLETED ({hoveredRingSection.comp}/{hoveredRingSection.total})</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-zinc-400 text-[10px] uppercase">OVERALL PROGRESS</span>
+                            <span className="text-red-400 text-xs">{overallPct}% COMPLETED</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()
+              )}
+
+              <div className="flex-1 space-y-8 min-w-0">
             {addingSection && (
               <Panel className="border border-red-500/30 bg-black/50">
                 <form onSubmit={handleCreateSection} className="flex flex-col gap-4">
@@ -954,6 +979,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 )}
               </Panel>
             ))}
+            </div>
+            </div>
             
             {course.sections?.length === 0 && !addingSection && (
               <Panel className="border border-dashed border-white/10 bg-white/[0.01] text-center py-12">

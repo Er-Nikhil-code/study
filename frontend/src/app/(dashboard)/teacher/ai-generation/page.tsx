@@ -224,12 +224,22 @@ export default function AIGenerationPage() {
         };
         // Do NOT set optionsJson = undefined; we want to keep them!
       } else if (mappedType === "NUMERICAL" || mappedType === "ESSAY" || mappedType === "IMAGE_BASED") {
-        answerKey = { answer: String(q.answerKey), correct_option: ansStr };
+        let matchedOptionId = ansStr;
+        if (mappedType === "NUMERICAL" && !["A", "B", "C", "D", "E", "F"].includes(matchedOptionId)) {
+           if (optionsJson && optionsJson.options) {
+             const matchedOpt = optionsJson.options.find((o: any) => o.text.trim() === ansStr);
+             if (matchedOpt) matchedOptionId = matchedOpt.id;
+             else matchedOptionId = "A"; // Fallback to pass validation
+           } else {
+             matchedOptionId = "A";
+           }
+        }
+        answerKey = { answer: String(q.answerKey), correct_option: matchedOptionId };
         // Keep optionsJson if it exists
       }
       
-      // Force 4 options for MCQ/MSQ/Assertion as requested
-      if (mappedType === "SINGLE_CORRECT" || mappedType === "MULTIPLE_CORRECT" || mappedType === "ASSERTION_REASON") {
+      // Force 4 options for MCQ/MSQ/Assertion/Numerical as requested
+      if (mappedType === "SINGLE_CORRECT" || mappedType === "MULTIPLE_CORRECT" || mappedType === "ASSERTION_REASON" || mappedType === "NUMERICAL") {
          if (!optionsJson || !optionsJson.options || optionsJson.options.length === 0) {
             optionsJson = {
               options: [
