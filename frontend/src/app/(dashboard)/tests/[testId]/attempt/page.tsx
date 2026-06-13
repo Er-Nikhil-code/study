@@ -118,6 +118,53 @@ export default function AttemptPage() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [loading, timeLeft === 0]);
 
+  /* ─── Navigation Warning ─── */
+  useEffect(() => {
+    if (loading || submitting || timeLeft <= 0) return;
+
+    // Push initial state to trap back button
+    window.history.pushState(null, "", window.location.href);
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "You have an ongoing test. Are you sure you want to leave?";
+    };
+
+    const handlePopState = (e: PopStateEvent) => {
+      const confirmSubmit = window.confirm("You are leaving the test. Do you want to submit the test?");
+      if (confirmSubmit) {
+        handleSubmit();
+      } else {
+        // Push state again to block further back navigation
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+
+    const handleClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest("a");
+      if (target && target.href && !target.hasAttribute("download") && target.getAttribute("target") !== "_blank") {
+        if (target.href.startsWith(window.location.origin) && target.href !== window.location.href) {
+          e.preventDefault();
+          e.stopPropagation();
+          const confirmSubmit = window.confirm("You are leaving the test. Do you want to submit the test?");
+          if (confirmSubmit) {
+            handleSubmit();
+          }
+        }
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+    document.addEventListener("click", handleClick, { capture: true });
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+      document.removeEventListener("click", handleClick, { capture: true });
+    };
+  }, [loading, submitting, timeLeft]);
+
   const q = questions[currentIdx];
 
   /* ─── Save answer to backend ─── */
@@ -201,11 +248,6 @@ export default function AttemptPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-zinc-400">Q {currentIdx + 1}/{questions.length}</span>
-            {saving && (
-              <span className="flex items-center gap-1 text-xs text-zinc-500">
-                <span className="h-2 w-2 hidden rounded-full bg-emerald-400" />Saving
-              </span>
-            )}
           </div>
           <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
             timeLeft < 300 ? "bg-red-600/20 text-red-300"

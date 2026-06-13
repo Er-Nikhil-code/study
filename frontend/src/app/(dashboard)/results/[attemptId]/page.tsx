@@ -5,7 +5,6 @@ import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
-import StatCard from "@/components/ui/StatCard";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import studentService from "@/services/student.service";
 
@@ -98,24 +97,28 @@ export default function ResultDetailPage() {
     <>
         <SectionTitle title={data.test?.title || "Test Result"} subtitle={`Attempt #${data.attempt_no} · ${data.practice_mode ? "Practice" : "Scored"}`} />
 
-        {/* Score summary */}
-        <Panel accent className="mt-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="text-sm text-zinc-400">Overall Score</div>
-              <div className="mt-2 text-4xl font-semibold tracking-tight text-white">
-                {data.score ?? 0}<span className="text-zinc-500 text-2xl">/{calculatedTotalMarks}</span>
-              </div>
+        {/* Subtle Single Line Summary */}
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-y-3 rounded-xl border border-white/10 bg-white/[0.02] px-6 py-3 text-sm">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-zinc-400">Score:</span>
+              <span className="font-semibold text-white">{data.score ?? 0}</span>
+              <span className="text-zinc-500">/ {calculatedTotalMarks}</span>
             </div>
-            <div className="text-sm text-zinc-400">Time: <span className="font-semibold text-white">{timeTaken}</span></div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-zinc-400">Accuracy:</span>
+              <span className="font-semibold text-white">{responses.length > 0 ? Math.round((correct / responses.length) * 100) : 0}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-zinc-400">Time:</span>
+              <span className="font-semibold text-white">{timeTaken}</span>
+            </div>
           </div>
-        </Panel>
-
-        <div className="mt-4 grid gap-4 md:grid-cols-4">
-          <StatCard label="Correct" value={correct} tone="green" />
-          <StatCard label="Wrong" value={wrong} tone="red" />
-          <StatCard label="Skipped" value={skipped} tone="amber" />
-          <StatCard label="Accuracy" value={`${responses.length > 0 ? Math.round((correct / responses.length) * 100) : 0}%`} />
+          <div className="flex items-center gap-5 text-xs font-medium">
+            <span className="text-emerald-400 flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{correct} Correct</span>
+            <span className="text-red-400 flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-red-500"></span>{wrong} Wrong</span>
+            <span className="text-amber-400 flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>{skipped} Skipped</span>
+          </div>
         </div>
 
         {/* Question-by-question breakdown */}
@@ -162,6 +165,80 @@ export default function ResultDetailPage() {
                       <div className="space-y-3 w-full mb-8">
                         {(() => {
                           const optionsToRender = q.options_json?.options || [];
+
+                          if (optionsToRender.length === 0) {
+                            if (q.question_type === "TRUE_FALSE") {
+                              const opts = ["True", "False"];
+                              return opts.map(opt => {
+                                const isCorrectOption = q.answer_key?.answer === (opt === "True");
+                                const isSelectedOption = r?.answer_json?.answer === (opt === "True");
+                                
+                                let borderColor = "border-white/10";
+                                let bgColor = "bg-white/[0.02]";
+                                let icon = null;
+
+                                if (isCorrectOption) {
+                                  borderColor = "border-emerald-500";
+                                  bgColor = "bg-emerald-500/10";
+                                  icon = <span className="text-emerald-500 ml-auto font-bold text-lg">✓</span>;
+                                } else if (isSelectedOption && !isCorrectOption) {
+                                  borderColor = "border-red-500";
+                                  bgColor = "bg-red-500/10";
+                                  icon = <span className="text-red-500 ml-auto font-bold text-lg">✗</span>;
+                                }
+
+                                return (
+                                  <div key={opt} className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all ${borderColor} ${bgColor}`}>
+                                    <div className="text-zinc-200 text-base flex-1">{opt}</div>
+                                    {icon}
+                                  </div>
+                                );
+                              });
+                            }
+
+                            if (q.question_type === "FILL_BLANK") {
+                               const studentBlanks = r?.answer_json?.blanks || {};
+                               const correctBlanks = q.answer_key?.blanks || [];
+                               return correctBlanks.map((blank: any, i: number) => {
+                                  const studentVal = studentBlanks[blank.position] || "";
+                                  const expected = blank.answer;
+                                  const match = blank.case_sensitive
+                                    ? studentVal === expected
+                                    : studentVal.toLowerCase() === expected.toLowerCase();
+                                  
+                                  return (
+                                    <div key={i} className={`p-4 rounded-xl border-2 transition-all ${match ? "border-emerald-500 bg-emerald-500/10" : "border-red-500 bg-red-500/10"}`}>
+                                      <div className="text-xs uppercase text-zinc-500 mb-1">Blank {blank.position}</div>
+                                      <div className="text-zinc-200">Your Answer: <span className={match ? "text-emerald-400" : "text-red-400"}>{studentVal || "—"}</span></div>
+                                      {!match && <div className="text-emerald-400 mt-1">Correct Answer: {expected}</div>}
+                                    </div>
+                                  );
+                               });
+                            }
+
+                            if (q.question_type === "NUMERICAL") {
+                               const studentVal = r?.answer_json?.value;
+                               const expected = q.answer_key?.value;
+                               const diff = Math.abs(Number(studentVal) - Number(expected));
+                               const tolerance = q.answer_key?.tolerance || 0;
+                               const match = studentVal !== undefined && studentVal !== null && diff <= tolerance;
+
+                               return (
+                                  <div key="numerical" className={`p-4 rounded-xl border-2 transition-all ${match ? "border-emerald-500 bg-emerald-500/10" : "border-red-500 bg-red-500/10"}`}>
+                                    <div className="text-zinc-200">Your Answer: <span className={match ? "text-emerald-400" : "text-red-400"}>{studentVal ?? "—"}</span></div>
+                                    {!match && <div className="text-emerald-400 mt-1">Correct Answer: {expected} {tolerance > 0 ? `(±${tolerance})` : ""}</div>}
+                                  </div>
+                               );
+                            }
+
+                            // Fallback for subjective/unknown
+                            return (
+                               <div key="subjective" className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                                 <div className="text-zinc-200">Your Answer:</div>
+                                 <div className="text-zinc-400 mt-2">{r?.answer_json?.text || "—"}</div>
+                               </div>
+                            );
+                          }
 
                           return optionsToRender.map((opt: any) => {
                             let isCorrectOption = false;

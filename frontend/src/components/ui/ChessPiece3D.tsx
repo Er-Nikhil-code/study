@@ -103,7 +103,7 @@ const King = () => {
   );
 };
 
-const WarriorPiece = () => {
+const WarriorPiece = ({ progressPct }: { progressPct?: number }) => {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const [clicked, setClicked] = useState(false);
@@ -114,35 +114,32 @@ const WarriorPiece = () => {
 
   useFrame((state, delta) => {
     if (groupRef.current) {
+      // Continuous slow rotation like the other pieces, but we control it here
+      // so it can be sped up by interaction
+      if (!clicked && spinVelocity.current < 0.1) {
+         groupRef.current.rotation.y += 0.01;
+      }
+
       // Bouncy scale on hover
-      const targetScale = hovered ? 1.2 : 1;
+      const targetScale = hovered ? 1.1 : 1;
       groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale } as THREE.Vector3, 0.15);
       
       // Playful bounce & wobble on hover
       if (hovered && spinVelocity.current < 0.1) {
-        groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 10) * 0.1;
+        groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 10) * 0.05;
       } else {
         groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, 0.1);
       }
       
       // Wild spin on click with gentle decay
       if (clicked) {
-        spinVelocity.current = 30; // Powerful initial spin
+        spinVelocity.current = 20; // Powerful initial spin
         setClicked(false);
       }
       
       if (spinVelocity.current > 0.1) {
         groupRef.current.rotation.y += spinVelocity.current * delta;
-        spinVelocity.current *= 0.96; // Smoothly and gently drop the speed
-      } else {
-        // Gently magnet back to the nearest forward-facing position (multiple of 2*PI)
-        const currentY = groupRef.current.rotation.y;
-        const twoPi = Math.PI * 2;
-        const remainder = currentY % twoPi;
-        let targetY = currentY - remainder;
-        if (remainder > Math.PI) targetY += twoPi;
-        
-        groupRef.current.rotation.y = THREE.MathUtils.lerp(currentY, targetY, 0.05);
+        spinVelocity.current *= 0.95; // Smoothly and gently drop the speed
       }
     }
   });
@@ -159,10 +156,26 @@ const WarriorPiece = () => {
       <mesh material={pieceMaterial} position={[0, 0, 0.3]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[1.2, 1.2, 0.2, 32]} />
       </mesh>
-      {/* Shield Boss (center bump) */}
-      <mesh material={pieceMaterial} position={[0, 0, 0.45]}>
-        <sphereGeometry args={[0.3, 16, 16]} />
-      </mesh>
+      
+      {/* Percentage Text on the Shield Boss */}
+      {progressPct !== undefined ? (
+        <Text
+          position={[0, 0, 0.45]}
+          fontSize={0.65}
+          color="#ffffff"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.04}
+          outlineColor="#000000"
+          fontWeight="bold"
+        >
+          {`${progressPct}%`}
+        </Text>
+      ) : (
+        <mesh material={pieceMaterial} position={[0, 0, 0.45]}>
+          <sphereGeometry args={[0.3, 16, 16]} />
+        </mesh>
+      )}
       
       {/* Sword 1 (backslash) */}
       <group position={[0, 0, -0.1]} rotation={[0, 0, -Math.PI / 4]}>
@@ -204,33 +217,19 @@ const AnimatedPiece = ({ role, progressPct }: { role: string, progressPct?: numb
 
   useFrame((state) => {
     if (groupRef.current) {
-      // Slow rotation
-      groupRef.current.rotation.y += 0.01;
-      // Gentle up and down movement handled by Float, but we can add secondary motion here if needed
+      // Only spin non-student pieces globally so we don't interfere with WarriorPiece's own spin logic
+      if (role !== "STUDENT") {
+        groupRef.current.rotation.y += 0.01;
+      }
     }
   });
 
   return (
     <group ref={groupRef}>
       {role === "INTERN" ? <Pawn /> : null}
-      {role === "STUDENT" ? <WarriorPiece /> : null}
+      {role === "STUDENT" ? <WarriorPiece progressPct={progressPct} /> : null}
       {role === "TEACHER" ? <Knight /> : null}
       {role === "ADMIN" ? <King /> : null}
-      
-      {progressPct !== undefined && (
-        <Text
-          position={[0, 0.5, 0.8]}
-          fontSize={0.6}
-          color="#ef4444"
-          anchorX="center"
-          anchorY="middle"
-          outlineWidth={0.02}
-          outlineColor="#000000"
-        >
-          {`${progressPct}%`}
-          <meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.5} toneMapped={false} />
-        </Text>
-      )}
     </group>
   );
 };
