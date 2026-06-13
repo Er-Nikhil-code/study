@@ -389,7 +389,7 @@ export default function CoursesPage() {
                       <BookOpen size={28} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-bold text-white tracking-tight line-clamp-2 leading-snug group-hover:text-red-100 transition-colors">{course.name}</h3>
+                      <h3 className="text-xl font-bold text-white tracking-tight leading-snug group-hover:text-red-100 transition-colors">{course.name}</h3>
                       <div className="flex flex-wrap items-center gap-2 mt-2">
                         {canSeeCodeAndId && (
                           <span className="whitespace-nowrap shrink-0 text-[10px] uppercase tracking-wider font-semibold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-md">{course.code}</span>
@@ -412,37 +412,39 @@ export default function CoursesPage() {
                     </div>
                   </div>
                   
-                  <div className="mt-auto pt-5 border-t border-white/10 flex flex-col gap-3">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-zinc-400">Curriculum</span>
-                      <span className="text-zinc-200 font-semibold bg-white/5 px-2 py-1 rounded-md">{course.sections?.length || 0} Sections</span>
+                  {!isStudent && (
+                    <div className="mt-auto pt-5 border-t border-white/10 flex flex-col gap-3">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-zinc-400">Curriculum</span>
+                        <span className="text-zinc-200 font-semibold bg-white/5 px-2 py-1 rounded-md">{course.sections?.length || 0} Sections</span>
+                      </div>
+                      {user?.role === "ADMIN" ? (
+                        <div className="flex flex-col gap-1.5 mt-3 pt-3 border-t border-white/5 text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
+                          <div className="flex justify-between items-center gap-2">
+                            <span className="shrink-0">ID</span>
+                            <span className="text-zinc-400 truncate" title={course.id}>{course.id}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span>Price</span>
+                            <span className="text-emerald-400 font-semibold tracking-normal">₹{course.discount_price > 0 ? course.discount_price : (course.price || 0)}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span>Launched</span>
+                            <span className="text-zinc-400 tracking-normal">{course.launch_date ? new Date(course.launch_date).toLocaleDateString() : 'TBD'}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span>Enrolled</span>
+                            <span className="text-white font-semibold tracking-normal">{course.enrollment_count || 0}</span>
+                          </div>
+                        </div>
+                      ) : user?.role === "TEACHER" && (
+                        <div className="flex justify-between items-center gap-2 text-[10px] font-mono mt-3 pt-3 border-t border-white/5">
+                          <span className="text-zinc-600 shrink-0">ID</span>
+                          <span className="text-zinc-500 truncate" title={course.id}>{course.id}</span>
+                        </div>
+                      )}
                     </div>
-                    {user?.role === "ADMIN" ? (
-                      <div className="flex flex-col gap-1.5 mt-3 pt-3 border-t border-white/5 text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
-                        <div className="flex justify-between items-center gap-2">
-                          <span className="shrink-0">ID</span>
-                          <span className="text-zinc-400 truncate" title={course.id}>{course.id}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span>Price</span>
-                          <span className="text-emerald-400 font-semibold tracking-normal">₹{course.discount_price > 0 ? course.discount_price : (course.price || 0)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span>Launched</span>
-                          <span className="text-zinc-400 tracking-normal">{course.launch_date ? new Date(course.launch_date).toLocaleDateString() : 'TBD'}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span>Enrolled</span>
-                          <span className="text-white font-semibold tracking-normal">{course.enrollment_count || 0}</span>
-                        </div>
-                      </div>
-                    ) : user?.role === "TEACHER" && (
-                      <div className="flex justify-between items-center gap-2 text-[10px] font-mono mt-3 pt-3 border-t border-white/5">
-                        <span className="text-zinc-600 shrink-0">ID</span>
-                        <span className="text-zinc-500 truncate" title={course.id}>{course.id}</span>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </Link>
 
                 {isStudent && (
