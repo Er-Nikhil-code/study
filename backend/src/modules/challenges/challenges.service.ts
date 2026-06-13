@@ -430,13 +430,35 @@ export class ChallengesService {
       orderBy: { created_at: "desc" },
       include: {
         question: {
-          select: { id: true, content_json: true },
+          select: { 
+            id: true, 
+            question_type: true,
+            content_json: true,
+            options_json: true,
+            answer_key: true,
+            solution_json: true
+          },
         },
         note: {
           select: { id: true, title: true },
         }
       },
     });
+  }
+
+  /* ════════════════════════════════════════════
+   *  STUDENT: Withdraw a challenge
+   * ════════════════════════════════════════════ */
+
+  async withdrawChallenge(challengeId: string, userId: string) {
+    const challenge = await this.prisma.challenge.findUnique({
+      where: { id: challengeId },
+    });
+    if (!challenge) throw new NotFoundException("Challenge not found");
+    if (challenge.submitted_by !== userId) throw new ForbiddenException("You can only withdraw your own challenges");
+    if (challenge.status !== "PENDING") throw new BadRequestException("Can only withdraw pending challenges");
+
+    return this.prisma.challenge.delete({ where: { id: challengeId } });
   }
 
   /* ════════════════════════════════════════════

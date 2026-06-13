@@ -317,6 +317,11 @@ class StudentApiService {
     const res = await api.get("/challenges/mine");
     return res.data;
   }
+
+  async withdrawChallenge(challengeId: string): Promise<any> {
+    const res = await api.delete(`/challenges/withdraw/${challengeId}`);
+    return res.data;
+  }
 }
 
 export const studentService = new StudentApiService();

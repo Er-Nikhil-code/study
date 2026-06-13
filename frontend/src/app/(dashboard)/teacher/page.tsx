@@ -96,7 +96,7 @@ export default function TeacherHomePage() {
           <p className="mt-1 text-xs text-zinc-500">Assigned to you</p>
         </Panel>
         <Panel accent={(data?.pending_challenges ?? 0) > 0}>
-          <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Pending Challenges</div>
+          <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Pending Reviews</div>
           <div className="mt-2 text-3xl font-semibold text-red-300">
             {loading ? <span className="inline-block h-8 w-14 hidden rounded bg-white/10" /> : data?.pending_challenges ?? 0}
           </div>
@@ -107,7 +107,7 @@ export default function TeacherHomePage() {
           <div className="mt-2 text-3xl font-semibold text-white">
             {loading ? <span className="inline-block h-8 w-14 hidden rounded bg-white/10" /> : data?.resolved_challenges ?? 0}
           </div>
-          <p className="mt-1 text-xs text-zinc-500">Challenges closed</p>
+          <p className="mt-1 text-xs text-zinc-500">Reviews closed</p>
         </Panel>
         <Panel>
           <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Resolution Rate</div>
@@ -121,7 +121,7 @@ export default function TeacherHomePage() {
               })()
             ) : "—"}
           </div>
-          <p className="mt-1 text-xs text-zinc-500">Challenge resolution</p>
+          <p className="mt-1 text-xs text-zinc-500">Review resolution</p>
         </Panel>
       </div>
 
@@ -136,11 +136,11 @@ export default function TeacherHomePage() {
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         {/* Recent challenges */}
         <div>
-          <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Recent Challenges</h3>
+          <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Recent Reviews</h3>
           {!data?.recent_challenges?.length ? (
             <Panel className="py-8 text-center">
               <CheckCircle size={24} className="mx-auto mb-2 text-emerald-500/50" />
-              <p className="text-sm text-zinc-500">No pending challenges. 🎉</p>
+              <p className="text-sm text-zinc-500">No pending reviews. 🎉</p>
             </Panel>
           ) : (
             <div className="space-y-2">
@@ -158,7 +158,7 @@ export default function TeacherHomePage() {
                 </Panel>
               ))}
               <Link href="/teacher/challenges" className="block text-center text-xs text-zinc-500 hover:text-white transition pt-1">
-                View all challenges →
+                View all reviews →
               </Link>
             </div>
           )}
@@ -204,7 +204,7 @@ export default function TeacherHomePage() {
         </Link>
         <Link href="/teacher/challenges" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
           <AlertCircle size={14} />
-          Review Challenges
+          Manage Reviews
         </Link>
         <Link href="/teacher/questions/review" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
           <CheckCircle size={14} />

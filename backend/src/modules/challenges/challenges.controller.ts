@@ -39,9 +39,17 @@ export class ChallengesController {
   }
 
   /* ── Student: my challenges ── */
+  @UseGuards(JwtAuthGuard)
   @Get("mine")
   async getMyChallenges(@Request() req: any) {
     return this.challengesService.getMyChallenges(req.user.sub);
+  }
+
+  /* ── Student: withdraw challenge ── */
+  @UseGuards(JwtAuthGuard)
+  @Delete("withdraw/:id")
+  async withdrawChallenge(@Param("id") id: string, @Request() req: any) {
+    return this.challengesService.withdrawChallenge(id, req.user.sub);
   }
 
   /* ── Teacher: list assigned challenges ── */

@@ -96,34 +96,39 @@ export default function ResultDetailPage() {
 
   return (
     <>
-        <SectionTitle title={data.test?.title || "Test Result"} subtitle={`Attempt #${data.attempt_no} · ${data.practice_mode ? "Practice" : "Scored"}`} />
+        <SectionTitle 
+          title={data.test?.title || (viewMode === "analysis" ? "Test Analysis" : "Test Result")} 
+          subtitle={viewMode === "analysis" ? undefined : `Attempt #${data.attempt_no} · ${data.practice_mode ? "Practice" : "Scored"}`} 
+        />
 
         {/* Subtle Single Line Summary */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-y-3 rounded-xl border border-white/10 bg-white/[0.02] px-6 py-3 text-sm">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-zinc-400">Score:</span>
-              <span className="font-semibold text-white">{data.score ?? 0}</span>
-              <span className="text-zinc-500">/ {calculatedTotalMarks}</span>
+        {viewMode !== "analysis" && (
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-y-3 rounded-xl border border-white/10 bg-white/[0.02] px-6 py-3 text-sm">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-zinc-400">Score:</span>
+                <span className="font-semibold text-white">{data.score ?? 0}</span>
+                <span className="text-zinc-500">/ {calculatedTotalMarks}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-zinc-400">Accuracy:</span>
+                <span className="font-semibold text-white">{responses.length > 0 ? Math.round((correct / responses.length) * 100) : 0}%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-zinc-400">Time:</span>
+                <span className="font-semibold text-white">{timeTaken}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-zinc-400">Accuracy:</span>
-              <span className="font-semibold text-white">{responses.length > 0 ? Math.round((correct / responses.length) * 100) : 0}%</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-zinc-400">Time:</span>
-              <span className="font-semibold text-white">{timeTaken}</span>
+            <div className="flex items-center gap-5 text-xs font-medium">
+              <span className="text-emerald-400 flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{correct} Correct</span>
+              <span className="text-red-400 flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-red-500"></span>{wrong} Wrong</span>
+              <span className="text-amber-400 flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>{skipped} Skipped</span>
             </div>
           </div>
-          <div className="flex items-center gap-5 text-xs font-medium">
-            <span className="text-emerald-400 flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>{correct} Correct</span>
-            <span className="text-red-400 flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-red-500"></span>{wrong} Wrong</span>
-            <span className="text-amber-400 flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>{skipped} Skipped</span>
-          </div>
-        </div>
+        )}
 
         {/* Question-by-question breakdown */}
-        <h3 className="mt-8 text-sm uppercase tracking-[0.2em] text-zinc-500 mb-4">Question-by-Question Review</h3>
+        {viewMode !== "analysis" && <h3 className="mt-8 text-sm uppercase tracking-[0.2em] text-zinc-500 mb-4">Question-by-Question Review</h3>}
 
         <div className="flex flex-col lg:flex-row gap-6 mt-4">
           
@@ -145,13 +150,15 @@ export default function ResultDetailPage() {
                         <span className="bg-zinc-800 px-3 py-1 rounded-full">
                           Marks: <span className="text-emerald-400">+{tq.marks_override ?? q.marks}</span> | <span className="text-red-400">-{q.negative_marks ?? 0}</span>
                         </span>
-                        <span className={`px-3 py-1 rounded-full border ${
-                            r?.is_correct === true ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                              : r?.is_correct === false ? "bg-red-500/10 border-red-500/30 text-red-400"
-                              : "bg-zinc-800 border-zinc-700 text-zinc-400"
-                          }`}>
-                          {r?.is_correct === true ? "Correct" : r?.is_correct === false ? "Incorrect" : "Skipped"}
-                        </span>
+                        {viewMode !== "analysis" && (
+                          <span className={`px-3 py-1 rounded-full border ${
+                              r?.is_correct === true ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                                : r?.is_correct === false ? "bg-red-500/10 border-red-500/30 text-red-400"
+                                : "bg-zinc-800 border-zinc-700 text-zinc-400"
+                            }`}>
+                            {r?.is_correct === true ? "Correct" : r?.is_correct === false ? "Incorrect" : "Skipped"}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -312,7 +319,7 @@ export default function ResultDetailPage() {
                       <div className="flex items-center justify-between mt-8 border-t border-white/10 pt-6">
                         <button
                           onClick={() => setChallengeQ({ ...q, responseId: r?.id })}
-                          className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition hover:bg-red-500/20 flex items-center gap-2"
+                          className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-2 text-sm font-medium text-red-400/70 transition hover:bg-red-500/10 hover:text-red-300 flex items-center gap-2"
                         >
                           ⚡ Challenge This Question
                         </button>
@@ -363,11 +370,13 @@ export default function ResultDetailPage() {
               </div>
 
               {/* Legend */}
-              <div className="p-4 grid grid-cols-2 gap-y-3 gap-x-2 text-xs border-b border-white/5 bg-zinc-900/50">
-                <div className="flex items-center gap-2"><div className="w-5 h-5 rounded flex items-center justify-center bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 font-bold shadow-sm">✓</div> <span className="text-zinc-400">Correct</span></div>
-                <div className="flex items-center gap-2"><div className="w-5 h-5 rounded flex items-center justify-center bg-red-500/20 border border-red-500/50 text-red-400 font-bold shadow-sm">✗</div> <span className="text-zinc-400">Incorrect</span></div>
-                <div className="flex items-center gap-2 col-span-2 mt-1"><div className="w-5 h-5 rounded flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-500 font-bold shadow-sm">—</div> <span className="text-zinc-400">Skipped</span></div>
-              </div>
+              {viewMode !== "analysis" && (
+                <div className="p-4 grid grid-cols-2 gap-y-3 gap-x-2 text-xs border-b border-white/5 bg-zinc-900/50">
+                  <div className="flex items-center gap-2"><div className="w-5 h-5 rounded flex items-center justify-center bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 font-bold shadow-sm">✓</div> <span className="text-zinc-400">Correct</span></div>
+                  <div className="flex items-center gap-2"><div className="w-5 h-5 rounded flex items-center justify-center bg-red-500/20 border border-red-500/50 text-red-400 font-bold shadow-sm">✗</div> <span className="text-zinc-400">Incorrect</span></div>
+                  <div className="flex items-center gap-2 col-span-2 mt-1"><div className="w-5 h-5 rounded flex items-center justify-center bg-zinc-800 border border-zinc-700 text-zinc-500 font-bold shadow-sm">—</div> <span className="text-zinc-400">Skipped</span></div>
+                </div>
+              )}
 
               {/* Question Grid */}
               <div className="p-5 bg-black/20 max-h-[500px] overflow-y-auto">
@@ -378,8 +387,10 @@ export default function ResultDetailPage() {
                     const isCurrent = activeQuestionIdx === idx;
                     
                     let bgClass = "bg-zinc-800 text-zinc-400 border border-zinc-700";
-                    if (r?.is_correct === true) bgClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-                    if (r?.is_correct === false) bgClass = "bg-red-500/20 text-red-400 border border-red-500/30";
+                    if (viewMode !== "analysis") {
+                      if (r?.is_correct === true) bgClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                      if (r?.is_correct === false) bgClass = "bg-red-500/20 text-red-400 border border-red-500/30";
+                    }
 
                     return (
                       <button

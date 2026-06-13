@@ -215,8 +215,16 @@ const WarriorPiece = ({ progressPct }: { progressPct?: number }) => {
 const AnimatedPiece = ({ role, progressPct }: { role: string, progressPct?: number }) => {
   const groupRef = useRef<THREE.Group>(null);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (groupRef.current) {
+      const elapsed = state.clock.elapsedTime;
+      
+      // Fast spin for the first 3 seconds, easing out
+      if (elapsed < 3) {
+        const spinSpeed = 15 * Math.pow(1 - elapsed / 3, 2); 
+        groupRef.current.rotation.y += spinSpeed * delta;
+      }
+
       // Only spin non-student pieces globally so we don't interfere with WarriorPiece's own spin logic
       if (role !== "STUDENT") {
         groupRef.current.rotation.y += 0.01;

@@ -92,7 +92,7 @@ export default function TeacherChallengesPage() {
       // Re-fetch in background to ensure full sync
       fetchChallenges();
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to resolve challenge");
+      alert(err?.response?.data?.message || "Failed to resolve review");
       // Revert on failure
       fetchChallenges();
     } finally {
@@ -114,8 +114,8 @@ export default function TeacherChallengesPage() {
   return (
     <>
       <SectionTitle
-        title="Challenges"
-        subtitle="Review warrior challenge submissions. You can resolve them, revise content directly, reject, or escalate to pawns/kings."
+        title="Reviews"
+        subtitle="Review warrior submissions. You can resolve them, revise content directly, reject, or escalate to pawns/kings."
       />
 
       <div className="mt-6 grid gap-4">
@@ -135,7 +135,7 @@ export default function TeacherChallengesPage() {
             ))}
           </div>
         ) : challenges.length === 0 ? (
-          <Panel><p className="text-zinc-500">No pending challenges assigned to you! 🎉</p></Panel>
+          <Panel><p className="text-zinc-500">No pending reviews assigned to you! 🎉</p></Panel>
         ) : (
           challenges.map((challenge) => (
             <Panel
@@ -235,14 +235,14 @@ export default function TeacherChallengesPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-semibold text-white mb-1">
-              {noteModal.action === "REJECT" ? "Reject Challenge" : 
-               noteModal.action === "ESCALATE" ? "Escalate Challenge" : 
+              {noteModal.action === "REJECT" ? "Reject Review" : 
+               noteModal.action === "ESCALATE" ? "Escalate Review" : 
                "Accept & Edit Question"}
             </h3>
             <p className="text-sm text-zinc-500 mb-4">
-              {noteModal.action === "REJECT" ? "Explain why you're rejecting this challenge. The student will be notified." :
+              {noteModal.action === "REJECT" ? "Explain why you're rejecting this review. The student will be notified." :
                noteModal.action === "ESCALATE" ? "Select an Admin or your assigned Pawn to forward this to." :
-               "Edit the question content directly to fix the issue identified in the challenge."}
+               "Edit the question content directly to fix the issue identified in the review."}
             </p>
 
             {noteModal.action === "ESCALATE" && (

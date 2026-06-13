@@ -90,7 +90,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
 
   // Challenges
   if (hasPerm("manage_challenges") || user.role === "TEACHER") {
-    items.push({ label: "Challenges", href: "/teacher/challenges", icon: ShieldAlert });
+    items.push({ label: "Reviews", href: "/teacher/challenges", icon: ShieldAlert });
   }
 
   // Intern specifics
