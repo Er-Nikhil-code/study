@@ -65,6 +65,7 @@ export default function StudentDashboardPage() {
       ) : studentData ? (
         <>
           {/* Streak + Rank row */}
+          {/* Quick Stats */}
           <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
             <Panel accent>
               <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Current Streak</div>
@@ -76,35 +77,15 @@ export default function StudentDashboardPage() {
               <div className="mt-2 text-3xl font-semibold text-white">#{studentData.global_rank || "—"}</div>
             </Panel>
             <Panel>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Avg Accuracy</div>
-              <div className="mt-2 text-3xl font-semibold text-white">{studentData.avg_accuracy ? `${Math.round(studentData.avg_accuracy)}%` : "—"}</div>
-            </Panel>
-            <Panel>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Best Score</div>
-              <div className="mt-2 text-3xl font-semibold text-white">{studentData.best_score ?? "—"}</div>
-            </Panel>
-          </div>
-
-          {/* Activity row */}
-          <div className="mt-4 grid gap-4 grid-cols-2 lg:grid-cols-4">
-            <Panel>
               <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Tests Taken</div>
-              <div className="mt-2 text-2xl font-semibold text-white">{studentData.total_tests}</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{studentData.total_tests}</div>
             </Panel>
             <Panel>
               <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Today</div>
-              <div className="mt-2 text-2xl font-semibold text-white">
+              <div className="mt-2 text-3xl font-semibold text-white">
                 {studentData.tests_today} test{studentData.tests_today !== 1 ? "s" : ""}
                 {studentData.has_activity_today && <span className="ml-2 text-emerald-400 text-sm">✓ Active</span>}
               </div>
-            </Panel>
-            <Panel>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">First Attempts</div>
-              <div className="mt-2 text-2xl font-semibold text-white">{studentData.first_attempts}</div>
-            </Panel>
-            <Panel>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Re-attempts</div>
-              <div className="mt-2 text-2xl font-semibold text-white">{studentData.reattempts}</div>
             </Panel>
           </div>
 
