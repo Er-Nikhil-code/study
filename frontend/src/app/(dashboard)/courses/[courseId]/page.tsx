@@ -352,7 +352,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
         </div>
       )}
       
-      <div className={`transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'} w-[95%] max-w-7xl`}>
+      <div className={`transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'} w-[95%] max-w-[1800px] mx-auto`}>
         <div className="mb-6 flex justify-between items-start">
             <div className="flex items-center gap-6">
               <div>
@@ -443,7 +443,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 w-full mt-4">
-            <div className="flex-1 flex gap-6 items-start">
+            <div className="flex-1 flex flex-col xl:flex-row-reverse gap-10 items-start">
               
               {/* Overall Progress Ring beside sections */}
               {user?.role === "STUDENT" && course.is_enrolled && (
@@ -451,7 +451,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   const S = course.sections?.length || 0;
                   if (S === 0) return null;
                   
-                  const r = 18;
+                  const r = 48;
                   const circ = 2 * Math.PI * r;
                   // If all sections are 100% complete, remove gaps to form a perfect full circle
                   const allCompleted = course.sections.every((sec: any) => {
@@ -471,8 +471,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   const overallPct = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
 
                   return (
-                    <div className="relative flex items-center justify-center w-28 h-28 shrink-0 mt-8" onMouseLeave={() => setHoveredRingSection(null)}>
-                      <svg className={`w-28 h-28 overflow-visible ${overallPct > 0 ? 'animate-[spin_40s_linear_infinite]' : ''}`} viewBox="0 0 40 40">
+                    <div className="relative flex items-center justify-center w-64 h-64 shrink-0 mt-8 xl:sticky xl:top-32" onMouseLeave={() => setHoveredRingSection(null)}>
+                      <svg className={`w-full h-full overflow-visible ${overallPct > 0 ? 'animate-[spin_40s_linear_infinite]' : ''}`} viewBox="0 0 100 100">
                         {course.sections.map((sec: any, i: number) => {
                           const tTopics = sec.chapters?.flatMap((c:any) => c.topics || []) || [];
                           const total = tTopics.length;
@@ -483,41 +483,41 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           return (
                             <g 
                               key={sec.id} 
-                              className="cursor-crosshair transition-all duration-300 hover:opacity-80"
+                              className="cursor-crosshair transition-all duration-300 hover:opacity-80 group/ring"
                               onMouseEnter={() => setHoveredRingSection({ name: sec.name, pct: Math.round(pct * 100), comp, total })}
                             >
                               {/* Background Segment */}
                               <circle 
-                                cx="20" cy="20" r="18" 
+                                cx="50" cy="50" r="48" 
                                 stroke="currentColor" 
-                                strokeWidth="3" 
+                                strokeWidth="1.5" 
                                 fill="transparent" 
                                 strokeDasharray={`${segmentLength} ${circ}`}
-                                transform={`rotate(${rotation}, 20, 20)`}
+                                transform={`rotate(${rotation}, 50, 50)`}
                                 strokeLinecap="round"
                                 className="text-white/10" 
                               />
                               {/* Foreground Segment */}
                               {pct > 0 && (
                                 <circle 
-                                  cx="20" cy="20" r="18" 
+                                  cx="50" cy="50" r="48" 
                                   stroke="currentColor" 
-                                  strokeWidth="3" 
+                                  strokeWidth="1.5" 
                                   fill="transparent" 
                                   strokeDasharray={`${pct * segmentLength} ${circ}`}
-                                  transform={`rotate(${rotation}, 20, 20)`}
+                                  transform={`rotate(${rotation}, 50, 50)`}
                                   strokeLinecap="round"
-                                  className="text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] transition-all duration-1000 ease-out" 
+                                  className="text-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.9)] transition-all duration-1000 ease-out" 
                                 />
                               )}
                               {/* Invisible larger hit area for easier hover */}
                               <circle 
-                                cx="20" cy="20" r="18" 
+                                cx="50" cy="50" r="48" 
                                 stroke="transparent" 
-                                strokeWidth="12" 
+                                strokeWidth="20" 
                                 fill="transparent" 
                                 strokeDasharray={`${segmentLength} ${circ}`}
-                                transform={`rotate(${rotation}, 20, 20)`}
+                                transform={`rotate(${rotation}, 50, 50)`}
                               />
                             </g>
                           );
@@ -525,22 +525,22 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       </svg>
                       {/* Logo stays upright */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center group-hover:scale-110 transition-transform pointer-events-auto z-10">
-                        <div className="w-[130%] h-[130%]">
+                        <div className="w-[140%] h-[140%] drop-shadow-[0_0_30px_rgba(239,68,68,0.4)]">
                           <ChessPiece3D role="STUDENT" />
                         </div>
                       </div>
                       
                       {/* Tooltip */}
-                      <div className={`absolute top-[110%] left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-[10px] font-semibold tracking-wider px-4 py-2.5 rounded-xl whitespace-nowrap shadow-2xl pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
+                      <div className={`absolute top-[110%] left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 text-white text-xs font-semibold tracking-wider px-5 py-3 rounded-xl whitespace-nowrap shadow-2xl pointer-events-none z-50 transition-all duration-200 ${hoveredRingSection ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
                         {hoveredRingSection ? (
-                          <div className="flex flex-col items-center gap-1">
+                          <div className="flex flex-col items-center gap-1.5">
                             <span className="text-zinc-400 text-[10px] uppercase max-w-[200px] truncate">{hoveredRingSection.name}</span>
-                            <span className="text-red-400 text-xs">{hoveredRingSection.pct}% COMPLETED ({hoveredRingSection.comp}/{hoveredRingSection.total})</span>
+                            <span className="text-red-400 font-bold">{hoveredRingSection.pct}% COMPLETED ({hoveredRingSection.comp}/{hoveredRingSection.total})</span>
                           </div>
                         ) : (
-                          <div className="flex flex-col items-center gap-1">
+                          <div className="flex flex-col items-center gap-1.5">
                             <span className="text-zinc-400 text-[10px] uppercase">OVERALL PROGRESS</span>
-                            <span className="text-red-400 text-xs">{overallPct}% COMPLETED</span>
+                            <span className="text-red-400 font-bold">{overallPct}% COMPLETED</span>
                           </div>
                         )}
                       </div>
