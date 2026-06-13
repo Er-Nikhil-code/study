@@ -805,7 +805,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                 {chapter.topics?.length === 0 ? (
                                   <p className="text-sm text-zinc-500 text-center py-2">No topics in this chapter.</p>
                                 ) : (
-                                  <div className="grid gap-3 sm:grid-cols-2">
+                                  <div className="grid gap-3 grid-cols-1 xl:grid-cols-2">
                                     {chapter.topics?.map((topic: any, idx: number) => {
                                       const absoluteTopicIdx = section.chapters?.flatMap((c:any) => c.topics || []).findIndex((t:any) => t?.id === topic.id);
                                       const isPreviewLocked = user?.role === "STUDENT" && !course.is_enrolled && absoluteTopicIdx >= 2;
@@ -899,9 +899,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                         )}
                                         
                                         {!editingTopic && (
-                                          <div className="flex items-center gap-2 mt-auto pt-3 border-t border-white/5">
+                                          <div className="flex flex-wrap items-center gap-2 mt-auto pt-3 border-t border-white/5">
                                             {topic.has_notes && (
-                                              <Link href={`/topics/${topic.id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition-colors">
+                                              <Link href={`/topics/${topic.id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition-colors whitespace-nowrap">
                                                 <FileText size={14} /> Notes
                                               </Link>
                                             )}
@@ -910,14 +910,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                               <>
                                                 {topic.test_id ? (
                                                   <>
-                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors">
+                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors whitespace-nowrap">
                                                       <FileText size={14} /> Test
                                                     </Link>
-                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors">
+                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors whitespace-nowrap">
                                                       <BarChart2 size={14} /> Analysis
                                                     </Link>
                                                     {isCreatorOrAdmin && (
-                                                      <Link href={`/teacher/tests/${topic.test_id}/edit`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-xs font-medium text-blue-400 transition-colors">
+                                                      <Link href={`/teacher/tests/${topic.test_id}/edit`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-xs font-medium text-blue-400 transition-colors whitespace-nowrap">
                                                         <Edit2 size={14} /> Edit
                                                       </Link>
                                                     )}
@@ -936,11 +936,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                               <>
                                                 {topic.has_attempted_tests ? (
                                                   <>
-                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors">
+                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors whitespace-nowrap">
                                                       <CheckCircle size={14} /> Re-attempt
                                                     </Link>
                                                     {topic.latest_attempt_id && (
-                                                      <Link href={`/results/${topic.latest_attempt_id}?testId=${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors">
+                                                      <Link href={`/results/${topic.latest_attempt_id}?testId=${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors whitespace-nowrap">
                                                         <BarChart2 size={14} /> Analysis
                                                       </Link>
                                                     )}
@@ -949,7 +949,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                                   <>
                                                     {topic.test_id ? (
                                                       <div className="flex-1 flex gap-1 items-center">
-                                                        <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-medium text-white shadow-lg shadow-red-500/20 transition-all">
+                                                        <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-medium text-white shadow-lg shadow-red-500/20 transition-all whitespace-nowrap">
                                                           <CheckCircle size={14} /> Take Test
                                                         </Link>
                                                       </div>
