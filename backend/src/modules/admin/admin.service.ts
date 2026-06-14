@@ -456,29 +456,52 @@ export class AdminService {
         }
       }
 
-      // Fallback: Manually cleanup related entities to avoid Prisma foreign key errors
-      // in case the live database hasn't been synced with ON DELETE CASCADE yet.
-      
-      const orders = await this.prisma.order.findMany({ where: { user_id: id }, select: { id: true } });
-      const orderIds = orders.map(o => o.id);
+      // Manually cleanup ALL related entities before deletion.
+      // This is necessary because the live DB may not have the latest
+      // ON DELETE CASCADE constraints yet (requires npx prisma db push).
+
+      // 1. Unassign interns who report to this user
+      await this.prisma.user.updateMany({
+        where: { assigned_teacher_id: id },
+        data: { assigned_teacher_id: null },
+      });
+
+      // 2. AuditLog — actor_id is non-nullable, so we must delete these rows
+      await this.prisma.auditLog.deleteMany({ where: { actor_id: id } });
+
+      // 3. Challenges — delete both submitted and assigned
+      await this.prisma.challenge.deleteMany({
+        where: { OR: [{ submitted_by: id }, { assigned_to: id }] },
+      });
+
+      // 4. Sections managed by this user — unassign
+      await this.prisma.section.updateMany({
+        where: { managed_by: id },
+        data: { managed_by: null },
+      });
+
+      // 5. Questions created by this user — nullify creator
+      await this.prisma.question.updateMany({
+        where: { created_by: id },
+        data: { created_by: null },
+      });
+
+      // 6. Orders → Invoices and OrderItems
+      const orders = await this.prisma.order.findMany({
+        where: { user_id: id },
+        select: { id: true },
+      });
+      const orderIds = orders.map((o) => o.id);
       if (orderIds.length > 0) {
         await this.prisma.invoice.deleteMany({ where: { order_id: { in: orderIds } } });
         await this.prisma.orderItem.deleteMany({ where: { order_id: { in: orderIds } } });
         await this.prisma.order.deleteMany({ where: { user_id: id } });
       }
 
-      await this.prisma.section.updateMany({
-        where: { managed_by: id },
-        data: { managed_by: null }
-      });
+      // 7. Cart (cascades to CartItems via schema)
+      await this.prisma.cart.deleteMany({ where: { user_id: id } });
 
-      if (user.role !== "STUDENT") {
-        await this.prisma.question.updateMany({
-          where: { created_by: id },
-          data: { created_by: null }
-        });
-      }
-
+      // 8. Now safely delete the user — remaining relations have ON DELETE CASCADE
       await this.prisma.user.delete({ where: { id } });
       this.logger.log(`✅ [ADMIN] User deleted: ${id}`);
       return { message: "User deleted successfully" };

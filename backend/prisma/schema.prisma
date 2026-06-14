@@ -512,8 +512,8 @@ model NotificationEvent {
 
 model AuditLog {
   id          String   @id @default(cuid())
-  actor_id    String
-  actor       User     @relation("actor", fields: [actor_id], references: [id], onDelete: SetNull)
+  actor_id    String?
+  actor       User?     @relation("actor", fields: [actor_id], references: [id], onDelete: SetNull)
   action      String // 'teacher_approved', 'answer_key_revised', 'challenge_resolved', etc.
   entity_type String // 'teacher_application', 'question', 'challenge', 'user'
   entity_id   String
