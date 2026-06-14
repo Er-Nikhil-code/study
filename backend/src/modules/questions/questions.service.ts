@@ -317,6 +317,7 @@ export class QuestionsService {
       search?: string;
       is_pyq?: boolean;
       exam_year?: string;
+      approval_status?: string;
     },
     skip = 0,
     take = 20,
@@ -340,8 +341,17 @@ export class QuestionsService {
       if (filters?.question_type) where.question_type = filters.question_type;
       if (filters?.difficulty) where.difficulty = filters.difficulty;
       
-      if (filters?.is_pyq) {
-        where.options_json = { path: ['metadata', 'is_pyq'], equals: true };
+      if (filters?.approval_status) {
+        where.approval_status = filters.approval_status;
+      }
+
+      if (filters?.is_pyq !== undefined) {
+        if (!where.options_json) where.options_json = {};
+        where.options_json = {
+          ...where.options_json,
+          path: ['metadata', 'is_pyq'],
+          equals: filters.is_pyq
+        };
       }
       if (filters?.exam_year) {
         if (!where.options_json) where.options_json = {};

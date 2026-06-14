@@ -63,7 +63,7 @@ export default function CreateTestPage() {
   const allChapters = allSections.flatMap((s: any) => s.chapters || []);
 
   useEffect(() => {
-    const params: any = {};
+    const params: any = { limit: 500, approval_status: "APPROVED" };
     if (bankCourseId) params.course_id = bankCourseId;
     if (bankSectionId) params.section_id = bankSectionId;
     if (bankChapterId) params.chapter_id = bankChapterId;
@@ -77,8 +77,7 @@ export default function CreateTestPage() {
     }
 
     QuestionsService.getAll(params).then((res) => {
-      const approvedOnly = res.data.filter((q: any) => q.approval_status === "APPROVED");
-      setQuestions(approvedOnly);
+      setQuestions(res.data || []);
     });
   }, [topicId, bankCourseId, bankSectionId, bankChapterId, bankQuestionType, bankDifficulty, bankPyq, bankYear]);
 
