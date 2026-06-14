@@ -65,10 +65,6 @@ export default function TeacherChallengesPage() {
       if (action === "ESCALATE") {
         payload.forward_to_user_id = selectedTargetId;
       }
-      
-      if (action === "REVISE_CONTENT" && revisedContent) {
-        payload.revised_content_json = [{ type: "TEXT", content: revisedContent }];
-      }
 
       // Optimistic UI update
       const previousChallenges = [...challenges];
