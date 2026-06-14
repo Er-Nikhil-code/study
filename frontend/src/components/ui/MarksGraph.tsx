@@ -37,8 +37,15 @@ export default function MarksGraph({
   const [showFirstAttempts, setShowFirstAttempts] = useState(true);
   const [showReattempts, setShowReattempts] = useState(true);
 
-  // Derive course list (only those user is enrolled in)
-  const courses = [{ id: "ALL", name: "All Enrolled Courses" }, ...enrolledCourses];
+  // Derive course list (only those user is enrolled in) and sort by enrolled_at descending
+  const sortedEnrolledCourses = useMemo(() => {
+    return [...enrolledCourses].sort((a, b) => {
+      const dateA = a.enrolled_at ? new Date(a.enrolled_at).getTime() : 0;
+      const dateB = b.enrolled_at ? new Date(b.enrolled_at).getTime() : 0;
+      return dateB - dateA;
+    });
+  }, [enrolledCourses]);
+  const courses = [{ id: "ALL", name: "All Enrolled Courses" }, ...sortedEnrolledCourses];
 
   const filteredHistory = useMemo(() => {
     return history.filter(h => {

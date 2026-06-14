@@ -64,13 +64,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   // Forms for editing
   const [editingSection, setEditingSection] = useState<string | null>(null);
-  const [editSectionForm, setEditSectionForm] = useState({ name: "", description: "" });
+  const [editSectionForm, setEditSectionForm] = useState({ name: "", description: "", order: 1 });
 
   const [editingChapter, setEditingChapter] = useState<string | null>(null);
-  const [editChapterForm, setEditChapterForm] = useState({ name: "", description: "" });
+  const [editChapterForm, setEditChapterForm] = useState({ name: "", description: "", order: 1 });
 
   const [editingTopic, setEditingTopic] = useState<string | null>(null);
-  const [editTopicForm, setEditTopicForm] = useState({ name: "", description: "" });
+  const [editTopicForm, setEditTopicForm] = useState({ name: "", description: "", order: 1 });
 
   const countWords = (str: string) => str.trim() ? str.trim().split(/\s+/).length : 0;
 
@@ -263,7 +263,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
       return;
     }
 
-    const newCourse = { ...course };
+    const newCourse = JSON.parse(JSON.stringify(course));
     let listToReorder: any[] = [];
     
     if (type === "SECTION") {
@@ -435,7 +435,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 )}
                 {isCreatorOrAdmin && (
                   <button 
-                    onClick={() => setAddingSection(!addingSection)}
+                    onClick={() => {
+                      setAddingSection(!addingSection);
+                      if (!addingSection) {
+                        setSectionForm({ ...sectionForm, order: (course?.sections?.length || 0) + 1 });
+                      }
+                    }}
                     className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 transition shadow-lg shadow-red-500/20"
                   >
                     <Plus size={16} /> Add Section
@@ -606,7 +611,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                     {editingSection === section.id ? (
                       <form onSubmit={(e) => handleEditSection(e, section.id)} onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2 flex-1 max-w-lg">
                         <div className="flex gap-2 w-full">
-                          <input autoFocus type="text" value={editSectionForm.name} onChange={e => setEditSectionForm({...editSectionForm, name: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Section name" />
+                          <input autoFocus type="text" value={editSectionForm.name} onChange={e => setEditSectionForm({...editSectionForm, name: e.target.value})} className="flex-1 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Section name" />
+                          <input type="number" min="1" value={editSectionForm.order} onChange={e => setEditSectionForm({...editSectionForm, order: Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
                           <button type="submit" className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
                           <button type="button" onClick={() => setEditingSection(null)} className="px-3 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
                         </div>
@@ -625,7 +631,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           {isCreatorOrAdmin && (
                             <div className="flex items-center gap-1">
                               <button 
-                                onClick={(e) => { e.stopPropagation(); setEditingSection(section.id); setEditSectionForm({ name: section.name, description: section.description || "" }); }}
+                                onClick={(e) => { e.stopPropagation(); setEditingSection(section.id); setEditSectionForm({ name: section.name, description: section.description || "", order: section.order || 1 }); }}
                                 className="p-1.5 rounded-full hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
                               >
                                 <Edit2 size={14} />
@@ -670,7 +676,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   <div className="flex items-center gap-4">
                     {isCreatorOrAdmin && (
                       <button 
-                        onClick={(e) => { e.stopPropagation(); setAddingChapterTo(section.id); setExpandedSections(prev => ({...prev, [section.id]: true})); }}
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          setAddingChapterTo(section.id); 
+                          setExpandedSections(prev => ({...prev, [section.id]: true}));
+                          setChapterForm({ ...chapterForm, order: (section.chapters?.length || 0) + 1 });
+                        }}
                         className="text-xs font-medium bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-zinc-400 hover:text-red-400 px-4 py-2 rounded-xl transition-all shadow-sm"
                       >
                         + Add Chapter
@@ -684,18 +695,27 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   <div className="p-5 bg-black/20 space-y-4">
                     {addingChapterTo === section.id && (
                       <div className="p-4 rounded-xl border border-red-500/20 bg-zinc-900/50 mb-4">
-                        <form onSubmit={(e) => handleCreateChapter(e, section.id)} className="flex flex-col sm:flex-row gap-4 items-end">
-                          <div className="flex-1 w-full">
-                            <label className="text-xs text-zinc-400 block mb-1">Chapter Name</label>
-                            <input type="text" required value={chapterForm.name} onChange={e => setChapterForm({...chapterForm, name: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
+                        <form onSubmit={(e) => handleCreateChapter(e, section.id)} className="flex flex-col gap-4">
+                          <div className="flex flex-col sm:flex-row gap-4 items-end w-full">
+                            <div className="flex-1 w-full">
+                              <label className="text-xs text-zinc-400 block mb-1">Chapter Name</label>
+                              <input type="text" required value={chapterForm.name} onChange={e => setChapterForm({...chapterForm, name: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
+                            </div>
+                            <div className="w-24">
+                              <label className="text-xs text-zinc-400 block mb-1">Order</label>
+                              <input type="number" min="1" required value={chapterForm.order} onChange={e => setChapterForm({...chapterForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
+                            </div>
                           </div>
-                          <div className="w-24">
-                            <label className="text-xs text-zinc-400 block mb-1">Order</label>
-                            <input type="number" min="1" required value={chapterForm.order} onChange={e => setChapterForm({...chapterForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
+                          <div>
+                            <div className="flex justify-between items-center mb-1">
+                              <label className="text-[10px] text-zinc-500">Description (Max 50 words)</label>
+                              <span className={`text-[10px] ${countWords(chapterForm.description) > 50 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(chapterForm.description)} / 50</span>
+                            </div>
+                            <textarea required placeholder="Brief description of the chapter" value={chapterForm.description} onChange={e => setChapterForm({...chapterForm, description: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white min-h-[60px]" />
                           </div>
-                          <div className="flex gap-2">
-                            <button type="submit" className="rounded bg-zinc-200 text-black px-4 py-2 text-sm hover:bg-white font-medium">Save</button>
-                            <button type="button" onClick={() => setAddingChapterTo(null)} className="rounded px-4 py-2 text-sm text-zinc-400 hover:text-white">Cancel</button>
+                          <div className="flex gap-2 justify-end">
+                            <button type="button" onClick={() => setAddingChapterTo(null)} className="rounded px-3 py-1.5 text-xs text-zinc-400 hover:text-white">Cancel</button>
+                            <button type="submit" className="rounded bg-zinc-200 text-black px-3 py-1.5 text-xs hover:bg-white font-medium">Save</button>
                           </div>
                         </form>
                       </div>
@@ -728,7 +748,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                 {editingChapter === chapter.id ? (
                                   <form onSubmit={(e) => handleEditChapter(e, chapter.id)} onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2 flex-1 max-w-sm">
                                     <div className="flex gap-2 w-full">
-                                      <input autoFocus type="text" value={editChapterForm.name} onChange={e => setEditChapterForm({...editChapterForm, name: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Chapter name" />
+                                      <input autoFocus type="text" value={editChapterForm.name} onChange={e => setEditChapterForm({...editChapterForm, name: e.target.value})} className="flex-1 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Chapter name" />
+                                      <input type="number" min="1" value={editChapterForm.order} onChange={e => setEditChapterForm({...editChapterForm, order: Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
                                       <button type="submit" className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
                                       <button type="button" onClick={() => setEditingChapter(null)} className="px-2 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
                                     </div>
@@ -747,7 +768,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                     {isCreatorOrAdmin && (
                                       <div className="flex items-center gap-1">
                                         <button 
-                                          onClick={(e) => { e.stopPropagation(); setEditingChapter(chapter.id); setEditChapterForm({ name: chapter.name, description: chapter.description || "" }); }}
+                                          onClick={(e) => { e.stopPropagation(); setEditingChapter(chapter.id); setEditChapterForm({ name: chapter.name, description: chapter.description || "", order: chapter.order || 1 }); }}
                                           className="p-1 rounded hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
                                         >
                                           <Edit2 size={12} />
@@ -766,7 +787,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                               <div className="flex items-center gap-4">
                                 {isCreatorOrAdmin && (
                                   <button 
-                                    onClick={(e) => { e.stopPropagation(); setAddingTopicTo(chapter.id); setExpandedChapters(prev => ({...prev, [chapter.id]: true})); }}
+                                    onClick={(e) => { 
+                                      e.stopPropagation(); 
+                                      setAddingTopicTo(chapter.id); 
+                                      setExpandedChapters(prev => ({...prev, [chapter.id]: true}));
+                                      setTopicForm({ ...topicForm, order: (chapter.topics?.length || 0) + 1 });
+                                    }}
                                     className="text-[11px] font-medium bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-zinc-400 hover:text-red-400 px-3 py-1.5 rounded-lg transition-all shadow-sm"
                                   >
                                     + Add Topic
@@ -844,7 +870,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                         {isCreatorOrAdmin && editingTopic !== topic.id && (
                                           <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
                                             <button 
-                                              onClick={() => { setEditingTopic(topic.id); setEditTopicForm({ name: topic.name, description: topic.description || "" }); }}
+                                              onClick={() => { setEditingTopic(topic.id); setEditTopicForm({ name: topic.name, description: topic.description || "", order: topic.order || 1 }); }}
                                               className="p-1.5 rounded-full bg-black/50 text-zinc-400 hover:text-white hover:bg-white/10"
                                               title="Edit Topic"
                                             >
@@ -862,7 +888,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
                                         {editingTopic === topic.id ? (
                                           <form onSubmit={(e) => handleEditTopic(e, topic.id)} className="flex flex-col gap-2 flex-1 z-20">
-                                            <input autoFocus type="text" value={editTopicForm.name} onChange={e => setEditTopicForm({...editTopicForm, name: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" />
+                                            <div className="flex gap-2 w-full">
+                                              <input autoFocus type="text" value={editTopicForm.name} onChange={e => setEditTopicForm({...editTopicForm, name: e.target.value})} className="flex-1 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" />
+                                              <input type="number" min="1" value={editTopicForm.order} onChange={e => setEditTopicForm({...editTopicForm, order: Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
+                                            </div>
                                             <div>
                                               <div className="flex justify-between items-center mb-1 px-1">
                                                 <label className="text-[10px] text-zinc-500">Description (Max 20 words)</label>

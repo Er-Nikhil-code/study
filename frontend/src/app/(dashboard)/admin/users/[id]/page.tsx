@@ -43,8 +43,7 @@ export default function AdminUserProfilePage() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await api.patch(`/admin/users/${userId}`, data);
-      return res.data;
+      return await adminService.updateUser(userId, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users", userId] });
@@ -249,35 +248,55 @@ export default function AdminUserProfilePage() {
                 </div>
 
                 {user.role === "STUDENT" && (
-                  <div className={`flex ${isEditing ? 'flex-col items-start gap-1' : 'justify-between items-center'}`}>
-                    <span className="text-zinc-500">Enrolled Course</span>
+                  <div className="flex flex-col items-start gap-2 w-full pt-2">
+                    <span className="text-zinc-500">Enrolled Courses</span>
                     {isEditing ? (
-                      <div className="flex w-full items-center gap-2">
-                        <select
-                          value={editForm.course_enrolled}
-                          onChange={e => setEditForm({ ...editForm, course_enrolled: e.target.value })}
-                          className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-red-500/50"
-                        >
-                          <option value="">No Course Enrolled</option>
-                          {courses.map((c: any) => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
-                          ))}
-                        </select>
-                        {editForm.course_enrolled && (
-                          <button
-                            type="button"
-                            onClick={() => setEditForm({ ...editForm, course_enrolled: "" })}
-                            className="px-2 py-1.5 text-xs font-medium text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded transition"
-                            title="Remove warrior from this course"
+                      <div className="flex flex-col w-full gap-2">
+                        {user.course_enrollments?.map((enr: any) => (
+                          <div key={enr.course_id} className="flex justify-between items-center bg-white/5 border border-white/10 rounded px-3 py-1.5 w-full">
+                            <span className="text-sm text-zinc-300">{enr.course?.name || enr.course_id}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const payload = { ...editForm, remove_enrollment: [...(editForm.remove_enrollment || []), enr.course_id] };
+                                updateMutation.mutate(payload);
+                              }}
+                              className="text-xs text-red-400 hover:text-red-300 p-1"
+                            >
+                              Unenroll
+                            </button>
+                          </div>
+                        ))}
+                        <div className="flex w-full items-center gap-2 mt-2">
+                          <select
+                            value={editForm.course_enrolled || ""}
+                            onChange={e => {
+                                if (e.target.value) {
+                                  const payload = { ...editForm, add_enrollment: [e.target.value] };
+                                  updateMutation.mutate(payload);
+                                }
+                            }}
+                            className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-zinc-400 outline-none focus:border-red-500/50"
                           >
-                            Unenroll
-                          </button>
-                        )}
+                            <option value="">+ Enroll in new course...</option>
+                            {courses.filter((c: any) => !user.course_enrollments?.some((enr: any) => enr.course_id === c.id)).map((c: any) => (
+                              <option key={c.id} value={c.id}>{c.name}</option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
                     ) : (
-                      <span className="text-zinc-300">
-                        {courses.find((c: any) => c.id === user.course_enrolled)?.name || user.course_enrolled || "—"}
-                      </span>
+                      <div className="flex flex-wrap gap-2 w-full">
+                        {user.course_enrollments?.length > 0 ? (
+                          user.course_enrollments.map((enr: any) => (
+                            <span key={enr.course_id} className="text-xs font-medium bg-red-500/10 text-red-300 border border-red-500/20 rounded-full px-3 py-1">
+                              {enr.course?.name || enr.course_id}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-zinc-500 text-sm">— No courses enrolled —</span>
+                        )}
+                      </div>
                     )}
                   </div>
                 )}

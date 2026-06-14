@@ -59,6 +59,20 @@ export class StudentController {
     });
   }
 
+  @Get("test-series/tests")
+  async getTestSeriesTests(
+    @Request() req: any,
+    @Query("test_type") testType?: string,
+    @Query("skip") skip?: string,
+    @Query("take") take?: string,
+  ) {
+    return this.studentService.getTestSeriesTests(req.user.sub, {
+      test_type: testType as any,
+      skip: skip ? parseInt(skip, 10) : 0,
+      take: take ? parseInt(take, 10) : 20,
+    });
+  }
+
   @Get("teacher/dashboard")
   @Header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
   @UseGuards(RolesGuard)

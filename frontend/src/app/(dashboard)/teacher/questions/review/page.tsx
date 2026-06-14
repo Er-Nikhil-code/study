@@ -239,6 +239,10 @@ export default function ReviewQuestionsPage() {
                 Cancel
               </button>
               <div className="flex gap-3">
+                <Link href={`/teacher/questions/${reviewQ.id}/edit`}
+                  className="rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm font-medium text-blue-300 transition hover:bg-blue-500/20">
+                  Edit Question
+                </Link>
                 <button onClick={handleEscalate} disabled={actionLoading}
                   className="rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/20 disabled:opacity-50">
                   {actionLoading ? "Processing…" : "Escalate to King"}

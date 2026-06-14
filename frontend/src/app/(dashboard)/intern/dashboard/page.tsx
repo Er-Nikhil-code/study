@@ -159,7 +159,7 @@ export default function InternDashboardPage() {
             ) : (
               <div className="space-y-2">
                 {data.recent_questions.map((q) => (
-                  <Link key={q.id} href={`/intern/questions`}>
+                  <Link key={q.id} href={`/teacher/questions/${q.id}/edit`}>
                     <Panel className="p-3 hover:bg-white/[0.04] transition cursor-pointer">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">

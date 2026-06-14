@@ -25,9 +25,11 @@ export class StudentService {
   /* ════════════════════════════════════════════
    *  ACTIVITY GRAPH HELPER
    * ════════════════════════════════════════════ */
-  async getDetailedActivityGraph(userId: string) {
+  async getDetailedActivityGraph(userId: string, enrolledCourseIds: string[] = []) {
     const oneYearAgo = new Date();
     oneYearAgo.setDate(oneYearAgo.getDate() - 90);
+
+    const filterByCourse = enrolledCourseIds.length > 0;
 
     const [
       notesCreated,
@@ -39,14 +41,70 @@ export class StudentService {
       coursesEnrolled,
       challengesSubmitted
     ] = await Promise.all([
-      this.prisma.note.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
-      this.prisma.note.findMany({ where: { approved_by: userId, approved_at: { gte: oneYearAgo } }, select: { approved_at: true } }),
-      this.prisma.question.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
-      this.prisma.question.findMany({ where: { approved_by: userId, approved_at: { gte: oneYearAgo } }, select: { approved_at: true } }),
-      this.prisma.test.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
-      this.prisma.attempt.findMany({ where: { user_id: userId, started_at: { gte: oneYearAgo } }, select: { started_at: true } }),
-      this.prisma.courseEnrollment.findMany({ where: { user_id: userId, enrolled_at: { gte: oneYearAgo } }, select: { enrolled_at: true } }),
-      this.prisma.challenge.findMany({ where: { submitted_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } })
+      this.prisma.note.findMany({ 
+        where: { 
+          created_by: userId, 
+          created_at: { gte: oneYearAgo },
+          ...(filterByCourse && { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } })
+        }, 
+        select: { created_at: true } 
+      }),
+      this.prisma.note.findMany({ 
+        where: { 
+          approved_by: userId, 
+          approved_at: { gte: oneYearAgo },
+          ...(filterByCourse && { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } })
+        }, 
+        select: { approved_at: true } 
+      }),
+      this.prisma.question.findMany({ 
+        where: { 
+          created_by: userId, 
+          created_at: { gte: oneYearAgo },
+          ...(filterByCourse && { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } })
+        }, 
+        select: { created_at: true } 
+      }),
+      this.prisma.question.findMany({ 
+        where: { 
+          approved_by: userId, 
+          approved_at: { gte: oneYearAgo },
+          ...(filterByCourse && { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } })
+        }, 
+        select: { approved_at: true } 
+      }),
+      this.prisma.test.findMany({ 
+        where: { 
+          created_by: userId, 
+          created_at: { gte: oneYearAgo },
+          ...(filterByCourse && { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } })
+        }, 
+        select: { created_at: true } 
+      }),
+      this.prisma.attempt.findMany({ 
+        where: { 
+          user_id: userId, 
+          started_at: { gte: oneYearAgo },
+          ...(filterByCourse && { test: { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } } })
+        }, 
+        select: { started_at: true } 
+      }),
+      this.prisma.courseEnrollment.findMany({ 
+        where: { 
+          user_id: userId, 
+          enrolled_at: { gte: oneYearAgo },
+          ...(filterByCourse && { course_id: { in: enrolledCourseIds } })
+        }, 
+        select: { enrolled_at: true } 
+      }),
+      this.prisma.challenge.findMany({ 
+        where: { 
+          submitted_by: userId, 
+          created_at: { gte: oneYearAgo },
+          ...(filterByCourse && { question: { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } } })
+        }, 
+        select: { created_at: true } 
+      })
     ]);
 
     const activityMap: Record<string, { total: number; details: Record<string, number> }> = {};
@@ -83,11 +141,33 @@ export class StudentService {
    * ════════════════════════════════════════════ */
 
   async getDashboardStats(userId: string) {
-    const [stats, recentAttempts, todayActivity, weakTopics, userRec] =
+    const userRec = await this.prisma.user.findUnique({ 
+      where: { id: userId }, 
+      select: { 
+        course_enrolled: true,
+        course_enrollments: { include: { course: true } } 
+      } 
+    });
+
+    const enrolledCourseIds = userRec?.course_enrollments?.map(enr => enr.course_id) || [];
+
+    const [stats, recentAttempts, todayActivity, weakTopics] =
       await Promise.all([
         this.prisma.userStats.findUnique({ where: { user_id: userId } }),
         this.prisma.attempt.findMany({
-          where: { user_id: userId, status: "SCORED" },
+          where: { 
+            user_id: userId, 
+            status: "SCORED",
+            test: {
+              topic: {
+                chapter: {
+                  section: {
+                    course_id: { in: enrolledCourseIds }
+                  }
+                }
+              }
+            }
+          },
           orderBy: { submitted_at: "desc" },
           take: 10,
           include: {
@@ -105,13 +185,6 @@ export class StudentService {
           },
         }),
         this.getWeakTopics(userId),
-        this.prisma.user.findUnique({ 
-          where: { id: userId }, 
-          select: { 
-            course_enrolled: true,
-            course_enrollments: { include: { course: true } } 
-          } 
-        }),
       ]);
 
     // Calculate progress for each enrolled course
@@ -140,9 +213,17 @@ export class StudentService {
           code: enr.course.code,
           total_topics: totalTopics,
           completed_topics: completedTopics,
-          progress_percentage: percentage
+          progress_percentage: percentage,
+          enrolled_at: enr.enrolled_at
         });
       }
+      
+      // Sort: latest enrolled first
+      courseProgressList.sort((a, b) => {
+        const dateA = a.enrolled_at ? new Date(a.enrolled_at).getTime() : 0;
+        const dateB = b.enrolled_at ? new Date(b.enrolled_at).getTime() : 0;
+        return dateB - dateA;
+      });
     }
 
     let enrolledCourseName = userRec?.course_enrolled || null;
@@ -156,10 +237,20 @@ export class StudentService {
 
     // First attempts vs reattempts
     const firstAttempts = await this.prisma.attempt.count({
-      where: { user_id: userId, attempt_no: 1, status: "SCORED" },
+      where: { 
+        user_id: userId, 
+        attempt_no: 1, 
+        status: "SCORED",
+        test: { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } }
+      },
     });
     const reattempts = await this.prisma.attempt.count({
-      where: { user_id: userId, attempt_no: { gt: 1 }, status: "SCORED" },
+      where: { 
+        user_id: userId, 
+        attempt_no: { gt: 1 }, 
+        status: "SCORED",
+        test: { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } }
+      },
     });
 
     // Tests completed today
@@ -170,15 +261,20 @@ export class StudentService {
         user_id: userId,
         status: "SCORED",
         submitted_at: { gte: todayStart },
+        test: { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } }
       },
     });
 
     // Activity graph (last 180 days)
-    const activity_graph = await this.getDetailedActivityGraph(userId);
+    const activity_graph = await this.getDetailedActivityGraph(userId, enrolledCourseIds);
 
     // Marks History (all scored attempts)
     const allAttempts = await this.prisma.attempt.findMany({
-      where: { user_id: userId, status: "SCORED" },
+      where: { 
+        user_id: userId, 
+        status: "SCORED",
+        test: { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } }
+      },
       orderBy: { submitted_at: "asc" },
       select: {
         id: true,
@@ -544,6 +640,66 @@ export class StudentService {
         tests: s.tests,
         created_at: s.created_at,
       })),
+      total,
+      skip,
+      take,
+    };
+  }
+
+  async getTestSeriesTests(userId: string, params: { test_type?: any; skip?: number; take?: number }) {
+    const { test_type, skip = 0, take = 20 } = params;
+
+    const whereClause: any = {
+      status: { in: ["PUBLISHED", "ONGOING", "COMPLETED"] },
+    };
+    if (test_type) {
+      whereClause.test_type = test_type;
+    }
+
+    const [tests, total] = await Promise.all([
+      this.prisma.test.findMany({
+        where: whereClause,
+        skip,
+        take,
+        orderBy: { start_time: "desc" },
+        include: {
+          _count: { select: { test_questions: true, attempts: true } },
+          attempts: {
+            where: { user_id: userId },
+            orderBy: { attempt_no: "desc" },
+            take: 1, // Only get the latest attempt
+          },
+        },
+      }),
+      this.prisma.test.count({ where: whereClause }),
+    ]);
+
+    const data = tests.map((t) => {
+      const latestAttempt = t.attempts[0] || null;
+      return {
+        id: t.id,
+        title: t.title,
+        description: t.description,
+        duration_minutes: t.duration_minutes,
+        total_marks: t.total_marks,
+        passing_marks: t.passing_marks,
+        test_type: t.test_type,
+        status: t.status,
+        start_time: t.start_time,
+        _count: t._count,
+        latest_attempt: latestAttempt ? {
+          attempt_id: latestAttempt.id,
+          attempt_no: latestAttempt.attempt_no,
+          score: latestAttempt.score,
+          max_score: latestAttempt.max_score,
+          rank: latestAttempt.rank,
+          status: latestAttempt.status,
+        } : null,
+      };
+    });
+
+    return {
+      data,
       total,
       skip,
       take,

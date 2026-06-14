@@ -352,121 +352,135 @@ export default function CoursesPage() {
               <p className="text-sm text-zinc-500 text-center mt-2 group-hover:text-zinc-400">Add a new course to your curriculum.</p>
             </Panel>
           )}
-          {courses.map((course: any) => {
-            const isCreatorOrAdmin = user?.role === "ADMIN" || user?.id === course.created_by;
-            const canSeeCodeAndId = user?.role === "ADMIN" || user?.role === "TEACHER";
-            const isStudent = user?.role === "STUDENT";
-            
-            return (
-              <Panel key={course.id} className="relative flex flex-col p-0 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-500/10 hover:border-red-500/40 overflow-hidden group bg-gradient-to-br from-zinc-900 to-black">
-                <div className="absolute inset-0 bg-gradient-to-b from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                
-                {isCreatorOrAdmin && (
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setEditingCourse(course);
-                      setEditForm({ 
-                        name: course.name, 
-                        code: course.code, 
-                        description: course.description || "",
-                        price: course.price || "",
-                        discount_price: course.discount_price || "",
-                        status: course.status || "DRAFT",
-                        launch_date: course.launch_date || ""
-                      });
-                    }}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-zinc-400 hover:text-white hover:bg-white/20 opacity-0 group-hover:opacity-100 transition-all z-10 backdrop-blur-sm"
-                    title="Edit Course"
-                  >
-                    <Edit2 size={14} />
-                  </button>
-                )}
-
-                <Link href={`/courses/${course.id}`} className="flex-1 flex flex-col p-6">
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500/20 to-red-500/5 border border-red-500/30 text-red-400 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all">
-                      <BookOpen size={28} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400 tracking-wide leading-relaxed drop-shadow-sm group-hover:from-white group-hover:to-zinc-300 transition-all">{course.name}</h3>
-                      <div className="flex flex-wrap items-center gap-2 mt-2">
-                        {canSeeCodeAndId && (
-                          <span className="whitespace-nowrap shrink-0 text-[10px] uppercase tracking-wider font-semibold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-md">{course.code}</span>
-                        )}
-                        {course.is_enrolled ? (
-                          <span className="whitespace-nowrap shrink-0 text-[10px] uppercase tracking-wider font-semibold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-md">Enrolled</span>
-                        ) : (course.price > 0 || course.discount_price > 0) && (
-                          <div className="flex items-center shrink-0 whitespace-nowrap gap-2 text-zinc-400 bg-white/5 px-2 py-0.5 rounded-md text-[11px] font-medium">
-                            {course.discount_price > 0 ? (
-                              <>
-                                <span className="line-through opacity-50">₹{course.price}</span>
-                                <span className="text-emerald-400">₹{course.discount_price}</span>
-                              </>
-                            ) : (
-                              <span className="text-emerald-400">₹{course.price}</span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+          {(() => {
+            const sortedCourses = [...courses].sort((a: any, b: any) => {
+              if (a.is_enrolled && !b.is_enrolled) return -1;
+              if (!a.is_enrolled && b.is_enrolled) return 1;
+              if (a.is_enrolled && b.is_enrolled) {
+                const dateA = a.enrolled_at ? new Date(a.enrolled_at).getTime() : 0;
+                const dateB = b.enrolled_at ? new Date(b.enrolled_at).getTime() : 0;
+                return dateB - dateA;
+              }
+              const createdA = a.created_at ? new Date(a.created_at).getTime() : 0;
+              const createdB = b.created_at ? new Date(b.created_at).getTime() : 0;
+              return createdB - createdA;
+            });
+            return sortedCourses.map((course: any) => {
+              const isCreatorOrAdmin = user?.role === "ADMIN" || user?.id === course.created_by;
+              const canSeeCodeAndId = user?.role === "ADMIN" || user?.role === "TEACHER";
+              const isStudent = user?.role === "STUDENT";
+              
+              return (
+                <Panel key={course.id} className="relative flex flex-col p-0 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-500/10 hover:border-red-500/40 overflow-hidden group bg-gradient-to-br from-zinc-900 to-black">
+                  <div className="absolute inset-0 bg-gradient-to-b from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                   
-                  {!isStudent && (
-                    <div className="mt-auto pt-5 border-t border-white/10 flex flex-col gap-3">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-zinc-400">Curriculum</span>
-                        <span className="text-zinc-200 font-semibold bg-white/5 px-2 py-1 rounded-md">{course.sections?.length || 0} Sections</span>
+                  {isCreatorOrAdmin && (
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setEditingCourse(course);
+                        setEditForm({ 
+                          name: course.name, 
+                          code: course.code, 
+                          description: course.description || "",
+                          price: course.price || "",
+                          discount_price: course.discount_price || "",
+                          status: course.status || "DRAFT",
+                          launch_date: course.launch_date || ""
+                        });
+                      }}
+                      className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-zinc-400 hover:text-white hover:bg-white/20 opacity-0 group-hover:opacity-100 transition-all z-10 backdrop-blur-sm"
+                      title="Edit Course"
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                  )}
+
+                  <Link href={`/courses/${course.id}`} className="flex-1 flex flex-col p-6">
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500/20 to-red-500/5 border border-red-500/30 text-red-400 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all">
+                        <BookOpen size={28} />
                       </div>
-                      {user?.role === "ADMIN" ? (
-                        <div className="flex flex-col gap-1.5 mt-3 pt-3 border-t border-white/5 text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
-                          <div className="flex justify-between items-center gap-2">
-                            <span className="shrink-0">ID</span>
-                            <span className="text-zinc-400 break-all text-right" title={course.id}>{course.id}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span>Price</span>
-                            <span className="text-emerald-400 font-semibold tracking-normal">₹{course.discount_price > 0 ? course.discount_price : (course.price || 0)}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span>Launched</span>
-                            <span className="text-zinc-400 tracking-normal">{course.launch_date ? new Date(course.launch_date).toLocaleDateString() : 'TBD'}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span>Enrolled</span>
-                            <span className="text-white font-semibold tracking-normal">{course.enrollment_count || 0}</span>
-                          </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400 tracking-wide leading-relaxed drop-shadow-sm group-hover:from-white group-hover:to-zinc-300 transition-all">{course.name}</h3>
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                          {canSeeCodeAndId && (
+                            <span className="whitespace-nowrap shrink-0 text-[10px] uppercase tracking-wider font-semibold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-md">{course.code}</span>
+                          )}
+                          {course.is_enrolled ? (
+                            <span className="whitespace-nowrap shrink-0 text-[10px] uppercase tracking-wider font-semibold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-md">Enrolled</span>
+                          ) : (course.price > 0 || course.discount_price > 0) && (
+                            <div className="flex items-center shrink-0 whitespace-nowrap gap-2 text-zinc-400 bg-white/5 px-2 py-0.5 rounded-md text-[11px] font-medium">
+                              {course.discount_price > 0 ? (
+                                <>
+                                  <span className="line-through opacity-50">₹{course.price}</span>
+                                  <span className="text-emerald-400">₹{course.discount_price}</span>
+                                </>
+                              ) : (
+                                <span className="text-emerald-400">₹{course.price}</span>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      ) : user?.role === "TEACHER" && (
-                        <div className="flex justify-between items-center gap-2 text-[10px] font-mono mt-3 pt-3 border-t border-white/5">
-                          <span className="text-zinc-600 shrink-0">ID</span>
-                          <span className="text-zinc-500 break-all text-right" title={course.id}>{course.id}</span>
+                      </div>
+                    </div>
+                    
+                    {!isStudent && (
+                      <div className="mt-auto pt-5 border-t border-white/10 flex flex-col gap-3">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-zinc-400">Curriculum</span>
+                          <span className="text-zinc-200 font-semibold bg-white/5 px-2 py-1 rounded-md">{course.sections?.length || 0} Sections</span>
                         </div>
+                        {user?.role === "ADMIN" ? (
+                          <div className="flex flex-col gap-1.5 mt-3 pt-3 border-t border-white/5 text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
+                            <div className="flex justify-between items-center gap-2">
+                              <span className="shrink-0">ID</span>
+                              <span className="text-zinc-400 break-all text-right" title={course.id}>{course.id}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>Price</span>
+                              <span className="text-emerald-400 font-semibold tracking-normal">₹{course.discount_price > 0 ? course.discount_price : (course.price || 0)}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>Launched</span>
+                              <span className="text-zinc-400 tracking-normal">{course.launch_date ? new Date(course.launch_date).toLocaleDateString() : 'TBD'}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>Enrolled</span>
+                              <span className="text-white font-semibold tracking-normal">{course.enrollment_count || 0}</span>
+                            </div>
+                          </div>
+                        ) : user?.role === "TEACHER" && (
+                          <div className="flex justify-between items-center gap-2 text-[10px] font-mono mt-3 pt-3 border-t border-white/5">
+                            <span className="text-zinc-600 shrink-0">ID</span>
+                            <span className="text-zinc-500 break-all text-right" title={course.id}>{course.id}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Link>
+
+                  {isStudent && (
+                    <div className="px-6 pb-6 pt-2 z-10">
+                      {course.is_enrolled ? (
+                        <div className="w-full rounded-xl bg-emerald-500/10 border border-emerald-500/20 py-2.5 text-center text-sm font-semibold text-emerald-400 flex items-center justify-center gap-2">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                          </span>
+                          Enrolled
+                        </div>
+                      ) : (
+                        <Link href={`/courses/${course.id}`} className="block w-full rounded-xl bg-red-600 hover:bg-red-500 transition-all py-2.5 text-center text-sm font-bold text-white shadow shadow-red-500/20">
+                          Enroll
+                        </Link>
                       )}
                     </div>
                   )}
-                </Link>
-
-                {isStudent && (
-                  <div className="px-6 pb-6 pt-2 z-10">
-                    {course.is_enrolled ? (
-                      <div className="w-full rounded-xl bg-emerald-500/10 border border-emerald-500/20 py-2.5 text-center text-sm font-semibold text-emerald-400 flex items-center justify-center gap-2">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </span>
-                        Enrolled
-                      </div>
-                    ) : (
-                      <Link href={`/courses/${course.id}`} className="block w-full rounded-xl bg-red-600 hover:bg-red-500 transition-all py-2.5 text-center text-sm font-bold text-white shadow shadow-red-500/20">
-                        Enroll
-                      </Link>
-                    )}
-                  </div>
-                )}
-              </Panel>
-            );
-          })}
+                </Panel>
+              );
+            });
+          })()}
           {courses.length === 0 && (
             <div className="col-span-full py-12 text-center border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
               <BookOpen size={32} className="mx-auto text-zinc-600 mb-3" />

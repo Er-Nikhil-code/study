@@ -62,7 +62,29 @@ export interface TestListItem {
   start_time: string | null;
   end_time: string | null;
   created_at: string;
+  created_at: string;
   _count: { test_questions: number; attempts: number };
+}
+
+export interface TestSeriesTestItem {
+  id: string;
+  title: string;
+  description: string | null;
+  duration_minutes: number;
+  total_marks: number;
+  passing_marks: number | null;
+  test_type: "TOPICWISE" | "UNITWISE" | "FULL_SYLLABUS";
+  status: string;
+  start_time: string | null;
+  _count: { test_questions: number; attempts: number };
+  latest_attempt: {
+    attempt_id: string;
+    attempt_no: number;
+    score: number | null;
+    max_score: number | null;
+    rank: number | null;
+    status: string;
+  } | null;
 }
 
 export interface AttemptStart {
@@ -286,6 +308,23 @@ class StudentApiService {
     limit?: number;
   }): Promise<PaginatedResponse<any>> {
     const res = await api.get("/student/test-series", { params });
+    return res.data;
+  }
+
+  async getTestSeriesTests(params?: {
+    test_type?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedResponse<TestSeriesTestItem>> {
+    // Map page/limit to skip/take
+    const apiParams: any = {};
+    if (params?.test_type) apiParams.test_type = params.test_type;
+    if (params?.page !== undefined && params?.limit !== undefined) {
+      apiParams.skip = (params.page - 1) * params.limit;
+      apiParams.take = params.limit;
+    }
+
+    const res = await api.get<PaginatedResponse<TestSeriesTestItem>>("/student/test-series/tests", { params: apiParams });
     return res.data;
   }
 

@@ -11,6 +11,7 @@ import adminService from "@/services/admin.service";
 import { LogOut, ChevronDown, ChevronLeft, ChevronRight, User } from "lucide-react";
 import type { NavItem } from "@/lib/nav";
 import { getChessRoleName } from "@/lib/role";
+import { useQuery } from "@tanstack/react-query";
 
 type AppSidebarProps = {
   items: NavItem[];
@@ -27,6 +28,16 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
   const [mounted, setMounted] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch unread notifications count if authenticated
+  const { data: notificationsData } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: () => adminService.getNotifications({ limit: 1 }),
+    enabled: isAuthenticated && !!user,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchInterval: 1000 * 60 * 5, // auto refetch every 5 min
+  });
+  const unreadCount = notificationsData?.unread_count || 0;
 
   const toggleMenu = (label: string) => {
     setExpandedMenus((prev) =>
@@ -117,8 +128,20 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
             const Icon = item.icon;
             
             const itemContent = (
-              <>
+              <div className="relative">
                 <Icon size={20} className={active ? "text-red-400" : "text-zinc-500 group-hover:text-zinc-300"} />
+                {item.href === "/notifications" && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  </span>
+                )}
+              </div>
+            );
+
+            const itemContentFull = (
+              <>
+                {itemContent}
                 {!isCollapsed && <span className="truncate flex-1 text-left">{item.label}</span>}
                 {!isCollapsed && item.subItems && (
                   <ChevronDown size={14} className={`text-zinc-500 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
@@ -143,7 +166,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                     title={isCollapsed ? item.label : undefined}
                     className={itemClass}
                   >
-                    {itemContent}
+                    {itemContentFull}
                   </button>
                 ) : (
                   <Link
@@ -152,7 +175,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                     title={isCollapsed ? item.label : undefined}
                     className={itemClass}
                   >
-                    {itemContent}
+                    {itemContentFull}
                   </Link>
                 )}
 

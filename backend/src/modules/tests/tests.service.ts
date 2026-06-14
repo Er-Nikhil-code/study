@@ -38,6 +38,7 @@ export class TestsService {
       negative_marks: number;
       section_config?: any;
       question_ids?: string[];
+      test_type?: any;
     },
   ) {
     if (role !== "ADMIN") {
@@ -63,6 +64,7 @@ export class TestsService {
         positive_marks: data.positive_marks,
         negative_marks: data.negative_marks,
         section_config: data.section_config,
+        test_type: data.test_type,
         status: "PUBLISHED",
       },
     });

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { ChallengesService } from "@/services/challenges.service";
-import RichTextEditor from "@/components/ui/RichTextEditor";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import { Edit2, ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -71,7 +70,7 @@ export default function TeacherChallengesPage() {
       }
       
       if (action === "REVISE_CONTENT" && revisedContent) {
-        payload.revised_content_json = revisedContent;
+        payload.revised_content_json = [{ type: "TEXT", content: revisedContent }];
       }
 
       // Optimistic UI update
@@ -105,7 +104,10 @@ export default function TeacherChallengesPage() {
     setResolutionNote("");
     setSelectedTargetId("");
     if (action === "REVISE_CONTENT" && question) {
-      setRevisedContent(question.content_json);
+      const contentStr = Array.isArray(question.content_json) && question.content_json[0]?.content 
+        ? question.content_json[0].content 
+        : "";
+      setRevisedContent(contentStr);
     } else {
       setRevisedContent(null);
     }
@@ -279,11 +281,12 @@ export default function TeacherChallengesPage() {
             )}
 
             {noteModal.action === "REVISE_CONTENT" && (
-              <div className="mb-6 rounded-xl border border-white/10 overflow-hidden min-h-[400px] bg-white">
-                <RichTextEditor
+              <div className="mb-6 rounded-xl border border-white/10 overflow-hidden bg-white/[0.02]">
+                <textarea
                   value={revisedContent}
-                  onChange={setRevisedContent}
-                  placeholder="Edit the question content..."
+                  onChange={(e) => setRevisedContent(e.target.value)}
+                  placeholder="Edit the question content here..."
+                  className="w-full min-h-[300px] p-4 bg-transparent text-white outline-none font-mono text-sm resize-y"
                 />
               </div>
             )}

@@ -2,50 +2,50 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
   extensions = [vector]
 }
 
 model User {
-  id                    String       @id @default(cuid())
-  email                 String       @unique
-  password_hash         String
-  first_name            String?
-  last_name             String?
-  role                  UserRole     @default(STUDENT)
-  email_verified_at     DateTime?
-  created_at            DateTime     @default(now())
-  updated_at            DateTime     @updatedAt
-  last_login_at         DateTime?
-  assigned_teacher_id   String?
-  custom_role_id        String?
-  phone_number          String?
-  profile_picture       String?
-  course_enrolled       String?
-  is_active             Boolean      @default(true)
-  
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  password_hash       String
+  first_name          String?
+  last_name           String?
+  role                UserRole  @default(STUDENT)
+  email_verified_at   DateTime?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+  last_login_at       DateTime?
+  assigned_teacher_id String?
+  custom_role_id      String?
+  phone_number        String?
+  profile_picture     String?
+  course_enrolled     String?
+  is_active           Boolean   @default(true)
+
   // Relations
-  assigned_teacher      User?        @relation("intern_teacher", fields: [assigned_teacher_id], references: [id])
-  custom_role           Role?        @relation("user_custom_role", fields: [custom_role_id], references: [id])
-  interns               User[]       @relation("intern_teacher")
+  assigned_teacher      User?                @relation("intern_teacher", fields: [assigned_teacher_id], references: [id])
+  custom_role           Role?                @relation("user_custom_role", fields: [custom_role_id], references: [id])
+  interns               User[]               @relation("intern_teacher")
   attempts              Attempt[]
-  challenges_created    Challenge[]      @relation("challenges_created")
-  challenges_assigned   Challenge[]      @relation("assigned_to")
+  challenges_created    Challenge[]          @relation("challenges_created")
+  challenges_assigned   Challenge[]          @relation("assigned_to")
   daily_activities      DailyActivity[]
   user_stats            UserStats?
   refresh_tokens        RefreshToken[]
   password_reset_tokens PasswordResetToken[] @relation("password_reset_tokens")
-  audit_logs            AuditLog[]        @relation("actor")
+  audit_logs            AuditLog[]           @relation("actor")
   notification_events   NotificationEvent[]
   course_enrollments    CourseEnrollment[]
   course_staff          CourseStaff[]
-  managed_sections      Section[]        @relation("section_manager")
+  managed_sections      Section[]            @relation("section_manager")
   topic_progress        TopicProgress[]
   questions             Question[]
   cart                  Cart?
@@ -56,74 +56,73 @@ model User {
 }
 
 model RefreshToken {
-  id            String    @id @default(cuid())
-  user_id       String
-  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  token_hash    String    @unique
-  expires_at    DateTime
-  created_at    DateTime  @default(now())
-  revoked_at    DateTime?
+  id         String    @id @default(cuid())
+  user_id    String
+  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  token_hash String    @unique
+  expires_at DateTime
+  created_at DateTime  @default(now())
+  revoked_at DateTime?
 
   @@index([user_id])
   @@index([expires_at])
 }
 
 model OtpRecord {
-  id              String    @id @default(cuid())
-  email           String
-  otp_code        String    // 6-digit code
-  attempts        Int       @default(0)
-  created_at      DateTime  @default(now())
-  expires_at      DateTime  // now + 10 minutes
-  verified_at     DateTime?
+  id          String    @id @default(cuid())
+  email       String
+  otp_code    String // 6-digit code
+  attempts    Int       @default(0)
+  created_at  DateTime  @default(now())
+  expires_at  DateTime // now + 10 minutes
+  verified_at DateTime?
 
   @@index([email])
   @@index([expires_at])
 }
 
 model PasswordResetToken {
-  id              String    @id @default(cuid())
-  user_id         String
-  user            User      @relation("password_reset_tokens", fields: [user_id], references: [id], onDelete: Cascade)
-  token_hash      String    @unique  // SHA256 hashed token
-  created_at      DateTime  @default(now())
-  expires_at      DateTime  // now + 1 hour
-  used_at         DateTime?
-  ip_address      String?
+  id         String    @id @default(cuid())
+  user_id    String
+  user       User      @relation("password_reset_tokens", fields: [user_id], references: [id], onDelete: Cascade)
+  token_hash String    @unique // SHA256 hashed token
+  created_at DateTime  @default(now())
+  expires_at DateTime // now + 1 hour
+  used_at    DateTime?
+  ip_address String?
 
   @@index([user_id])
   @@index([expires_at])
 }
 
-
 model Course {
-  id              String    @id @default(cuid())
-  name            String    @unique
-  code            String
-  description     String
-  created_by      String?   // User ID of the teacher/admin who created it
-  created_at      DateTime  @default(now())
+  id          String   @id @default(cuid())
+  name        String   @unique
+  code        String
+  description String
+  created_by  String? // User ID of the teacher/admin who created it
+  created_at  DateTime @default(now())
 
-  status          CourseStatus @default(DRAFT)
-  launch_date     DateTime?
-  price           Float?
-  discount_price  Float?
+  status         CourseStatus @default(DRAFT)
+  launch_date    DateTime?
+  price          Float?
+  discount_price Float?
 
-  sections        Section[]
-  enrollments     CourseEnrollment[]
-  staff           CourseStaff[]
-  cart_items      CartItem[]
-  order_items     OrderItem[]
+  sections    Section[]
+  enrollments CourseEnrollment[]
+  staff       CourseStaff[]
+  cart_items  CartItem[]
+  order_items OrderItem[]
 
   @@index([code])
 }
 
 model CourseStaff {
-  id        String   @id @default(cuid())
-  course_id String
-  user_id   String
-  course    Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  course_id  String
+  user_id    String
+  course     Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
 
   @@unique([course_id, user_id])
@@ -132,71 +131,71 @@ model CourseStaff {
 }
 
 model Section {
-  id              String    @id @default(cuid())
-  course_id       String
-  course          Course    @relation(fields: [course_id], references: [id], onDelete: Cascade)
-  name            String
-  description     String
-  order           Int
-  created_at      DateTime  @default(now())
-  managed_by      String?   // User ID of the Knight (Teacher) assigned to manage this section
-  manager         User?     @relation("section_manager", fields: [managed_by], references: [id])
+  id          String   @id @default(cuid())
+  course_id   String
+  course      Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  order       Int
+  created_at  DateTime @default(now())
+  managed_by  String? // User ID of the Knight (Teacher) assigned to manage this section
+  manager     User?    @relation("section_manager", fields: [managed_by], references: [id])
 
-  chapters        Chapter[]
+  chapters Chapter[]
 
   @@unique([course_id, name])
   @@index([course_id])
 }
 
 model Chapter {
-  id              String    @id @default(cuid())
-  section_id      String
-  section         Section   @relation(fields: [section_id], references: [id], onDelete: Cascade)
-  name            String
-  description     String
-  order           Int
-  created_at      DateTime  @default(now())
+  id          String   @id @default(cuid())
+  section_id  String
+  section     Section  @relation(fields: [section_id], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  order       Int
+  created_at  DateTime @default(now())
 
-  topics          Topic[]
+  topics Topic[]
 
   @@unique([section_id, name])
   @@index([section_id])
 }
 
 model Topic {
-  id              String    @id @default(cuid())
-  chapter_id      String
-  chapter         Chapter   @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
-  name            String
-  description     String    // Brief description of the topic
-  order           Int
-  created_at      DateTime  @default(now())
+  id          String   @id @default(cuid())
+  chapter_id  String
+  chapter     Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  name        String
+  description String // Brief description of the topic
+  order       Int
+  created_at  DateTime @default(now())
 
-  questions       Question[]
-  responses       Response[]
-  notes           Note[]
-  tests           Test[]
-  topic_progress  TopicProgress[]
+  questions      Question[]
+  responses      Response[]
+  notes          Note[]
+  tests          Test[]
+  topic_progress TopicProgress[]
 
   @@unique([chapter_id, name])
   @@index([chapter_id])
 }
 
 model Note {
-  id              String    @id @default(cuid())
+  id              String                 @id @default(cuid())
   topic_id        String
-  topic           Topic     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
-  created_by      String    // User ID of creator (Intern/Teacher)
+  topic           Topic                  @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  created_by      String // User ID of creator (Intern/Teacher)
   title           String
-  content_html    String    // Rich text content including LaTeX/images
+  content_html    String // Rich text content including LaTeX/images
   approval_status QuestionApprovalStatus @default(DRAFT) // Reusing the same enum for simplicity or create a new one
-  approved_by     String?   // User ID of approver (teacher/admin)
+  approved_by     String? // User ID of approver (teacher/admin)
   approved_at     DateTime?
   rejection_note  String?
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  created_at      DateTime               @default(now())
+  updated_at      DateTime               @updatedAt
 
-  challenges      Challenge[]
+  challenges Challenge[]
 
   @@index([topic_id])
   @@index([created_by])
@@ -204,38 +203,38 @@ model Note {
 }
 
 model Asset {
-  id              String    @id @default(cuid())
-  file_name       String
-  file_size       Int
-  mime_type       String
-  cdn_url         String    @unique  // Cloudflare R2 CDN URL
-  created_at      DateTime  @default(now())
+  id         String   @id @default(cuid())
+  file_name  String
+  file_size  Int
+  mime_type  String
+  cdn_url    String   @unique // Cloudflare R2 CDN URL
+  created_at DateTime @default(now())
 
   @@index([created_at])
 }
 
 model Question {
-  id              String    @id @default(cuid())
+  id              String                      @id @default(cuid())
   topic_id        String
-  topic           Topic     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
-  created_by      String    // User ID of creator
-  creator         User      @relation(fields: [created_by], references: [id])
+  topic           Topic                       @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  created_by      String // User ID of creator
+  creator         User                        @relation(fields: [created_by], references: [id])
   question_type   QuestionType
-  content_json    Json      // Block model: [{type:'TEXT'|'LATEX'|'IMAGE', content/asset_id}]
-  options_json    Json?     // For MCQ, multiple correct, etc.
-  answer_key      Json      // Answer structure depends on question type
-  solution_json   Json?     // Step-by-step solution blocks
-  difficulty      Difficulty @default(MEDIUM)
-  marks           Float     @default(1)
-  negative_marks  Float     @default(0)
-  version         Int       @default(1)
-  approval_status QuestionApprovalStatus @default(DRAFT)
-  approved_by     String?   // User ID of approver (teacher/admin)
+  content_json    Json // Block model: [{type:'TEXT'|'LATEX'|'IMAGE', content/asset_id}]
+  options_json    Json? // For MCQ, multiple correct, etc.
+  answer_key      Json // Answer structure depends on question type
+  solution_json   Json? // Step-by-step solution blocks
+  difficulty      Difficulty                  @default(MEDIUM)
+  marks           Float                       @default(1)
+  negative_marks  Float                       @default(0)
+  version         Int                         @default(1)
+  approval_status QuestionApprovalStatus      @default(DRAFT)
+  approved_by     String? // User ID of approver (teacher/admin)
   approved_at     DateTime?
   rejection_note  String?
   embedding       Unsupported("vector(768)")?
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  created_at      DateTime                    @default(now())
+  updated_at      DateTime                    @updatedAt
 
   test_questions  TestQuestion[]
   responses       Response[]
@@ -250,42 +249,43 @@ model Question {
 }
 
 model QuestionVersion {
-  id              String    @id @default(cuid())
-  question_id     String
-  question        Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
-  version         Int
-  content_json    Json
-  options_json    Json?
-  answer_key      Json
-  solution_json   Json?
-  created_at      DateTime  @default(now())
+  id            String   @id @default(cuid())
+  question_id   String
+  question      Question @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  version       Int
+  content_json  Json
+  options_json  Json?
+  answer_key    Json
+  solution_json Json?
+  created_at    DateTime @default(now())
 
   @@unique([question_id, version])
   @@index([question_id])
 }
 
 model Test {
-  id              String    @id @default(cuid())
-  topic_id        String
-  topic           Topic     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
-  title           String
-  description     String?
-  created_by      String    // User ID
-  duration_minutes Int      @default(180)
-  total_marks     Float
-  passing_marks   Float?
-  positive_marks  Float     @default(4)
-  negative_marks  Float     @default(1)
-  status          TestStatus @default(DRAFT)
-  start_time      DateTime?
-  end_time        DateTime?
-  section_config  Json?     // Array of section configs with marking schemes
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  id               String     @id @default(cuid())
+  topic_id         String
+  topic            Topic      @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  created_by       String // User ID
+  duration_minutes Int        @default(180)
+  total_marks      Float
+  passing_marks    Float?
+  positive_marks   Float      @default(4)
+  negative_marks   Float      @default(1)
+  status           TestStatus @default(DRAFT)
+  test_type        TestType   @default(TOPICWISE)
+  start_time       DateTime?
+  end_time         DateTime?
+  section_config   Json? // Array of section configs with marking schemes
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
 
-  test_questions  TestQuestion[]
-  attempts        Attempt[]
-  test_series     TestSeries[]
+  test_questions TestQuestion[]
+  attempts       Attempt[]
+  test_series    TestSeries[]
 
   @@index([created_by])
   @@index([topic_id])
@@ -295,17 +295,17 @@ model Test {
 }
 
 model TestQuestion {
-  id              String    @id @default(cuid())
-  test_id         String
-  test            Test      @relation(fields: [test_id], references: [id], onDelete: Cascade)
-  question_id     String
-  question        Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
-  order           Int
-  section         Int       @default(0)  // Section number for marking scheme
-  marks_override  Float?    // If different from question.marks
-  created_at      DateTime  @default(now())
+  id             String   @id @default(cuid())
+  test_id        String
+  test           Test     @relation(fields: [test_id], references: [id], onDelete: Cascade)
+  question_id    String
+  question       Question @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  order          Int
+  section        Int      @default(0) // Section number for marking scheme
+  marks_override Float? // If different from question.marks
+  created_at     DateTime @default(now())
 
-  responses       Response[]
+  responses Response[]
 
   @@unique([test_id, question_id])
   @@index([test_id])
@@ -313,34 +313,34 @@ model TestQuestion {
 }
 
 model TestSeries {
-  id              String    @id @default(cuid())
-  name            String
-  description     String?
-  created_by      String    // User ID
-  tests           Test[]
-  created_at      DateTime  @default(now())
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  created_by  String // User ID
+  tests       Test[]
+  created_at  DateTime @default(now())
 
   @@index([created_by])
 }
 
 model Attempt {
-  id              String    @id @default(cuid())
-  user_id         String
-  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  test_id         String
-  test            Test      @relation(fields: [test_id], references: [id], onDelete: Cascade)
-  attempt_no      Int       @default(1)
-  status          AttemptStatus @default(IN_PROGRESS)
-  score           Float?
-  max_score       Float?
-  percentile      Float?
-  rank            Int?      // Rank among all attempts for this test
-  practice_mode   Boolean   @default(false)
-  started_at      DateTime  @default(now())
-  submitted_at    DateTime?
-  time_taken_sec  Int?      // Total time spent
+  id             String        @id @default(cuid())
+  user_id        String
+  user           User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  test_id        String
+  test           Test          @relation(fields: [test_id], references: [id], onDelete: Cascade)
+  attempt_no     Int           @default(1)
+  status         AttemptStatus @default(IN_PROGRESS)
+  score          Float?
+  max_score      Float?
+  percentile     Float?
+  rank           Int? // Rank among all attempts for this test
+  practice_mode  Boolean       @default(false)
+  started_at     DateTime      @default(now())
+  submitted_at   DateTime?
+  time_taken_sec Int? // Total time spent
 
-  responses       Response[]
+  responses Response[]
 
   @@unique([user_id, test_id, attempt_no])
   @@index([user_id, status])
@@ -349,12 +349,12 @@ model Attempt {
 }
 
 model CourseEnrollment {
-  id              String    @id @default(cuid())
-  user_id         String
-  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  course_id       String
-  course          Course    @relation(fields: [course_id], references: [id], onDelete: Cascade)
-  enrolled_at     DateTime  @default(now())
+  id          String   @id @default(cuid())
+  user_id     String
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  course_id   String
+  course      Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  enrolled_at DateTime @default(now())
 
   @@unique([user_id, course_id])
   @@index([user_id])
@@ -378,25 +378,25 @@ model TopicProgress {
 }
 
 model Response {
-  id              String    @id @default(cuid())
-  attempt_id      String
-  attempt         Attempt   @relation(fields: [attempt_id], references: [id], onDelete: Cascade)
+  id               String       @id @default(cuid())
+  attempt_id       String
+  attempt          Attempt      @relation(fields: [attempt_id], references: [id], onDelete: Cascade)
   test_question_id String
-  test_question   TestQuestion @relation(fields: [test_question_id], references: [id], onDelete: Cascade)
-  topic_id        String
-  topic           Topic     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
-  question_id     String
-  question        Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
-  
-  answer_json     Json      // Student's answer (structure varies by question type)
-  is_correct      Boolean?  // Null = not yet scored, true = correct, false = incorrect
-  marks_obtained  Float?
-  time_on_question Int?     // Seconds spent on this question
-  reviewed        Boolean   @default(false)
-  marked_for_review Boolean @default(false)
-  
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  test_question    TestQuestion @relation(fields: [test_question_id], references: [id], onDelete: Cascade)
+  topic_id         String
+  topic            Topic        @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  question_id      String
+  question         Question     @relation(fields: [question_id], references: [id], onDelete: Cascade)
+
+  answer_json       Json // Student's answer (structure varies by question type)
+  is_correct        Boolean? // Null = not yet scored, true = correct, false = incorrect
+  marks_obtained    Float?
+  time_on_question  Int? // Seconds spent on this question
+  reviewed          Boolean  @default(false)
+  marked_for_review Boolean  @default(false)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@unique([attempt_id, question_id])
   @@index([attempt_id])
@@ -405,29 +405,29 @@ model Response {
 }
 
 model Challenge {
-  id              String    @id @default(cuid())
+  id          String    @id @default(cuid())
   // Polymorphic relations: Can challenge a Question (via Response) OR a Note
-  response_id     String?   // The response being challenged (if question)
-  question_id     String?
-  question        Question? @relation(fields: [question_id], references: [id], onDelete: Cascade)
-  
-  note_id         String?
-  note            Note?     @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  response_id String? // The response being challenged (if question)
+  question_id String?
+  question    Question? @relation(fields: [question_id], references: [id], onDelete: Cascade)
 
-  submitted_by    String    // User ID who submitted challenge
-  created_by      User      @relation("challenges_created", fields: [submitted_by], references: [id], onDelete: Cascade)
-  assigned_to     String    // User ID (teacher) who reviews it
-  reviewer        User      @relation("assigned_to", fields: [assigned_to], references: [id], onDelete: Cascade)
-  status          ChallengeStatus @default(PENDING)
-  reason          ChallengeReason
-  description     String
-  screenshot_url  String?
-  
-  resolution_note String?
+  note_id String?
+  note    Note?   @relation(fields: [note_id], references: [id], onDelete: Cascade)
+
+  submitted_by   String // User ID who submitted challenge
+  created_by     User            @relation("challenges_created", fields: [submitted_by], references: [id], onDelete: Cascade)
+  assigned_to    String // User ID (teacher) who reviews it
+  reviewer       User            @relation("assigned_to", fields: [assigned_to], references: [id], onDelete: Cascade)
+  status         ChallengeStatus @default(PENDING)
+  reason         ChallengeReason
+  description    String
+  screenshot_url String?
+
+  resolution_note    String?
   revised_answer_key Json? // If challenge accepted and answer key revised
-  
-  created_at      DateTime  @default(now())
-  resolved_at     DateTime?
+
+  created_at  DateTime  @default(now())
+  resolved_at DateTime?
 
   @@index([question_id])
   @@index([assigned_to])
@@ -436,35 +436,35 @@ model Challenge {
 }
 
 model UserStats {
-  id              String    @id @default(cuid())
-  user_id         String    @unique
-  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  
-  total_tests     Int       @default(0)
-  total_score     Float     @default(0)
-  best_score      Float?
-  avg_accuracy    Float?
-  
-  current_streak  Int       @default(0)
-  longest_streak  Int       @default(0)
-  
-  badges_json     Json      @default("{}")  // {"first_test": false, "streak_7": false, ...}
-  preferences_json Json     @default("{\"dark_mode\": false, \"font_size\": \"medium\"}")
-  
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  id      String @id @default(cuid())
+  user_id String @unique
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  total_tests  Int    @default(0)
+  total_score  Float  @default(0)
+  best_score   Float?
+  avg_accuracy Float?
+
+  current_streak Int @default(0)
+  longest_streak Int @default(0)
+
+  badges_json      Json @default("{}") // {"first_test": false, "streak_7": false, ...}
+  preferences_json Json @default("{\"dark_mode\": false, \"font_size\": \"medium\"}")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@index([user_id])
 }
 
 model DailyActivity {
-  id              String    @id @default(cuid())
-  user_id         String
-  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  activity_date   DateTime  // Date (stored in UTC)
-  activity_type   String    // 'test_attempt', 'daily_quiz', etc.
-  activity_count  Int       @default(1)
-  created_at      DateTime  @default(now())
+  id             String   @id @default(cuid())
+  user_id        String
+  user           User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  activity_date  DateTime // Date (stored in UTC)
+  activity_type  String // 'test_attempt', 'daily_quiz', etc.
+  activity_count Int      @default(1)
+  created_at     DateTime @default(now())
 
   @@unique([user_id, activity_date])
   @@index([user_id])
@@ -472,32 +472,32 @@ model DailyActivity {
 }
 
 model NotificationEvent {
-  id              String    @id @default(cuid())
-  user_id         String
-  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  type            NotificationType
-  title           String
-  message         String
-  data_json       Json?     // Event-specific data (rank_change, badge_earned, etc.)
-  is_read         Boolean   @default(false)
-  created_at      DateTime  @default(now())
+  id         String           @id @default(cuid())
+  user_id    String
+  user       User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  type       NotificationType
+  title      String
+  message    String
+  data_json  Json? // Event-specific data (rank_change, badge_earned, etc.)
+  is_read    Boolean          @default(false)
+  created_at DateTime         @default(now())
 
   @@index([user_id])
   @@index([created_at])
 }
 
 model AuditLog {
-  id              String    @id @default(cuid())
-  actor_id        String
-  actor           User      @relation("actor", fields: [actor_id], references: [id], onDelete: SetNull)
-  action          String    // 'teacher_approved', 'answer_key_revised', 'challenge_resolved', etc.
-  entity_type     String    // 'teacher_application', 'question', 'challenge', 'user'
-  entity_id       String
-  before_json     Json?     // State before change
-  after_json      Json?     // State after change
-  ip_address      String?
-  user_agent      String?
-  created_at      DateTime  @default(now())
+  id          String   @id @default(cuid())
+  actor_id    String
+  actor       User     @relation("actor", fields: [actor_id], references: [id], onDelete: SetNull)
+  action      String // 'teacher_approved', 'answer_key_revised', 'challenge_resolved', etc.
+  entity_type String // 'teacher_application', 'question', 'challenge', 'user'
+  entity_id   String
+  before_json Json? // State before change
+  after_json  Json? // State after change
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime @default(now())
 
   @@index([actor_id])
   @@index([entity_type])
@@ -505,18 +505,18 @@ model AuditLog {
 }
 
 model Role {
-  id                String    @id @default(cuid())
-  name              String    @unique  // STUDENT, TEACHER, ADMIN, or custom roles
-  description       String    @default("")
-  designation       String    @default("")  // Display title (e.g. "Senior Teacher", "Content Head")
-  level             Int       @default(0)   // Hierarchy level: 0=top, higher=lower
-  parent_id         String?   // ID of parent role (who this role reports to)
-  parent            Role?     @relation("RoleHierarchy", fields: [parent_id], references: [id])
-  children          Role[]    @relation("RoleHierarchy")
-  users             User[]    @relation("user_custom_role")
-  permissions_json  Json      @default("[]")  // Array of permission strings
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  id               String   @id @default(cuid())
+  name             String   @unique // STUDENT, TEACHER, ADMIN, or custom roles
+  description      String   @default("")
+  designation      String   @default("") // Display title (e.g. "Senior Teacher", "Content Head")
+  level            Int      @default(0) // Hierarchy level: 0=top, higher=lower
+  parent_id        String? // ID of parent role (who this role reports to)
+  parent           Role?    @relation("RoleHierarchy", fields: [parent_id], references: [id])
+  children         Role[]   @relation("RoleHierarchy")
+  users            User[]   @relation("user_custom_role")
+  permissions_json Json     @default("[]") // Array of permission strings
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
 
   @@index([name])
   @@index([parent_id])
@@ -540,7 +540,6 @@ enum QuestionApprovalStatus {
   AI_GENERATED
   DROPPED
 }
-
 
 enum QuestionType {
   SINGLE_CORRECT
@@ -569,6 +568,12 @@ enum TestStatus {
   ONGOING
   COMPLETED
   ARCHIVED
+}
+
+enum TestType {
+  TOPICWISE
+  UNITWISE
+  FULL_SYLLABUS
 }
 
 enum AttemptStatus {
@@ -605,46 +610,46 @@ enum NotificationType {
 }
 
 enum CourseStatus {
-  DRAFT       // Hidden from students, visible to teachers/interns
-  PUBLISHED   // Visible and active
-  HIDDEN      // Explicitly hidden
+  DRAFT // Hidden from students, visible to teachers/interns
+  PUBLISHED // Visible and active
+  HIDDEN // Explicitly hidden
 }
 
 model Cart {
-  id          String   @id @default(cuid())
-  user_id     String   @unique
-  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  
-  items       CartItem[]
+  id         String   @id @default(cuid())
+  user_id    String   @unique
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  items CartItem[]
 }
 
 model CartItem {
-  id          String   @id @default(cuid())
-  cart_id     String
-  cart        Cart     @relation(fields: [cart_id], references: [id], onDelete: Cascade)
-  course_id   String
-  course      Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
-  added_at    DateTime @default(now())
+  id        String   @id @default(cuid())
+  cart_id   String
+  cart      Cart     @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  course_id String
+  course    Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  added_at  DateTime @default(now())
 
   @@unique([cart_id, course_id])
 }
 
 model Order {
-  id                  String       @id @default(cuid())
+  id                  String      @id @default(cuid())
   user_id             String
-  user                User         @relation(fields: [user_id], references: [id])
+  user                User        @relation(fields: [user_id], references: [id])
   total_amount        Float
-  status              OrderStatus  @default(PENDING)
-  razorpay_order_id   String?      @unique
-  razorpay_payment_id String?      @unique
+  status              OrderStatus @default(PENDING)
+  razorpay_order_id   String?     @unique
+  razorpay_payment_id String?     @unique
   razorpay_signature  String?
-  created_at          DateTime     @default(now())
-  updated_at          DateTime     @updatedAt
+  created_at          DateTime    @default(now())
+  updated_at          DateTime    @updatedAt
 
-  items               OrderItem[]
-  invoice             Invoice?
+  items   OrderItem[]
+  invoice Invoice?
 }
 
 enum OrderStatus {
@@ -654,19 +659,19 @@ enum OrderStatus {
 }
 
 model OrderItem {
-  id          String   @id @default(cuid())
-  order_id    String
-  order       Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  course_id   String
-  course      Course   @relation(fields: [course_id], references: [id])
-  price_paid  Float    // Store the price at the time of purchase
+  id         String @id @default(cuid())
+  order_id   String
+  order      Order  @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  course_id  String
+  course     Course @relation(fields: [course_id], references: [id])
+  price_paid Float // Store the price at the time of purchase
 }
 
 model Invoice {
-  id              String   @id @default(cuid())
-  order_id        String   @unique
-  order           Order    @relation(fields: [order_id], references: [id])
-  invoice_number  String   @unique
-  file_url        String?
-  issued_at       DateTime @default(now())
+  id             String   @id @default(cuid())
+  order_id       String   @unique
+  order          Order    @relation(fields: [order_id], references: [id])
+  invoice_number String   @unique
+  file_url       String?
+  issued_at      DateTime @default(now())
 }

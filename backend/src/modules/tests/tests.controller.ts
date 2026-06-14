@@ -154,6 +154,7 @@ export class TestsController {
       negative_marks: number;
       section_config?: any;
       question_ids?: string[];
+      test_type?: any;
     },
   ) {
     return this.testsService.createTest(req.user.sub, req.user.role, body);

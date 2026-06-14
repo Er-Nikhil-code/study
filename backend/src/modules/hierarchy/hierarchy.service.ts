@@ -304,11 +304,11 @@ export class HierarchyService {
       return courses;
     }
 
-    // Fetch user enrollments
     const enrollments = await this.prisma.courseEnrollment.findMany({
       where: { user_id: userId }
     });
-    const enrolledCourseIds = new Set(enrollments.map(e => e.course_id));
+    const enrolledCourseMap = new Map<string, Date>();
+    enrollments.forEach(e => enrolledCourseMap.set(e.course_id, e.enrolled_at));
 
     // Fetch user attempts
     const attempts = await this.prisma.attempt.findMany({
@@ -345,7 +345,8 @@ export class HierarchyService {
 
     // Attach data to the hierarchy
     return courses.map(course => {
-      const isEnrolled = enrolledCourseIds.has(course.id);
+      const isEnrolled = enrolledCourseMap.has(course.id);
+      const enrolledAt = enrolledCourseMap.get(course.id);
       const mappedSections = course.sections.map(section => {
         const mappedChapters = section.chapters.map(chapter => {
           const mappedTopics = chapter.topics.map(topic => {
@@ -383,6 +384,7 @@ export class HierarchyService {
       return { 
         ...course, 
         is_enrolled: isEnrolled, 
+        enrolled_at: enrolledAt ? enrolledAt.toISOString() : null,
         sections: mappedSections,
         enrollment_count: course._count?.enrollments || 0 
       };

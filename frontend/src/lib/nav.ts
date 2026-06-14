@@ -46,7 +46,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     return [
       { label: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
       { label: "Available Courses", href: "/courses", icon: Library },
-      { label: "My Results", href: "/results", icon: History },
+      { label: "Test Series", href: "/student/test-series", icon: FileText },
       { label: "Notifications", href: "/notifications", icon: Bell },
     ];
   }

@@ -119,8 +119,8 @@ export default function ProfilePage() {
         payload.new_password = newPassword;
       }
 
-      if (profilePicture) {
-        payload.profile_picture = profilePicture;
+      if (profilePicture !== profileData.profile_picture) {
+        payload.profile_picture = profilePicture || null;
       }
 
       const token = localStorage.getItem("accessToken") || "";

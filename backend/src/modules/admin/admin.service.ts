@@ -194,7 +194,7 @@ export class AdminService {
    */
   async updateUser(
     id: string,
-    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean; custom_role_id?: string | null; course_enrolled?: string | null },
+    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean; custom_role_id?: string | null; course_enrolled?: string | null; add_enrollment?: string[]; remove_enrollment?: string[] },
   ) {
     try {
       const user = await this.prisma.user.findUnique({ where: { id } });
@@ -228,18 +228,34 @@ export class AdminService {
         },
       });
 
-      // Sync CourseEnrollment table if course_enrolled was updated
-      if (data.course_enrolled !== undefined) {
+      // Handle explicit multiple enrollments
+      if (data.add_enrollment && data.add_enrollment.length > 0) {
+        for (const courseId of data.add_enrollment) {
+          await this.prisma.courseEnrollment.upsert({
+            where: { user_id_course_id: { user_id: id, course_id: courseId } },
+            update: {},
+            create: { user_id: id, course_id: courseId },
+          }).catch(() => null);
+        }
+      }
+
+      if (data.remove_enrollment && data.remove_enrollment.length > 0) {
+        for (const courseId of data.remove_enrollment) {
+          await this.prisma.courseEnrollment.deleteMany({
+            where: { user_id: id, course_id: courseId }
+          });
+        }
+      }
+
+      // Legacy sync CourseEnrollment table if course_enrolled was updated
+      if (data.course_enrolled !== undefined && !data.add_enrollment && !data.remove_enrollment) {
         if (data.course_enrolled) {
-          // Add or ensure enrollment exists
           await this.prisma.courseEnrollment.upsert({
             where: { user_id_course_id: { user_id: id, course_id: data.course_enrolled } },
             update: {},
             create: { user_id: id, course_id: data.course_enrolled },
-          }).catch(() => null); // ignore if course doesn't exist
+          }).catch(() => null);
         } else {
-          // Remove all enrollments (since legacy single-enrollment assumed)
-          // or just delete if it matches
           await this.prisma.courseEnrollment.deleteMany({
             where: { user_id: id }
           });
@@ -341,6 +357,7 @@ export class AdminService {
         custom_role: true,
         assigned_teacher: { select: { id: true, first_name: true, last_name: true, email: true } },
         user_stats: true,
+        course_enrollments: { include: { course: true } },
       },
     });
 

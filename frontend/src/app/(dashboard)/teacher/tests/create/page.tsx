@@ -47,6 +47,7 @@ export default function CreateTestPage() {
     passing_marks: "" as number | "",
     start_time: "",
     end_time: "",
+    test_type: "TOPICWISE",
   });
 
   const [bankCourseId, setBankCourseId] = useState("");
@@ -203,9 +204,19 @@ export default function CreateTestPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm text-zinc-400 mb-1">Passing Marks</label>
-                <input type="number" required min="0" value={formData.passing_marks} onChange={e => setFormData({...formData, passing_marks: e.target.value === '' ? '' : Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="e.g. 40" />
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm text-zinc-400 mb-1">Passing Marks</label>
+                  <input type="number" required min="0" value={formData.passing_marks} onChange={e => setFormData({...formData, passing_marks: e.target.value === '' ? '' : Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="e.g. 40" />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm text-zinc-400 mb-1">Test Type</label>
+                  <select value={formData.test_type} onChange={e => setFormData({...formData, test_type: e.target.value})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500">
+                    <option value="TOPICWISE">Topicwise</option>
+                    <option value="UNITWISE">Unitwise</option>
+                    <option value="FULL_SYLLABUS">Full Syllabus</option>
+                  </select>
+                </div>
               </div>
 
               <button type="submit" disabled={loading} className="w-full mt-4 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg disabled:opacity-50">

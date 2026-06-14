@@ -45,6 +45,8 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
               if (topic.id === topicId) {
                 setTopicName(`${course.name} → ${topic.name}`);
                 setCourseId(course.id);
+                // Save last accessed topic for this course
+                localStorage.setItem(`last_topic_${course.id}`, topic.id);
                 found = true;
                 break;
               }

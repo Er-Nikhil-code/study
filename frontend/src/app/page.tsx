@@ -116,7 +116,7 @@ export default function HomePage() {
         setDisplayedGreeting("");
         setDisplayedBody("");
         charIndexRef.current = 0;
-        setQuoteIndex((prev) => (prev + 1) % QUOTES.length);
+        setQuoteIndex(Math.floor(Math.random() * QUOTES.length));
         setOpacity(1);
         setPhase("typing-greeting");
       }, 600);
@@ -363,13 +363,13 @@ export default function HomePage() {
           className="min-h-[200px] md:min-h-[240px] w-full max-w-lg mt-4"
           style={{ opacity, transition: "opacity 0.8s ease-in-out" }}
         >
-          <h2 className={`text-xl md:text-2xl font-medium leading-snug mb-5 ${quicksand.className}`}>
+          <h2 className={`text-lg md:text-xl font-medium leading-snug mb-5 ${quicksand.className}`}>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-300">
               {displayedGreeting}
             </span>
             {phase === "typing-greeting" && <span className="elegant-cursor" />}
           </h2>
-          <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-light tracking-wide">
+          <p className="text-xs md:text-sm leading-relaxed font-light tracking-wide text-zinc-400">
             {displayedBody}
             {phase === "typing-body" && <span className="elegant-cursor" />}
           </p>
