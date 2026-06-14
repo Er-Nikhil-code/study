@@ -78,7 +78,6 @@ export default function TeacherChallengesPage() {
       setNoteModal(null);
       setResolutionNote("");
       setSelectedTargetId("");
-      setRevisedContent(null);
 
       await ChallengesService.resolveChallenge(id, payload);
       // Re-fetch in background to ensure full sync
