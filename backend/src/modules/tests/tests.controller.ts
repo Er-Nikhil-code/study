@@ -232,6 +232,8 @@ export class TestsController {
       req.user.sub,
       req.user.role,
     );
+  }
+
   /* ════════════════════════════════════════════
    *  TEST SERIES ENDPOINTS (Teacher / Admin)
    * ════════════════════════════════════════════ */

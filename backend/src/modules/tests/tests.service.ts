@@ -986,6 +986,8 @@ export class TestsService {
       currentUserRank: currentUserEntry ? currentUserEntry.rank : null,
       total_participants: leaderboard.length
     };
+  }
+
   /* ════════════════════════════════════════════
    *  TEST SERIES CRUD (Teacher / Admin)
    * ════════════════════════════════════════════ */
