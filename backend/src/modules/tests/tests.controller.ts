@@ -232,5 +232,50 @@ export class TestsController {
       req.user.sub,
       req.user.role,
     );
+  /* ════════════════════════════════════════════
+   *  TEST SERIES ENDPOINTS (Teacher / Admin)
+   * ════════════════════════════════════════════ */
+
+  @Get("series/manage")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  async getAdminTestSeries(@Request() req: any) {
+    return this.testsService.getAdminTestSeries(req.user.sub, req.user.role);
+  }
+
+  @Post("series")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  async createTestSeries(@Request() req: any, @Body() body: any) {
+    return this.testsService.createTestSeries(req.user.sub, req.user.role, body);
+  }
+
+  @Patch("series/:id")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  async updateTestSeries(@Param("id") id: string, @Request() req: any, @Body() body: any) {
+    return this.testsService.updateTestSeries(id, req.user.sub, req.user.role, body);
+  }
+
+  @Delete("series/:id")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteTestSeries(@Param("id") id: string, @Request() req: any) {
+    await this.testsService.deleteTestSeries(id, req.user.sub, req.user.role);
+  }
+
+  @Post("series/:id/staff")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  async assignTestSeriesStaff(@Param("id") id: string, @Request() req: any, @Body() body: { user_id: string }) {
+    return this.testsService.assignTestSeriesStaff(id, body.user_id, req.user.role);
+  }
+
+  @Delete("series/:id/staff/:userId")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  async removeTestSeriesStaff(@Param("id") id: string, @Param("userId") userId: string, @Request() req: any) {
+    return this.testsService.removeTestSeriesStaff(id, userId, req.user.role);
   }
 }

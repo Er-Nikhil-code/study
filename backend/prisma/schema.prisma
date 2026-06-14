@@ -31,26 +31,27 @@ model User {
   is_active           Boolean   @default(true)
 
   // Relations
-  assigned_teacher      User?                @relation("intern_teacher", fields: [assigned_teacher_id], references: [id])
-  custom_role           Role?                @relation("user_custom_role", fields: [custom_role_id], references: [id])
-  interns               User[]               @relation("intern_teacher")
-  attempts              Attempt[]
-  challenges_created    Challenge[]          @relation("challenges_created")
-  challenges_assigned   Challenge[]          @relation("assigned_to")
-  daily_activities      DailyActivity[]
-  user_stats            UserStats?
-  refresh_tokens        RefreshToken[]
-  password_reset_tokens PasswordResetToken[] @relation("password_reset_tokens")
-  audit_logs            AuditLog[]           @relation("actor")
-  notification_events   NotificationEvent[]
+  assigned_teacher        User?                  @relation("intern_teacher", fields: [assigned_teacher_id], references: [id])
+  custom_role             Role?                  @relation("user_custom_role", fields: [custom_role_id], references: [id])
+  interns                 User[]                 @relation("intern_teacher")
+  attempts                Attempt[]
+  challenges_created      Challenge[]            @relation("challenges_created")
+  challenges_assigned     Challenge[]            @relation("assigned_to")
+  daily_activities        DailyActivity[]
+  user_stats              UserStats?
+  refresh_tokens          RefreshToken[]
+  password_reset_tokens   PasswordResetToken[]   @relation("password_reset_tokens")
+  audit_logs              AuditLog[]             @relation("actor")
+  notification_events     NotificationEvent[]
   course_enrollments      CourseEnrollment[]
   test_series_enrollments TestSeriesEnrollment[]
   course_staff            CourseStaff[]
-  managed_sections      Section[]            @relation("section_manager")
-  topic_progress        TopicProgress[]
-  questions             Question[]
-  cart                  Cart?
-  orders                Order[]
+  test_series_staff       TestSeriesStaff[]
+  managed_sections        Section[]              @relation("section_manager")
+  topic_progress          TopicProgress[]
+  questions               Question[]
+  cart                    Cart?
+  orders                  Order[]
 
   @@index([email])
   @@index([role])
@@ -128,6 +129,19 @@ model CourseStaff {
 
   @@unique([course_id, user_id])
   @@index([course_id])
+  @@index([user_id])
+}
+
+model TestSeriesStaff {
+  id             String     @id @default(cuid())
+  test_series_id String
+  user_id        String
+  test_series    TestSeries @relation(fields: [test_series_id], references: [id], onDelete: Cascade)
+  user           User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  created_at     DateTime   @default(now())
+
+  @@unique([test_series_id, user_id])
+  @@index([test_series_id])
   @@index([user_id])
 }
 
@@ -314,22 +328,23 @@ model TestQuestion {
 }
 
 model TestSeries {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   description String?
   created_by  String // User ID
-  
+
   status         CourseStatus @default(DRAFT)
   launch_date    DateTime?
   price          Float?
   discount_price Float?
-  
+
   tests       Test[]
   enrollments TestSeriesEnrollment[]
+  staff       TestSeriesStaff[]
   cart_items  CartItem[]
   order_items OrderItem[]
-  
-  created_at  DateTime @default(now())
+
+  created_at DateTime @default(now())
 
   @@index([created_by])
 }
@@ -513,7 +528,7 @@ model NotificationEvent {
 model AuditLog {
   id          String   @id @default(cuid())
   actor_id    String?
-  actor       User?     @relation("actor", fields: [actor_id], references: [id], onDelete: SetNull)
+  actor       User?    @relation("actor", fields: [actor_id], references: [id], onDelete: SetNull)
   action      String // 'teacher_approved', 'answer_key_revised', 'challenge_resolved', etc.
   entity_type String // 'teacher_application', 'question', 'challenge', 'user'
   entity_id   String

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Shield, FileQuestion, CheckSquare, ShieldAlert, Activity, ShoppingCart } from "lucide-react";
+import { LayoutDashboard, Users, Shield, FileQuestion, CheckSquare, ShieldAlert, Activity, ShoppingCart, FileText } from "lucide-react";
 
 /**
  * Shared navigation items for all king pages.
@@ -11,5 +11,6 @@ export const adminNavItems = [
   { label: "Questions", href: "/admin/questions", icon: FileQuestion },
   { label: "Approvals", href: "/admin/approvals", icon: CheckSquare },
   { label: "Challenges", href: "/admin/challenges", icon: ShieldAlert },
+  { label: "Test Series", href: "/admin/test-series", icon: FileText },
   { label: "System", href: "/admin/system", icon: Activity },
 ];

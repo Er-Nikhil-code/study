@@ -986,5 +986,96 @@ export class TestsService {
       currentUserRank: currentUserEntry ? currentUserEntry.rank : null,
       total_participants: leaderboard.length
     };
+  /* ════════════════════════════════════════════
+   *  TEST SERIES CRUD (Teacher / Admin)
+   * ════════════════════════════════════════════ */
+
+  async createTestSeries(creatorId: string, role: string, data: any) {
+    if (!["ADMIN", "TEACHER"].includes(role)) {
+      throw new ForbiddenException("Only admins and teachers can create test series.");
+    }
+    
+    return this.prisma.testSeries.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        created_by: creatorId,
+        status: data.status || "DRAFT",
+        launch_date: data.launch_date,
+        price: data.price,
+        discount_price: data.discount_price,
+      }
+    });
+  }
+
+  async updateTestSeries(seriesId: string, userId: string, role: string, data: any) {
+    const series = await this.prisma.testSeries.findUnique({
+      where: { id: seriesId },
+      include: { staff: true }
+    });
+    if (!series) throw new NotFoundException("Test series not found");
+
+    if (role !== "ADMIN" && series.created_by !== userId && !series.staff.some(s => s.user_id === userId)) {
+      throw new ForbiddenException("You don't have permission to edit this test series");
+    }
+
+    return this.prisma.testSeries.update({
+      where: { id: seriesId },
+      data: {
+        name: data.name,
+        description: data.description,
+        status: data.status,
+        launch_date: data.launch_date,
+        price: data.price,
+        discount_price: data.discount_price,
+      }
+    });
+  }
+
+  async deleteTestSeries(seriesId: string, userId: string, role: string) {
+    const series = await this.prisma.testSeries.findUnique({ where: { id: seriesId } });
+    if (!series) throw new NotFoundException("Test series not found");
+    if (role !== "ADMIN" && series.created_by !== userId) {
+      throw new ForbiddenException("Only the creator or an admin can delete this test series");
+    }
+
+    return this.prisma.testSeries.delete({ where: { id: seriesId } });
+  }
+
+  async getAdminTestSeries(userId: string, role: string) {
+    const where: any = {};
+    if (role !== "ADMIN") {
+      where.OR = [
+        { created_by: userId },
+        { staff: { some: { user_id: userId } } }
+      ];
+    }
+    return this.prisma.testSeries.findMany({
+      where,
+      orderBy: { created_at: "desc" },
+      include: {
+        _count: { select: { tests: true, enrollments: true } },
+        staff: { include: { user: { select: { id: true, first_name: true, last_name: true, email: true } } } }
+      }
+    });
+  }
+
+  async assignTestSeriesStaff(seriesId: string, staffId: string, role: string) {
+    if (role !== "ADMIN") throw new ForbiddenException("Only admins can assign staff to test series");
+    
+    return this.prisma.testSeriesStaff.upsert({
+      where: { test_series_id_user_id: { test_series_id: seriesId, user_id: staffId } },
+      create: { test_series_id: seriesId, user_id: staffId },
+      update: {}
+    });
+  }
+
+  async removeTestSeriesStaff(seriesId: string, staffId: string, role: string) {
+    if (role !== "ADMIN") throw new ForbiddenException("Only admins can remove staff from test series");
+
+    await this.prisma.testSeriesStaff.delete({
+      where: { test_series_id_user_id: { test_series_id: seriesId, user_id: staffId } }
+    }).catch(() => {});
+    return { success: true };
   }
 }
