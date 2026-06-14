@@ -417,7 +417,7 @@ export default function HomePage() {
           </div>
 
           {/* Form Container */}
-          <div className="relative h-[420px] z-10">
+          <div className="relative min-h-[420px] z-10">
             {authView === "login" && (
               <div className="absolute inset-0 animate-in fade-in duration-500">
                 <LoginFormEmbedded
@@ -427,7 +427,7 @@ export default function HomePage() {
               </div>
             )}
             {authView === "signup" && (
-              <div className="absolute inset-0 animate-in fade-in duration-500">
+              <div className="relative animate-in fade-in duration-500 w-full h-full pb-6">
                 <RegisterFormEmbedded
                   onSwitchToLogin={() => setAuthView("login")}
                 />
@@ -609,21 +609,26 @@ function RegisterFormEmbedded({
 }) {
   const router = useRouter();
   const { setAuth } = useAuthStore();
-  const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [otp, setOtp] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleStep1 = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [maskedEmail, setMaskedEmail] = useState("");
 
+  const handleSendOtp = async () => {
+    setErrors({});
     if (!email || !firstName) {
       setErrors({
         email: !email ? "Email is required" : "",
@@ -633,10 +638,11 @@ function RegisterFormEmbedded({
     }
 
     setIsLoading(true);
+    setGeneralError(null);
     try {
-      await authService.register({ email, firstName, lastName: lastName || undefined });
-      setStep(2);
-      setGeneralError(null);
+      const response = await authService.register({ email, firstName, lastName: lastName || undefined });
+      setMaskedEmail(response.email_masked);
+      setShowOtpModal(true);
     } catch (error: any) {
       setGeneralError(error.response?.data?.message || "Registration failed");
     } finally {
@@ -644,29 +650,45 @@ function RegisterFormEmbedded({
     }
   };
 
-  const handleStep2 = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-
-    if (!otp || !password) {
-      setErrors({
-        otp: !otp ? "OTP is required" : "",
-        password: !password ? "Password is required" : "",
-      });
-      return;
-    }
-
-    if (!/^\d{6}$/.test(otp)) {
+  const handleVerifyOtp = async () => {
+    if (!otp || !/^\d{6}$/.test(otp)) {
       setErrors({ otp: "OTP must be 6 digits" });
       return;
     }
 
-    if (password.length < 8) {
+    setIsLoading(true);
+    setGeneralError(null);
+
+    try {
+      await authService.verifyOtpCode(email, otp);
+      setIsOtpVerified(true);
+      setShowOtpModal(false);
+    } catch (error: any) {
+      setGeneralError(error.response?.data?.message || "Invalid OTP");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+
+    if (!isOtpVerified) return;
+
+    if (!password || password.length < 8) {
       setErrors({ password: "Password must be at least 8 characters" });
       return;
     }
 
+    if (password !== confirmPassword) {
+      setErrors({ confirmPassword: "Passwords do not match" });
+      return;
+    }
+
     setIsLoading(true);
+    setGeneralError(null);
+
     try {
       const res = await authService.verifyOtp({
         email,
@@ -686,165 +708,235 @@ function RegisterFormEmbedded({
       else if (role === "INTERN") router.push("/intern/dashboard");
       else router.push("/student/dashboard");
     } catch (error: any) {
-      setGeneralError(error.response?.data?.message || "Verification failed");
+      setGeneralError(error.response?.data?.message || "Failed to create account");
       setIsLoading(false);
     }
   };
 
   return (
-    <form
-      onSubmit={step === 1 ? handleStep1 : handleStep2}
-      className="space-y-5"
-    >
+    <>
+      <form onSubmit={handleCreateAccount} className="space-y-4 relative z-10">
 
-      {generalError && (
-        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-center gap-2">
-          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {generalError}
+        {generalError && !showOtpModal && (
+          <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs flex items-center gap-2">
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {generalError}
+          </div>
+        )}
+
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
+            First Name
+          </label>
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder="First name"
+            disabled={isOtpVerified || isLoading}
+            className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.firstName ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"} text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.firstName ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all disabled:opacity-50`}
+          />
+          {errors.firstName && <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.firstName}</p>}
         </div>
-      )}
 
-      {step === 1 ? (
-        <div className="space-y-4">
-          <div>
-            <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
-              First Name
-            </label>
-            <input
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="First name"
-              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.firstName ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-                } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.firstName ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
-            />
-            {errors.firstName && (
-              <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.firstName}</p>
-            )}
-          </div>
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
+            Last Name
+          </label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Last name (Optional)"
+            disabled={isOtpVerified || isLoading}
+            className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-red-500/50 focus:ring-1 focus:ring-red-500/20 transition-all disabled:opacity-50"
+          />
+        </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
-              Last Name
-            </label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Last name (Optional)"
-              className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-red-500/50 focus:ring-1 focus:ring-red-500/20 transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
-              Email Address
-            </label>
+        <div>
+          <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
+            Email Address
+          </label>
+          <div className="flex gap-2">
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setIsOtpVerified(false);
+              }}
               placeholder="Email address"
-              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-                } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+              disabled={isOtpVerified || isLoading}
+              className={`flex-1 min-w-0 px-4 py-3 rounded-xl bg-black/40 border ${errors.email ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"} text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.email ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all disabled:opacity-50`}
             />
-            {errors.email && (
-              <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 mt-6 bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(220,38,38,0.25)] hover:shadow-[0_6px_20px_rgba(220,38,38,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
-          >
-            {isLoading ? "Sending OTP..." : "Continue"}
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div>
-            <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider text-center">
-              Enter 6-Digit OTP
-            </label>
-            <input
-              type="text"
-              value={otp}
-              onChange={(e) =>
-                setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
-              }
-              placeholder="6-digit code"
-              maxLength={6}
-              className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.otp ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-                } text-white text-center text-3xl tracking-[0.2em] placeholder-zinc-700 font-mono focus:outline-none focus:ring-1 ${errors.otp ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
-            />
-            {errors.otp && (
-              <p className="text-red-400 text-xs mt-1.5 text-center">{errors.otp}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider mt-4">
-              Create Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"
-                  } text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
-              />
+            
+            {isOtpVerified ? (
+              <div className="flex items-center justify-center px-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            ) : (
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-zinc-500 hover:text-red-400 text-xs font-medium transition-colors p-1"
+                onClick={handleSendOtp}
+                disabled={isLoading || !email}
+                className="whitespace-nowrap px-4 py-3 bg-white/10 hover:bg-white/20 text-white text-[11px] font-semibold uppercase tracking-wider rounded-xl transition-all border border-white/10 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
               >
-                {showPassword ? "Hide" : "Show"}
+                {isLoading && !showOtpModal ? "Sending..." : "Send OTP"}
               </button>
-            </div>
-            {errors.password && (
-              <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.password}</p>
             )}
-            <p className="text-[10px] text-zinc-500 mt-1.5 ml-1">Must be at least 8 characters long</p>
           </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 mt-6 bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(220,38,38,0.25)] hover:shadow-[0_6px_20px_rgba(220,38,38,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
-          >
-            {isLoading ? "Verifying..." : "Verify & Create Account"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className="w-full text-zinc-400 hover:text-white text-xs font-medium transition-colors mt-2"
-          >
-            Back to previous step
-          </button>
+          {errors.email && <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.email}</p>}
         </div>
-      )}
 
-      {step === 1 && (
-        <div className="pt-4 text-center border-t border-white/5 mt-4">
-          <p className="text-zinc-400 text-xs">
-            Already have an account?{" "}
+        {/* Password Fields appear after OTP */}
+        {isOtpVerified && (
+          <div className="space-y-4 pt-4 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div>
+              <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
+                Create Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.password ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"} text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.password ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-zinc-500 hover:text-red-400 text-xs font-medium transition-colors p-1"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+              {errors.password && <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.password}</p>}
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm password"
+                  className={`w-full px-4 py-3 rounded-xl bg-black/40 border ${errors.confirmPassword ? "border-red-500/50 focus:border-red-500/50" : "border-white/10 focus:border-red-500/50"} text-white placeholder-zinc-600 focus:outline-none focus:ring-1 ${errors.confirmPassword ? "focus:ring-red-500/20" : "focus:ring-red-500/20"} transition-all`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-3 text-zinc-500 hover:text-red-400 text-xs font-medium transition-colors p-1"
+                >
+                  {showConfirmPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+              {errors.confirmPassword && <p className="text-red-400 text-xs mt-1.5 ml-1">{errors.confirmPassword}</p>}
+            </div>
+
             <button
-              type="button"
-              onClick={onSwitchToLogin}
-              className="text-red-500 hover:text-red-400 font-medium transition-colors"
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 mt-6 bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 text-white font-semibold rounded-xl shadow-[0_4px_14px_rgba(220,38,38,0.25)] hover:shadow-[0_6px_20px_rgba(220,38,38,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
             >
-              Sign In
+              {isLoading ? "Creating Account..." : "Create Account"}
             </button>
-          </p>
+          </div>
+        )}
+
+        {!isOtpVerified && (
+          <div className="pt-4 text-center border-t border-white/5 mt-4">
+            <p className="text-zinc-400 text-xs">
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={onSwitchToLogin}
+                className="text-red-500 hover:text-red-400 font-medium transition-colors"
+              >
+                Sign In
+              </button>
+            </p>
+          </div>
+        )}
+      </form>
+
+      {/* OTP Verification Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-zinc-950 border border-white/10 rounded-3xl p-8 w-full max-w-sm shadow-[0_0_50px_rgba(220,38,38,0.1)] relative animate-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setShowOtpModal(false)}
+              className="absolute top-4 right-4 text-zinc-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">Verify Email</h2>
+              <p className="text-xs text-zinc-400">
+                We've sent a 6-digit code to <br/>
+                <span className="font-medium text-white">{maskedEmail}</span>
+              </p>
+            </div>
+
+            {generalError && showOtpModal && (
+              <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs flex items-center gap-2">
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {generalError}
+              </div>
+            )}
+
+            <div className="space-y-6">
+              <div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                  placeholder="••••••"
+                  className="w-full px-4 py-4 text-center text-4xl tracking-[0.3em] font-mono border-2 rounded-2xl bg-black/40 border-white/10 text-white placeholder-zinc-800 focus:outline-none focus:border-red-500/50 focus:shadow-[0_0_20px_rgba(220,38,38,0.2)] transition-all"
+                  autoFocus
+                />
+                {errors.otp && <p className="text-red-400 text-xs mt-2 text-center">{errors.otp}</p>}
+              </div>
+
+              <button
+                onClick={handleVerifyOtp}
+                disabled={isLoading || otp.length !== 6}
+                className="w-full py-3.5 bg-white hover:bg-zinc-200 text-black font-bold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform hover:-translate-y-0.5 active:translate-y-0"
+              >
+                {isLoading ? "Verifying..." : "Verify Code"}
+              </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOtpModal(false);
+                    handleSendOtp();
+                  }}
+                  className="text-[11px] text-zinc-500 hover:text-white transition-colors"
+                >
+                  Didn't receive the code? <span className="text-red-400 underline">Resend</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
-    </form>
+    </>
   );
 }
 
