@@ -21,7 +21,7 @@ export class PaymentService {
   async createOrder(userId: string) {
     const cart = await this.prisma.cart.findUnique({
       where: { user_id: userId },
-      include: { items: { include: { course: true } } },
+      include: { items: { include: { course: true, test_series: true } } },
     });
 
     if (!cart || cart.items.length === 0) {
@@ -30,13 +30,29 @@ export class PaymentService {
 
     let totalAmount = 0;
     cart.items.forEach((item) => {
-      const price = item.course.discount_price ?? item.course.price ?? 0;
+      let price = 0;
+      if (item.course) {
+        price = item.course.discount_price ?? item.course.price ?? 0;
+      } else if (item.test_series) {
+        price = item.test_series.discount_price ?? item.test_series.price ?? 0;
+      }
       totalAmount += price;
     });
 
     if (totalAmount === 0) {
       for (const item of cart.items) {
-        await this.hierarchyService.enrollCourse(item.course_id, userId);
+        if (item.course_id) {
+          await this.hierarchyService.enrollCourse(item.course_id, userId);
+        } else if (item.test_series_id) {
+          const existing = await this.prisma.testSeriesEnrollment.findUnique({
+            where: { user_id_test_series_id: { user_id: userId, test_series_id: item.test_series_id } }
+          });
+          if (!existing) {
+            await this.prisma.testSeriesEnrollment.create({
+              data: { user_id: userId, test_series_id: item.test_series_id }
+            });
+          }
+        }
       }
       await this.prisma.cart.delete({ where: { user_id: userId } });
       return { free: true, orderId: null, amount: 0 };
@@ -56,10 +72,17 @@ export class PaymentService {
           razorpay_order_id: razorpayOrder.id,
           status: "PENDING",
           items: {
-            create: cart.items.map((i) => ({
-              course_id: i.course_id,
-              price_paid: i.course.discount_price ?? i.course.price ?? 0,
-            })),
+            create: cart.items.map((i) => {
+              let price_paid = 0;
+              if (i.course) price_paid = i.course.discount_price ?? i.course.price ?? 0;
+              else if (i.test_series) price_paid = i.test_series.discount_price ?? i.test_series.price ?? 0;
+              
+              return {
+                course_id: i.course_id,
+                test_series_id: i.test_series_id,
+                price_paid,
+              };
+            }),
           },
         },
       });
@@ -101,7 +124,18 @@ export class PaymentService {
     });
 
     for (const item of order.items) {
-      await this.hierarchyService.enrollCourse(item.course_id, userId);
+      if (item.course_id) {
+        await this.hierarchyService.enrollCourse(item.course_id, userId);
+      } else if (item.test_series_id) {
+        const existing = await this.prisma.testSeriesEnrollment.findUnique({
+          where: { user_id_test_series_id: { user_id: userId, test_series_id: item.test_series_id } }
+        });
+        if (!existing) {
+          await this.prisma.testSeriesEnrollment.create({
+            data: { user_id: userId, test_series_id: item.test_series_id }
+          });
+        }
+      }
     }
 
     await this.prisma.cart.delete({ where: { user_id: userId } });
