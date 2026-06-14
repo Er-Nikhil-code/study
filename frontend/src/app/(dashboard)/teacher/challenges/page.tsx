@@ -17,11 +17,8 @@ export default function TeacherChallengesPage() {
   const [resolutionNote, setResolutionNote] = useState("");
   
   // Escalation specific state
-  const [escalationTargets, setEscalationTargets] = useState<{ pawns: any[], kings: any[] }>({ pawns: [], kings: [] });
+  const [escalationTargets, setEscalationTargets] = useState<{ pawns: any[]; kings: any[] }>({ pawns: [], kings: [] });
   const [selectedTargetId, setSelectedTargetId] = useState("");
-
-  // Revise Content specific state
-  const [revisedContent, setRevisedContent] = useState<any>(null);
 
   const fetchChallenges = async () => {
     try {
@@ -103,14 +100,6 @@ export default function TeacherChallengesPage() {
     setNoteModal({ id, action, question });
     setResolutionNote("");
     setSelectedTargetId("");
-    if (action === "REVISE_CONTENT" && question) {
-      const contentStr = Array.isArray(question.content_json) && question.content_json[0]?.content 
-        ? question.content_json[0].content 
-        : "";
-      setRevisedContent(contentStr);
-    } else {
-      setRevisedContent(null);
-    }
   };
 
   return (
@@ -206,13 +195,12 @@ export default function TeacherChallengesPage() {
                     {processingId === challenge.id ? "..." : "Accept (No Edits)"}
                   </button>
                   {challenge.question && (
-                    <button
-                      onClick={() => openModal(challenge.id, "REVISE_CONTENT", challenge.question)}
-                      disabled={processingId === challenge.id}
-                      className="rounded-full flex items-center gap-2 border border-purple-500/20 bg-purple-500/10 px-4 py-2 text-sm font-medium text-purple-200 transition hover:bg-purple-500/15 disabled:opacity-50"
+                    <Link
+                      href={`/teacher/questions/${challenge.question.id}/edit?challengeId=${challenge.id}`}
+                      className="rounded-full flex items-center gap-2 border border-purple-500/20 bg-purple-500/10 px-4 py-2 text-sm font-medium text-purple-200 transition hover:bg-purple-500/15"
                     >
-                      <Edit2 size={14} /> Accept & Edit Question
-                    </button>
+                      <Edit2 size={14} /> Edit Question
+                    </Link>
                   )}
                   <button
                     onClick={() => openModal(challenge.id, "REJECT")}
@@ -239,18 +227,15 @@ export default function TeacherChallengesPage() {
       {noteModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setNoteModal(null)}>
           <div
-            className={`w-full ${noteModal.action === "REVISE_CONTENT" ? "max-w-4xl" : "max-w-md"} rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl my-8`}
+            className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl my-8"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-semibold text-white mb-1">
-              {noteModal.action === "REJECT" ? "Reject Review" : 
-               noteModal.action === "ESCALATE" ? "Escalate Review" : 
-               "Accept & Edit Question"}
+              {noteModal.action === "REJECT" ? "Reject Review" : "Escalate Review"}
             </h3>
             <p className="text-sm text-zinc-500 mb-4">
               {noteModal.action === "REJECT" ? "Explain why you're rejecting this review. The student will be notified." :
-               noteModal.action === "ESCALATE" ? "Select an Admin or your assigned Pawn to forward this to." :
-               "Edit the question content directly to fix the issue identified in the review."}
+               "Select an Admin or your assigned Pawn to forward this to."}
             </p>
 
             {noteModal.action === "ESCALATE" && (
@@ -277,17 +262,6 @@ export default function TeacherChallengesPage() {
                     </optgroup>
                   )}
                 </select>
-              </div>
-            )}
-
-            {noteModal.action === "REVISE_CONTENT" && (
-              <div className="mb-6 rounded-xl border border-white/10 overflow-hidden bg-white/[0.02]">
-                <textarea
-                  value={revisedContent}
-                  onChange={(e) => setRevisedContent(e.target.value)}
-                  placeholder="Edit the question content here..."
-                  className="w-full min-h-[300px] p-4 bg-transparent text-white outline-none font-mono text-sm resize-y"
-                />
               </div>
             )}
 

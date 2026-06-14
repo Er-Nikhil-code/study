@@ -5,6 +5,14 @@ export const NotesService = {
     return api.post("/notes", data).then(res => res.data);
   },
 
+  getById(id: string) {
+    return api.get(`/notes/${id}`).then(res => res.data);
+  },
+
+  getMyNotes() {
+    return api.get("/notes").then(res => res.data);
+  },
+
   getPendingNotes() {
     return api.get("/notes/pending").then(res => res.data);
   },
@@ -13,7 +21,7 @@ export const NotesService = {
     return api.patch(`/notes/${id}/review`, data).then(res => res.data);
   },
 
-  updateNote(id: string, data: { title?: string; content_html?: string }) {
+  updateNote(id: string, data: { title?: string; content_html?: string; topic_id?: string }) {
     return api.patch(`/notes/${id}`, data).then(res => res.data);
   },
 

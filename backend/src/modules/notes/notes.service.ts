@@ -41,7 +41,7 @@ export class NotesService {
     });
   }
 
-  async updateNote(noteId: string, data: { title?: string; content_html?: string }, userId: string, role: string) {
+  async updateNote(noteId: string, data: { title?: string; content_html?: string; topic_id?: string }, userId: string, role: string) {
     const note = await this.prisma.note.findUnique({ where: { id: noteId } });
     if (!note) throw new NotFoundException("Note not found");
 
@@ -54,9 +54,30 @@ export class NotesService {
       data: {
         ...(data.title && { title: data.title }),
         ...(data.content_html && { content_html: data.content_html }),
+        ...(data.topic_id && { topic_id: data.topic_id }),
         ...(role === "INTERN" && { approval_status: "PENDING_REVIEW" }), // Auto-reset status for interns
+      },
+      include: {
+        topic: { include: { chapter: { include: { section: { include: { course: true } } } } } }
       }
     });
+  }
+
+  async getNoteById(noteId: string, userId: string, role: string) {
+    const note = await this.prisma.note.findUnique({
+      where: { id: noteId },
+      include: {
+        topic: { include: { chapter: { include: { section: { include: { course: true } } } } } }
+      }
+    });
+    if (!note) throw new NotFoundException("Note not found");
+
+    // Interns can only see their own notes; teachers/admins can see all
+    if (role === "INTERN" && note.created_by !== userId) {
+      throw new BadRequestException("You can only view notes that you created");
+    }
+
+    return note;
   }
 
   async getPendingNotes(userId: string, role: string) {

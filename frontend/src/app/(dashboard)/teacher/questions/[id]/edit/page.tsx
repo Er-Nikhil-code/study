@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { QuestionsService } from "@/services/questions.service";
 import { HierarchyService } from "@/services/hierarchy.service";
+import { ChallengesService } from "@/services/challenges.service";
 import authService from "@/services/auth.service";
+import { MessageSquareWarning } from "lucide-react";
 
 // Sub-components
 import McqForm from "../../create/forms/McqForm";
@@ -35,6 +37,8 @@ const getNavItems = (role: string) => {
 export default function EditQuestionPage() {
   const unwrappedParams = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const challengeId = searchParams.get("challengeId"); // Set when coming from challenges page
   const queryClient = useQueryClient();
   const [role, setRole] = useState("");
   const [topics, setTopics] = useState<any[]>([]);
@@ -193,14 +197,29 @@ export default function EditQuestionPage() {
   }, [unwrappedParams.id]);
   const createMutation = useMutation({
     mutationFn: (payload: any) => QuestionsService.update(unwrappedParams.id as string, payload),
-    onSuccess: () => {
+    onSuccess: async () => {
       // Invalidate the questions cache to fetch the new question instantly
       queryClient.invalidateQueries({ queryKey: ["questions", "list"] });
+
+      // If editing from a challenge review, auto-resolve it as ACCEPTED
+      if (challengeId) {
+        try {
+          await ChallengesService.resolveChallenge(challengeId, {
+            action: "ACCEPT",
+            resolution_note: "Question updated by creator based on review feedback.",
+          });
+        } catch {
+          // Non-fatal — question was saved, challenge resolve is best-effort
+        }
+        router.push("/teacher/challenges");
+        return;
+      }
+
       // Instantly route to the questions bank 
       router.push(role === "INTERN" ? "/intern/questions" : role === "ADMIN" ? "/admin/questions" : "/teacher/questions");
     },
     onError: (err: any) => {
-      setError(err?.response?.data?.message || err.message || "Failed to create question");
+      setError(err?.response?.data?.message || err.message || "Failed to update question");
     }
   });
 
@@ -268,8 +287,22 @@ export default function EditQuestionPage() {
   return (
     <>
       <div className="flex items-center justify-between">
-        <SectionTitle title="Edit Question" subtitle={`Update question ${unwrappedParams.id}`} />
+        <SectionTitle
+          title="Edit Question"
+          subtitle={challengeId ? "Editing from a challenge review — save to resolve it automatically" : `Update question ${unwrappedParams.id}`}
+        />
       </div>
+
+      {/* Challenge context banner */}
+      {challengeId && (
+        <div className="mt-4 flex items-start gap-3 rounded-2xl border border-orange-500/20 bg-orange-500/5 px-4 py-3">
+          <MessageSquareWarning className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" />
+          <div className="text-sm">
+            <span className="font-medium text-orange-300">Editing from a challenge review.</span>
+            <span className="ml-1 text-zinc-400">Fix the issue and click Save — the review will be auto-resolved and you'll be taken back to the challenges page.</span>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-6 max-w-4xl pb-16">
         {error && (
