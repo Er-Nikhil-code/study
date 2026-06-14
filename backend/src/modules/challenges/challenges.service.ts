@@ -41,7 +41,7 @@ export class ChallengesService {
         select: { id: true, created_by: true, approved_by: true, content_json: true },
       });
       if (!question) throw new NotFoundException("Question not found");
-      creatorId = question.approved_by || question.created_by;
+      creatorId = question.approved_by || question.created_by || "";
       itemTitle = Array.isArray(question.content_json) && (question.content_json as any)[0]?.content ? (question.content_json as any)[0].content.substring(0, 50) : "Question Content";
     } else if (data.note_id) {
       const note = await this.prisma.note.findUnique({

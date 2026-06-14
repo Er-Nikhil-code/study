@@ -220,15 +220,17 @@ export class QuestionsService {
     }
 
     // Notify the intern
-    await this.prisma.notificationEvent.create({
-      data: {
-        user_id: question.created_by,
-        type: "CUSTOM",
-        title: "Question Approved ✅",
-        message: `Your question (ID: ${question.id}) has been approved.`,
-        data_json: { question_id: questionId, question_content: question.content_json },
-      },
-    });
+    if (question.created_by) {
+      await this.prisma.notificationEvent.create({
+        data: {
+          user_id: question.created_by,
+          type: "CUSTOM",
+          title: "Question Approved ✅",
+          message: `Your question (ID: ${question.id}) has been approved.`,
+          data_json: { question_id: questionId, question_content: question.content_json },
+        },
+      });
+    }
 
     const updated = await this.prisma.question.update({
       where: { id: questionId },
@@ -260,15 +262,17 @@ export class QuestionsService {
     }
 
     // Notify the intern
-    await this.prisma.notificationEvent.create({
-      data: {
-        user_id: question.created_by,
-        type: "CUSTOM",
-        title: "Question Needs Revision",
-        message: `Your question (ID: ${question.id}) needs changes: ${note}`,
-        data_json: { question_id: questionId, note, question_content: question.content_json },
-      },
-    });
+    if (question.created_by) {
+      await this.prisma.notificationEvent.create({
+        data: {
+          user_id: question.created_by,
+          type: "CUSTOM",
+          title: "Question Needs Revision",
+          message: `Your question (ID: ${question.id}) needs changes: ${note}`,
+          data_json: { question_id: questionId, note, question_content: question.content_json },
+        },
+      });
+    }
 
     return this.prisma.question.update({
       where: { id: questionId },
