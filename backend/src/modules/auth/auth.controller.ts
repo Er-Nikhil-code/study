@@ -143,6 +143,29 @@ export class AuthController {
   }
 
   /**
+   * POST /auth/register/verify-otp-code
+   * Verify OTP before allowing password creation
+   */
+  @Throttle({ default: { limit: 10, ttl: 900 } })
+  @Post("register/verify-otp-code")
+  @HttpCode(HttpStatus.OK)
+  async verifyOtpCode(@Body() body: { email: string; otp: string }) {
+    try {
+      this.logger.debug(`🔐 [VERIFY-OTP-CODE] Checking OTP for ${body.email}`);
+      const result = await this.authService['otpService'].verifyOtp(body.email.toLowerCase(), body.otp);
+      
+      if (result.result !== 'SUCCESS') {
+        throw new BadRequestException(result.error || "Invalid OTP");
+      }
+      
+      return { success: true, message: "OTP verified successfully" };
+    } catch (error: any) {
+      this.logger.error(`❌ [VERIFY-OTP-CODE] Error: ${error?.message || "Unknown error"}`);
+      throw error;
+    }
+  }
+
+  /**
    * POST /auth/register/verify-otp
    * Step 2: Verify OTP and create user account
    * Rate limited: 10 requests per 15 minutes

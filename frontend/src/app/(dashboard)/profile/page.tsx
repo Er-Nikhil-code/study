@@ -351,6 +351,10 @@ export default function ProfilePage() {
                 <p className="text-sm text-white mt-1 break-all">{user.email}</p>
               </div>
               <div>
+                <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">User ID</p>
+                <p className="text-sm text-white mt-1 font-mono">{user.id}</p>
+              </div>
+              <div>
                 <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Last Login</p>
                 <p className="text-sm text-white mt-1">
                   {profileData.last_login_at 

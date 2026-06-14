@@ -69,6 +69,14 @@ class AuthService {
     return response.data;
   }
 
+  async verifyOtpCode(email: string, otp: string): Promise<{ success: boolean; message: string }> {
+    const response = await this.api.post<{ success: boolean; message: string }>(
+      "/auth/register/verify-otp-code",
+      { email, otp },
+    );
+    return response.data;
+  }
+
   async verifyOtp(data: VerifyOtpRequest): Promise<VerifyOtpResponse> {
     const response = await this.api.post<VerifyOtpResponse>(
       "/auth/register/verify-otp",
