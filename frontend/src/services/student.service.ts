@@ -62,7 +62,6 @@ export interface TestListItem {
   start_time: string | null;
   end_time: string | null;
   created_at: string;
-  created_at: string;
   _count: { test_questions: number; attempts: number };
 }
 
