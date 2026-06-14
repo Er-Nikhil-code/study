@@ -456,6 +456,29 @@ export class AdminService {
         }
       }
 
+      // Fallback: Manually cleanup related entities to avoid Prisma foreign key errors
+      // in case the live database hasn't been synced with ON DELETE CASCADE yet.
+      
+      const orders = await this.prisma.order.findMany({ where: { user_id: id }, select: { id: true } });
+      const orderIds = orders.map(o => o.id);
+      if (orderIds.length > 0) {
+        await this.prisma.invoice.deleteMany({ where: { order_id: { in: orderIds } } });
+        await this.prisma.orderItem.deleteMany({ where: { order_id: { in: orderIds } } });
+        await this.prisma.order.deleteMany({ where: { user_id: id } });
+      }
+
+      await this.prisma.section.updateMany({
+        where: { managed_by: id },
+        data: { managed_by: null }
+      });
+
+      if (user.role !== "STUDENT") {
+        await this.prisma.question.updateMany({
+          where: { created_by: id },
+          data: { created_by: null }
+        });
+      }
+
       await this.prisma.user.delete({ where: { id } });
       this.logger.log(`✅ [ADMIN] User deleted: ${id}`);
       return { message: "User deleted successfully" };
