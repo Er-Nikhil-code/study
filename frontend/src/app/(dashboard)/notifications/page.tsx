@@ -231,48 +231,56 @@ export default function NotificationsPage() {
               </p>
             </Panel>
           ) : (
-            challenges.map((c) => (
-              <div key={c.id} className="cursor-pointer group relative" onClick={() => setViewChallenge(c)}>
-                <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/0 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
-                <Panel className="p-5 transition-all duration-300 ease-out border border-white/5 bg-zinc-950/50 hover:bg-zinc-900/80 hover:border-white/10 hover:-translate-y-0.5">
-                  <div className="flex items-start gap-4">
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-inner transition-transform group-hover:scale-110 ${c.note ? 'text-blue-400 bg-blue-400/10' : 'text-orange-400 bg-orange-400/10'}`}>
-                      {c.note ? <BookOpen size={16} /> : <ShieldCheck size={16} />}
-                    </div>
-                    <div className="flex-1 min-w-0 pt-0.5">
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <div className="flex items-center gap-2">
-                          <p className="text-[15px] font-semibold tracking-tight text-zinc-200 group-hover:text-white">
-                            {c.question?.topic?.name || c.note?.topic?.name || "Unknown Topic"}
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h3 className="text-xs uppercase tracking-[0.25em] font-bold text-zinc-600 mb-4 ml-1 flex items-center gap-3">
+                RECENT
+                <div className="h-px flex-1 bg-gradient-to-r from-white/5 to-transparent"></div>
+              </h3>
+              <div className="space-y-3">
+                {challenges.map((c) => (
+                  <div key={c.id} className="cursor-pointer group relative" onClick={() => setViewChallenge(c)}>
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/0 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+                    <Panel className="p-5 transition-all duration-300 ease-out border border-white/5 bg-zinc-950/50 hover:bg-zinc-900/80 hover:border-white/10 hover:-translate-y-0.5">
+                      <div className="flex items-start gap-4">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-inner transition-transform group-hover:scale-110 ${c.note ? 'text-blue-400 bg-blue-400/10' : 'text-orange-400 bg-orange-400/10'}`}>
+                          {c.note ? <BookOpen size={16} /> : <ShieldCheck size={16} />}
+                        </div>
+                        <div className="flex-1 min-w-0 pt-0.5">
+                          <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <div className="flex items-center gap-2">
+                              <p className="text-[15px] font-semibold tracking-tight text-zinc-200 group-hover:text-white">
+                                {c.question?.topic?.name || c.note?.topic?.name || "Unknown Topic"}
+                              </p>
+                              {c.status === "PENDING" && <span className="rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2 py-0.5 text-yellow-300 text-[10px]">Pending</span>}
+                              {c.status === "RESOLVED" && <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-emerald-300 text-[10px]">Resolved</span>}
+                              {c.status === "REJECTED" && <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-red-300 text-[10px]">Rejected</span>}
+                              {c.status === "ESCALATED" && <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-purple-300 text-[10px]">Escalated</span>}
+                            </div>
+                            <span className="text-[11px] font-medium text-zinc-500 bg-white/5 px-2 py-0.5 rounded-full shrink-0">
+                              {timeAgo(c.created_at)}
+                            </span>
+                          </div>
+                          <p className="text-sm leading-relaxed text-zinc-400 truncate" title={c.reason || "Review Request"}>
+                            {c.question?.content_json?.[0]?.data?.text || c.note?.title || c.reason || "Review Request"}
                           </p>
-                          {c.status === "PENDING" && <span className="rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2 py-0.5 text-yellow-300 text-[10px]">Pending</span>}
-                          {c.status === "RESOLVED" && <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-emerald-300 text-[10px]">Resolved</span>}
-                          {c.status === "REJECTED" && <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-red-300 text-[10px]">Rejected</span>}
-                          {c.status === "ESCALATED" && <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-purple-300 text-[10px]">Escalated</span>}
+                          {c.status === "PENDING" && (
+                            <div className="mt-3 flex gap-3">
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleWithdraw(c.id); }} 
+                                disabled={withdrawingId === c.id}
+                                className="text-[10px] uppercase tracking-wider text-red-400 hover:text-red-300 font-medium disabled:opacity-50"
+                              >
+                                {withdrawingId === c.id ? "Withdrawing..." : "Withdraw"}
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <span className="text-[11px] font-medium text-zinc-500 bg-white/5 px-2 py-0.5 rounded-full shrink-0">
-                          {timeAgo(c.created_at)}
-                        </span>
                       </div>
-                      <p className="text-sm leading-relaxed text-zinc-400 truncate" title={c.reason || "Review Request"}>
-                        {c.question?.content_json?.[0]?.data?.text || c.note?.title || c.reason || "Review Request"}
-                      </p>
-                      {c.status === "PENDING" && (
-                        <div className="mt-3 flex gap-3">
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); handleWithdraw(c.id); }} 
-                            disabled={withdrawingId === c.id}
-                            className="text-[10px] uppercase tracking-wider text-red-400 hover:text-red-300 font-medium disabled:opacity-50"
-                          >
-                            {withdrawingId === c.id ? "Withdrawing..." : "Withdraw"}
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    </Panel>
                   </div>
-                </Panel>
+                ))}
               </div>
-            ))
+            </div>
           )}
         </div>
       </div>
