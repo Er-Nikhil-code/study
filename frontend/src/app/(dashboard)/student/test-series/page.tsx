@@ -6,10 +6,11 @@ import { studentService } from "@/services/student.service";
 import { FileText, ArrowRight, Lock, Clock } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { useToast } from "@/hooks/useToast";
 
 export default function TestSeriesPage() {
   const router = useRouter();
+  const toast = useToast();
   
   const { data: testSeriesData, isLoading, error, refetch } = useQuery({
     queryKey: ["testSeries"],
