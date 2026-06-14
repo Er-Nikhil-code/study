@@ -8,12 +8,6 @@ import { useAuthStore, AuthUser } from "@/store/auth.store";
 import Logo from "@/components/ui/Logo";
 
 const QUOTES = [
-  { greeting: "“The supreme art of war is to subdue the enemy without fighting.”", body: "— Sun Tzu" },
-  { greeting: "“It is much safer to be feared than loved.”", body: "— Machiavelli" },
-  { greeting: "“For laws are silent among arms.”", body: "— Cicero" },
-  { greeting: "“We make war that we may live in peace.”", body: "— Aristotle" },
-  { greeting: "“The people must fight for its law as for its walls.”", body: "— Heraclitus" },
-  { greeting: "“In war, leave always some room to fortune.”", body: "— Polybius" },
   { greeting: "“Learning without thought is labor lost; thought without learning is perilous.”", body: "— Confucius" },
   { greeting: "“Anyone who holds a true opinion without understanding is like a blind man on the right road.”", body: "— Plato" },
   { greeting: "“The beginning is the most important part of any work.”", body: "— Plato" },
