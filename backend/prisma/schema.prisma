@@ -218,8 +218,8 @@ model Question {
   id              String                      @id @default(cuid())
   topic_id        String
   topic           Topic                       @relation(fields: [topic_id], references: [id], onDelete: Cascade)
-  created_by      String // User ID of creator
-  creator         User                        @relation(fields: [created_by], references: [id])
+  created_by      String? // User ID of creator
+  creator         User?                       @relation(fields: [created_by], references: [id], onDelete: SetNull)
   question_type   QuestionType
   content_json    Json // Block model: [{type:'TEXT'|'LATEX'|'IMAGE', content/asset_id}]
   options_json    Json? // For MCQ, multiple correct, etc.
@@ -666,7 +666,7 @@ model CartItem {
 model Order {
   id                  String      @id @default(cuid())
   user_id             String
-  user                User        @relation(fields: [user_id], references: [id])
+  user                User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
   total_amount        Float
   status              OrderStatus @default(PENDING)
   razorpay_order_id   String?     @unique
@@ -699,7 +699,7 @@ model OrderItem {
 model Invoice {
   id             String   @id @default(cuid())
   order_id       String   @unique
-  order          Order    @relation(fields: [order_id], references: [id])
+  order          Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
   invoice_number String   @unique
   file_url       String?
   issued_at      DateTime @default(now())
