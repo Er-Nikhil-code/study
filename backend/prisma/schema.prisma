@@ -43,8 +43,9 @@ model User {
   password_reset_tokens PasswordResetToken[] @relation("password_reset_tokens")
   audit_logs            AuditLog[]           @relation("actor")
   notification_events   NotificationEvent[]
-  course_enrollments    CourseEnrollment[]
-  course_staff          CourseStaff[]
+  course_enrollments      CourseEnrollment[]
+  test_series_enrollments TestSeriesEnrollment[]
+  course_staff            CourseStaff[]
   managed_sections      Section[]            @relation("section_manager")
   topic_progress        TopicProgress[]
   questions             Question[]
@@ -317,10 +318,33 @@ model TestSeries {
   name        String
   description String?
   created_by  String // User ID
+  
+  status         CourseStatus @default(DRAFT)
+  launch_date    DateTime?
+  price          Float?
+  discount_price Float?
+  
   tests       Test[]
+  enrollments TestSeriesEnrollment[]
+  cart_items  CartItem[]
+  order_items OrderItem[]
+  
   created_at  DateTime @default(now())
 
   @@index([created_by])
+}
+
+model TestSeriesEnrollment {
+  id             String     @id @default(cuid())
+  user_id        String
+  user           User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  test_series_id String
+  test_series    TestSeries @relation(fields: [test_series_id], references: [id], onDelete: Cascade)
+  enrolled_at    DateTime   @default(now())
+
+  @@unique([user_id, test_series_id])
+  @@index([user_id])
+  @@index([test_series_id])
 }
 
 model Attempt {
@@ -626,14 +650,17 @@ model Cart {
 }
 
 model CartItem {
-  id        String   @id @default(cuid())
-  cart_id   String
-  cart      Cart     @relation(fields: [cart_id], references: [id], onDelete: Cascade)
-  course_id String
-  course    Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
-  added_at  DateTime @default(now())
+  id             String      @id @default(cuid())
+  cart_id        String
+  cart           Cart        @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  course_id      String?
+  course         Course?     @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  test_series_id String?
+  test_series    TestSeries? @relation(fields: [test_series_id], references: [id], onDelete: Cascade)
+  added_at       DateTime    @default(now())
 
   @@unique([cart_id, course_id])
+  @@unique([cart_id, test_series_id])
 }
 
 model Order {
@@ -659,12 +686,14 @@ enum OrderStatus {
 }
 
 model OrderItem {
-  id         String @id @default(cuid())
-  order_id   String
-  order      Order  @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  course_id  String
-  course     Course @relation(fields: [course_id], references: [id])
-  price_paid Float // Store the price at the time of purchase
+  id             String      @id @default(cuid())
+  order_id       String
+  order          Order       @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  course_id      String?
+  course         Course?     @relation(fields: [course_id], references: [id])
+  test_series_id String?
+  test_series    TestSeries? @relation(fields: [test_series_id], references: [id])
+  price_paid     Float // Store the price at the time of purchase
 }
 
 model Invoice {

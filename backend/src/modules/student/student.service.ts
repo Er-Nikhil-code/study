@@ -606,7 +606,7 @@ export class StudentService {
    *  TEST SERIES ("Courses")
    * ════════════════════════════════════════════ */
 
-  async getTestSeries(params: { skip?: number; take?: number }) {
+  async getTestSeries(userId: string, params: { skip?: number; take?: number }) {
     const { skip = 0, take = 20 } = params;
 
     const [series, total] = await Promise.all([
@@ -626,6 +626,10 @@ export class StudentService {
               _count: { select: { test_questions: true } },
             },
           },
+          enrollments: {
+            where: { user_id: userId },
+            take: 1,
+          },
         },
       }),
       this.prisma.testSeries.count(),
@@ -636,7 +640,11 @@ export class StudentService {
         id: s.id,
         name: s.name,
         description: s.description,
+        status: s.status,
+        price: s.price,
+        discount_price: s.discount_price,
         test_count: s.tests.length,
+        is_enrolled: s.enrollments.length > 0,
         tests: s.tests,
         created_at: s.created_at,
       })),
@@ -646,14 +654,35 @@ export class StudentService {
     };
   }
 
-  async getTestSeriesTests(userId: string, params: { test_type?: any; skip?: number; take?: number }) {
-    const { test_type, skip = 0, take = 20 } = params;
+  async enrollInTestSeries(userId: string, testSeriesId: string) {
+    const testSeries = await this.prisma.testSeries.findUnique({ where: { id: testSeriesId } });
+    if (!testSeries) throw new Error("Test series not found");
+
+    const existing = await this.prisma.testSeriesEnrollment.findUnique({
+      where: { user_id_test_series_id: { user_id: userId, test_series_id: testSeriesId } },
+    });
+
+    if (existing) return existing;
+
+    return this.prisma.testSeriesEnrollment.create({
+      data: {
+        user_id: userId,
+        test_series_id: testSeriesId,
+      },
+    });
+  }
+
+  async getTestSeriesTests(userId: string, params: { test_type?: any; test_series_id?: string; skip?: number; take?: number }) {
+    const { test_type, test_series_id, skip = 0, take = 20 } = params;
 
     const whereClause: any = {
       status: { in: ["PUBLISHED", "ONGOING", "COMPLETED"] },
     };
     if (test_type) {
       whereClause.test_type = test_type;
+    }
+    if (test_series_id) {
+      whereClause.test_series = { some: { id: test_series_id } };
     }
 
     const [tests, total] = await Promise.all([

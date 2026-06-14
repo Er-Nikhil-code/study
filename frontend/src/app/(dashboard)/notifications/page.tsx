@@ -209,78 +209,72 @@ export default function NotificationsPage() {
 
       {/* Right Column: Challenges */}
       <div>
-        <SectionTitle title="Challenges" subtitle="Questions challenged & status" />
+        <div className="flex items-start justify-between gap-4">
+          <SectionTitle title="Challenges" subtitle="Questions challenged & status" />
+        </div>
         
-        <Panel className="mt-6 overflow-hidden p-0">
-          <div className="grid grid-cols-[1fr_80px_100px] gap-3 border-b border-white/10 px-6 py-5 text-[10px] uppercase tracking-[0.2em] text-zinc-500 bg-white/[0.02]">
-            <div className="text-left font-semibold">Review Request</div>
-            <div className="text-center font-semibold">Status</div>
-            <div className="text-right font-semibold">Date</div>
-          </div>
-
+        <div className="mt-8 space-y-3">
           {loadingChallenges ? (
-            <div className="divide-y divide-white/10">
+            <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="grid grid-cols-[1fr_80px_100px] gap-3 px-6 py-5 items-center">
-                  <div className="h-5 w-3/4 rounded-md bg-white/5 animate-pulse" />
-                  <div className="h-5 w-16 rounded-md bg-white/5 animate-pulse mx-auto" />
-                  <div className="h-5 w-16 rounded-md bg-white/5 animate-pulse ml-auto" />
-                </div>
+                <div key={i} className="h-20 rounded-2xl border border-white/5 bg-white/[0.02] animate-pulse" />
               ))}
             </div>
           ) : challenges.length === 0 ? (
-            <div className="px-5 py-16 flex flex-col items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                <span className="text-2xl">⚖️</span>
+            <Panel className="flex flex-col items-center justify-center py-24 text-center border-dashed border-white/10 bg-white/[0.01]">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/[0.02] text-zinc-600 mb-6 shadow-inner">
+                <ShieldCheck size={40} />
               </div>
-              <h3 className="text-white font-medium mb-1">No challenges</h3>
-              <p className="text-sm text-zinc-500 text-center">You haven't challenged any questions yet.</p>
-            </div>
+              <h3 className="text-xl font-semibold text-white mb-3 tracking-tight">No challenges</h3>
+              <p className="text-zinc-500 text-sm max-w-md leading-relaxed">
+                You haven't challenged any questions yet.
+              </p>
+            </Panel>
           ) : (
-            <div className="divide-y divide-white/10 max-h-[600px] overflow-y-auto">
-              {challenges.map((c) => (
-                <div key={c.id} className="flex flex-col gap-2 px-6 py-4 hover:bg-white/[0.02] transition">
-                  <div className="grid grid-cols-[1fr_80px_100px] gap-3 text-xs items-center">
-                    <div className="flex flex-col gap-1 overflow-hidden min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${c.note ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'bg-orange-500/20 text-orange-300 border border-orange-500/30'}`}>
-                          {c.note ? "Note" : "Question"}
-                        </span>
-                        <span className="text-xs text-zinc-400 truncate">
-                          {c.question?.topic?.name || c.note?.topic?.name || "Unknown Topic"}
+            challenges.map((c) => (
+              <div key={c.id} className="cursor-pointer group relative" onClick={() => setViewChallenge(c)}>
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/0 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+                <Panel className="p-5 transition-all duration-300 ease-out border border-white/5 bg-zinc-950/50 hover:bg-zinc-900/80 hover:border-white/10 hover:-translate-y-0.5">
+                  <div className="flex items-start gap-4">
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-inner transition-transform group-hover:scale-110 ${c.note ? 'text-blue-400 bg-blue-400/10' : 'text-orange-400 bg-orange-400/10'}`}>
+                      {c.note ? <BookOpen size={16} /> : <ShieldCheck size={16} />}
+                    </div>
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <p className="text-[15px] font-semibold tracking-tight text-zinc-200 group-hover:text-white">
+                            {c.question?.topic?.name || c.note?.topic?.name || "Unknown Topic"}
+                          </p>
+                          {c.status === "PENDING" && <span className="rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2 py-0.5 text-yellow-300 text-[10px]">Pending</span>}
+                          {c.status === "RESOLVED" && <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-emerald-300 text-[10px]">Resolved</span>}
+                          {c.status === "REJECTED" && <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-red-300 text-[10px]">Rejected</span>}
+                          {c.status === "ESCALATED" && <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-purple-300 text-[10px]">Escalated</span>}
+                        </div>
+                        <span className="text-[11px] font-medium text-zinc-500 bg-white/5 px-2 py-0.5 rounded-full shrink-0">
+                          {timeAgo(c.created_at)}
                         </span>
                       </div>
-                      <div className="text-white font-medium text-sm truncate" title={c.reason || "Review"}>
+                      <p className="text-sm leading-relaxed text-zinc-400 truncate" title={c.reason || "Review Request"}>
                         {c.question?.content_json?.[0]?.data?.text || c.note?.title || c.reason || "Review Request"}
-                      </div>
-                    </div>
-                    <div className="flex justify-center">
-                      {c.status === "PENDING" && <span className="rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2 py-0.5 text-yellow-300 text-[10px]">Pending</span>}
-                      {c.status === "RESOLVED" && <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-emerald-300 text-[10px]">Resolved</span>}
-                      {c.status === "REJECTED" && <span className="rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-red-300 text-[10px]">Rejected</span>}
-                      {c.status === "ESCALATED" && <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-purple-300 text-[10px]">Escalated</span>}
-                    </div>
-                    <div className="text-zinc-400 text-right">
-                      {new Date(c.created_at).toLocaleDateString()}
+                      </p>
+                      {c.status === "PENDING" && (
+                        <div className="mt-3 flex gap-3">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleWithdraw(c.id); }} 
+                            disabled={withdrawingId === c.id}
+                            className="text-[10px] uppercase tracking-wider text-red-400 hover:text-red-300 font-medium disabled:opacity-50"
+                          >
+                            {withdrawingId === c.id ? "Withdrawing..." : "Withdraw"}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="flex gap-3 justify-start mt-1">
-                    <button onClick={() => setViewChallenge(c)} className="text-[10px] uppercase tracking-wider text-blue-400 hover:text-blue-300 font-medium">View Details</button>
-                    {c.status === "PENDING" && (
-                      <button 
-                        onClick={() => handleWithdraw(c.id)} 
-                        disabled={withdrawingId === c.id}
-                        className="text-[10px] uppercase tracking-wider text-red-400 hover:text-red-300 font-medium disabled:opacity-50"
-                      >
-                        {withdrawingId === c.id ? "Withdrawing..." : "Withdraw"}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+                </Panel>
+              </div>
+            ))
           )}
-        </Panel>
+        </div>
       </div>
 
       {/* View Challenge Modal */}

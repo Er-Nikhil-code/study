@@ -167,23 +167,45 @@ export default function StudentDashboardPage() {
                       <div className="px-5 py-8 text-center text-sm text-zinc-500">No data yet for this period.</div>
                     ) : (
                       <div className="divide-y divide-white/10">
-                        {leaderboardRes.data.map((row: any) => (
-                          <div key={row.user_id}
-                            className={`grid grid-cols-6 gap-2 px-4 py-3 text-xs items-center text-center ${
-                              row.rank <= 3 ? "bg-white/[0.02]" : ""
-                            }`}>
-                            <div className={`font-bold ${
-                              row.rank === 1 ? "text-red-300" : row.rank === 2 ? "text-zinc-300" : row.rank === 3 ? "text-red-600" : "text-zinc-500"
-                            }`}>
-                              {row.rank <= 3 ? ["🥇", "🥈", "🥉"][row.rank - 1] : `#${row.rank}`}
-                            </div>
-                            <div className="truncate text-white">{row.name}</div>
-                            <div className="text-white font-medium">{row.total_score}</div>
-                            <div className="text-zinc-400">{row.tests}</div>
-                            <div className="text-zinc-400">{row.accuracy !== undefined && row.accuracy !== null ? `${Math.round(row.accuracy)}%` : "—"}</div>
-                            <div className="text-zinc-400">{row.streak}d</div>
-                          </div>
-                        ))}
+                        {(() => {
+                          const data = leaderboardRes.data;
+                          const userIndex = data.findIndex((r: any) => r.user_id === user.id);
+                          
+                          let displayRows: any[] = [];
+                          if (userIndex === -1 || userIndex < 5) {
+                            displayRows = data.slice(0, 5);
+                          } else {
+                            displayRows = data.slice(0, 3);
+                            displayRows.push(data[userIndex]);
+                            if (userIndex + 1 < data.length) {
+                              displayRows.push(data[userIndex + 1]);
+                            }
+                          }
+
+                          return displayRows.map((row: any, idx: number) => {
+                            if (!row) return null;
+                            const isGap = idx > 0 && row.rank > displayRows[idx-1].rank + 1;
+                            return (
+                              <div key={`wrap-${row.user_id}`}>
+                                {isGap && (
+                                  <div className="py-1 text-center text-zinc-600 text-[10px] tracking-widest border-b border-white/5">
+                                    •••
+                                  </div>
+                                )}
+                                <div className={`grid grid-cols-6 gap-2 px-4 py-3 text-xs items-center text-center ${row.rank <= 3 ? "bg-white/[0.02]" : ""} ${row.user_id === user.id ? "bg-white/5" : ""}`}>
+                                  <div className={`font-bold ${row.rank === 1 ? "text-red-300" : row.rank === 2 ? "text-zinc-300" : row.rank === 3 ? "text-red-600" : "text-zinc-500"}`}>
+                                    {row.rank <= 3 ? ["🥇", "🥈", "🥉"][row.rank - 1] : `#${row.rank}`}
+                                  </div>
+                                  <div className="truncate text-white">{row.name} {row.user_id === user.id ? "(You)" : ""}</div>
+                                  <div className="text-white font-medium">{row.total_score}</div>
+                                  <div className="text-zinc-400">{row.tests}</div>
+                                  <div className="text-zinc-400">{row.accuracy !== undefined && row.accuracy !== null ? `${Math.round(row.accuracy)}%` : "—"}</div>
+                                  <div className="text-zinc-400">{row.streak}d</div>
+                                </div>
+                              </div>
+                            );
+                          });
+                        })()}
                       </div>
                     )}
                   </div>
@@ -197,7 +219,11 @@ export default function StudentDashboardPage() {
                 <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500">Suggested Focus Areas</h3>
               </div>
               
-              {(!studentData.weak_topics || studentData.weak_topics.length === 0) ? (
+              {(!studentData.enrolled_courses || studentData.enrolled_courses.length === 0) ? (
+                <Panel className="flex-1 flex flex-col items-center justify-center min-h-[150px]">
+                  <p className="text-sm text-zinc-500">Enroll in the courses to identify weak areas.</p>
+                </Panel>
+              ) : (!studentData.weak_topics || studentData.weak_topics.length === 0) ? (
                 <Panel className="flex-1 flex flex-col items-center justify-center min-h-[150px]">
                   <p className="text-sm text-zinc-500">No weak areas detected yet.</p>
                 </Panel>

@@ -69,14 +69,22 @@ export default function HomePage() {
 
   // Alien typing state
   const [quoteIndex, setQuoteIndex] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
   const [displayedGreeting, setDisplayedGreeting] = useState("");
   const [displayedBody, setDisplayedBody] = useState("");
   const [phase, setPhase] = useState<"typing-greeting" | "typing-body" | "holding" | "fading">("typing-greeting");
   const [opacity, setOpacity] = useState(1);
   const charIndexRef = useRef(0);
 
+  useEffect(() => {
+    setQuoteIndex(Math.floor(Math.random() * QUOTES.length));
+    setIsMounted(true);
+  }, []);
+
   // Alien typing effect
   useEffect(() => {
+    if (!isMounted) return;
+    
     const quote = QUOTES[quoteIndex];
 
     if (phase === "typing-greeting") {
@@ -122,7 +130,7 @@ export default function HomePage() {
       }, 600);
       return () => clearTimeout(timer);
     }
-  }, [phase, quoteIndex, displayedGreeting, displayedBody]);
+  }, [phase, quoteIndex, displayedGreeting, displayedBody, isMounted]);
 
   // Embers - reduced for perf
   const [embers, setEmbers] = useState<

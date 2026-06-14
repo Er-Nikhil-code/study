@@ -6,6 +6,7 @@ import {
   UseGuards,
   Request,
   Header,
+  Post,
 } from "@nestjs/common";
 import { StudentService } from "./student.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
@@ -50,10 +51,11 @@ export class StudentController {
 
   @Get("test-series")
   async getTestSeries(
+    @Request() req: any,
     @Query("skip") skip?: string,
     @Query("take") take?: string,
   ) {
-    return this.studentService.getTestSeries({
+    return this.studentService.getTestSeries(req.user.sub, {
       skip: skip ? parseInt(skip, 10) : 0,
       take: take ? parseInt(take, 10) : 20,
     });
@@ -68,9 +70,18 @@ export class StudentController {
   ) {
     return this.studentService.getTestSeriesTests(req.user.sub, {
       test_type: testType as any,
+      test_series_id: req.query.test_series_id as string,
       skip: skip ? parseInt(skip, 10) : 0,
       take: take ? parseInt(take, 10) : 20,
     });
+  }
+
+  @Post("test-series/:id/enroll")
+  async enrollTestSeries(
+    @Request() req: any,
+    @Param("id") id: string
+  ) {
+    return this.studentService.enrollInTestSeries(req.user.sub, id);
   }
 
   @Get("teacher/dashboard")

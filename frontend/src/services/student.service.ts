@@ -312,18 +312,25 @@ class StudentApiService {
 
   async getTestSeriesTests(params?: {
     test_type?: string;
+    test_series_id?: string;
     page?: number;
     limit?: number;
   }): Promise<PaginatedResponse<TestSeriesTestItem>> {
     // Map page/limit to skip/take
     const apiParams: any = {};
     if (params?.test_type) apiParams.test_type = params.test_type;
+    if (params?.test_series_id) apiParams.test_series_id = params.test_series_id;
     if (params?.page !== undefined && params?.limit !== undefined) {
       apiParams.skip = (params.page - 1) * params.limit;
       apiParams.take = params.limit;
     }
 
     const res = await api.get<PaginatedResponse<TestSeriesTestItem>>("/student/test-series/tests", { params: apiParams });
+    return res.data;
+  }
+
+  async enrollInTestSeries(testSeriesId: string): Promise<any> {
+    const res = await api.post(`/student/test-series/${testSeriesId}/enroll`);
     return res.data;
   }
 
