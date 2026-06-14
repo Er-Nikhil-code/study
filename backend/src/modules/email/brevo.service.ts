@@ -216,6 +216,120 @@ export class BrevoService {
 }
 
   /**
+   * Send Invoice Email after purchase
+   */
+  async sendInvoiceEmail(data: {
+    email: string;
+    firstName: string;
+    lastName?: string | null;
+    userId: string;
+    phone?: string | null;
+    invoiceNumber: string;
+    amount: number;
+    date: Date;
+    items: Array<{ name: string; price: number }>;
+  }): Promise<{ messageId: string }> {
+    const fullName = [data.firstName, data.lastName].filter(Boolean).join(" ");
+    const formattedDate = new Date(data.date).toLocaleDateString('en-IN', {
+      day: 'numeric', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+    
+    let itemsHtml = '';
+    data.items.forEach((item, index) => {
+      itemsHtml += `
+        <tr>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${index + 1}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${item.name}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">₹${item.price.toFixed(2)}</td>
+        </tr>
+      `;
+    });
+
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 20px;">
+      <div style="max-width: 650px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <h2 style="color: #111827; border-bottom: 2px solid #ef4444; padding-bottom: 10px; margin-top: 0;">
+          Purchase Invoice - Codify
+        </h2>
+
+        <p style="color: #4b5563; font-size: 16px;">Hello ${fullName},</p>
+        <p style="color: #4b5563;">Thank you for your purchase! Here are your invoice details:</p>
+
+        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #1f2937; margin-bottom: 15px;">Customer Details</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr>
+              <td style="padding: 4px 0; color: #6b7280; width: 120px;">Name:</td>
+              <td style="padding: 4px 0; color: #111827; font-weight: 500;">${fullName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #6b7280;">User ID:</td>
+              <td style="padding: 4px 0; color: #111827; font-family: monospace;">${data.userId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #6b7280;">Email:</td>
+              <td style="padding: 4px 0; color: #111827;">${data.email}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #6b7280;">Phone:</td>
+              <td style="padding: 4px 0; color: #111827;">${data.phone || 'N/A'}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="margin: 30px 0;">
+          <h3 style="color: #1f2937; margin-bottom: 10px;">Order Details</h3>
+          <p style="margin: 0 0 15px 0; font-size: 14px; color: #6b7280;">
+            <strong>Invoice #:</strong> ${data.invoiceNumber} <br/>
+            <strong>Date:</strong> ${formattedDate}
+          </p>
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead>
+              <tr style="background-color: #f87171; color: white;">
+                <th style="padding: 10px 12px; text-align: left; border-radius: 6px 0 0 0;">#</th>
+                <th style="padding: 10px 12px; text-align: left;">Item Description</th>
+                <th style="padding: 10px 12px; text-align: right; border-radius: 0 6px 0 0;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2" style="padding: 12px; text-align: right; font-weight: bold; color: #111827;">Total Amount:</td>
+                <td style="padding: 12px; text-align: right; font-weight: bold; color: #ef4444; font-size: 16px;">
+                  ₹${data.amount.toFixed(2)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <p style="color: #4b5563; font-size: 14px; margin-top: 30px;">
+          You can access your purchased courses and tests from your dashboard.
+        </p>
+
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+        <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">
+          © ${new Date().getFullYear()} Codify. All rights reserved.
+        </p>
+      </div>
+    </body>
+    </html>
+    `;
+
+    return this.sendCustomEmail(
+      data.email,
+      `Purchase Invoice: ${data.invoiceNumber} - Codify`,
+      htmlContent
+    );
+  }
+
+  /**
    * Send custom email (raw HTML content)
    */
   async sendCustomEmail(

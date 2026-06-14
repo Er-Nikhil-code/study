@@ -456,6 +456,34 @@ export class AdminService {
         }
       }
 
+      // Cleanup related entities that do not have ON DELETE CASCADE
+      
+      // 1. Orders and Invoices
+      const orders = await this.prisma.order.findMany({ where: { user_id: id }, select: { id: true } });
+      const orderIds = orders.map(o => o.id);
+      if (orderIds.length > 0) {
+        await this.prisma.invoice.deleteMany({ where: { order_id: { in: orderIds } } });
+        await this.prisma.orderItem.deleteMany({ where: { order_id: { in: orderIds } } });
+        await this.prisma.order.deleteMany({ where: { user_id: id } });
+      }
+
+      // 2. Sections managed
+      await this.prisma.section.updateMany({
+        where: { managed_by: id },
+        data: { managed_by: null }
+      });
+
+      // 3. Questions created (Re-assign to a generic admin so they aren't lost)
+      if (user.role !== "STUDENT") {
+        const firstAdmin = await this.prisma.user.findFirst({ where: { role: "ADMIN" }, select: { id: true } });
+        if (firstAdmin && firstAdmin.id !== id) {
+          await this.prisma.question.updateMany({
+            where: { created_by: id },
+            data: { created_by: firstAdmin.id }
+          });
+        }
+      }
+
       await this.prisma.user.delete({ where: { id } });
       this.logger.log(`✅ [ADMIN] User deleted: ${id}`);
       return { message: "User deleted successfully" };

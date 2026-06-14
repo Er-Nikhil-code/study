@@ -3,6 +3,7 @@ import { PrismaService } from "../../prisma/prisma.service";
 import Razorpay from "razorpay";
 import * as crypto from "crypto";
 import { HierarchyService } from "../hierarchy/hierarchy.service";
+import { BrevoService } from "../email/brevo.service";
 
 @Injectable()
 export class PaymentService {
@@ -10,7 +11,8 @@ export class PaymentService {
 
   constructor(
     private prisma: PrismaService,
-    private hierarchyService: HierarchyService
+    private hierarchyService: HierarchyService,
+    private brevoService: BrevoService
   ) {
     this.razorpay = new Razorpay({
       key_id: (process.env.RAZORPAY_KEY_ID || "test").trim(),
@@ -54,6 +56,28 @@ export class PaymentService {
           }
         }
       }
+      
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (user) {
+        const itemsList = cart.items.map(i => ({
+          name: i.course?.name || i.test_series?.name || "Unknown Item",
+          price: 0
+        }));
+        const invoiceNumber = `INV-FREE-${Date.now()}`;
+        
+        this.brevoService.sendInvoiceEmail({
+          email: user.email,
+          firstName: user.first_name || "User",
+          lastName: user.last_name,
+          userId: user.id,
+          phone: user.phone_number,
+          invoiceNumber,
+          amount: 0,
+          date: new Date(),
+          items: itemsList
+        }).catch(err => console.error("Failed to send free invoice email", err));
+      }
+
       await this.prisma.cart.delete({ where: { user_id: userId } });
       return { free: true, orderId: null, amount: 0 };
     }
@@ -120,7 +144,10 @@ export class PaymentService {
         razorpay_payment_id,
         razorpay_signature,
       },
-      include: { items: true },
+      include: { 
+        items: { include: { course: true, test_series: true } },
+        user: true 
+      },
     });
 
     for (const item of order.items) {
@@ -146,6 +173,25 @@ export class PaymentService {
         invoice_number: `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       },
     });
+
+    if (order.user) {
+      const itemsList = order.items.map(i => ({
+        name: i.course?.name || i.test_series?.name || "Unknown Item",
+        price: i.price_paid
+      }));
+
+      this.brevoService.sendInvoiceEmail({
+        email: order.user.email,
+        firstName: order.user.first_name || "User",
+        lastName: order.user.last_name,
+        userId: order.user.id,
+        phone: order.user.phone_number,
+        invoiceNumber: invoice.invoice_number,
+        amount: order.total_amount,
+        date: order.created_at,
+        items: itemsList
+      }).catch(err => console.error("Failed to send invoice email", err));
+    }
 
     return { success: true, orderId: order.id, invoice };
   }
