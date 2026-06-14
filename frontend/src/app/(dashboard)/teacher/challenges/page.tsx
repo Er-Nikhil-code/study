@@ -197,6 +197,14 @@ export default function TeacherChallengesPage() {
                       <Edit2 size={14} /> Edit Question
                     </Link>
                   )}
+                  {challenge.note && (
+                    <Link
+                      href={`/intern/notes/${challenge.note.id}/edit?challengeId=${challenge.id}`}
+                      className="rounded-full flex items-center gap-2 border border-blue-500/20 bg-blue-500/10 px-4 py-2 text-sm font-medium text-blue-200 transition hover:bg-blue-500/15"
+                    >
+                      <Edit2 size={14} /> Edit Note
+                    </Link>
+                  )}
                   <button
                     onClick={() => openModal(challenge.id, "REJECT")}
                     disabled={processingId === challenge.id}

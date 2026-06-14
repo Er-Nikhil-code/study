@@ -81,6 +81,11 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     items.push({ label: "Tests", href: "/teacher/tests", icon: FileText });
   }
 
+  // Test Series
+  if (user.role === "ADMIN") {
+    items.push({ label: "Test Series", href: "/admin/test-series", icon: FileText });
+  }
+
   // Notes
   if (hasPerm("review_notes") || user.role === "TEACHER" || user.role === "ADMIN") {
     items.push({ label: "Notes", href: "/teacher/notes/review", icon: FileEdit });
