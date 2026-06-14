@@ -85,7 +85,6 @@ export class QuestionsController {
     @Query("page") page?: string,
     @Query("limit") limit?: string,
     @Query("created_by_me") createdByMe?: string,
-    @Query("approval_status") approvalStatus?: string,
     @Req() req?: any,
   ) {
     const filters: any = {};
@@ -97,9 +96,7 @@ export class QuestionsController {
     if (difficulty) filters.difficulty = difficulty;
     if (search) filters.search = search;
     if (isPyq === "true") filters.is_pyq = true;
-    else if (isPyq === "false") filters.is_pyq = false;
     if (examYear) filters.exam_year = examYear;
-    if (approvalStatus) filters.approval_status = approvalStatus;
 
     if (req.user.role === "INTERN") {
       filters.intern_only = req.user.id || req.user.sub;
