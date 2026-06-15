@@ -400,7 +400,15 @@ export default function AIGenerationPage() {
     : hierarchy.flatMap((c: any) => c.sections || [])
   ).filter((s: any) => {
     const course = hierarchy.find((c: any) => c.id === s.course_id) || hierarchy.find((c: any) => c.sections?.some((sec: any) => sec.id === s.id));
-    return user?.role === "ADMIN" || course?.created_by === user?.id || s.manager?.id === user?.id;
+    if (user?.role === "ADMIN") return true;
+    if (course?.created_by === user?.id) return true;
+    if (s.managers?.some((m: any) => m.id === user?.id)) return true;
+    // INTERN: show sections where assigned teacher is manager or course creator
+    if (user?.role === "INTERN" && user?.assigned_teacher_id) {
+      if (course?.created_by === user.assigned_teacher_id) return true;
+      if (s.managers?.some((m: any) => m.id === user.assigned_teacher_id)) return true;
+    }
+    return false;
   });
 
   const allChapters = selectedSection
@@ -690,7 +698,7 @@ export default function AIGenerationPage() {
 
             <button 
               type="submit" 
-              disabled={loading || !form.topicId || wordCount > 30}
+              disabled={loading || (!form.topicId && !selectedTest) || wordCount > 30}
               className="w-full flex justify-center items-center gap-2 rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {loading ? null : <Brain size={16} />}

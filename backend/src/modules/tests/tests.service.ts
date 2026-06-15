@@ -1110,12 +1110,28 @@ export class TestsService {
 
   async getAdminTestSeries(userId: string, role: string) {
     const where: any = {};
-    if (role !== "ADMIN") {
+    if (role === 'INTERN') {
+      // Interns see test series where their assigned teacher is creator or staff
+      const intern = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { assigned_teacher_id: true }
+      });
+      if (!intern?.assigned_teacher_id) {
+        return []; // No assigned teacher = no test series
+      }
+      where.OR = [
+        { created_by: intern.assigned_teacher_id },
+        { staff: { some: { user_id: intern.assigned_teacher_id } } }
+      ];
+    } else if (role !== 'ADMIN') {
+      // TEACHER: see test series they created or are staff on
       where.OR = [
         { created_by: userId },
         { staff: { some: { user_id: userId } } }
       ];
     }
+    // ADMIN: where stays {} (see all)
+
     return this.prisma.testSeries.findMany({
       where,
       orderBy: { created_at: "desc" },

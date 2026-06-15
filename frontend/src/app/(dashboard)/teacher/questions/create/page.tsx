@@ -330,7 +330,17 @@ export default function CreateQuestionPage() {
                       {(() => {
                         const currentCourse = topics.find((c: any) => c.id === formData.course_id);
                         return currentCourse?.sections
-                            ?.filter((s: any) => user?.role === "ADMIN" || currentCourse?.created_by === user?.id || s.manager?.id === user?.id)
+                            ?.filter((s: any) => {
+                              if (user?.role === "ADMIN") return true;
+                              if (currentCourse?.created_by === user?.id) return true;
+                              if (s.managers?.some((m: any) => m.id === user?.id)) return true;
+                              // INTERN: show sections where assigned teacher is manager or course creator
+                              if (user?.role === "INTERN" && user?.assigned_teacher_id) {
+                                if (currentCourse?.created_by === user.assigned_teacher_id) return true;
+                                if (s.managers?.some((m: any) => m.id === user.assigned_teacher_id)) return true;
+                              }
+                              return false;
+                            })
                             .map((s: any) => (
                             <option key={s.id} value={s.id} className="bg-zinc-900">
                               {s.name}

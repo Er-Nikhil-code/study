@@ -308,13 +308,45 @@ export class HierarchyService {
   // Full Hierarchy
   async getFullHierarchy(userId?: string) {
     let userRole = null;
+    let assignedTeacherId: string | null = null;
     if (userId) {
-      const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+      const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { role: true, assigned_teacher_id: true } });
       userRole = user?.role;
+      assignedTeacherId = user?.assigned_teacher_id || null;
     }
 
+    // Build where clause based on role
+    let courseWhere: any = {};
+    if (userRole === 'STUDENT') {
+      courseWhere = { status: 'PUBLISHED' };
+    } else if (userRole === 'TEACHER') {
+      // Teachers see courses they created, are staff on, or manage a section in
+      courseWhere = {
+        OR: [
+          { created_by: userId },
+          { staff: { some: { user_id: userId } } },
+          { sections: { some: { managers: { some: { id: userId } } } } }
+        ]
+      };
+    } else if (userRole === 'INTERN') {
+      // Interns see courses where their assigned teacher is creator or staff
+      if (assignedTeacherId) {
+        courseWhere = {
+          OR: [
+            { created_by: assignedTeacherId },
+            { staff: { some: { user_id: assignedTeacherId } } },
+            { sections: { some: { managers: { some: { id: assignedTeacherId } } } } }
+          ]
+        };
+      } else {
+        // Intern with no assigned teacher sees nothing
+        courseWhere = { id: '__none__' };
+      }
+    }
+    // ADMIN: courseWhere stays {} (see all)
+
     const courses = await this.prisma.course.findMany({
-      where: userRole === 'STUDENT' ? { status: 'PUBLISHED' } : {},
+      where: courseWhere,
       include: {
         _count: { select: { enrollments: true } },
         staff: {

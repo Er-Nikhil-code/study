@@ -243,7 +243,7 @@ export class TestsController {
 
   @Get("series/manage")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   async getAdminTestSeries(@Request() req: any) {
     return this.testsService.getAdminTestSeries(req.user.sub, req.user.role);
   }
