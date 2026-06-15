@@ -2,8 +2,9 @@ import { api } from "@/lib/api";
 
 export const AiService = {
   generateQuestions(data: { 
-    topicId: string;
-    topicName: string;
+    topicId?: string;
+    testId?: string;
+    topicName?: string;
     topicDesc?: string;
     courseName?: string;
     courseDesc?: string;
