@@ -47,7 +47,7 @@ model User {
   test_series_enrollments TestSeriesEnrollment[]
   course_staff            CourseStaff[]
   test_series_staff       TestSeriesStaff[]
-  managed_sections        Section[]              @relation("section_manager")
+  managed_sections        Section[]              @relation("SectionManagers")
   topic_progress          TopicProgress[]
   questions               Question[]
   cart                    Cart?
@@ -155,10 +155,9 @@ model Section {
   description    String
   order          Int
   created_at     DateTime    @default(now())
-  managed_by     String? // User ID of the Knight (Teacher) assigned to manage this section
-  manager        User?       @relation("section_manager", fields: [managed_by], references: [id])
 
-  chapters Chapter[]
+  managers       User[]      @relation("SectionManagers")
+  chapters       Chapter[]
 
   @@unique([course_id, name])
   @@unique([test_series_id, name])

@@ -15,12 +15,12 @@ export class HierarchyService {
     if (role === "ADMIN") return;
     const section = await this.prisma.section.findUnique({
       where: { id: sectionId },
-      include: { course: true, test_series: true }
+      include: { course: true, test_series: true, managers: true }
     });
     if (!section) throw new NotFoundException("Section not found");
     if (section.course?.created_by === userId) return;
     if (section.test_series?.created_by === userId) return;
-    if (section.managed_by === userId) return;
+    if (section.managers.some(m => m.id === userId)) return;
     throw new ForbiddenException("You are not authorized to manage this section");
   }
 
@@ -296,12 +296,12 @@ export class HierarchyService {
     });
   }
 
-  async assignSectionManager(sectionId: string, managerId: string | null, role: string) {
+  async assignSectionManagers(sectionId: string, managerIds: string[], role: string) {
     if (role !== "ADMIN") throw new ForbiddenException("Only admin can assign section managers");
     
     return this.prisma.section.update({
       where: { id: sectionId },
-      data: { managed_by: managerId }
+      data: { managers: { set: managerIds.map(id => ({ id })) } }
     });
   }
 
@@ -322,7 +322,7 @@ export class HierarchyService {
         },
         sections: {
           include: {
-            manager: { select: { id: true, first_name: true, last_name: true, email: true } },
+            managers: { select: { id: true, first_name: true, last_name: true, email: true } },
             chapters: {
               include: {
                 topics: {
@@ -451,7 +451,7 @@ export class HierarchyService {
         },
         sections: {
           include: {
-            manager: { select: { id: true, first_name: true, last_name: true, email: true } },
+            managers: { select: { id: true, first_name: true, last_name: true, email: true } },
             chapters: {
               include: {
                 topics: {

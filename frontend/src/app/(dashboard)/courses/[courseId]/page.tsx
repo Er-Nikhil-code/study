@@ -4,6 +4,7 @@ import { useEffect, useState, use } from "react";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Panel from "@/components/ui/Panel";
 import SearchableSelect from "@/components/ui/SearchableSelect";
+import MultiSearchableSelect from "@/components/ui/MultiSearchableSelect";
 import { HierarchyService } from "@/services/hierarchy.service";
 import Link from "next/link";
 import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield, Loader2, Search, Swords } from "lucide-react";
@@ -650,9 +651,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                             <Shield size={14} className="text-emerald-500/70" />
                             <span className="text-[11px] text-zinc-500 font-medium tracking-wider">MANAGER:</span>
                             <div className="w-44 relative z-20">
-                              <SearchableSelect
+                              <MultiSearchableSelect
                                 options={[
-                                  { value: "", label: "No Manager" },
                                   ...(knights?.data?.map((k: any) => ({
                                     value: k.id,
                                     label: [k.first_name, k.last_name].filter(Boolean).join(" ") || k.name || k.email || "Unknown User",
@@ -660,12 +660,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                     image: k.profile_picture
                                   })) || [])
                                 ]}
-                                value={section.managed_by || ""}
+                                values={section.managers?.map((m: any) => m.id) || []}
                                 onChange={async (val) => {
-                                  await HierarchyService.assignSectionManager(section.id, val || null);
+                                  await HierarchyService.assignSectionManagers(section.id, val);
                                   fetchCourse();
                                 }}
-                                placeholder="Assign Manager..."
+                                placeholder="Assign Managers..."
                               />
                             </div>
                           </div>

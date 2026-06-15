@@ -474,11 +474,7 @@ export class AdminService {
         where: { OR: [{ submitted_by: id }, { assigned_to: id }] },
       });
 
-      // 4. Sections managed by this user — unassign
-      await this.prisma.section.updateMany({
-        where: { managed_by: id },
-        data: { managed_by: null },
-      });
+      // 4. Sections managed by this user (now handled by implicit M2M cascade automatically)
 
       // 5. Questions created by this user — nullify creator
       await this.prisma.question.updateMany({

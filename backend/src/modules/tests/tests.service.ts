@@ -45,14 +45,15 @@ export class TestsService {
     if (data.topic_id && role !== "ADMIN") {
       const topic = await this.prisma.topic.findUnique({
         where: { id: data.topic_id },
-        include: { chapter: { include: { section: { include: { course: true, test_series: true } } } } }
+        include: { chapter: { include: { section: { include: { course: true, test_series: true, managers: true } } } } }
       });
       if (!topic) throw new NotFoundException("Topic not found");
-      if (topic.chapter.section.course && topic.chapter.section.course.created_by !== creatorId) {
-        throw new ForbiddenException("You can only create tests for courses you created.");
+      const isManager = topic.chapter.section.managers.some(m => m.id === creatorId);
+      if (topic.chapter.section.course && topic.chapter.section.course.created_by !== creatorId && !isManager) {
+        throw new ForbiddenException("You can only create tests for courses you created or sections you manage.");
       }
-      if (topic.chapter.section.test_series && topic.chapter.section.test_series.created_by !== creatorId) {
-        throw new ForbiddenException("You can only create tests for test series you created.");
+      if (topic.chapter.section.test_series && topic.chapter.section.test_series.created_by !== creatorId && !isManager) {
+        throw new ForbiddenException("You can only create tests for test series you created or sections you manage.");
       }
     }
 
@@ -155,10 +156,12 @@ export class TestsService {
     if (role !== "ADMIN" && test.created_by !== userId)
       throw new ForbiddenException("Not the test creator");
     
-    // Check if test has attempts
-    const attemptCount = await this.prisma.attempt.count({ where: { test_id: testId } });
-    if (attemptCount > 0) {
-      throw new BadRequestException("Cannot delete a test that has been attempted by students.");
+    // Check if test has attempts (Admins can bypass this and cascade delete)
+    if (role !== "ADMIN") {
+      const attemptCount = await this.prisma.attempt.count({ where: { test_id: testId } });
+      if (attemptCount > 0) {
+        throw new BadRequestException("Cannot delete a test that has been attempted by students.");
+      }
     }
 
     return this.prisma.test.delete({
