@@ -333,7 +333,7 @@ model TestQuestion {
 model TestSeries {
   id          String  @id @default(cuid())
   name        String
-  code        String
+  code        String  @default("TEMP")
   description String?
   created_by  String // User ID
 
