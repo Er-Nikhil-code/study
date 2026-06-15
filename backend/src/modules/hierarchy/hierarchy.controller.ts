@@ -15,6 +15,12 @@ export class HierarchyController {
     return this.hierarchyService.getFullHierarchy(req.user.sub);
   }
 
+  @Get("test-series")
+  @Roles("TEACHER", "ADMIN", "INTERN", "STUDENT")
+  getTestSeriesHierarchy(@Request() req: any) {
+    return this.hierarchyService.getTestSeriesHierarchy(req.user.sub);
+  }
+
   @Post("reorder")
   @Roles("TEACHER", "ADMIN")
   reorderHierarchy(@Body() items: { id: string; type: 'SECTION' | 'CHAPTER' | 'TOPIC'; order: number }[]) {
@@ -37,6 +43,12 @@ export class HierarchyController {
   @Roles("ADMIN", "TEACHER")
   getCourseEnrollments(@Param("id") id: string) {
     return this.hierarchyService.getCourseEnrollments(id);
+  }
+
+  @Get("test-series/:id/enrollments")
+  @Roles("ADMIN", "TEACHER")
+  getTestSeriesEnrollments(@Param("id") id: string) {
+    return this.hierarchyService.getTestSeriesEnrollments(id);
   }
 
   @Patch("courses/:id")

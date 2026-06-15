@@ -146,20 +146,24 @@ model TestSeriesStaff {
 }
 
 model Section {
-  id          String   @id @default(cuid())
-  course_id   String
-  course      Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
-  name        String
-  description String
-  order       Int
-  created_at  DateTime @default(now())
-  managed_by  String? // User ID of the Knight (Teacher) assigned to manage this section
-  manager     User?    @relation("section_manager", fields: [managed_by], references: [id])
+  id             String      @id @default(cuid())
+  course_id      String?
+  course         Course?     @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  test_series_id String?
+  test_series    TestSeries? @relation(fields: [test_series_id], references: [id], onDelete: Cascade)
+  name           String
+  description    String
+  order          Int
+  created_at     DateTime    @default(now())
+  managed_by     String? // User ID of the Knight (Teacher) assigned to manage this section
+  manager        User?       @relation("section_manager", fields: [managed_by], references: [id])
 
   chapters Chapter[]
 
   @@unique([course_id, name])
+  @@unique([test_series_id, name])
   @@index([course_id])
+  @@index([test_series_id])
 }
 
 model Chapter {
@@ -339,6 +343,7 @@ model TestSeries {
   discount_price Float?
 
   tests       Test[]
+  sections    Section[]
   enrollments TestSeriesEnrollment[]
   staff       TestSeriesStaff[]
   cart_items  CartItem[]

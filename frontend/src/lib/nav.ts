@@ -46,7 +46,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     return [
       { label: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
       { label: "Available Courses", href: "/courses", icon: Library },
-      { label: "Test Series", href: "/student/test-series", icon: FileText },
+      { label: "Test Series", href: "/test-series", icon: FileText },
       { label: "Notifications", href: "/notifications", icon: Bell },
     ];
   }
@@ -83,7 +83,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
 
   // Test Series
   if (user.role === "ADMIN" || user.role === "TEACHER") {
-    items.push({ label: "Test Series", href: "/admin/test-series", icon: FileText });
+    items.push({ label: "Test Series", href: "/test-series", icon: FileText });
   }
 
   // Notes

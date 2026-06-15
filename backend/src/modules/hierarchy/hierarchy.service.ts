@@ -15,12 +15,19 @@ export class HierarchyService {
     if (role === "ADMIN") return;
     const section = await this.prisma.section.findUnique({
       where: { id: sectionId },
-      include: { course: true }
+      include: { course: true, test_series: true }
     });
     if (!section) throw new NotFoundException("Section not found");
-    if (section.course.created_by === userId) return;
+    if (section.course?.created_by === userId) return;
+    if (section.test_series?.created_by === userId) return;
     if (section.managed_by === userId) return;
     throw new ForbiddenException("You are not authorized to manage this section");
+  }
+
+  private async checkTestSeriesPermission(testSeriesId: string, userId: string, role: string) {
+    if (role === "ADMIN") return;
+    const testSeries = await this.prisma.testSeries.findUnique({ where: { id: testSeriesId } });
+    if (testSeries?.created_by !== userId) throw new ForbiddenException("Only the test series creator can perform this action at the test series level");
   }
 
   // Course
@@ -90,8 +97,14 @@ export class HierarchyService {
   }
 
   // Section
-  async createSection(userId: string, role: string, data: { course_id: string; name: string; description: string; order: number }) {
-    await this.checkCoursePermission(data.course_id, userId, role);
+  async createSection(userId: string, role: string, data: { course_id?: string; test_series_id?: string; name: string; description: string; order: number }) {
+    if (data.course_id) {
+      await this.checkCoursePermission(data.course_id, userId, role);
+    } else if (data.test_series_id) {
+      await this.checkTestSeriesPermission(data.test_series_id, userId, role);
+    } else {
+      throw new ForbiddenException("Either course_id or test_series_id must be provided");
+    }
     return this.prisma.section.create({ data });
   }
   async updateSection(id: string, userId: string, role: string, data: { name?: string; description?: string; order?: number }) {
@@ -175,6 +188,26 @@ export class HierarchyService {
   async getCourseEnrollments(courseId: string) {
     return this.prisma.courseEnrollment.findMany({
       where: { course_id: courseId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            email: true,
+            role: true,
+            profile_picture: true,
+            created_at: true,
+          }
+        }
+      },
+      orderBy: { enrolled_at: 'desc' }
+    });
+  }
+
+  async getTestSeriesEnrollments(seriesId: string) {
+    return this.prisma.testSeriesEnrollment.findMany({
+      where: { test_series_id: seriesId },
       include: {
         user: {
           select: {
@@ -389,6 +422,132 @@ export class HierarchyService {
         enrolled_at: enrolledAt ? enrolledAt.toISOString() : null,
         sections: mappedSections,
         enrollment_count: course._count?.enrollments || 0 
+      };
+    });
+  }
+
+  // Full Hierarchy for Test Series
+  async getTestSeriesHierarchy(userId?: string) {
+    let userRole = null;
+    if (userId) {
+      const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+      userRole = user?.role;
+    }
+
+    const testSeriesList = await this.prisma.testSeries.findMany({
+      where: userRole === 'STUDENT' ? { status: 'PUBLISHED' } : {},
+      include: {
+        _count: { select: { enrollments: true } },
+        staff: {
+          include: { user: { select: { id: true, first_name: true, last_name: true, email: true, role: true } } }
+        },
+        sections: {
+          include: {
+            manager: { select: { id: true, first_name: true, last_name: true, email: true } },
+            chapters: {
+              include: {
+                topics: {
+                  include: {
+                    _count: { select: { notes: { where: { approval_status: 'APPROVED' } } } }
+                  },
+                  orderBy: { order: 'asc' }
+                }
+              },
+              orderBy: { order: 'asc' }
+            }
+          },
+          orderBy: { order: 'asc' }
+        }
+      },
+      orderBy: { created_at: 'asc' }
+    });
+
+    if (!userId) {
+      return testSeriesList;
+    }
+
+    const enrollments = await this.prisma.testSeriesEnrollment.findMany({
+      where: { user_id: userId }
+    });
+    const enrolledSeriesMap = new Map<string, Date>();
+    enrollments.forEach(e => enrolledSeriesMap.set(e.test_series_id, e.enrolled_at));
+
+    // Fetch user attempts
+    const attempts = await this.prisma.attempt.findMany({
+      where: { user_id: userId }
+    });
+
+    // Fetch user topic progress
+    const progressRecords = await this.prisma.topicProgress.findMany({
+      where: { user_id: userId }
+    });
+    const progressMap = new Map<string, any>();
+    progressRecords.forEach(p => progressMap.set(p.topic_id, p));
+
+    const tests = await this.prisma.test.findMany({
+      select: { id: true, topic_id: true, title: true }
+    });
+
+    const topicTestsMap = new Map<string, any[]>();
+    tests.forEach(t => {
+      if (t.topic_id) {
+        const arr = topicTestsMap.get(t.topic_id) || [];
+        arr.push(t);
+        topicTestsMap.set(t.topic_id, arr);
+      }
+    });
+
+    const latestAttemptMap = new Map<string, any>();
+    attempts.forEach(a => {
+      const existing = latestAttemptMap.get(a.test_id);
+      if (!existing || existing.started_at < a.started_at) {
+        latestAttemptMap.set(a.test_id, a);
+      }
+    });
+
+    return testSeriesList.map(series => {
+      const isEnrolled = enrolledSeriesMap.has(series.id);
+      const enrolledAt = enrolledSeriesMap.get(series.id);
+      const mappedSections = series.sections.map(section => {
+        const mappedChapters = section.chapters.map(chapter => {
+          const mappedTopics = chapter.topics.map(topic => {
+            const topicTests = topicTestsMap.get(topic.id) || [];
+            
+            const testsWithAttempts = topicTests.map(t => {
+              const latestAttempt = latestAttemptMap.get(t.id);
+              return {
+                id: t.id,
+                title: t.title,
+                has_attempted: !!latestAttempt,
+                latest_attempt_id: latestAttempt ? latestAttempt.id : null
+              };
+            });
+
+            const firstTest = testsWithAttempts[0];
+            const prog = progressMap.get(topic.id);
+
+            return {
+              ...topic,
+              tests: testsWithAttempts,
+              test_id: firstTest ? firstTest.id : null,
+              has_attempted_tests: firstTest ? firstTest.has_attempted : false,
+              latest_attempt_id: firstTest ? firstTest.latest_attempt_id : null,
+              is_completed: prog?.is_completed || false,
+              notes_viewed: prog?.notes_viewed || false,
+              tests_completed: prog?.tests_completed || false,
+              has_notes: (topic._count?.notes || 0) > 0
+            };
+          });
+          return { ...chapter, topics: mappedTopics };
+        });
+        return { ...section, chapters: mappedChapters };
+      });
+      return { 
+        ...series, 
+        is_enrolled: isEnrolled, 
+        enrolled_at: enrolledAt ? enrolledAt.toISOString() : null,
+        sections: mappedSections,
+        enrollment_count: series._count?.enrollments || 0 
       };
     });
   }

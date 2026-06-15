@@ -15,12 +15,14 @@ export class NotesService {
         });
         if (topic) {
           const courseId = topic.chapter.section.course_id;
-          const staffAssigned = await this.prisma.courseStaff.findUnique({
-            where: { course_id_user_id: { course_id: courseId, user_id: intern.assigned_teacher_id } }
-          });
-          const course = await this.prisma.course.findUnique({ where: { id: courseId } });
-          if (!staffAssigned && course?.created_by !== intern.assigned_teacher_id) {
-            throw new BadRequestException("You can only create notes for courses your assigned teacher is managing");
+          if (courseId) {
+            const staffAssigned = await this.prisma.courseStaff.findUnique({
+              where: { course_id_user_id: { course_id: courseId, user_id: intern.assigned_teacher_id } }
+            });
+            const course = await this.prisma.course.findUnique({ where: { id: courseId } });
+            if (!staffAssigned && course?.created_by !== intern.assigned_teacher_id) {
+              throw new BadRequestException("You can only create notes for courses your assigned teacher is managing");
+            }
           }
         }
       }

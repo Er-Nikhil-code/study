@@ -5,6 +5,10 @@ export const HierarchyService = {
     return api.get("/admin/hierarchy").then((r) => r.data);
   },
 
+  getTestSeriesHierarchy() {
+    return api.get("/admin/hierarchy/test-series").then((r) => r.data);
+  },
+
   reorder(items: { id: string; type: 'SECTION' | 'CHAPTER' | 'TOPIC'; order: number }[]) {
     return api.post("/admin/hierarchy/reorder", items).then((r) => r.data);
   },
@@ -13,7 +17,7 @@ export const HierarchyService = {
     return api.post("/admin/hierarchy/courses", data).then((r) => r.data);
   },
 
-  createSection(data: { course_id: string; name: string; description: string; order: number }) {
+  createSection(data: { course_id?: string; test_series_id?: string; name: string; description: string; order: number }) {
     return api.post("/admin/hierarchy/sections", data).then((r) => r.data);
   },
 
@@ -39,6 +43,10 @@ export const HierarchyService = {
 
   getCourseEnrollments(courseId: string) {
     return api.get(`/admin/hierarchy/courses/${courseId}/enrollments`).then((r) => r.data);
+  },
+
+  getTestSeriesEnrollments(seriesId: string) {
+    return api.get(`/admin/hierarchy/test-series/${seriesId}/enrollments`).then((r) => r.data);
   },
 
   updateSection(id: string, data: { name?: string; description?: string; order?: number }) {

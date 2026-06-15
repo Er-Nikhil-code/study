@@ -45,11 +45,14 @@ export class TestsService {
     if (data.topic_id && role !== "ADMIN") {
       const topic = await this.prisma.topic.findUnique({
         where: { id: data.topic_id },
-        include: { chapter: { include: { section: { include: { course: true } } } } }
+        include: { chapter: { include: { section: { include: { course: true, test_series: true } } } } }
       });
       if (!topic) throw new NotFoundException("Topic not found");
-      if (topic.chapter.section.course.created_by !== creatorId) {
+      if (topic.chapter.section.course && topic.chapter.section.course.created_by !== creatorId) {
         throw new ForbiddenException("You can only create tests for courses you created.");
+      }
+      if (topic.chapter.section.test_series && topic.chapter.section.test_series.created_by !== creatorId) {
+        throw new ForbiddenException("You can only create tests for test series you created.");
       }
     }
 
