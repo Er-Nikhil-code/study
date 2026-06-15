@@ -650,13 +650,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           <div className="flex items-center gap-2 border-l border-white/10 pl-4" onClick={(e) => e.stopPropagation()}>
                             <Shield size={14} className="text-emerald-500/70" />
                             <span className="text-[11px] text-zinc-500 font-medium tracking-wider">MANAGER:</span>
-                            <div className="w-44 relative z-20">
+                            <div className="w-72 relative z-20">
                               <MultiSearchableSelect
                                 options={[
                                   ...(knights?.data?.map((k: any) => ({
                                     value: k.id,
                                     label: [k.first_name, k.last_name].filter(Boolean).join(" ") || k.name || k.email || "Unknown User",
-                                    subLabel: k.id,
+                                    subLabel: k.email,
                                     image: k.profile_picture
                                   })) || [])
                                 ]}
@@ -1059,7 +1059,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         ...(knights?.data?.map((k: any) => ({
                           value: k.id,
                           label: [k.first_name, k.last_name].filter(Boolean).join(" ") || k.name || k.email || "Unknown User",
-                          subLabel: k.id,
+                          subLabel: k.email,
                           image: k.profile_picture,
                           disabled: course.staff?.some((s: any) => s.user_id === k.id)
                         })) || [])

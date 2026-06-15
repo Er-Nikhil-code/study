@@ -142,9 +142,9 @@ export default function MultiSearchableSelect({
                         {opt.label.charAt(0).toUpperCase()}
                       </div>
                     ) : null}
-                    <div className="flex-1 min-w-0 flex flex-col">
-                      <span className="truncate block">{opt.label}</span>
-                      {opt.subLabel && <span className="block text-xs text-zinc-400 font-mono mt-0.5 break-all" title={opt.subLabel}>{opt.subLabel}</span>}
+                    <div className="flex-1 min-w-0 flex flex-row items-center justify-between gap-2">
+                      <span className="truncate font-medium">{opt.label}</span>
+                      {opt.subLabel && <span className="truncate text-xs text-zinc-400">{opt.subLabel}</span>}
                     </div>
                     <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ml-2 ${isSelected ? 'bg-red-500 border-red-500' : 'border-zinc-500'}`}>
                       {isSelected && <Check size={12} className="text-white" />}

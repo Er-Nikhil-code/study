@@ -156,13 +156,7 @@ export class TestsService {
     if (role !== "ADMIN" && test.created_by !== userId)
       throw new ForbiddenException("Not the test creator");
     
-    // Check if test has attempts (Admins can bypass this and cascade delete)
-    if (role !== "ADMIN") {
-      const attemptCount = await this.prisma.attempt.count({ where: { test_id: testId } });
-      if (attemptCount > 0) {
-        throw new BadRequestException("Cannot delete a test that has been attempted by students.");
-      }
-    }
+    // The attempt check has been removed, allowing tests with attempts to be cascade deleted.
 
     return this.prisma.test.delete({
       where: { id: testId },
