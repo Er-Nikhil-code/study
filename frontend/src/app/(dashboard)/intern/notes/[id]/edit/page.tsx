@@ -163,8 +163,8 @@ export default function EditNotePage() {
                     return user?.role === "ADMIN" || 
                            course?.created_by === user?.id || 
                            s.manager?.id === user?.id || 
-                           user?.assigned_teacher_id === s.manager?.id || 
-                           user?.assigned_teacher_id === course?.created_by;
+                           (user?.assigned_teacher_id && user?.assigned_teacher_id === s.manager?.id) || 
+                           (user?.assigned_teacher_id && user?.assigned_teacher_id === course?.created_by);
                   })
                   .map((s: any) => (
                     <option key={s.id} value={s.id} className="bg-zinc-900">{s.name}</option>

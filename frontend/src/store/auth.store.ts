@@ -12,6 +12,7 @@ export interface AuthUser {
   lastName?: string;
   role: UserRole;
   profile_picture?: string;
+  assigned_teacher_id?: string | null;
   custom_role?: {
     name: string;
     permissions_json: any;
