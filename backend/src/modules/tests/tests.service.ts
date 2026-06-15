@@ -156,11 +156,23 @@ export class TestsService {
     if (role !== "ADMIN" && test.created_by !== userId)
       throw new ForbiddenException("Not the test creator");
     
-    // The attempt check has been removed, allowing tests with attempts to be cascade deleted.
+    // Find all users who took this test so we can update their stats after deletion
+    const attempts = await this.prisma.attempt.findMany({
+      where: { test_id: testId },
+      select: { user_id: true },
+      distinct: ['user_id']
+    });
 
-    return this.prisma.test.delete({
+    const result = await this.prisma.test.delete({
       where: { id: testId },
     });
+    
+    // Recalculate stats for users affected by the deletion to update the global leaderboard
+    for (const attempt of attempts) {
+      await this.updateUserStats(attempt.user_id);
+    }
+    
+    return result;
   }
 
   async addQuestionsToTest(testId: string, questionIds: string[], userId: string, role: string) {
@@ -577,6 +589,17 @@ export class TestsService {
       (Date.now() - attempt.started_at.getTime()) / 1000,
     );
 
+    // Calculate rank
+    const betterAttempts = await this.prisma.attempt.count({
+      where: {
+        test_id: attempt.test_id,
+        attempt_no: 1,
+        status: "SCORED",
+        score: { gt: totalScore }
+      }
+    });
+    const rank = betterAttempts + 1;
+
     // Update attempt
     const updated = await this.prisma.attempt.update({
       where: { id: attemptId },
@@ -586,6 +609,7 @@ export class TestsService {
         max_score: actualMaxScore,
         submitted_at: new Date(),
         time_taken_sec: timeTaken,
+        rank: rank,
       },
     });
 
@@ -864,7 +888,22 @@ export class TestsService {
             total_marks: true,
             positive_marks: true,
             negative_marks: true,
+            passing_marks: true,
             created_by: true,
+            topic: {
+              select: {
+                chapter: {
+                  select: {
+                    section: {
+                      select: {
+                        course_id: true,
+                        test_series_id: true,
+                      }
+                    }
+                  }
+                }
+              }
+            },
             _count: { select: { test_questions: true } },
             test_questions: {
               include: {
@@ -889,7 +928,10 @@ export class TestsService {
                             section: { 
                               select: { 
                                 name: true,
-                                course: { select: { name: true } }
+                                course_id: true,
+                                test_series_id: true,
+                                course: { select: { id: true, name: true } },
+                                test_series: { select: { id: true, name: true } }
                               } 
                             },
                           },
@@ -926,7 +968,10 @@ export class TestsService {
                         section: { 
                           select: { 
                             name: true,
-                            course: { select: { name: true } }
+                            course_id: true,
+                            test_series_id: true,
+                            course: { select: { id: true, name: true } },
+                            test_series: { select: { id: true, name: true } }
                           } 
                         },
                       },

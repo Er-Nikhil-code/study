@@ -860,7 +860,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                       ) : (
                                         <div 
                                           key={topic.id} 
-                                          className={`p-4 rounded-xl border ${draggedItem?.id === topic.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === chapter.id && draggedItem?.type === "TOPIC" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-900/50 hover:bg-zinc-800 transition-all flex flex-col h-full group relative cursor-default`}
+                                          className={`p-4 rounded-xl border ${draggedItem?.id === topic.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === chapter.id && draggedItem?.type === "TOPIC" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-900/50 transition-all flex flex-col h-full group relative cursor-default`}
                                           draggable={isCreatorOrAdmin}
                                           onDragStart={(e) => handleDragStart(e, topic.id, "TOPIC", chapter.id, idx)}
                                           onDragOver={(e) => handleDragOver(e, "TOPIC", chapter.id, idx)}
@@ -995,9 +995,33 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                             )}
                                           </div>
                                         )}
-                                      </div>
-                                    );
-                                  })}
+                                        {!editingTopic && topic.tests?.[0] && (
+                                          <div className="flex flex-wrap items-center justify-between gap-2 mt-3 py-2 px-3 rounded-lg bg-black/20 border border-white/5 text-[11px] text-zinc-400">
+                                            <div className="flex gap-1.5 items-center">
+                                              <span className="text-zinc-500">Total Marks:</span>
+                                              <span className="text-white font-semibold">{topic.tests[0].total_marks}</span>
+                                            </div>
+                                            <div className="flex gap-1.5 items-center">
+                                              <span className="text-zinc-500">Questions:</span>
+                                              <span className="text-white font-semibold">{topic.tests[0].questions_count || 0}</span>
+                                            </div>
+                                            <div className="flex gap-1.5 items-center">
+                                              <span className="text-zinc-500">Marks:</span>
+                                              <span className="text-white font-semibold">{topic.tests[0].score !== null ? topic.tests[0].score : '-'}</span>
+                                            </div>
+                                            <div className="flex gap-1.5 items-center">
+                                              <span className="text-zinc-500">Rank:</span>
+                                              <span className="text-white font-semibold">{topic.tests[0].rank !== null ? topic.tests[0].rank : '-'}</span>
+                                            </div>
+                                            <div className="flex gap-1.5 items-center">
+                                              <span className="text-zinc-500">Passing Marks:</span>
+                                              <span className="text-white font-semibold">{topic.tests[0].passing_marks !== null ? topic.tests[0].passing_marks : '-'}</span>
+                                            </div>
+                                          </div>
+                                        )}
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 )}
                               </div>

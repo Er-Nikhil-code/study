@@ -78,7 +78,7 @@ export default function ResultDetailPage() {
       <>
         <div className="text-center py-12">
           <p className="text-zinc-500">Result not found.</p>
-          <Link href="/results" className="mt-4 inline-block text-red-400 hover:text-red-300">← Back to results</Link>
+          <Link href="/student/dashboard" className="mt-4 inline-block text-red-400 hover:text-red-300">← Back to dashboard</Link>
         </div>
       </>
     );
@@ -109,6 +109,18 @@ export default function ResultDetailPage() {
                 <span className="font-medium text-zinc-400">Score:</span>
                 <span className="font-semibold text-white">{data.score ?? 0}</span>
                 <span className="text-zinc-500">/ {calculatedTotalMarks}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-zinc-400">Rank:</span>
+                <span className="font-semibold text-white">{data.rank ?? "—"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-zinc-400">Questions:</span>
+                <span className="font-semibold text-white">{testQuestions.length}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-zinc-400">Passing Marks:</span>
+                <span className="font-semibold text-white">{data.test?.passing_marks ?? "—"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-medium text-zinc-400">Accuracy:</span>
@@ -316,7 +328,7 @@ export default function ResultDetailPage() {
                           Review
                         </button>
                         <div className="text-xs text-zinc-500 text-right">
-                          {q.topic?.chapter?.section?.course?.name ?? "Course"} → {q.topic?.chapter?.name} → {q.topic?.name}
+                          {q.topic?.chapter?.section?.test_series?.name || q.topic?.chapter?.section?.course?.name || "Course"} → {q.topic?.chapter?.name} → {q.topic?.name}
                         </div>
                       </div>
 
@@ -401,8 +413,14 @@ export default function ResultDetailPage() {
           
         </div>
 
-        <div className="mt-8">
-          <Link href="/results" className="text-sm text-zinc-400 hover:text-white transition">← Back to all results</Link>
+        <div className="mt-8 flex justify-center">
+          {data.test?.topic?.chapter?.section?.test_series_id ? (
+            <Link href={`/test-series/${data.test.topic.chapter.section.test_series_id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">← Back to Test Series</Link>
+          ) : data.test?.topic?.chapter?.section?.course_id ? (
+            <Link href={`/courses/${data.test.topic.chapter.section.course_id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">← Back to Course</Link>
+          ) : (
+            <Link href="/student/dashboard" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">← Back to dashboard</Link>
+          )}
         </div>
 
       {/* Challenge Modal */}

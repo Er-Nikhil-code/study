@@ -366,7 +366,14 @@ export class HierarchyService {
     // We need to map attempts to topics. But attempts are tied to test_id.
     // Fetch all tests so we can map them.
     const tests = await this.prisma.test.findMany({
-      select: { id: true, topic_id: true, title: true }
+      select: { 
+        id: true, 
+        topic_id: true, 
+        title: true,
+        total_marks: true,
+        passing_marks: true,
+        _count: { select: { test_questions: true } }
+      }
     });
 
     const topicTestsMap = new Map<string, any[]>(); // topicId -> Test[]
@@ -400,8 +407,13 @@ export class HierarchyService {
               return {
                 id: t.id,
                 title: t.title,
+                total_marks: t.total_marks,
+                passing_marks: t.passing_marks,
+                questions_count: t._count?.test_questions || 0,
                 has_attempted: !!latestAttempt,
-                latest_attempt_id: latestAttempt ? latestAttempt.id : null
+                latest_attempt_id: latestAttempt ? latestAttempt.id : null,
+                score: latestAttempt ? latestAttempt.score : null,
+                rank: latestAttempt ? latestAttempt.rank : null,
               };
             });
 
@@ -493,7 +505,14 @@ export class HierarchyService {
     progressRecords.forEach(p => progressMap.set(p.topic_id, p));
 
     const tests = await this.prisma.test.findMany({
-      select: { id: true, topic_id: true, title: true }
+      select: { 
+        id: true, 
+        topic_id: true, 
+        title: true,
+        total_marks: true,
+        passing_marks: true,
+        _count: { select: { test_questions: true } }
+      }
     });
 
     const topicTestsMap = new Map<string, any[]>();
@@ -526,8 +545,13 @@ export class HierarchyService {
               return {
                 id: t.id,
                 title: t.title,
+                total_marks: t.total_marks,
+                passing_marks: t.passing_marks,
+                questions_count: t._count?.test_questions || 0,
                 has_attempted: !!latestAttempt,
-                latest_attempt_id: latestAttempt ? latestAttempt.id : null
+                latest_attempt_id: latestAttempt ? latestAttempt.id : null,
+                score: latestAttempt ? latestAttempt.score : null,
+                rank: latestAttempt ? latestAttempt.rank : null,
               };
             });
 
