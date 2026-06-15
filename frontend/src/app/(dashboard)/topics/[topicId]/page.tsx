@@ -116,15 +116,20 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
     const element = document.getElementById(`note-content-${noteId}`);
     if (!element) return;
     
-    // Temporarily switch to light mode for PDF generation
-    const originalClasses = element.className;
-    const contentDiv = element.querySelector('.prose');
-    const originalContentClasses = contentDiv?.className;
-
-    element.className = "bg-white p-6 rounded-xl text-black";
+    // Create a clone to prevent visual flashing during PDF generation
+    const clone = element.cloneNode(true) as HTMLElement;
+    clone.className = "bg-white p-6 rounded-xl text-black";
+    
+    const contentDiv = clone.querySelector('.prose');
     if (contentDiv) {
       contentDiv.className = "prose max-w-none text-black"; // Removed prose-invert
     }
+
+    // Append to document off-screen so html2canvas can render it
+    clone.style.position = "absolute";
+    clone.style.left = "-9999px";
+    clone.style.top = "-9999px";
+    document.body.appendChild(clone);
 
     const opt = {
       margin:       10,
@@ -134,12 +139,10 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
-    await html2pdf().set(opt as any).from(element).save();
-
-    // Revert back to original dark mode styling
-    element.className = originalClasses;
-    if (contentDiv && originalContentClasses) {
-      contentDiv.className = originalContentClasses;
+    try {
+      await html2pdf().set(opt as any).from(clone).save();
+    } finally {
+      document.body.removeChild(clone);
     }
   };
 

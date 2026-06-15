@@ -8,6 +8,7 @@ import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { TestsService } from "@/services/tests.service";
 import { HierarchyService } from "@/services/hierarchy.service";
+import { AdminTestSeriesService } from "@/services/test-series.admin.service";
 import authService from "@/services/auth.service";
 
 export default function TeacherTestsPage() {
@@ -21,10 +22,12 @@ export default function TeacherTestsPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const [hierarchy, setHierarchy] = useState<any[]>([]);
+  const [testSeriesList, setTestSeriesList] = useState<any[]>([]);
   const [courseId, setCourseId] = useState("");
   const [sectionId, setSectionId] = useState("");
   const [chapterId, setChapterId] = useState("");
   const [topicId, setTopicId] = useState("");
+  const [testSeriesId, setTestSeriesId] = useState("");
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -37,6 +40,10 @@ export default function TeacherTestsPage() {
     HierarchyService.getFullHierarchy()
       .then(setHierarchy)
       .catch(err => console.error("Failed to load hierarchy", err));
+
+    AdminTestSeriesService.getAdminTestSeries()
+      .then(res => setTestSeriesList(res || []))
+      .catch(err => console.error("Failed to load test series", err));
   }, []);
 
   const allCourses = hierarchy;
@@ -53,6 +60,7 @@ export default function TeacherTestsPage() {
       if (sectionId) filters.section_id = sectionId;
       if (chapterId) filters.chapter_id = chapterId;
       if (topicId) filters.topic_id = topicId;
+      if (testSeriesId) filters.testSeriesId = testSeriesId;
       if (debouncedSearch) filters.search = debouncedSearch;
       
       return await TestsService.getTeacherTests(filters);
@@ -134,10 +142,27 @@ export default function TeacherTestsPage() {
       )}
 
       {/* Hierarchy Filters */}
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <select
+          value={testSeriesId}
+          onChange={e => {
+            setTestSeriesId(e.target.value);
+            if (e.target.value) {
+              setCourseId(""); setSectionId(""); setChapterId(""); setTopicId("");
+            }
+          }}
+          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30"
+        >
+          <option value="">All Test Series</option>
+          {testSeriesList.map((ts: any) => <option key={ts.id} value={ts.id}>{ts.name}</option>)}
+        </select>
+
         <select
           value={courseId}
-          onChange={e => setCourseId(e.target.value)}
+          onChange={e => {
+            setCourseId(e.target.value);
+            if (e.target.value) setTestSeriesId("");
+          }}
           className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white outline-none transition focus:border-red-500/30"
         >
           <option value="">All Courses</option>

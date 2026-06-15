@@ -411,7 +411,7 @@ export default function AIGenerationPage() {
                   {hierarchy.map((c: any) => <option key={`course_${c.id}`} value={`course_${c.id}`}>[Course] {c.name}</option>)}
                 </optgroup>
                 <optgroup label="Test Series">
-                  {testSeriesList.map((ts: any) => <option key={`series_${ts.id}`} value={`series_${ts.id}`}>[Series] {ts.title}</option>)}
+                  {testSeriesList.map((ts: any) => <option key={`series_${ts.id}`} value={`series_${ts.id}`}>[Series] {ts.name}</option>)}
                 </optgroup>
               </select>
             </div>

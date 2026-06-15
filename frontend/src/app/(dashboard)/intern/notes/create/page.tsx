@@ -100,8 +100,18 @@ export default function CreateNotePage() {
                 className="w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-red-500 appearance-none disabled:opacity-50"
               >
                 <option value="">Select Section</option>
-                {topics.find((c: any) => c.id === formData.course_id)?.sections?.map((s: any) => (
-                  <option key={s.id} value={s.id} className="bg-zinc-900">{s.name}</option>
+                {topics
+                  .find((c: any) => c.id === formData.course_id)
+                  ?.sections?.filter((s: any) => {
+                    const course = topics.find((c: any) => c.id === formData.course_id);
+                    return user?.role === "ADMIN" || 
+                           course?.created_by === user?.id || 
+                           s.manager?.id === user?.id || 
+                           user?.assigned_teacher_id === s.manager?.id || 
+                           user?.assigned_teacher_id === course?.created_by;
+                  })
+                  .map((s: any) => (
+                    <option key={s.id} value={s.id} className="bg-zinc-900">{s.name}</option>
                 ))}
               </select>
             </div>
