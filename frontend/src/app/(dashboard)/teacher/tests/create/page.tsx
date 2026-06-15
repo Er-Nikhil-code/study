@@ -8,9 +8,12 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { TestsService } from "@/services/tests.service";
 import { QuestionsService } from "@/services/questions.service";
 import { HierarchyService } from "@/services/hierarchy.service";
+import { AdminTestSeriesService } from "@/services/test-series.admin.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function CreateTestPage() {
+  const user = useAuthStore(s => s.user);
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -22,15 +25,43 @@ export default function CreateTestPage() {
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(new Set());
 
   const [hierarchy, setHierarchy] = useState<any[]>([]);
+  const [testSeriesList, setTestSeriesList] = useState<any[]>([]);
+  
+  const [selectedDestination, setSelectedDestination] = useState("");
   const [courseId, setCourseId] = useState("");
+  const [testSeriesId, setTestSeriesId] = useState("");
   const [sectionId, setSectionId] = useState("");
   const [chapterId, setChapterId] = useState("");
   const [topicId, setTopicId] = useState(topicIdQuery || "");
+
+  const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setSelectedDestination(val);
+    setSectionId("");
+    setChapterId("");
+    setTopicId("");
+    
+    if (val.startsWith("course_")) {
+      setCourseId(val.replace("course_", ""));
+      setTestSeriesId("");
+      setFormData({ ...formData, test_type: "TOPICWISE" });
+    } else if (val.startsWith("series_")) {
+      setTestSeriesId(val.replace("series_", ""));
+      setCourseId("");
+    } else {
+      setCourseId("");
+      setTestSeriesId("");
+    }
+  };
 
   useEffect(() => {
     HierarchyService.getFullHierarchy()
       .then(setHierarchy)
       .catch(err => console.error("Failed to load hierarchy", err));
+
+    AdminTestSeriesService.getAdminTestSeries()
+      .then(res => setTestSeriesList(res.data || []))
+      .catch(err => console.error("Failed to load test series", err));
   }, []);
 
   const currentCourse = hierarchy.find(c => c.id === courseId);
@@ -91,8 +122,8 @@ export default function CreateTestPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topicId) {
-      alert("Please select a topic for the test.");
+    if (!topicId && !testSeriesId) {
+      alert("Please select a topic or test series for the test.");
       return;
     }
     if (selectedQuestionIds.size === 0) {
@@ -108,7 +139,9 @@ export default function CreateTestPage() {
         start_time: formData.start_time ? new Date(formData.start_time).toISOString() : undefined,
         end_time: formData.end_time ? new Date(formData.end_time).toISOString() : undefined,
         total_marks: selectedQuestionIds.size * formData.positive_marks,
-        topic_id: topicId as string,
+        topic_id: topicId ? topicId : undefined,
+        test_series_id: testSeriesId ? testSeriesId : undefined,
+        test_type: testSeriesId ? formData.test_type : "TOPICWISE",
         question_ids: Array.from(selectedQuestionIds),
       });
       queryClient.invalidateQueries({ queryKey: ["teacher", "dashboard"] });
@@ -139,24 +172,41 @@ export default function CreateTestPage() {
             <div className="space-y-4">
               {!topicIdQuery && (
                 <div className="space-y-4 mb-6 pb-6 border-b border-white/10">
-                  <h3 className="text-sm font-semibold text-white">Select Topic for Test</h3>
+                  <h3 className="text-sm font-semibold text-white">Select Test Destination</h3>
                   <div className="grid gap-3">
-                    <select value={courseId} onChange={e => { setCourseId(e.target.value); setSectionId(""); setChapterId(""); setTopicId(""); }} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
-                      <option value="">Select Course...</option>
-                      {hierarchy.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    <select value={selectedDestination} onChange={handleDestinationChange} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500">
+                      <option value="">Select Course or Test Series...</option>
+                      <optgroup label="Courses">
+                        {hierarchy.map(c => <option key={`course_${c.id}`} value={`course_${c.id}`}>[Course] {c.name}</option>)}
+                      </optgroup>
+                      <optgroup label="Test Series">
+                        {testSeriesList.map(ts => <option key={`series_${ts.id}`} value={`series_${ts.id}`}>[Test Series] {ts.name}</option>)}
+                      </optgroup>
                     </select>
-                    <select value={sectionId} disabled={!courseId} onChange={e => { setSectionId(e.target.value); setChapterId(""); setTopicId(""); }} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 disabled:opacity-50">
-                      <option value="">Select Section...</option>
-                      {currentCourse?.sections?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </select>
-                    <select value={chapterId} disabled={!sectionId} onChange={e => { setChapterId(e.target.value); setTopicId(""); }} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 disabled:opacity-50">
-                      <option value="">Select Chapter...</option>
-                      {currentSection?.chapters?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
-                    <select value={topicId} disabled={!chapterId} onChange={e => setTopicId(e.target.value)} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 disabled:opacity-50">
-                      <option value="">Select Topic...</option>
-                      {topicsList.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                    </select>
+
+                    {courseId && (
+                      <>
+                        <select value={sectionId} disabled={!courseId} onChange={e => { setSectionId(e.target.value); setChapterId(""); setTopicId(""); }} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 disabled:opacity-50">
+                          <option value="">Select Section...</option>
+                          {currentCourse?.sections?.map((s: any) => {
+                            const isAssigned = user?.role === 'ADMIN' || currentCourse?.created_by === user?.id || s.manager?.id === user?.id;
+                            return (
+                              <option key={s.id} value={s.id} disabled={!isAssigned}>
+                                {s.name} {!isAssigned && " (⛔ Not Assigned)"}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <select value={chapterId} disabled={!sectionId} onChange={e => { setChapterId(e.target.value); setTopicId(""); }} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 disabled:opacity-50">
+                          <option value="">Select Chapter...</option>
+                          {currentSection?.chapters?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                        <select value={topicId} disabled={!chapterId} onChange={e => setTopicId(e.target.value)} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 disabled:opacity-50">
+                          <option value="">Select Topic...</option>
+                          {topicsList.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                        </select>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -209,14 +259,16 @@ export default function CreateTestPage() {
                   <label className="block text-sm text-zinc-400 mb-1">Passing Marks</label>
                   <input type="number" required min="0" value={formData.passing_marks} onChange={e => setFormData({...formData, passing_marks: e.target.value === '' ? '' : Number(e.target.value)})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500" placeholder="e.g. 40" />
                 </div>
-                <div className="flex-1">
-                  <label className="block text-sm text-zinc-400 mb-1">Test Type</label>
-                  <select value={formData.test_type} onChange={e => setFormData({...formData, test_type: e.target.value})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500">
-                    <option value="TOPICWISE">Topicwise</option>
-                    <option value="UNITWISE">Unitwise</option>
-                    <option value="FULL_SYLLABUS">Full Syllabus</option>
-                  </select>
-                </div>
+                {testSeriesId && (
+                  <div className="flex-1">
+                    <label className="block text-sm text-zinc-400 mb-1">Test Type</label>
+                    <select value={formData.test_type} onChange={e => setFormData({...formData, test_type: e.target.value})} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-white outline-none focus:border-red-500">
+                      <option value="TOPICWISE">Topicwise</option>
+                      <option value="UNITWISE">Unitwise</option>
+                      <option value="FULL_SYLLABUS">Full Syllabus</option>
+                    </select>
+                  </div>
+                )}
               </div>
 
               <button type="submit" disabled={loading} className="w-full mt-4 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg disabled:opacity-50">

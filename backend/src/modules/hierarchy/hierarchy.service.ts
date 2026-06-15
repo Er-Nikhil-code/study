@@ -330,9 +330,11 @@ export class HierarchyService {
 
     const topicTestsMap = new Map<string, any[]>(); // topicId -> Test[]
     tests.forEach(t => {
-      const arr = topicTestsMap.get(t.topic_id) || [];
-      arr.push(t);
-      topicTestsMap.set(t.topic_id, arr);
+      if (t.topic_id) {
+        const arr = topicTestsMap.get(t.topic_id) || [];
+        arr.push(t);
+        topicTestsMap.set(t.topic_id, arr);
+      }
     });
 
     const latestAttemptMap = new Map<string, any>(); // testId -> latest attempt

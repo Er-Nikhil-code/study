@@ -249,7 +249,7 @@ export class QuestionsController {
   /* ── AI Generation workflow ── */
 
   @Post("ai/generate")
-  @Permissions(PERMISSIONS.USE_AI_GENERATOR)
+  @Roles("TEACHER", "ADMIN")
   async generateQuestions(@Body() body: { 
     topicId: string;
     topicName: string;

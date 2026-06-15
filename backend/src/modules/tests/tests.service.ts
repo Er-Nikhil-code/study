@@ -29,7 +29,8 @@ export class TestsService {
     role: string,
     data: {
       title: string;
-      topic_id: string;
+      topic_id?: string;
+      test_series_id?: string;
       description?: string;
       duration_minutes: number;
       total_marks?: number;
@@ -41,7 +42,7 @@ export class TestsService {
       test_type?: any;
     },
   ) {
-    if (role !== "ADMIN") {
+    if (data.topic_id && role !== "ADMIN") {
       const topic = await this.prisma.topic.findUnique({
         where: { id: data.topic_id },
         include: { chapter: { include: { section: { include: { course: true } } } } }
@@ -52,10 +53,21 @@ export class TestsService {
       }
     }
 
+    if (data.test_series_id && role !== "ADMIN") {
+      const series = await this.prisma.testSeries.findUnique({
+        where: { id: data.test_series_id },
+        include: { staff: true }
+      });
+      if (!series) throw new NotFoundException("Test series not found");
+      if (series.created_by !== creatorId && !series.staff.some(s => s.user_id === creatorId)) {
+        throw new ForbiddenException("You don't have permission to add tests to this test series.");
+      }
+    }
+
     const test = await this.prisma.test.create({
       data: {
         title: data.title,
-        topic_id: data.topic_id,
+        topic_id: data.topic_id || null,
         description: data.description,
         created_by: creatorId,
         duration_minutes: data.duration_minutes,
@@ -66,6 +78,7 @@ export class TestsService {
         section_config: data.section_config,
         test_type: data.test_type,
         status: "PUBLISHED",
+        test_series: data.test_series_id ? { connect: { id: data.test_series_id } } : undefined,
       },
     });
 
@@ -574,21 +587,23 @@ export class TestsService {
       },
     });
 
-    // Mark tests completed in Topic Progress
-    const progress = await this.prisma.topicProgress.upsert({
-      where: { user_id_topic_id: { user_id: userId, topic_id: attempt.test.topic_id } },
-      create: { user_id: userId, topic_id: attempt.test.topic_id, tests_completed: true },
-      update: { tests_completed: true }
-    });
-
-    const notesCount = await this.prisma.note.count({ where: { topic_id: attempt.test.topic_id, approval_status: 'APPROVED' } });
-    const requireNotes = notesCount > 0;
-
-    if ((progress.notes_viewed || !requireNotes) && progress.tests_completed && !progress.is_completed) {
-      await this.prisma.topicProgress.update({
-        where: { id: progress.id },
-        data: { is_completed: true, completed_at: new Date() }
+    // Mark tests completed in Topic Progress if linked to a topic
+    if (attempt.test.topic_id) {
+      const progress = await this.prisma.topicProgress.upsert({
+        where: { user_id_topic_id: { user_id: userId, topic_id: attempt.test.topic_id } },
+        create: { user_id: userId, topic_id: attempt.test.topic_id, tests_completed: true },
+        update: { tests_completed: true }
       });
+
+      const notesCount = await this.prisma.note.count({ where: { topic_id: attempt.test.topic_id, approval_status: 'APPROVED' } });
+      const requireNotes = notesCount > 0;
+
+      if ((progress.notes_viewed || !requireNotes) && progress.tests_completed && !progress.is_completed) {
+        await this.prisma.topicProgress.update({
+          where: { id: progress.id },
+          data: { is_completed: true, completed_at: new Date() }
+        });
+      }
     }
 
     // Record daily activity for streak

@@ -280,8 +280,8 @@ model QuestionVersion {
 
 model Test {
   id               String     @id @default(cuid())
-  topic_id         String
-  topic            Topic      @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  topic_id         String?
+  topic            Topic?      @relation(fields: [topic_id], references: [id], onDelete: Cascade)
   title            String
   description      String?
   created_by       String // User ID

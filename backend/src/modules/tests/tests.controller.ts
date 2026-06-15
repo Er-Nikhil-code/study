@@ -145,7 +145,8 @@ export class TestsController {
     @Body()
     body: {
       title: string;
-      topic_id: string;
+      topic_id?: string;
+      test_series_id?: string;
       description?: string;
       duration_minutes: number;
       total_marks: number;

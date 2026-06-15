@@ -176,8 +176,8 @@ export default function AIGenerationPage() {
       let answerKey: any = { correct_option: ansStr };
 
       if (mappedType === "TRUE_FALSE") {
-        const isTrue = String(q.answerKey) === "1" || String(q.answerKey).toLowerCase() === "true";
-        answerKey = { answer: isTrue };
+        const isTrue = String(q.answerKey) === "1" || String(q.answerKey).toLowerCase() === "true" || String(q.answerKey) === "A";
+        answerKey = { answer: isTrue, correct_option: isTrue ? "A" : "B" };
         // Force exactly 2 options for True/False
         optionsJson = {
           options: [
@@ -234,7 +234,8 @@ export default function AIGenerationPage() {
              matchedOptionId = "A";
            }
         }
-        answerKey = { answer: String(q.answerKey), correct_option: matchedOptionId };
+        let parsedNum = parseFloat(String(q.answerKey));
+        answerKey = { answer: isNaN(parsedNum) ? undefined : parsedNum, correct_option: matchedOptionId };
         // Keep optionsJson if it exists
       }
       
