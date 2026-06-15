@@ -50,6 +50,14 @@ export default function AIGenerationPage() {
     customInstructions: ""
   });
 
+  const [newTestForm, setNewTestForm] = useState({
+    title: "",
+    description: "",
+    duration_minutes: "" as number | "",
+    positive_marks: 4,
+    negative_marks: 1,
+  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notesWarning, setNotesWarning] = useState<string | null>(null);
@@ -322,9 +330,29 @@ export default function AIGenerationPage() {
         };
       }
 
+      let finalTestId = selectedTest;
+
+      // Dynamic Test Creation
+      if (selectedTest.startsWith("create_")) {
+        const type = selectedTest.replace("create_", "");
+        const newTest = await TestsService.create({
+          title: newTestForm.title,
+          description: newTestForm.description,
+          duration_minutes: newTestForm.duration_minutes,
+          positive_marks: newTestForm.positive_marks,
+          negative_marks: newTestForm.negative_marks,
+          total_marks: newTestForm.positive_marks, // Initial marks will be updated by backend or manual calculation
+          test_type: type,
+          test_series_id: selectedTestSeries,
+        });
+        finalTestId = newTest.id;
+        setSelectedTest(newTest.id);
+        setTestsList((prev) => [...prev, newTest]);
+      }
+
       const mappedData: any = {
         topic_id: selectedDestination.startsWith("course_") ? form.topicId : undefined,
-        test_id: selectedDestination.startsWith("series_") ? selectedTest : undefined,
+        test_id: selectedDestination.startsWith("series_") ? finalTestId : undefined,
         type: mappedType,
         difficulty: q.difficulty || form.difficulty,
         marks: 1,
@@ -467,11 +495,93 @@ export default function AIGenerationPage() {
                   className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
                 >
                   <option value="">-- Choose Test --</option>
-                  {testsList.map((t: any) => <option key={t.id} value={t.id}>{t.title}</option>)}
+                  
+                  <optgroup label="Topicwise Tests" className="bg-zinc-900 font-bold text-white">
+                    <option value="create_TOPICWISE" className="text-purple-400 font-medium">+ Create Topicwise Test</option>
+                    {testsList.filter((t: any) => t.test_type === 'TOPICWISE').map((t: any) => (
+                      <option key={t.id} value={t.id} className="text-white font-normal">{t.title}</option>
+                    ))}
+                  </optgroup>
+                  
+                  <optgroup label="Unitwise Tests" className="bg-zinc-900 font-bold text-white">
+                    <option value="create_UNITWISE" className="text-purple-400 font-medium">+ Create Unitwise Test</option>
+                    {testsList.filter((t: any) => t.test_type === 'UNITWISE').map((t: any) => (
+                      <option key={t.id} value={t.id} className="text-white font-normal">{t.title}</option>
+                    ))}
+                  </optgroup>
+                  
+                  <optgroup label="Full Syllabus Tests" className="bg-zinc-900 font-bold text-white">
+                    <option value="create_FULL_SYLLABUS" className="text-purple-400 font-medium">+ Create Full Syllabus Test</option>
+                    {testsList.filter((t: any) => t.test_type === 'FULL_SYLLABUS').map((t: any) => (
+                      <option key={t.id} value={t.id} className="text-white font-normal">{t.title}</option>
+                    ))}
+                  </optgroup>
                 </select>
+
+                {selectedTest.startsWith("create_") && (
+                  <div className="mt-4 p-4 border border-purple-500/30 rounded-xl bg-purple-500/5 space-y-3 animate-in fade-in slide-in-from-top-2">
+                    <h4 className="text-xs font-semibold text-purple-400 border-b border-purple-500/20 pb-2">
+                      Configure New {selectedTest.replace("create_", "").replace("_", " ")} Test
+                    </h4>
+                    
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="sm:col-span-2">
+                        <label className="text-[10px] text-zinc-400 mb-1 block">Test Title</label>
+                        <input 
+                          type="text" required 
+                          value={newTestForm.title} 
+                          onChange={e => setNewTestForm({...newTestForm, title: e.target.value})}
+                          className="w-full rounded border border-white/10 bg-black/40 px-2 py-1.5 text-xs text-white outline-none focus:border-purple-500/50" 
+                          placeholder="E.g., Mock Test 1"
+                        />
+                      </div>
+                      
+                      <div className="sm:col-span-2">
+                        <label className="text-[10px] text-zinc-400 mb-1 block">Syllabus / Description (Optional)</label>
+                        <textarea 
+                          rows={2}
+                          value={newTestForm.description} 
+                          onChange={e => setNewTestForm({...newTestForm, description: e.target.value})}
+                          className="w-full rounded border border-white/10 bg-black/40 px-2 py-1.5 text-xs text-white outline-none focus:border-purple-500/50" 
+                          placeholder="Topics covered..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] text-zinc-400 mb-1 block">Duration (Mins)</label>
+                        <input 
+                          type="number" required min="1"
+                          value={newTestForm.duration_minutes} 
+                          onChange={e => setNewTestForm({...newTestForm, duration_minutes: e.target.value ? Number(e.target.value) : ""})}
+                          className="w-full rounded border border-white/10 bg-black/40 px-2 py-1.5 text-xs text-white outline-none focus:border-purple-500/50" 
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] text-zinc-400 mb-1 block">Marks (+)</label>
+                          <input 
+                            type="number" required min="0" step="any"
+                            value={newTestForm.positive_marks} 
+                            onChange={e => setNewTestForm({...newTestForm, positive_marks: e.target.value ? Number(e.target.value) : 0})}
+                            className="w-full rounded border border-white/10 bg-black/40 px-2 py-1.5 text-xs text-white outline-none focus:border-purple-500/50" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-zinc-400 mb-1 block">Negative (-)</label>
+                          <input 
+                            type="number" required min="0" step="any"
+                            value={newTestForm.negative_marks} 
+                            onChange={e => setNewTestForm({...newTestForm, negative_marks: e.target.value ? Number(e.target.value) : 0})}
+                            className="w-full rounded border border-white/10 bg-black/40 px-2 py-1.5 text-xs text-white outline-none focus:border-purple-500/50" 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
-
             {/* AI Parameters */}
             {(form.topicId || selectedTest) && (
               <div className="pt-4 border-t border-white/10 space-y-4">

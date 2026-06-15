@@ -50,6 +50,14 @@ export default function CreateQuestionPage() {
   const [testsList, setTestsList] = useState<any[]>([]);
   const [selectedTestSeries, setSelectedTestSeries] = useState<string>("");
   const [selectedTest, setSelectedTest] = useState<string>("");
+  
+  const [newTestForm, setNewTestForm] = useState({
+    title: "",
+    description: "",
+    duration_minutes: "" as number | "",
+    positive_marks: 4,
+    negative_marks: 1,
+  });
 
   // General Data
   const [formData, setFormData] = useState({
@@ -166,7 +174,7 @@ export default function CreateQuestionPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -184,9 +192,31 @@ export default function CreateQuestionPage() {
     }
 
     try {
+      let finalTestId = selectedTest;
+
+      // Handle dynamic test creation
+      if (selectedTest.startsWith("create_")) {
+        setSaving(true);
+        const type = selectedTest.replace("create_", "");
+        const newTest = await TestsService.create({
+          title: newTestForm.title,
+          description: newTestForm.description,
+          duration_minutes: newTestForm.duration_minutes,
+          positive_marks: newTestForm.positive_marks,
+          negative_marks: newTestForm.negative_marks,
+          total_marks: newTestForm.positive_marks, // Initial marks will be updated by backend or manual calculation
+          test_type: type,
+          test_series_id: selectedTestSeries,
+        });
+        finalTestId = newTest.id;
+        setSelectedTest(newTest.id);
+        setTestsList((prev) => [...prev, newTest]);
+        setSaving(false);
+      }
+
       const payload: any = {
         topic_id: selectedDestination.startsWith("course_") ? formData.topic_id : undefined,
-        test_id: selectedDestination.startsWith("series_") ? selectedTest : undefined,
+        test_id: selectedDestination.startsWith("series_") ? finalTestId : undefined,
         difficulty: formData.difficulty,
         type: formData.type,
         content_json: [{ type: "TEXT", content: formData.content }],
@@ -237,6 +267,7 @@ export default function CreateQuestionPage() {
       // Fire mutation
       createMutation.mutate(payload);
     } catch (err: any) {
+      setSaving(false);
       setError(err?.message || "Failed to prepare question");
     }
   };
@@ -361,12 +392,91 @@ export default function CreateQuestionPage() {
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none disabled:opacity-50"
                 >
                   <option value="">Choose Test...</option>
-                  {testsList.map((t: any) => (
-                    <option key={t.id} value={t.id} className="bg-zinc-900">
-                      {t.title}
-                    </option>
-                  ))}
+                  
+                  <optgroup label="Topicwise Tests" className="bg-zinc-900 font-bold text-white">
+                    <option value="create_TOPICWISE" className="text-red-400 font-medium">+ Create Topicwise Test</option>
+                    {testsList.filter((t: any) => t.test_type === 'TOPICWISE').map((t: any) => (
+                      <option key={t.id} value={t.id} className="text-white font-normal">{t.title}</option>
+                    ))}
+                  </optgroup>
+                  
+                  <optgroup label="Unitwise Tests" className="bg-zinc-900 font-bold text-white">
+                    <option value="create_UNITWISE" className="text-red-400 font-medium">+ Create Unitwise Test</option>
+                    {testsList.filter((t: any) => t.test_type === 'UNITWISE').map((t: any) => (
+                      <option key={t.id} value={t.id} className="text-white font-normal">{t.title}</option>
+                    ))}
+                  </optgroup>
+                  
+                  <optgroup label="Full Syllabus Tests" className="bg-zinc-900 font-bold text-white">
+                    <option value="create_FULL_SYLLABUS" className="text-red-400 font-medium">+ Create Full Syllabus Test</option>
+                    {testsList.filter((t: any) => t.test_type === 'FULL_SYLLABUS').map((t: any) => (
+                      <option key={t.id} value={t.id} className="text-white font-normal">{t.title}</option>
+                    ))}
+                  </optgroup>
                 </select>
+
+                {selectedTest.startsWith("create_") && (
+                  <div className="mt-4 p-5 border border-red-500/30 rounded-xl bg-red-500/5 space-y-4 animate-in fade-in slide-in-from-top-2">
+                    <h4 className="text-sm font-semibold text-red-400 border-b border-red-500/20 pb-2">
+                      Configure New {selectedTest.replace("create_", "").replace("_", " ")} Test
+                    </h4>
+                    
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="sm:col-span-2">
+                        <label className="text-xs text-zinc-400 mb-1 block">Test Title</label>
+                        <input 
+                          type="text" required 
+                          value={newTestForm.title} 
+                          onChange={e => setNewTestForm({...newTestForm, title: e.target.value})}
+                          className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                          placeholder="E.g., Mock Test 1"
+                        />
+                      </div>
+                      
+                      <div className="sm:col-span-2">
+                        <label className="text-xs text-zinc-400 mb-1 block">Syllabus / Description (Optional)</label>
+                        <textarea 
+                          rows={2}
+                          value={newTestForm.description} 
+                          onChange={e => setNewTestForm({...newTestForm, description: e.target.value})}
+                          className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                          placeholder="Topics covered..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-zinc-400 mb-1 block">Duration (Mins)</label>
+                        <input 
+                          type="number" required min="1"
+                          value={newTestForm.duration_minutes} 
+                          onChange={e => setNewTestForm({...newTestForm, duration_minutes: e.target.value ? Number(e.target.value) : ""})}
+                          className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-xs text-zinc-400 mb-1 block">Marks (+)</label>
+                          <input 
+                            type="number" required min="0" step="any"
+                            value={newTestForm.positive_marks} 
+                            onChange={e => setNewTestForm({...newTestForm, positive_marks: e.target.value ? Number(e.target.value) : 0})}
+                            className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-zinc-400 mb-1 block">Negative (-)</label>
+                          <input 
+                            type="number" required min="0" step="any"
+                            value={newTestForm.negative_marks} 
+                            onChange={e => setNewTestForm({...newTestForm, negative_marks: e.target.value ? Number(e.target.value) : 0})}
+                            className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50" 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

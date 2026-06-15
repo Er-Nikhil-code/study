@@ -116,14 +116,7 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
     const element = document.getElementById(`note-content-${noteId}`);
     if (!element) return;
     
-    // Create an invisible fixed container to prevent scrollbars and layout shifts
-    const wrapper = document.createElement("div");
-    wrapper.style.position = "fixed";
-    wrapper.style.top = "0";
-    wrapper.style.left = "-9999px"; // Hide off-screen horizontally
-    wrapper.style.width = "800px";  // Fixed width for consistent PDF layout
-    wrapper.style.zIndex = "-9999";
-
+    // Create a clone to modify classes for the PDF (white background, black text)
     const clone = element.cloneNode(true) as HTMLElement;
     clone.className = "bg-white p-6 rounded-xl text-black";
     
@@ -132,22 +125,18 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
       contentDiv.className = "prose max-w-none text-black"; // Removed prose-invert
     }
 
-    wrapper.appendChild(clone);
-    document.body.appendChild(wrapper);
-
     const opt = {
       margin:       10,
       filename:     `${title.replace(/[^a-zA-Z0-9]/g, '_')}_Notes.pdf`,
       image:        { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
+      html2canvas:  { scale: 2, useCORS: true },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
-    try {
-      await html2pdf().set(opt as any).from(wrapper).save();
-    } finally {
-      document.body.removeChild(wrapper);
-    }
+    // Pass the unattached clone directly to html2pdf. 
+    // It will internally append it to a hidden container, render it, and clean up,
+    // avoiding both blank pages and screen flashing.
+    await html2pdf().set(opt as any).from(clone).save();
   };
 
   return (
