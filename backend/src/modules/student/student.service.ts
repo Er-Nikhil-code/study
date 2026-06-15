@@ -470,12 +470,13 @@ export class StudentService {
     period: "weekly" | "monthly" | "global",
     take: number = 50,
     requestingRole: string = "STUDENT",
-    courseId?: string
+    courseId?: string,
+    testSeriesId?: string
   ) {
     const targetRole = requestingRole === "INTERN" ? "INTERN" : "STUDENT";
 
     if (period === "global") {
-      return this.getGlobalLeaderboard(take, targetRole, courseId);
+      return this.getGlobalLeaderboard(take, targetRole, courseId, testSeriesId);
     }
 
     const now = new Date();
@@ -494,6 +495,9 @@ export class StudentService {
     };
     if (courseId) {
       whereClause.user.course_enrollments = { some: { course_id: courseId } };
+    }
+    if (testSeriesId) {
+      whereClause.user.test_series_enrollments = { some: { test_series_id: testSeriesId } };
     }
 
     const attempts = await this.prisma.attempt.findMany({
@@ -567,12 +571,15 @@ export class StudentService {
     return { period, data: rows };
   }
 
-  private async getGlobalLeaderboard(take: number, targetRole: string, courseId?: string) {
+  private async getGlobalLeaderboard(take: number, targetRole: string, courseId?: string, testSeriesId?: string) {
     const whereClause: any = {
       user: { role: targetRole as any }
     };
     if (courseId) {
       whereClause.user.course_enrollments = { some: { course_id: courseId } };
+    }
+    if (testSeriesId) {
+      whereClause.user.test_series_enrollments = { some: { test_series_id: testSeriesId } };
     }
 
     const users = await this.prisma.userStats.findMany({

@@ -63,6 +63,12 @@ export class HierarchyController {
     return this.hierarchyService.deleteCourse(id, req.user.sub, req.user.role);
   }
 
+  @Delete("test-series/:id")
+  @Roles("ADMIN")
+  deleteTestSeries(@Param("id") id: string, @Request() req: any) {
+    return this.hierarchyService.deleteTestSeries(id, req.user.sub, req.user.role);
+  }
+
   @Post("courses/:id/staff")
   @Roles("ADMIN")
   assignCourseStaff(@Param("id") id: string, @Request() req: any, @Body() data: { user_id: string }) {

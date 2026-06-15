@@ -37,6 +37,10 @@ export const HierarchyService = {
     return api.delete(`/admin/hierarchy/courses/${id}`).then((r) => r.data);
   },
 
+  deleteTestSeries(id: string) {
+    return api.delete(`/admin/hierarchy/test-series/${id}`).then((r) => r.data);
+  },
+
   enrollCourse(courseId: string) {
     return api.post(`/admin/hierarchy/courses/${courseId}/enroll`).then((r) => r.data);
   },

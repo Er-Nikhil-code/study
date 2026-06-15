@@ -10,24 +10,30 @@ const PERIODS = [
   { value: "global", label: "All Time" },
 ] as const;
 
-export default function CourseLeaderboard({ courseId, headerActions }: { courseId: string, headerActions?: React.ReactNode }) {
+export default function CourseLeaderboard({ courseId, headerActions, type = "course" }: { courseId: string, headerActions?: React.ReactNode, type?: "course" | "test_series" }) {
   const [period, setPeriod] = useState<"weekly" | "monthly" | "global">("global");
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
+    const params = type === "test_series" 
+      ? [period, undefined, courseId] as ["weekly" | "monthly" | "global", string | undefined, string | undefined]
+      : [period, courseId, undefined] as ["weekly" | "monthly" | "global", string | undefined, string | undefined];
+
     studentService
-      .getLeaderboard(period, courseId)
+      .getLeaderboard(...params)
       .then((res) => setRows(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [period, courseId]);
+  }, [period, courseId, type]);
 
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-white">Course Leaderboard</h2>
+        <h2 className="text-xl font-bold text-white">
+          {type === "test_series" ? "Test Series Leaderboard" : "Course Leaderboard"}
+        </h2>
         <div className="flex items-center gap-4">
           <div className="flex gap-2 bg-black/40 p-1 rounded-xl border border-white/5">
             {PERIODS.map((p) => (
@@ -72,7 +78,7 @@ export default function CourseLeaderboard({ courseId, headerActions }: { courseI
             </div>
           ) : rows.length === 0 ? (
             <div className="px-5 py-8 text-center text-sm text-zinc-500 bg-zinc-900/30">
-              No warriors are currently active in this course.
+              No warriors are currently active in this {type === "test_series" ? "test series" : "course"}.
             </div>
           ) : (
             <div className="divide-y divide-white/5 max-h-[350px] overflow-y-auto custom-scrollbar">

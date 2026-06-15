@@ -42,11 +42,12 @@ export class StudentController {
     @Query("period") period?: string,
     @Query("take") take?: string,
     @Query("course_id") courseId?: string,
+    @Query("test_series_id") testSeriesId?: string,
   ) {
     const p = (period === "weekly" || period === "monthly" || period === "global")
       ? period
       : "weekly";
-    return this.studentService.getLeaderboard(p, take ? parseInt(take, 10) : 50, req.user.role, courseId);
+    return this.studentService.getLeaderboard(p, take ? parseInt(take, 10) : 50, req.user.role, courseId, testSeriesId);
   }
 
   @Get("test-series")

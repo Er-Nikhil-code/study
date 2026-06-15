@@ -38,7 +38,7 @@ export class HierarchyService {
     await this.checkCoursePermission(id, userId, role);
     return this.prisma.course.update({ where: { id }, data });
   }
-  private async preserveQuestions(params: { courseId?: string, sectionId?: string, chapterId?: string, topicId?: string }) {
+  private async preserveQuestions(params: { courseId?: string, testSeriesId?: string, sectionId?: string, chapterId?: string, topicId?: string }) {
     // Find all topics affected
     let topics: Array<{ id: string }> = [];
     if (params.topicId) {
@@ -49,6 +49,8 @@ export class HierarchyService {
       topics = await this.prisma.topic.findMany({ where: { chapter: { section_id: params.sectionId } }, select: { id: true } });
     } else if (params.courseId) {
       topics = await this.prisma.topic.findMany({ where: { chapter: { section: { course_id: params.courseId } } }, select: { id: true } });
+    } else if (params.testSeriesId) {
+      topics = await this.prisma.topic.findMany({ where: { chapter: { section: { test_series_id: params.testSeriesId } } }, select: { id: true } });
     }
     const topicIds = topics.map(t => t.id);
     if (topicIds.length === 0) return;
@@ -91,6 +93,12 @@ export class HierarchyService {
     await this.checkCoursePermission(id, userId, role);
     await this.preserveQuestions({ courseId: id });
     return this.prisma.course.delete({ where: { id } });
+  }
+
+  async deleteTestSeries(id: string, userId: string, role: string) {
+    await this.checkTestSeriesPermission(id, userId, role);
+    await this.preserveQuestions({ testSeriesId: id });
+    return this.prisma.testSeries.delete({ where: { id } });
   }
   getCourses() {
     return this.prisma.course.findMany({ include: { sections: true }, orderBy: { created_at: 'asc' } });

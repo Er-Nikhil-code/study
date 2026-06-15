@@ -43,8 +43,8 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
   });
 
   const { data: enrollments } = useQuery({
-    queryKey: ["course_enrollments", seriesId],
-    queryFn: () => HierarchyService.getTestSeriesEnrollments(seriesId as string),
+    queryKey: ["test_series_enrollments", seriesId],
+    queryFn: () => HierarchyService.getTestSeriesEnrollments(seriesId as string).catch(() => []),
     enabled: user?.role === "ADMIN",
   });
 
@@ -98,10 +98,10 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
             }
           }
         } else {
-          setError("Course not found.");
+          setError("Test Series not found.");
         }
       })
-      .catch(() => setError("Failed to load course details."))
+      .catch(() => setError("Failed to load test series details."))
       .finally(() => {
         setLoading(false);
       });
@@ -223,10 +223,10 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
     }
   };
 
-  const handleDeleteCourse = async () => {
-    if (confirm("Delete this course entirely?")) {
-      await HierarchyService.deleteCourse(series.id);
-      router.push("/courses");
+  const handleDeleteSeries = async () => {
+    if (confirm("Delete this test series entirely?")) {
+      await HierarchyService.deleteTestSeries(series.id);
+      router.push("/test-series");
     }
   };
 
@@ -367,7 +367,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                   subtitle={
                     canSeeCode ? (
                       <span className="flex items-center gap-1.5 flex-wrap">
-                        <span>Course Code: {series.code}</span>
+                        <span>Test Series Code: {series.code}</span>
                         <span>•</span>
                         <span className="relative group/creator flex items-center gap-1 cursor-help">
                           Creator: <span className="text-zinc-300 hover:text-white transition-colors">{series.creator ? `${series.creator.first_name} ${series.creator.last_name || ''}`.trim() : "King"}</span>
@@ -405,7 +405,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                           </span>
                         </span>
                       </span>
-                    ) : "Course Curriculum"
+                    ) : "Test Series Curriculum"
                   } 
                 />
               </div>
@@ -421,7 +421,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                           router.push("/student/cart");
                         } else {
                           await api.post(`/student/test-series/${series.id}/enroll`);
-                          queryClient.invalidateQueries({ queryKey: ["courses", "hierarchy"] });
+                          queryClient.invalidateQueries({ queryKey: ["test_series", "hierarchy"] });
                           fetchSeries();
                         }
                       } catch (e) {
@@ -843,7 +843,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                                         <div 
                                           key={topic.id} 
                                           onClick={() => {
-                                            alert("This topic is locked in the free preview. Please enroll in or purchase the course to unlock it.");
+                                            alert("This topic is locked in the free preview. Please enroll in or purchase the test series to unlock it.");
                                             window.scrollTo({ top: 0, behavior: 'smooth' });
                                           }}
                                           className="p-4 rounded-xl border border-white/5 bg-black/40 hover:bg-black/60 transition-all flex flex-col h-full group relative cursor-pointer"
@@ -1027,7 +1027,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                 </Panel>
               )}
 
-              {/* Leaderboard Matches Course Box Width */}
+              {/* Leaderboard Matches Test Series Box Width */}
               <div className="relative w-full lg:w-1/2 mt-12 pr-4">
                 {String(user?.role) === "STUDENT" && !series?.is_enrolled && (
                   <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center border border-white/10 shadow-2xl">
@@ -1036,11 +1036,11 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">Leaderboard Locked</h3>
                     <p className="text-zinc-400 max-w-sm text-center text-sm">
-                      Enroll in the course to view rankings, compare scores, and compete with other warriors.
+                      Enroll in the test series to view rankings, compare scores, and compete with other warriors.
                     </p>
                   </div>
                 )}
-                <CourseLeaderboard courseId={seriesId} />
+                <CourseLeaderboard courseId={seriesId as string} type="test_series" />
               </div>
 
             </div>
@@ -1050,7 +1050,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
             <div className="w-full lg:w-80 shrink-0 space-y-6">
               <Panel className="bg-zinc-900/50 border-white/10 relative z-20">
                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Users size={18} className="text-red-400" /> Course Knights
+                  <Users size={18} className="text-red-400" /> Test Series Knights
                 </h3>
                 <div className="space-y-4">
                   <div className="flex flex-col gap-2">
@@ -1210,14 +1210,14 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
             </div>
           )}
 
-        {/* Delete Course Button */}
+        {/* Delete Test Series Button */}
         {isCreatorOrAdmin && (
           <div className="mt-32 pb-12 flex justify-end w-full opacity-60 hover:opacity-100 transition-opacity">
             <button
-              onClick={handleDeleteCourse}
+              onClick={handleDeleteSeries}
               className="rounded-md border border-red-500/20 bg-red-500/5 px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-red-400 transition-all hover:bg-red-600 hover:text-white hover:border-red-500"
             >
-              Delete Course
+              Delete Test Series
             </button>
           </div>
         )}
