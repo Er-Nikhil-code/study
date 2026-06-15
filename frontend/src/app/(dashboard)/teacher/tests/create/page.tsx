@@ -60,7 +60,7 @@ export default function CreateTestPage() {
       .catch(err => console.error("Failed to load hierarchy", err));
 
     AdminTestSeriesService.getAdminTestSeries()
-      .then(res => setTestSeriesList(res.data || []))
+      .then(res => setTestSeriesList(res || []))
       .catch(err => console.error("Failed to load test series", err));
   }, []);
 
@@ -188,14 +188,13 @@ export default function CreateTestPage() {
                       <>
                         <select value={sectionId} disabled={!courseId} onChange={e => { setSectionId(e.target.value); setChapterId(""); setTopicId(""); }} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 disabled:opacity-50">
                           <option value="">Select Section...</option>
-                          {currentCourse?.sections?.map((s: any) => {
-                            const isAssigned = user?.role === 'ADMIN' || currentCourse?.created_by === user?.id || s.manager?.id === user?.id;
-                            return (
-                              <option key={s.id} value={s.id} disabled={!isAssigned}>
-                                {s.name} {!isAssigned && " (⛔ Not Assigned)"}
+                          {currentCourse?.sections
+                            ?.filter((s: any) => user?.role === "ADMIN" || currentCourse?.created_by === user?.id || s.manager?.id === user?.id)
+                            .map((s: any) => (
+                              <option key={s.id} value={s.id}>
+                                {s.name}
                               </option>
-                            );
-                          })}
+                            ))}
                         </select>
                         <select value={chapterId} disabled={!sectionId} onChange={e => { setChapterId(e.target.value); setTopicId(""); }} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 disabled:opacity-50">
                           <option value="">Select Chapter...</option>

@@ -386,7 +386,7 @@ export default function AdminTestSeriesPage() {
           )}
 
           {testSeries.map((series: any) => {
-            const isCreatorOrAdmin = user?.role === "ADMIN" || user?.id === series.created_by || series.staff?.some((s: any) => s.user_id === user?.id);
+            const isCreatorOrAdmin = user?.role === "ADMIN";
             const canAssignStaff = user?.role === "ADMIN";
             
             return (

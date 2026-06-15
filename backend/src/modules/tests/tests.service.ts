@@ -223,6 +223,8 @@ export class TestsService {
       where.topic = { chapter_id: filters.chapterId };
     } else if (filters.sectionId) {
       where.topic = { chapter: { section_id: filters.sectionId } };
+    } else if (filters.testSeriesId) {
+      where.test_series_id = filters.testSeriesId;
     } else if (filters.courseId) {
       where.topic = { chapter: { section: { course_id: filters.courseId } } };
     }

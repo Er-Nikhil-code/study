@@ -113,6 +113,7 @@ export class TestsController {
     @Query("chapter_id") chapterId?: string,
     @Query("search") search?: string,
     @Query("created_only") createdOnly?: string,
+    @Query("test_series_id") testSeriesId?: string,
     @Query("page") page?: string,
     @Query("limit") limit?: string,
   ) {
@@ -125,6 +126,7 @@ export class TestsController {
       courseId,
       sectionId,
       chapterId,
+      testSeriesId,
       search,
       createdOnly: createdOnly === "true",
     });

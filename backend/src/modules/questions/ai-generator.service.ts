@@ -32,8 +32,9 @@ export class AiGeneratorService {
     userId: string,
     role: string,
     context: {
-      topicId: string;
-      topicName: string;
+      topicId?: string;
+      testId?: string;
+      topicName?: string;
       topicDesc?: string;
       courseName?: string;
       courseDesc?: string;
@@ -75,7 +76,7 @@ export class AiGeneratorService {
     }
 
     let contextNotesStr = '';
-    if (useNotes) {
+    if (useNotes && context.topicId) {
       const note = await this.prisma.note.findFirst({
         where: { topic_id: context.topicId },
         orderBy: { created_at: 'desc' }
@@ -84,6 +85,8 @@ export class AiGeneratorService {
         throw new HttpException('notes unavailable', HttpStatus.BAD_REQUEST);
       }
       contextNotesStr = note.content_html; // strip tags or send as is
+    } else if (useNotes && !context.topicId) {
+      throw new HttpException('Notes reference not available for Test Series tests', HttpStatus.BAD_REQUEST);
     }
 
     let hierarchyContextStr = `You are an expert educator creating high-quality assessment questions.

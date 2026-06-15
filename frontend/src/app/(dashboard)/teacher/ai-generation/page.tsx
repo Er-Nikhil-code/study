@@ -11,6 +11,8 @@ import { NotesService } from "@/services/notes.service";
 import { Brain, Sparkles, AlertTriangle, Loader2, Save, Trash2, Check, Info, Edit2, PlusCircle } from "lucide-react";
 import UserHoverCard from "@/components/ui/UserHoverCard";
 import { useAuthStore } from "@/store/auth.store";
+import { AdminTestSeriesService } from "@/services/test-series.admin.service";
+import { TestsService } from "@/services/tests.service";
 
 const QUESTION_TYPES = [
   "SINGLE_CORRECT",
@@ -27,6 +29,12 @@ export default function AIGenerationPage() {
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.role === "ADMIN";
   const queryClient = useQueryClient();
+
+  const [selectedDestination, setSelectedDestination] = useState<string>("");
+  const [testSeriesList, setTestSeriesList] = useState<any[]>([]);
+  const [testsList, setTestsList] = useState<any[]>([]);
+  const [selectedTestSeries, setSelectedTestSeries] = useState<string>("");
+  const [selectedTest, setSelectedTest] = useState<string>("");
 
   const [hierarchy, setHierarchy] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>("");
@@ -54,12 +62,51 @@ export default function AIGenerationPage() {
 
   useEffect(() => {
     HierarchyService.getFullHierarchy().then(setHierarchy).catch(() => setError("Failed to load hierarchy"));
+    AdminTestSeriesService.getAdminTestSeries().then(res => setTestSeriesList(res || [])).catch(() => setError("Failed to load test series"));
   }, []);
+
+  useEffect(() => {
+    if (selectedTestSeries) {
+      TestsService.getTeacherTests({ test_series_id: selectedTestSeries, take: 100 })
+        .then((res: any) => setTestsList(res.data || []))
+        .catch(() => setError("Failed to load tests"));
+    } else {
+      setTestsList([]);
+      setSelectedTest("");
+    }
+  }, [selectedTestSeries]);
+
+  const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setSelectedDestination(val);
+    
+    // Reset selections
+    setSelectedCourse("");
+    setSelectedSection("");
+    setSelectedChapter("");
+    setForm({...form, topicId: ""});
+    setSelectedTestSeries("");
+    setSelectedTest("");
+
+    if (val.startsWith("course_")) {
+      setSelectedCourse(val.replace("course_", ""));
+    } else if (val.startsWith("series_")) {
+      setSelectedTestSeries(val.replace("series_", ""));
+    }
+  };
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.topicId) {
+    if (selectedDestination.startsWith("course_") && !form.topicId) {
       setError("Please select a topic");
+      return;
+    }
+    if (selectedDestination.startsWith("series_") && !selectedTest) {
+      setError("Please select a Test in the Test Series");
+      return;
+    }
+    if (!selectedDestination) {
+      setError("Please select a destination");
       return;
     }
 
@@ -81,8 +128,9 @@ export default function AIGenerationPage() {
       const context = getSelectedContext();
       
       const res = await AiService.generateQuestions({
-        topicId: form.topicId,
-        topicName: context?.topicName || "",
+        topicId: selectedDestination.startsWith("course_") ? form.topicId : undefined,
+        testId: selectedDestination.startsWith("series_") ? selectedTest : undefined,
+        topicName: context?.topicName || (selectedDestination.startsWith("series_") ? "Test Series" : ""),
         topicDesc: context?.topicDesc,
         courseName: context?.courseName,
         courseDesc: context?.courseDesc,
@@ -110,6 +158,15 @@ export default function AIGenerationPage() {
   };
 
   const getSelectedContext = () => {
+    if (selectedDestination.startsWith("series_")) {
+       const series = testSeriesList.find(s => s.id === selectedTestSeries);
+       const tst = testsList.find(t => t.id === selectedTest);
+       return {
+         courseName: series ? `Test Series: ${series.title}` : "",
+         topicName: tst ? tst.title : ""
+       };
+    }
+    
     for (const course of hierarchy) {
       for (const sec of course.sections) {
         for (const chap of sec.chapters) {
@@ -265,8 +322,9 @@ export default function AIGenerationPage() {
         };
       }
 
-      const mappedData = {
-        topic_id: form.topicId,
+      const mappedData: any = {
+        topic_id: selectedDestination.startsWith("course_") ? form.topicId : undefined,
+        test_id: selectedDestination.startsWith("series_") ? selectedTest : undefined,
         type: mappedType,
         difficulty: q.difficulty || form.difficulty,
         marks: 1,
@@ -309,9 +367,21 @@ export default function AIGenerationPage() {
   const wordCount = form.customInstructions.trim() ? form.customInstructions.trim().split(/\s+/).length : 0;
 
   const allCourses = hierarchy;
-  const allSections = hierarchy.flatMap(c => c.sections || []);
-  const allChapters = allSections.flatMap((s: any) => s.chapters || []);
-  const allTopics = allChapters.flatMap((c: any) => c.topics || []);
+  const allSections = (selectedCourse 
+    ? hierarchy.find((c: any) => c.id === selectedCourse)?.sections || []
+    : hierarchy.flatMap((c: any) => c.sections || [])
+  ).filter((s: any) => {
+    const course = hierarchy.find((c: any) => c.id === s.course_id) || hierarchy.find((c: any) => c.sections?.some((sec: any) => sec.id === s.id));
+    return user?.role === "ADMIN" || course?.created_by === user?.id || s.manager?.id === user?.id;
+  });
+
+  const allChapters = selectedSection
+    ? allSections.find((s: any) => s.id === selectedSection)?.chapters || []
+    : allSections.flatMap((s: any) => s.chapters || []);
+
+  const allTopics = selectedChapter
+    ? allChapters.find((c: any) => c.id === selectedChapter)?.topics || []
+    : allChapters.flatMap((c: any) => c.topics || []);
 
   return (
     <>
@@ -332,58 +402,78 @@ export default function AIGenerationPage() {
           </h3>
 
           <form onSubmit={handleGenerate} className="space-y-4 relative z-10">
-            {/* Independent Selects */}
+            {/* Destination Selection */}
             <div>
-              <label className="text-xs text-zinc-400">Course</label>
-              <select 
-                value={selectedCourse} 
-                onChange={e => setSelectedCourse(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
-              >
-                <option value="">-- All Courses --</option>
-                {allCourses.map(c => <option key={c.id} value={c.id}>{c.code} - {c.name}</option>)}
+              <label className="text-xs text-zinc-400">Select Destination</label>
+              <select value={selectedDestination} onChange={handleDestinationChange} className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500">
+                <option value="">Select Course or Test Series...</option>
+                <optgroup label="Courses">
+                  {hierarchy.map((c: any) => <option key={`course_${c.id}`} value={`course_${c.id}`}>[Course] {c.name}</option>)}
+                </optgroup>
+                <optgroup label="Test Series">
+                  {testSeriesList.map((ts: any) => <option key={`series_${ts.id}`} value={`series_${ts.id}`}>[Series] {ts.title}</option>)}
+                </optgroup>
               </select>
             </div>
 
-            <div>
-              <label className="text-xs text-zinc-400">Section</label>
-              <select 
-                value={selectedSection} 
-                onChange={e => setSelectedSection(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
-              >
-                <option value="">-- All Sections --</option>
-                {allSections.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </div>
+            {selectedDestination.startsWith("course_") && (
+              <>
+                <div>
+                  <label className="text-xs text-zinc-400">Section</label>
+                  <select 
+                    value={selectedSection} 
+                    onChange={e => setSelectedSection(e.target.value)}
+                    className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
+                  >
+                    <option value="">-- All Sections --</option>
+                    {allSections.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                </div>
 
-            <div>
-              <label className="text-xs text-zinc-400">Chapter</label>
-              <select 
-                value={selectedChapter} 
-                onChange={e => setSelectedChapter(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
-              >
-                <option value="">-- All Chapters --</option>
-                {allChapters.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
+                <div>
+                  <label className="text-xs text-zinc-400">Chapter</label>
+                  <select 
+                    value={selectedChapter} 
+                    onChange={e => setSelectedChapter(e.target.value)}
+                    className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
+                  >
+                    <option value="">-- All Chapters --</option>
+                    {allChapters.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
 
-            <div>
-              <label className="text-xs text-zinc-400">Topic</label>
-              <select 
-                required
-                value={form.topicId} 
-                onChange={e => setForm({...form, topicId: e.target.value})}
-                className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
-              >
-                <option value="">-- Choose Topic --</option>
-                {allTopics.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-            </div>
+                <div>
+                  <label className="text-xs text-zinc-400">Topic</label>
+                  <select 
+                    required={selectedDestination.startsWith("course_")}
+                    value={form.topicId} 
+                    onChange={e => setForm({...form, topicId: e.target.value})}
+                    className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
+                  >
+                    <option value="">-- Choose Topic --</option>
+                    {allTopics.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                  </select>
+                </div>
+              </>
+            )}
+
+            {selectedDestination.startsWith("series_") && (
+              <div>
+                <label className="text-xs text-zinc-400">Test</label>
+                <select 
+                  required={selectedDestination.startsWith("series_")}
+                  value={selectedTest} 
+                  onChange={e => setSelectedTest(e.target.value)}
+                  className="mt-1 block w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white focus:border-purple-500"
+                >
+                  <option value="">-- Choose Test --</option>
+                  {testsList.map((t: any) => <option key={t.id} value={t.id}>{t.title}</option>)}
+                </select>
+              </div>
+            )}
 
             {/* AI Parameters */}
-            {form.topicId && (
+            {(form.topicId || selectedTest) && (
               <div className="pt-4 border-t border-white/10 space-y-4">
                 <div className="flex flex-col gap-1 relative">
                   <div className="flex items-center gap-2">

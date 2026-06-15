@@ -9,7 +9,8 @@ const ContentBlockSchema = z.object({
 
 // Base schema for all question types
 const BaseQuestionSchema = z.object({
-  topic_id: z.string(),
+  topic_id: z.string().optional(),
+  test_id: z.string().optional(), // For direct test creation
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]).default("MEDIUM"),
   marks: z.number().default(1),
   negative_marks: z.number().default(0),

@@ -57,14 +57,21 @@ export class QuestionsService {
     try {
       this.logger.debug(`📝 [QUESTIONS] Creating question for user ${userId} (role: ${userRole})`);
 
-      // Validate topic exists
-      const topic = await this.prisma.topic.findUnique({
-        where: { id: data.topic_id },
-        include: { chapter: { include: { section: true } } }
-      });
-
-      if (!topic) {
-        throw new NotFoundException(`Topic with ID "${data.topic_id}" not found`);
+      // Validate topic or test exists
+      let courseId = null;
+      if (data.topic_id) {
+        const topic = await this.prisma.topic.findUnique({
+          where: { id: data.topic_id },
+          include: { chapter: { include: { section: true } } }
+        });
+        if (!topic) throw new NotFoundException(`Topic with ID "${data.topic_id}" not found`);
+        courseId = topic.chapter.section.course_id;
+      } else if (data.test_id) {
+        const test = await this.prisma.test.findUnique({ where: { id: data.test_id } });
+        if (!test) throw new NotFoundException(`Test with ID "${data.test_id}" not found`);
+        // We bypass courseId check for test series questions for interns for now
+      } else {
+        throw new BadRequestException("Either topic_id or test_id must be provided");
       }
 
       const creatorUser = await this.prisma.user.findUnique({
@@ -72,9 +79,8 @@ export class QuestionsService {
         include: { custom_role: true }
       });
 
-      if (userRole === "INTERN") {
+      if (userRole === "INTERN" && courseId) {
         if (creatorUser?.assigned_teacher_id) {
-          const courseId = topic.chapter.section.course_id;
           const staffAssigned = await this.prisma.courseStaff.findUnique({
             where: { course_id_user_id: { course_id: courseId, user_id: creatorUser.assigned_teacher_id } }
           });
@@ -93,7 +99,7 @@ export class QuestionsService {
       
       return await this.prisma.$transaction(async (prisma) => {
         const questionData: any = {
-          topic_id: data.topic_id,
+          topic_id: data.topic_id || null,
           content_json: data.content_json,
           options_json: (data as any).options_json ?? undefined,
           answer_key: (data as any).answer_key,
@@ -130,6 +136,16 @@ export class QuestionsService {
               solution_json: data.solution_json ?? undefined,
             },
           });
+          if (data.test_id) {
+            const nextOrder = await prisma.testQuestion.count({ where: { test_id: data.test_id } });
+            await prisma.testQuestion.create({
+              data: {
+                test_id: data.test_id,
+                question_id: q.id,
+                order_index: nextOrder
+              }
+            });
+          }
           return q;
         } else {
           const q = await prisma.question.create({ data: questionData });
@@ -143,6 +159,17 @@ export class QuestionsService {
               solution_json: data.solution_json ?? undefined,
             },
           });
+          
+          if (data.test_id) {
+            const nextOrder = await prisma.testQuestion.count({ where: { test_id: data.test_id } });
+            await prisma.testQuestion.create({
+              data: {
+                test_id: data.test_id,
+                question_id: q.id,
+                order_index: nextOrder
+              }
+            });
+          }
           return q;
         }
       });

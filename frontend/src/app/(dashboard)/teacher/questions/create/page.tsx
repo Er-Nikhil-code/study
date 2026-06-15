@@ -9,6 +9,8 @@ import { QuestionsService } from "@/services/questions.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import authService from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
+import { AdminTestSeriesService } from "@/services/test-series.admin.service";
+import { TestsService } from "@/services/tests.service";
 
 // Sub-components
 import McqForm from "./forms/McqForm";
@@ -42,6 +44,12 @@ export default function CreateQuestionPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [selectedDestination, setSelectedDestination] = useState<string>("");
+  const [testSeriesList, setTestSeriesList] = useState<any[]>([]);
+  const [testsList, setTestsList] = useState<any[]>([]);
+  const [selectedTestSeries, setSelectedTestSeries] = useState<string>("");
+  const [selectedTest, setSelectedTest] = useState<string>("");
 
   // General Data
   const [formData, setFormData] = useState({
@@ -113,7 +121,22 @@ export default function CreateQuestionPage() {
         setError("Failed to load hierarchy for dropdown.");
       })
       .finally(() => setLoading(false));
+
+    AdminTestSeriesService.getAdminTestSeries()
+      .then(res => setTestSeriesList(res || []))
+      .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (selectedTestSeries) {
+      TestsService.getTeacherTests({ test_series_id: selectedTestSeries, take: 100 })
+        .then((res: any) => setTestsList(res.data || []))
+        .catch(console.error);
+    } else {
+      setTestsList([]);
+      setSelectedTest("");
+    }
+  }, [selectedTestSeries]);
   const createMutation = useMutation({
     mutationFn: (payload: any) => QuestionsService.create(payload),
     onSuccess: () => {
@@ -129,13 +152,41 @@ export default function CreateQuestionPage() {
     }
   });
 
+  const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setSelectedDestination(val);
+    setFormData({ ...formData, course_id: "", section_id: "", chapter_id: "", topic_id: "" });
+    setSelectedTestSeries("");
+    setSelectedTest("");
+
+    if (val.startsWith("course_")) {
+      setFormData({ ...formData, course_id: val.replace("course_", ""), section_id: "", chapter_id: "", topic_id: "" });
+    } else if (val.startsWith("series_")) {
+      setSelectedTestSeries(val.replace("series_", ""));
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
+    if (selectedDestination.startsWith("course_") && !formData.topic_id) {
+      setError("Please select a topic.");
+      return;
+    }
+    if (selectedDestination.startsWith("series_") && !selectedTest) {
+      setError("Please select a test from the series.");
+      return;
+    }
+    if (!selectedDestination) {
+      setError("Please select a destination.");
+      return;
+    }
+
     try {
       const payload: any = {
-        topic_id: formData.topic_id,
+        topic_id: selectedDestination.startsWith("course_") ? formData.topic_id : undefined,
+        test_id: selectedDestination.startsWith("series_") ? selectedTest : undefined,
         difficulty: formData.difficulty,
         type: formData.type,
         content_json: [{ type: "TEXT", content: formData.content }],
@@ -208,68 +259,116 @@ export default function CreateQuestionPage() {
           <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-500">General Info</h2>
           
           <div className="grid gap-4 sm:grid-cols-4">
-            <div>
-              <label className="mb-2 block text-sm text-zinc-300">Course</label>
-              <select
-                value={formData.course_id}
-                onChange={(e) => setFormData({ ...formData, course_id: e.target.value, section_id: "", chapter_id: "", topic_id: "" })}
-                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none"
-              >
-                  <option value="">Select Course</option>
-                  {topics.map((c: any) => (
-                    <option key={c.id} value={c.id} className="bg-zinc-900">{c.name}</option>
+            <div className="sm:col-span-4">
+              <label className="mb-2 block text-sm text-zinc-300">Select Destination</label>
+              <select value={selectedDestination} onChange={handleDestinationChange} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30">
+                <option value="">Select Course or Test Series...</option>
+                <optgroup label="Courses">
+                  {topics.map((c: any) => <option key={`course_${c.id}`} value={`course_${c.id}`}>[Course] {c.name}</option>)}
+                </optgroup>
+                <optgroup label="Test Series">
+                  {testSeriesList.map((ts: any) => <option key={`series_${ts.id}`} value={`series_${ts.id}`}>[Series] {ts.title}</option>)}
+                </optgroup>
+              </select>
+            </div>
+
+            {selectedDestination.startsWith("course_") && (
+              <>
+                <div className="sm:col-span-4 hidden">
+                  <label className="mb-2 block text-sm text-zinc-300">Course</label>
+                  <select
+                    value={formData.course_id}
+                    onChange={(e) => setFormData({ ...formData, course_id: e.target.value, section_id: "", chapter_id: "", topic_id: "" })}
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none"
+                  >
+                      <option value="">Select Course</option>
+                      {topics.map((c: any) => (
+                        <option key={c.id} value={c.id} className="bg-zinc-900">{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm text-zinc-300">Section</label>
+                    <select
+                      value={formData.section_id}
+                      onChange={(e) => setFormData({ ...formData, section_id: e.target.value, chapter_id: "", topic_id: "" })}
+                      disabled={!formData.course_id}
+                      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none disabled:opacity-50"
+                    >
+                      <option value="">Select Section</option>
+                      {(() => {
+                        const currentCourse = topics.find((c: any) => c.id === formData.course_id);
+                        return currentCourse?.sections
+                            ?.filter((s: any) => user?.role === "ADMIN" || currentCourse?.created_by === user?.id || s.manager?.id === user?.id)
+                            .map((s: any) => (
+                            <option key={s.id} value={s.id} className="bg-zinc-900">
+                              {s.name}
+                            </option>
+                          ));
+                      })()}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm text-zinc-300">Chapter</label>
+                    <select
+                      value={formData.chapter_id}
+                      onChange={(e) => setFormData({ ...formData, chapter_id: e.target.value, topic_id: "" })}
+                      disabled={!formData.section_id}
+                      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none disabled:opacity-50"
+                    >
+                      <option value="">Select Chapter</option>
+                      {topics
+                        .find((c: any) => c.id === formData.course_id)
+                        ?.sections?.find((s: any) => s.id === formData.section_id)
+                        ?.chapters?.map((ch: any) => (
+                          <option key={ch.id} value={ch.id} className="bg-zinc-900">
+                            {ch.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm text-zinc-300">Topic</label>
+                    <select
+                      required={selectedDestination.startsWith("course_")}
+                      value={formData.topic_id}
+                      onChange={(e) => setFormData({ ...formData, topic_id: e.target.value })}
+                      disabled={!formData.chapter_id}
+                      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none disabled:opacity-50"
+                    >
+                      <option value="">Select Topic</option>
+                      {topics
+                        .find((c: any) => c.id === formData.course_id)
+                        ?.sections?.find((s: any) => s.id === formData.section_id)
+                        ?.chapters?.find((ch: any) => ch.id === formData.chapter_id)
+                        ?.topics?.map((t: any) => (
+                          <option key={t.id} value={t.id} className="bg-zinc-900">
+                            {t.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+              </>
+            )}
+
+            {selectedDestination.startsWith("series_") && (
+              <div className="sm:col-span-4">
+                <label className="mb-2 block text-sm text-zinc-300">Select Test</label>
+                <select
+                  required={selectedDestination.startsWith("series_")}
+                  value={selectedTest}
+                  onChange={(e) => setSelectedTest(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none disabled:opacity-50"
+                >
+                  <option value="">Choose Test...</option>
+                  {testsList.map((t: any) => (
+                    <option key={t.id} value={t.id} className="bg-zinc-900">
+                      {t.title}
+                    </option>
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="mb-2 block text-sm text-zinc-300">Section</label>
-                <select
-                  value={formData.section_id}
-                  onChange={(e) => setFormData({ ...formData, section_id: e.target.value, chapter_id: "", topic_id: "" })}
-                  disabled={!formData.course_id}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none disabled:opacity-50"
-                >
-                  <option value="">Select Section</option>
-                  {topics.find((c: any) => c.id === formData.course_id)?.sections?.map((s: any) => {
-                    const currentCourse = topics.find((c: any) => c.id === formData.course_id);
-                    const isAssigned = user?.role === 'ADMIN' || currentCourse?.created_by === user?.id || s.manager?.id === user?.id;
-                    return (
-                      <option key={s.id} value={s.id} className="bg-zinc-900" disabled={!isAssigned}>
-                        {s.name} {!isAssigned && " (⛔ Not Assigned)"}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-              <div>
-                <label className="mb-2 block text-sm text-zinc-300">Chapter</label>
-                <select
-                  value={formData.chapter_id}
-                  onChange={(e) => setFormData({ ...formData, chapter_id: e.target.value, topic_id: "" })}
-                  disabled={!formData.section_id}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none disabled:opacity-50"
-                >
-                  <option value="">Select Chapter</option>
-                  {topics.find((c: any) => c.id === formData.course_id)?.sections?.find((s: any) => s.id === formData.section_id)?.chapters?.map((ch: any) => (
-                    <option key={ch.id} value={ch.id} className="bg-zinc-900">{ch.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="mb-2 block text-sm text-zinc-300">Topic</label>
-                <select
-                  required
-                  value={formData.topic_id}
-                  onChange={(e) => setFormData({ ...formData, topic_id: e.target.value })}
-                  disabled={!formData.chapter_id}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-red-500/30 appearance-none disabled:opacity-50"
-                >
-                  <option value="">Select Topic</option>
-                  {topics.find((c: any) => c.id === formData.course_id)?.sections?.find((s: any) => s.id === formData.section_id)?.chapters?.find((ch: any) => ch.id === formData.chapter_id)?.topics?.map((t: any) => (
-                    <option key={t.id} value={t.id} className="bg-zinc-900">{t.name}</option>
-                  ))}
-                </select>
-              </div>
+            )}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">

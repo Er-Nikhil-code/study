@@ -251,8 +251,9 @@ export class QuestionsController {
   @Post("ai/generate")
   @Roles("TEACHER", "ADMIN")
   async generateQuestions(@Body() body: { 
-    topicId: string;
-    topicName: string;
+    topicId?: string;
+    testId?: string;
+    topicName?: string;
     topicDesc?: string;
     courseName?: string;
     courseDesc?: string;
