@@ -8,7 +8,6 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { TestsService } from "@/services/tests.service";
 import { QuestionsService } from "@/services/questions.service";
 import { HierarchyService } from "@/services/hierarchy.service";
-import { AdminTestSeriesService } from "@/services/test-series.admin.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -59,13 +58,14 @@ export default function CreateTestPage() {
       .then(setHierarchy)
       .catch(err => console.error("Failed to load hierarchy", err));
 
-    AdminTestSeriesService.getAdminTestSeries()
+    HierarchyService.getTestSeriesHierarchy()
       .then(res => setTestSeriesList(res || []))
       .catch(err => console.error("Failed to load test series", err));
   }, []);
 
   const currentCourse = hierarchy.find(c => c.id === courseId);
-  const currentSection = currentCourse?.sections?.find((s: any) => s.id === sectionId);
+  const currentTestSeries = testSeriesList.find(ts => ts.id === testSeriesId);
+  const currentSection = currentCourse?.sections?.find((s: any) => s.id === sectionId) || currentTestSeries?.sections?.find((s: any) => s.id === sectionId);
   const currentChapter = currentSection?.chapters?.find((c: any) => c.id === chapterId);
   const topicsList = currentChapter?.topics || [];
 
@@ -184,12 +184,12 @@ export default function CreateTestPage() {
                       </optgroup>
                     </select>
 
-                    {courseId && (
+                    {(courseId || testSeriesId) && (
                       <>
-                        <select value={sectionId} disabled={!courseId} onChange={e => { setSectionId(e.target.value); setChapterId(""); setTopicId(""); }} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 disabled:opacity-50">
+                        <select value={sectionId} disabled={!(courseId || testSeriesId)} onChange={e => { setSectionId(e.target.value); setChapterId(""); setTopicId(""); }} className="w-full rounded bg-black border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-red-500 disabled:opacity-50">
                           <option value="">Select Section...</option>
-                          {currentCourse?.sections
-                            ?.filter((s: any) => user?.role === "ADMIN" || currentCourse?.created_by === user?.id || s.manager?.id === user?.id)
+                          {(currentCourse?.sections || currentTestSeries?.sections)
+                            ?.filter((s: any) => user?.role === "ADMIN" || currentCourse?.created_by === user?.id || currentTestSeries?.created_by === user?.id || s.managers?.some((m: any) => m.id === user?.id))
                             .map((s: any) => (
                               <option key={s.id} value={s.id}>
                                 {s.name}

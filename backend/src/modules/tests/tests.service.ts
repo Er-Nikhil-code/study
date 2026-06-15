@@ -1017,6 +1017,7 @@ export class TestsService {
     return this.prisma.testSeries.create({
       data: {
         name: data.name,
+        code: data.code,
         description: data.description,
         created_by: creatorId,
         status: data.status || "DRAFT",
@@ -1042,6 +1043,7 @@ export class TestsService {
       where: { id: seriesId },
       data: {
         name: data.name,
+        code: data.code,
         description: data.description,
         status: data.status,
         launch_date: data.launch_date,
