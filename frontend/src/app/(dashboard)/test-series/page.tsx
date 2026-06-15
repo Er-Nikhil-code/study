@@ -397,7 +397,7 @@ export default function TestSeriesPage() {
                     </button>
                   )}
 
-                  <Link href={`/courses/${series.id}`} className="flex-1 flex flex-col p-6">
+                  <Link href={`/test-series/${series.id}`} className="flex-1 flex flex-col p-6">
                     <div className="flex items-start gap-4 mb-6">
                       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500/20 to-red-500/5 border border-red-500/30 text-red-400 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all">
                         <BookOpen size={28} />
@@ -470,7 +470,7 @@ export default function TestSeriesPage() {
                           Enrolled
                         </div>
                       ) : (
-                        <Link href={`/courses/${series.id}`} className="block w-full rounded-xl bg-red-600 hover:bg-red-500 transition-all py-2.5 text-center text-sm font-bold text-white shadow shadow-red-500/20">
+                        <Link href={`/test-series/${series.id}`} className="block w-full rounded-xl bg-red-600 hover:bg-red-500 transition-all py-2.5 text-center text-sm font-bold text-white shadow shadow-red-500/20">
                           Enroll
                         </Link>
                       )}
