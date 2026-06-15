@@ -84,7 +84,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
 
   const fetchSeries = (isInitial = false) => {
     setLoading(true);
-    HierarchyService.getFullHierarchy()
+    HierarchyService.getTestSeriesHierarchy()
       .then((data) => {
         const c = data.find((c: any) => c.id === seriesId);
         if (c) {
