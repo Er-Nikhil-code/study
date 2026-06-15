@@ -1080,4 +1080,105 @@ export class TestsService {
     }).catch(() => {});
     return { success: true };
   }
+
+  /* ════════════════════════════════════════════
+   *  TEST SERIES DETAIL & TEST MANAGEMENT
+   * ════════════════════════════════════════════ */
+
+  async getTestSeriesDetail(seriesId: string, userId: string, role: string) {
+    const series = await this.prisma.testSeries.findUnique({
+      where: { id: seriesId },
+      include: {
+        staff: {
+          include: {
+            user: {
+              select: { id: true, first_name: true, last_name: true, email: true }
+            }
+          }
+        },
+        tests: {
+          orderBy: { created_at: "desc" },
+          include: {
+            _count: { select: { test_questions: true, attempts: true } },
+            topic: {
+              select: {
+                name: true,
+                chapter: {
+                  select: {
+                    name: true,
+                    section: {
+                      select: {
+                        name: true,
+                        course: { select: { name: true } }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        _count: { select: { enrollments: true, tests: true } }
+      }
+    });
+
+    if (!series) throw new NotFoundException("Test series not found");
+
+    // Only admin or assigned staff can view details
+    if (role !== "ADMIN" && series.created_by !== userId && !series.staff.some(s => s.user_id === userId)) {
+      throw new ForbiddenException("You don't have permission to view this test series");
+    }
+
+    return series;
+  }
+
+  async addTestsToSeries(seriesId: string, testIds: string[], userId: string, role: string) {
+    const series = await this.prisma.testSeries.findUnique({
+      where: { id: seriesId },
+      include: { staff: true }
+    });
+    if (!series) throw new NotFoundException("Test series not found");
+
+    if (role !== "ADMIN" && series.created_by !== userId && !series.staff.some(s => s.user_id === userId)) {
+      throw new ForbiddenException("You don't have permission to manage this test series");
+    }
+
+    // Connect the tests to this series
+    await this.prisma.testSeries.update({
+      where: { id: seriesId },
+      data: {
+        tests: {
+          connect: testIds.map(id => ({ id }))
+        }
+      }
+    });
+
+    this.logger.log(`✅ Added ${testIds.length} tests to series ${seriesId}`);
+    return { message: `${testIds.length} test(s) added to series` };
+  }
+
+  async removeTestFromSeries(seriesId: string, testId: string, userId: string, role: string) {
+    const series = await this.prisma.testSeries.findUnique({
+      where: { id: seriesId },
+      include: { staff: true }
+    });
+    if (!series) throw new NotFoundException("Test series not found");
+
+    if (role !== "ADMIN" && series.created_by !== userId && !series.staff.some(s => s.user_id === userId)) {
+      throw new ForbiddenException("You don't have permission to manage this test series");
+    }
+
+    await this.prisma.testSeries.update({
+      where: { id: seriesId },
+      data: {
+        tests: {
+          disconnect: { id: testId }
+        }
+      }
+    });
+
+    this.logger.log(`✅ Removed test ${testId} from series ${seriesId}`);
+    return { message: "Test removed from series" };
+  }
 }
+

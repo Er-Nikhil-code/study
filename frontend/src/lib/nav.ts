@@ -82,7 +82,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
   }
 
   // Test Series
-  if (user.role === "ADMIN") {
+  if (user.role === "ADMIN" || user.role === "TEACHER") {
     items.push({ label: "Test Series", href: "/admin/test-series", icon: FileText });
   }
 

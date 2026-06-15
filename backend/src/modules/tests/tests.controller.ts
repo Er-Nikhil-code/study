@@ -280,4 +280,26 @@ export class TestsController {
   async removeTestSeriesStaff(@Param("id") id: string, @Param("userId") userId: string, @Request() req: any) {
     return this.testsService.removeTestSeriesStaff(id, userId, req.user.role);
   }
+
+  @Get("series/:id")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  async getTestSeriesDetail(@Param("id") id: string, @Request() req: any) {
+    return this.testsService.getTestSeriesDetail(id, req.user.sub, req.user.role);
+  }
+
+  @Post("series/:id/tests")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  async addTestsToSeries(@Param("id") id: string, @Request() req: any, @Body() body: { test_ids: string[] }) {
+    return this.testsService.addTestsToSeries(id, body.test_ids, req.user.sub, req.user.role);
+  }
+
+  @Delete("series/:id/tests/:testId")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("TEACHER", "ADMIN")
+  async removeTestFromSeries(@Param("id") id: string, @Param("testId") testId: string, @Request() req: any) {
+    return this.testsService.removeTestFromSeries(id, testId, req.user.sub, req.user.role);
+  }
 }
+

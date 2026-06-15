@@ -9,6 +9,7 @@ import adminService from "@/services/admin.service";
 import { FileText, Edit2, X, Plus, Users as UsersIcon, Settings } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { useToast } from "@/hooks/useToast";
+import Link from "next/link";
 
 export default function AdminTestSeriesPage() {
   const queryClient = useQueryClient();
@@ -389,7 +390,8 @@ export default function AdminTestSeriesPage() {
             const canAssignStaff = user?.role === "ADMIN";
             
             return (
-              <div
+              <Link
+                href={`/admin/test-series/${series.id}`}
                 key={series.id}
                 className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-900 to-black p-6 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-500/10 hover:border-red-500/40"
               >
@@ -398,7 +400,7 @@ export default function AdminTestSeriesPage() {
                 <div className="absolute top-4 right-4 flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                   {canAssignStaff && (
                     <button 
-                      onClick={() => setManagingStaffFor(series)}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setManagingStaffFor(series); }}
                       className="p-2 rounded-full bg-black/60 text-zinc-400 hover:text-white hover:bg-white/20 backdrop-blur-sm transition-all"
                       title="Manage Staff"
                     >
@@ -407,7 +409,8 @@ export default function AdminTestSeriesPage() {
                   )}
                   {isCreatorOrAdmin && (
                     <button 
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault(); e.stopPropagation();
                         setEditingSeries(series);
                         setEditForm({ 
                           name: series.name, 
@@ -467,7 +470,7 @@ export default function AdminTestSeriesPage() {
                     )}
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
