@@ -142,7 +142,7 @@ export class QuestionsService {
               data: {
                 test_id: data.test_id,
                 question_id: q.id,
-                order_index: nextOrder
+                order: nextOrder
               }
             });
           }
@@ -166,7 +166,7 @@ export class QuestionsService {
               data: {
                 test_id: data.test_id,
                 question_id: q.id,
-                order_index: nextOrder
+                order: nextOrder
               }
             });
           }

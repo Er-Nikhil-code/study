@@ -208,7 +208,7 @@ export class TestsService {
     return { message: "Test questions updated successfully" };
   }
 
-  async listTeacherTests(userId: string, role: string, filters: { skip?: number; take?: number; topicId?: string; courseId?: string; sectionId?: string; chapterId?: string; search?: string; createdOnly?: boolean }) {
+  async listTeacherTests(userId: string, role: string, filters: { skip?: number; take?: number; topicId?: string; courseId?: string; sectionId?: string; chapterId?: string; search?: string; createdOnly?: boolean; testSeriesId?: string }) {
     const where: any = {};
     if (role !== "ADMIN" || filters.createdOnly) {
       where.created_by = userId;
