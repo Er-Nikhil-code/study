@@ -1,0 +1,51 @@
+--- src/modules/hierarchy/hierarchy.service.ts
++++ src/modules/hierarchy/hierarchy.service.ts
+@@ -385,6 +385,15 @@
+       }
+     });
+ 
++    // Get total aspirants per test
++    const totalAspirantsCounts = await this.prisma.attempt.groupBy({
++      by: ['test_id'],
++      _count: {
++        _all: true
++      }
++    });
++    const aspirantsCountMap = new Map<string, number>();
++    totalAspirantsCounts.forEach(t => aspirantsCountMap.set(t.test_id, t._count._all));
++
+     const latestAttemptMap = new Map<string, any>(); // testId -> latest attempt
+     attempts.forEach(a => {
+       const existing = latestAttemptMap.get(a.test_id);
+@@ -414,6 +423,7 @@
+                 latest_attempt_id: latestAttempt ? latestAttempt.id : null,
+                 score: latestAttempt ? latestAttempt.score : null,
+                 rank: latestAttempt ? latestAttempt.rank : null,
++                total_aspirants: aspirantsCountMap.get(t.id) || 0,
+               };
+             });
+ 
+@@ -524,6 +534,15 @@
+       }
+     });
+ 
++    const totalAspirantsCountsTS = await this.prisma.attempt.groupBy({
++      by: ['test_id'],
++      _count: {
++        _all: true
++      }
++    });
++    const aspirantsCountMapTS = new Map<string, number>();
++    totalAspirantsCountsTS.forEach(t => aspirantsCountMapTS.set(t.test_id, t._count._all));
++
+     const latestAttemptMap = new Map<string, any>();
+     attempts.forEach(a => {
+       const existing = latestAttemptMap.get(a.test_id);
+@@ -551,6 +570,7 @@
+                 latest_attempt_id: latestAttempt ? latestAttempt.id : null,
+                 score: latestAttempt ? latestAttempt.score : null,
+                 rank: latestAttempt ? latestAttempt.rank : null,
++                total_aspirants: aspirantsCountMapTS.get(t.id) || 0,
+               };
+             });
+ 

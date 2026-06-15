@@ -996,27 +996,34 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                           </div>
                                         )}
                                         {!editingTopic && topic.tests?.[0] && (
-                                          <div className="flex flex-wrap items-center justify-between gap-2 mt-3 py-2 px-3 rounded-lg bg-black/20 border border-white/5 text-[11px] text-zinc-400">
-                                            <div className="flex gap-1.5 items-center">
-                                              <span className="text-zinc-500">Total Marks:</span>
-                                              <span className="text-white font-semibold">{topic.tests[0].total_marks}</span>
+                                          <div className="mt-2 pt-2 border-t border-white/5 flex flex-col gap-1.5">
+                                            <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-zinc-400">
+                                              <div className="flex gap-1.5 items-center">
+                                                <span className="text-zinc-500">Marks:</span>
+                                                <span className="text-white font-medium">{topic.tests[0].score !== null ? topic.tests[0].score : '-'} / {topic.tests[0].total_marks || 0}</span>
+                                              </div>
+                                              <div className="flex gap-1.5 items-center">
+                                                <span className="text-zinc-500">Rank:</span>
+                                                <span className="text-white font-medium">{topic.tests[0].rank !== null ? topic.tests[0].rank : '-'} / {topic.tests[0].total_aspirants || 0}</span>
+                                              </div>
                                             </div>
-                                            <div className="flex gap-1.5 items-center">
-                                              <span className="text-zinc-500">Questions:</span>
-                                              <span className="text-white font-semibold">{topic.tests[0].questions_count || 0}</span>
-                                            </div>
-                                            <div className="flex gap-1.5 items-center">
-                                              <span className="text-zinc-500">Marks:</span>
-                                              <span className="text-white font-semibold">{topic.tests[0].score !== null ? topic.tests[0].score : '-'}</span>
-                                            </div>
-                                            <div className="flex gap-1.5 items-center">
-                                              <span className="text-zinc-500">Rank:</span>
-                                              <span className="text-white font-semibold">{topic.tests[0].rank !== null ? topic.tests[0].rank : '-'}</span>
-                                            </div>
-                                            <div className="flex gap-1.5 items-center">
-                                              <span className="text-zinc-500">Passing Marks:</span>
-                                              <span className="text-white font-semibold">{topic.tests[0].passing_marks !== null ? topic.tests[0].passing_marks : '-'}</span>
-                                            </div>
+                                            
+                                            {topic.tests[0].passing_marks !== null && topic.tests[0].score !== null && (
+                                              <div className="w-full">
+                                                <div className="flex justify-between text-[9px] mb-1">
+                                                  <span className="text-zinc-500 uppercase tracking-wider">Cutoff: {topic.tests[0].passing_marks}</span>
+                                                  <span className={topic.tests[0].score >= topic.tests[0].passing_marks ? "text-emerald-400 font-bold uppercase tracking-wider" : "text-red-400 font-bold uppercase tracking-wider"}>
+                                                    {topic.tests[0].score >= topic.tests[0].passing_marks ? "Cleared" : "Not Cleared"}
+                                                  </span>
+                                                </div>
+                                                <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                                                  <div 
+                                                    className={`h-full transition-all duration-500 ${topic.tests[0].score >= topic.tests[0].passing_marks ? 'bg-gradient-to-r from-emerald-600 to-emerald-400' : 'bg-gradient-to-r from-red-600 to-red-400'}`} 
+                                                    style={{ width: `${Math.min(100, Math.max(0, (topic.tests[0].score / (topic.tests[0].total_marks || 1)) * 100))}%` }}
+                                                  />
+                                                </div>
+                                              </div>
+                                            )}
                                           </div>
                                         )}
                                         </div>
