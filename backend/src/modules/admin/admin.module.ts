@@ -15,5 +15,5 @@ import { PrismaService } from "../../prisma/prisma.service";
   providers: [AdminService, PrismaService],
   exports: [AdminService],
 })
-export class AdminModule {}
-
+export class AdminModule { }
+// github push
