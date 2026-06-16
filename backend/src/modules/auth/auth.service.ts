@@ -425,6 +425,7 @@ export class AuthService {
           role: user.role,
           profile_picture: user.profile_picture,
           custom_role: user.custom_role,
+          assigned_teacher_id: user.assigned_teacher_id,
           enrolled_courses: user.course_enrollments.map(e => e.course)
         },
         accessToken,

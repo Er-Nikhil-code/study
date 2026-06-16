@@ -537,6 +537,15 @@ export class AdminService {
         role: role || "INTERN",
         phone_number,
         is_active: true,
+        email_verified_at: new Date(),
+        last_login_at: new Date(),
+      },
+    });
+
+    // Create user stats
+    await this.prisma.userStats.create({
+      data: {
+        user_id: user.id,
       },
     });
 
