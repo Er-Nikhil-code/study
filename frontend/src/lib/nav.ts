@@ -59,7 +59,9 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
   else if (user.role === "INTERN") items.push({ label: "Pawn Dashboard", href: "/intern/dashboard", icon: LayoutDashboard });
 
   // Courses
-  items.push({ label: "Courses", href: "/courses", icon: BookOpen });
+  if (user.role !== "INTERN") {
+    items.push({ label: "Courses", href: "/courses", icon: BookOpen });
+  }
 
   // Content & Hierarchy (Removed as curriculum is now managed directly inside courses)
 

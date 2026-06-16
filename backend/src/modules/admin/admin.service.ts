@@ -481,8 +481,8 @@ export class AdminService {
         tenDaysAgo.setHours(0, 0, 0, 0);
         
         const recentActivities = await this.prisma.dailyActivity.findMany({
-          where: { user_id: pawn.id, date: { gte: tenDaysAgo } },
-          select: { date: true, activity_count: true }
+          where: { user_id: pawn.id, activity_date: { gte: tenDaysAgo } },
+          select: { activity_date: true, activity_count: true }
         });
         
         const heatmap = [];
@@ -490,7 +490,7 @@ export class AdminService {
           const d = new Date();
           d.setDate(d.getDate() - i);
           const dStr = d.toISOString().split('T')[0];
-          const act = recentActivities.find((a: any) => a.date.toISOString().split('T')[0] === dStr);
+          const act = recentActivities.find((a: any) => a.activity_date.toISOString().split('T')[0] === dStr);
           heatmap.push({ date: dStr, count: act?.activity_count || 0 });
         }
 
