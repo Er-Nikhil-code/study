@@ -96,7 +96,6 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
 
   // Intern specifics
   if (user.role === "INTERN") {
-    items.push({ label: "Question Statistics", href: "/intern/statistics", icon: BarChart2 });
     items.push({ label: "My Earnings", href: "/intern/earnings", icon: Wallet });
   }
 
