@@ -8,11 +8,7 @@ class UploadService {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await api.post(`/upload/image`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await api.post(`/upload/image`, formData);
 
     return response.data.url;
   }
@@ -21,11 +17,7 @@ class UploadService {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await api.post(`/upload/document`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await api.post(`/upload/document`, formData);
 
     return response.data.url;
   }
@@ -34,11 +26,7 @@ class UploadService {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await api.post(`/upload/solution`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await api.post(`/upload/solution`, formData);
 
     return response.data.url;
   }
