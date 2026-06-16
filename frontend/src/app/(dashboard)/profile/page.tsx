@@ -135,7 +135,7 @@ export default function ProfilePage() {
         payload.profile_picture = profilePicture || null;
       }
 
-      const token = localStorage.getItem("accessToken") || "";
+      const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken") || "";
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
         method: "PUT",
         headers: {

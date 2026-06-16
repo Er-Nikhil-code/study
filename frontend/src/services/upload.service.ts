@@ -1,5 +1,5 @@
 // frontend/src/services/upload.service.ts
-import axios from "axios";
+import { api } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -8,10 +8,9 @@ class UploadService {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post(`${API_URL}/upload/image`, formData, {
+    const response = await api.post(`/upload/image`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
@@ -22,10 +21,9 @@ class UploadService {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post(`${API_URL}/upload/document`, formData, {
+    const response = await api.post(`/upload/document`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
@@ -36,10 +34,9 @@ class UploadService {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post(`${API_URL}/upload/solution`, formData, {
+    const response = await api.post(`/upload/solution`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
@@ -47,22 +44,12 @@ class UploadService {
   }
 
   async getAssets() {
-    const response = await axios.get(`${API_URL}/upload/assets`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
+    const response = await api.get(`/upload/assets`);
     return response.data;
   }
 
   async deleteAsset(assetId: string) {
-    const response = await axios.delete(`${API_URL}/upload/assets/${assetId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
+    const response = await api.delete(`/upload/assets/${assetId}`);
     return response.data;
   }
 }
