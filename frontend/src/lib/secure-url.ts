@@ -1,5 +1,7 @@
 // frontend/src/lib/secure-url.ts
 
+import { useAuthStore } from "@/store/auth.store";
+
 /**
  * Transforms a raw S3 object key or legacy URL into an authenticated proxy URL.
  * The proxy URL automatically attaches the current JWT token as a query parameter
@@ -17,7 +19,7 @@ export function getSecureUrl(key: string | null | undefined): string {
 
   let token = "";
   if (typeof window !== "undefined") {
-    token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken") || "";
+    token = useAuthStore.getState().accessToken || localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken") || "";
   }
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
