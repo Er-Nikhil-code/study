@@ -200,25 +200,19 @@ model Topic {
 }
 
 model Note {
-  id              String                 @id @default(cuid())
+  id              String      @id @default(cuid())
   topic_id        String
-  topic           Topic                  @relation(fields: [topic_id], references: [id], onDelete: Cascade)
-  created_by      String // User ID of creator (Intern/Teacher)
+  topic           Topic       @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  created_by      String      // User ID of creator (Teacher/Admin)
   title           String
-  content_html    String // Rich text content including LaTeX/images
-  approval_status QuestionApprovalStatus @default(DRAFT) // Reusing the same enum for simplicity or create a new one
-  approved_by     String? // User ID of approver (teacher/admin)
-  approved_at     DateTime?
-  rejection_note  String?
-  is_cleared      Boolean                @default(false)
-  created_at      DateTime               @default(now())
-  updated_at      DateTime               @updatedAt
+  pdf_url         String
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
 
   challenges Challenge[]
 
   @@index([topic_id])
   @@index([created_by])
-  @@index([approval_status])
 }
 
 model Asset {

@@ -55,6 +55,7 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@aws-sdk/s3-request-presigner": "^3.1069.0",
     "@google/genai": "^2.8.0",
     "@nestjs/platform-socket.io": "^11.1.26",
     "@nestjs/websockets": "^11.1.26",

@@ -10,13 +10,13 @@ export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
   @Post()
-  @Roles("INTERN", "TEACHER", "ADMIN")
-  createNote(@Body() data: { topic_id: string; title: string; content_html: string }, @Req() req: any) {
+  @Roles("TEACHER", "ADMIN")
+  createNote(@Body() data: { topic_id: string; title: string; pdf_url: string }, @Req() req: any) {
     return this.notesService.createNote(data, req.user.userId || req.user.sub, req.user.role);
   }
 
   @Get()
-  @Roles("INTERN", "TEACHER", "ADMIN")
+  @Roles("TEACHER", "ADMIN")
   getNotes(
     @Req() req: any,
     @Query("search") search?: string,
@@ -24,9 +24,7 @@ export class NotesController {
     @Query("take") take?: string,
   ) {
     const filters: any = {};
-    if (req.user.role === "INTERN") {
-      filters.intern_only = req.user.userId || req.user.sub;
-    } else if (req.user.role === "TEACHER") {
+    if (req.user.role === "TEACHER") {
       filters.teacher_id = req.user.userId || req.user.sub;
     } else if (req.user.role === "ADMIN") {
       filters.admin_search = true;
@@ -40,46 +38,30 @@ export class NotesController {
     return this.notesService.listNotes(filters, skipNum, takeNum);
   }
 
-  @Get("pending")
-  @Roles("TEACHER", "ADMIN")
-  getPendingNotes(@Req() req: any) {
-    return this.notesService.getPendingNotes(req.user.userId || req.user.sub, req.user.role);
-  }
-
   @Get(":id")
-  @Roles("INTERN", "TEACHER", "ADMIN")
+  @Roles("TEACHER", "ADMIN")
   getNoteById(@Param("id") id: string, @Req() req: any) {
     return this.notesService.getNoteById(id, req.user.userId || req.user.sub, req.user.role);
   }
 
   @Patch(":id")
-  @Roles("INTERN", "TEACHER", "ADMIN")
+  @Roles("TEACHER", "ADMIN")
   updateNote(
     @Param("id") id: string,
-    @Body() data: { title?: string; content_html?: string; topic_id?: string },
+    @Body() data: { title?: string; pdf_url?: string; topic_id?: string },
     @Req() req: any
   ) {
     return this.notesService.updateNote(id, data, req.user.userId || req.user.sub, req.user.role);
   }
 
-  @Patch(":id/review")
-  @Roles("TEACHER", "ADMIN")
-  reviewNote(
-    @Param("id") id: string,
-    @Body() data: { status: "APPROVED" | "REJECTED"; rejection_note?: string; content_html?: string },
-    @Req() req: any
-  ) {
-    return this.notesService.reviewNote(id, data.status, req.user.userId || req.user.sub, data.rejection_note, data.content_html);
-  }
-
   @Get("topic/:topicId")
-  @Roles("STUDENT", "INTERN", "TEACHER", "ADMIN")
-  getApprovedNotes(@Param("topicId") topicId: string) {
-    return this.notesService.getApprovedNotesByTopic(topicId);
+  @Roles("STUDENT", "TEACHER", "ADMIN")
+  getNotesByTopic(@Param("topicId") topicId: string) {
+    return this.notesService.getNotesByTopic(topicId);
   }
 
   @Delete(":id")
-  @Roles("INTERN", "TEACHER", "ADMIN")
+  @Roles("TEACHER", "ADMIN")
   deleteNote(@Param("id") id: string, @Req() req: any) {
     return this.notesService.deleteNote(id, req.user.userId || req.user.sub, req.user.role);
   }

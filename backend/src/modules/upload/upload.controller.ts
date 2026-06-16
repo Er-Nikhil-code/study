@@ -8,7 +8,10 @@ import {
   BadRequestException,
   Param,
   UseGuards,
+  Query,
+  Res,
 } from "@nestjs/common";
+import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadService } from "./upload.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
@@ -37,6 +40,16 @@ export class UploadController {
   async uploadSolution(@UploadedFile() file: any) {
     const url = await this.uploadService.uploadFile(file, "solutions");
     return { success: true, url };
+  }
+
+  @Get("secure")
+  async getSecureUrl(@Query("key") key: string, @Res() res: Response) {
+    if (!key) {
+      throw new BadRequestException("Key is required");
+    }
+    const presignedUrl = await this.uploadService.generatePresignedUrl(key);
+    // Redirect the browser directly to the securely generated R2 URL
+    return res.redirect(302, presignedUrl);
   }
 
   @Get("assets")

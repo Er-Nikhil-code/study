@@ -84,7 +84,7 @@ export class AiGeneratorService {
       if (!note) {
         throw new HttpException('notes unavailable', HttpStatus.BAD_REQUEST);
       }
-      contextNotesStr = note.content_html; // strip tags or send as is
+      contextNotesStr = `Notes content is now available at ${note.pdf_url}. (PDF text extraction is pending).`;
     } else if (useNotes && !context.topicId) {
       throw new HttpException('Notes reference not available for Test Series tests', HttpStatus.BAD_REQUEST);
     }

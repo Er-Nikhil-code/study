@@ -45,6 +45,11 @@ export class JwtAuthGuard implements CanActivate {
       return request.cookies.accessToken;
     }
 
+    // Extract from query parameter (for secure image/pdf proxy)
+    if (request.query?.token) {
+      return request.query.token as string;
+    }
+
     return undefined;
   }
 }

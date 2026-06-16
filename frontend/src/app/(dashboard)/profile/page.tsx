@@ -11,12 +11,15 @@ import { getChessRoleName } from "@/lib/role";
 import ChessPiece3D from "@/components/ui/ChessPiece3D";
 import AppLoader from "@/components/ui/AppLoader";
 
+import uploadService from "@/services/upload.service";
+import { getSecureUrl } from "@/lib/secure-url";
+
 /**
  * Compress an image file using canvas.
  * Resizes to max 256x256 and outputs as JPEG at 0.7 quality.
- * This keeps the stored base64 string small (~20-40KB).
+ * Returns a File object that can be uploaded.
  */
-function compressImage(file: File, maxSize = 256, quality = 0.7): Promise<string> {
+function compressImage(file: File, maxSize = 256, quality = 0.7): Promise<File> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const reader = new FileReader();
@@ -42,7 +45,14 @@ function compressImage(file: File, maxSize = 256, quality = 0.7): Promise<string
       canvas.height = h;
       const ctx = canvas.getContext("2d")!;
       ctx.drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL("image/jpeg", quality));
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(new File([blob], file.name || "profile.jpg", { type: "image/jpeg" }));
+        } else {
+          reject(new Error("Failed to compress image"));
+        }
+      }, "image/jpeg", quality);
     };
     img.onerror = reject;
   });
@@ -75,12 +85,14 @@ export default function ProfilePage() {
     }
 
     try {
-      const compressed = await compressImage(file, 256, 0.7);
-      setProfilePicture(compressed);
+      toast.loading("Uploading photo...", { id: "uploadPhoto" });
+      const compressedFile = await compressImage(file, 256, 0.7);
+      const url = await uploadService.uploadImage(compressedFile);
+      setProfilePicture(url);
       setShowPhotoModal(false);
-      toast.success("Photo selected! Click 'Save Changes' to apply.");
+      toast.success("Photo uploaded! Click 'Save Changes' to apply.", { id: "uploadPhoto" });
     } catch {
-      toast.error("Failed to process image.");
+      toast.error("Failed to process and upload image.", { id: "uploadPhoto" });
     }
 
     // Reset file input so re-selecting the same file works
@@ -199,7 +211,7 @@ export default function ProfilePage() {
                 className="relative h-20 w-20 overflow-hidden rounded-full bg-zinc-800 border-2 border-white/10 flex items-center justify-center shrink-0 group cursor-pointer transition hover:border-red-500/30"
               >
                 {profilePicture ? (
-                   <NextImage src={profilePicture} alt="Profile" width={80} height={80} className="h-full w-full object-cover" />
+                   <NextImage src={getSecureUrl(profilePicture)} alt="Profile" width={80} height={80} className="h-full w-full object-cover" />
                 ) : (
                   <User size={32} className="text-zinc-500" />
                 )}
@@ -386,7 +398,7 @@ export default function ProfilePage() {
               <Panel key={intern.id} className="flex items-center gap-4 p-4 hover:border-red-500/30 transition">
                 <div className="h-12 w-12 rounded-full overflow-hidden bg-zinc-800 shrink-0 border border-white/10">
                   {intern.profile_picture ? (
-                    <NextImage src={intern.profile_picture} alt="Intern" width={48} height={48} className="h-full w-full object-cover" />
+                    <NextImage src={getSecureUrl(intern.profile_picture)} alt="Intern" width={48} height={48} className="h-full w-full object-cover" />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center">
                       <User size={20} className="text-zinc-500" />
@@ -425,7 +437,7 @@ export default function ProfilePage() {
             <div className="flex justify-center mb-6">
               <div className="h-32 w-32 overflow-hidden rounded-full border-2 border-white/10 bg-zinc-800 flex items-center justify-center">
                 {profilePicture ? (
-                  <NextImage src={profilePicture} alt="Profile" width={128} height={128} className="h-full w-full object-cover" />
+                  <NextImage src={getSecureUrl(profilePicture)} alt="Profile" width={128} height={128} className="h-full w-full object-cover" />
                 ) : (
                   <User size={48} className="text-zinc-500" />
                 )}
@@ -436,7 +448,7 @@ export default function ProfilePage() {
             <div className="flex flex-col gap-2">
               {profilePicture && (
                 <a
-                  href={profilePicture}
+                  href={getSecureUrl(profilePicture)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-zinc-300 transition hover:bg-white/[0.06] hover:text-white"

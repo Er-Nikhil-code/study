@@ -1,20 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo } from "react";
-import "react-quill-new/dist/quill.snow.css";
-import "katex/dist/katex.min.css"; // KaTeX CSS
-import "./RichTextEditor.css"; // Custom styling overrides
 
-import katex from "katex";
-if (typeof window !== "undefined") {
-  (window as any).katex = katex;
-}
-
-// Dynamic import of react-quill to avoid SSR issues
-const ReactQuill = dynamic(() => import("react-quill-new"), {
+const QuillEditorWrapper = dynamic(() => import("./QuillEditorWrapper"), {
   ssr: false,
-  loading: () => <div className="h-48 w-full hidden rounded-lg bg-white/5 border border-white/10" />,
+  loading: () => <div className="h-48 w-full rounded-lg bg-white/5 border border-white/10" />,
 });
 
 interface RichTextEditorProps {
@@ -26,93 +16,13 @@ interface RichTextEditorProps {
 }
 
 export default function RichTextEditor({ value, onChange, placeholder, readOnly = false, themeMode = "dark" }: RichTextEditorProps) {
-  // Custom image upload handler
-  const imageHandler = async () => {
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
-    input.click();
-
-    input.onchange = async () => {
-      const file = input.files ? input.files[0] : null;
-      if (!file) return;
-
-      try {
-        // Use the centralized UploadService
-        const { default: uploadService } = await import("@/services/upload.service");
-        const url = await uploadService.uploadImage(file);
-
-        // Get the editor instance to insert the image
-        const quill = (document.querySelector('.ql-editor') as any).__quill; 
-        if (quill) {
-           const range = quill.getSelection();
-           const index = range ? range.index : quill.getLength();
-           quill.insertEmbed(index, "image", url);
-           quill.setSelection(index + 1);
-        } else {
-           // Fallback if quill instance hack doesn't work (which sometimes it doesn't in react-quill)
-           // Standard way:
-           // In react-quill-new, getting the quill instance is tricky without a ref, so we append the image tag manually if needed.
-           // To be safe, we just append it to the current value.
-           const imgTag = `<img src="${url}" alt="Uploaded image" />`;
-           onChange(value + imgTag);
-        }
-      } catch (err) {
-        console.error("Image upload failed:", err);
-        alert("Failed to upload image. Please try again.");
-      }
-    };
-  };
-
-  // Modules configuration for the Quill editor
-  const modules = useMemo(
-    () => ({
-      toolbar: {
-        container: [
-          [{ header: [1, 2, 3, false] }],
-          ["bold", "italic", "underline", "strike"],
-          [{ color: [] }, { background: [] }],
-          [{ list: "ordered" }, { list: "bullet" }],
-          ["blockquote", "code-block"],
-          ["link", "image", "video", "formula"],
-          ["clean"],
-        ],
-        handlers: {
-          image: imageHandler
-        }
-      }
-    }),
-    [value, onChange] // Dependencies for fallback value append
-  );
-
-  const formats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "list",
-    "blockquote",
-    "code-block",
-    "link",
-    "image",
-    "video",
-    "formula"
-  ];
-
   return (
-    <div className={`rich-text-container ${readOnly ? "read-only" : ""} theme-${themeMode}`}>
-      <ReactQuill
-        theme="snow"
-        value={value}
-        onChange={onChange}
-        modules={modules}
-        formats={formats}
-        placeholder={placeholder || "Write your notes here..."}
-        readOnly={readOnly}
-      />
-    </div>
+    <QuillEditorWrapper
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      readOnly={readOnly}
+      themeMode={themeMode}
+    />
   );
 }

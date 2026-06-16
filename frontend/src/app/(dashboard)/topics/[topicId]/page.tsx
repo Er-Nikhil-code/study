@@ -5,14 +5,11 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import Panel from "@/components/ui/Panel";
 import { HierarchyService } from "@/services/hierarchy.service";
 import { NotesService } from "@/services/notes.service";
-import studentService, { type TestListItem } from "@/services/student.service";
+import AppLoader from "@/components/ui/AppLoader";
+import { getSecureUrl } from "@/lib/secure-url";
 import Link from "next/link";
-import { ChevronLeft, FileText, BookOpen, Clock, ShieldAlert, Edit2, Trash2, Download } from "lucide-react";
-import TestCard from "@/components/tests/TestCard";
+import { ChevronLeft, FileText, Trash2, Download, ExternalLink } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
-import RichTextEditor from "@/components/ui/RichTextEditor";
-import html2pdf from "html2pdf.js";
-import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function TopicViewerPage({ params }: { params: Promise<{ topicId: string }> }) {
   const unwrappedParams = use(params);
@@ -20,22 +17,12 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
 
   const [topicName, setTopicName] = useState<string>("Loading Topic...");
   const [courseId, setCourseId] = useState<string | null>(null);
-  const [themeMode, setThemeMode] = useState<"dark" | "light">("dark");
   const [notes, setNotes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [selectedNote, setSelectedNote] = useState<any>(null);
-  const [challengeReason, setChallengeReason] = useState("WRONG_EXPLANATION");
-  const [challengeDesc, setChallengeDesc] = useState("");
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-
   const { user } = useAuthStore();
-  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-  const [editNoteForm, setEditNoteForm] = useState({ title: "", content_html: "" });
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    // 1. Fetch hierarchy to get Topic Name
     HierarchyService.getFullHierarchy().then((data) => {
       let found = false;
       for (const course of data) {
@@ -45,7 +32,6 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
               if (topic.id === topicId) {
                 setTopicName(`${course.name} → ${topic.name}`);
                 setCourseId(course.id);
-                // Save last accessed topic for this course
                 localStorage.setItem(`last_topic_${course.id}`, topic.id);
                 found = true;
                 break;
@@ -57,50 +43,18 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
       if (!found) setTopicName("Topic details not found.");
     });
 
-    // 2. Fetch Notes
-    Promise.all([
-      NotesService.getApprovedNotes(topicId).catch(() => [])
-    ]).then(([notesData]) => {
+    NotesService.getNotesByTopic(topicId).then((notesData) => {
       setNotes(notesData);
       setLoading(false);
       
-      // Mark notes as viewed in background if not empty
       if (notesData.length > 0) {
         HierarchyService.markNotesViewed(topicId).catch(console.error);
       }
+    }).catch(() => {
+      setNotes([]);
+      setLoading(false);
     });
   }, [topicId]);
-
-  const submitChallenge = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await studentService.submitChallenge({
-        note_id: selectedNote.id,
-        reason: challengeReason,
-        description: challengeDesc
-      });
-      setSelectedNote(null);
-      setChallengeDesc("");
-      setShowSuccessPopup(true);
-      setTimeout(() => setShowSuccessPopup(false), 3000);
-    } catch (err: any) {
-      alert("Failed to submit review.");
-    }
-  };
-
-  const handleEditNote = async (e: React.FormEvent, noteId: string) => {
-    e.preventDefault();
-    setIsSaving(true);
-    try {
-      await NotesService.updateNote(noteId, editNoteForm);
-      setNotes(notes.map(n => n.id === noteId ? { ...n, ...editNoteForm } : n));
-      setEditingNoteId(null);
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to update note");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const handleDeleteNote = async (noteId: string) => {
     if (!confirm("Are you sure you want to delete this note?")) return;
@@ -110,33 +64,6 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
     } catch (err: any) {
       alert("Failed to delete note.");
     }
-  };
-
-  const handleDownloadPdf = async (noteId: string, title: string) => {
-    const element = document.getElementById(`note-content-${noteId}`);
-    if (!element) return;
-    
-    // Create a clone to modify classes for the PDF (white background, black text)
-    const clone = element.cloneNode(true) as HTMLElement;
-    clone.className = "bg-white p-6 rounded-xl text-black";
-    
-    const contentDiv = clone.querySelector('.prose');
-    if (contentDiv) {
-      contentDiv.className = "prose max-w-none text-black"; // Removed prose-invert
-    }
-
-    const opt = {
-      margin:       10,
-      filename:     `${title.replace(/[^a-zA-Z0-9]/g, '_')}_Notes.pdf`,
-      image:        { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    
-    // Pass the unattached clone directly to html2pdf. 
-    // It will internally append it to a hidden container, render it, and clean up,
-    // avoiding both blank pages and screen flashing.
-    await html2pdf().set(opt as any).from(clone).save();
   };
 
   return (
@@ -154,148 +81,76 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
         <SectionTitle title={topicName} subtitle="Study notes for this topic." />
       </div>
 
-
-
       {loading ? (
         <div className="hidden space-y-4">
           <div className="h-32 bg-white/5 rounded-xl w-full" />
         </div>
       ) : (
-        <div className="space-y-6 max-w-4xl pb-20">
-          {notes.length > 0 && (
-            <div className="flex justify-end mb-2">
-              <ThemeToggle themeMode={themeMode} onChange={setThemeMode} />
-            </div>
-          )}
+        <div className="space-y-6 max-w-5xl pb-20">
           {notes.length === 0 ? (
             <Panel><p className="text-zinc-500">No notes available for this topic yet.</p></Panel>
           ) : (
             notes.map((note) => {
               const canEdit = user?.role === "ADMIN" || (user?.role === "TEACHER" && note.created_by === user?.id);
               return (
-                <Panel key={note.id} className="relative group">
-                  {editingNoteId === note.id ? (
-                    <form onSubmit={(e) => handleEditNote(e, note.id)} className="space-y-4">
-                      <div>
-                        <label className="text-sm text-zinc-400">Title</label>
-                        <input required type="text" value={editNoteForm.title} onChange={e => setEditNoteForm({...editNoteForm, title: e.target.value})} className="mt-1 w-full rounded bg-black border border-white/20 px-3 py-2 text-white outline-none focus:border-red-500" />
-                      </div>
-                      <div>
-                        <label className="text-sm text-zinc-400 mb-1 block">Content</label>
-                        <RichTextEditor value={editNoteForm.content_html} onChange={val => setEditNoteForm({...editNoteForm, content_html: val})} placeholder="Edit note content..." themeMode={themeMode} />
-                      </div>
-                      <div className="flex gap-2 justify-end">
-                        <button type="button" onClick={() => setEditingNoteId(null)} className="px-4 py-2 text-sm text-zinc-400 hover:text-white">Cancel</button>
-                        <button type="submit" disabled={isSaving} className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-500 disabled:opacity-50">Save Changes</button>
-                      </div>
-                    </form>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-                        <h3 className="text-xl font-bold text-white">{note.title}</h3>
-                        <div className="flex gap-2">
-                          {canEdit && (
-                            <>
-                              <button
-                                onClick={() => { setEditingNoteId(note.id); setEditNoteForm({ title: note.title, content_html: note.content_html }); }}
-                                className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-opacity bg-white/5 px-2 py-1 rounded"
-                              >
-                                <Edit2 size={12} /> Edit
-                              </button>
-                              <button
-                                onClick={() => handleDeleteNote(note.id)}
-                                className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 transition-opacity bg-white/5 px-2 py-1 rounded"
-                              >
-                                <Trash2 size={12} /> Delete
-                              </button>
-                            </>
-                          )}
-                          <button
-                            onClick={() => handleDownloadPdf(note.id, note.title)}
-                            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-blue-400 transition-opacity bg-white/5 px-2 py-1 rounded"
-                            title="Download as PDF"
-                          >
-                            <Download size={14} /> PDF
-                          </button>
-                          <button
-                            onClick={() => setSelectedNote(note)}
-                            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 transition-opacity bg-white/5 px-2 py-1 rounded"
-                            title="Review Note"
-                          >
-                            <ShieldAlert size={14} /> Review
-                          </button>
+                <Panel key={note.id} className="relative group p-0 overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-white/10 p-4 bg-zinc-900/50">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      <FileText size={20} className="text-red-400" />
+                      {note.title}
+                    </h3>
+                    <div className="flex gap-2">
+                      <a
+                        href={getSecureUrl(note.pdf_url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-blue-400 transition-opacity bg-white/5 px-3 py-1.5 rounded-lg font-medium"
+                      >
+                        <ExternalLink size={14} /> Open in new tab
+                      </a>
+                      <a
+                        href={getSecureUrl(note.pdf_url)}
+                        download
+                        className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-opacity bg-white/5 px-3 py-1.5 rounded-lg font-medium"
+                      >
+                        <Download size={14} /> Download
+                      </a>
+                      {canEdit && (
+                        <button
+                          onClick={() => handleDeleteNote(note.id)}
+                          className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 transition-opacity bg-white/5 px-3 py-1.5 rounded-lg font-medium"
+                        >
+                          <Trash2 size={14} /> Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="w-full bg-zinc-950 flex justify-center items-center p-4">
+                    {note.pdf_url ? (
+                      <object
+                        data={getSecureUrl(note.pdf_url)}
+                        type="application/pdf"
+                        className="w-full h-[800px] rounded-lg border border-white/10 bg-zinc-900"
+                      >
+                        <div className="flex flex-col items-center justify-center p-12 text-center">
+                          <FileText size={48} className="text-zinc-600 mb-4" />
+                          <p className="text-zinc-400 mb-4">Your browser does not support inline PDF viewing.</p>
+                          <a href={getSecureUrl(note.pdf_url)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 font-medium">
+                            Click here to view PDF
+                          </a>
                         </div>
+                      </object>
+                    ) : (
+                      <div className="p-12 text-center text-zinc-500">
+                        Invalid PDF URL for this note.
                       </div>
-                      <div id={`note-content-${note.id}`} className={`p-4 rounded-xl ${themeMode === "light" ? "bg-white text-black" : "bg-[#111] text-zinc-300"}`}>
-                        <div 
-                          className={`prose max-w-none ${themeMode === "light" ? "text-black" : "prose-invert text-zinc-300"}`}
-                          dangerouslySetInnerHTML={{ __html: note.content_html }} 
-                        />
-                      </div>
-                    </>
-                  )}
+                    )}
+                  </div>
                 </Panel>
               );
             })
           )}
-        </div>
-      )}
-
-      {/* Challenge Modal */}
-      {selectedNote && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <Panel className="w-full max-w-lg border border-red-900/50">
-            <h2 className="text-lg font-bold text-white mb-4">Review Note</h2>
-            <p className="text-sm text-zinc-400 mb-6">Found a mistake in "{selectedNote.title}"? Let us know so it can be fixed.</p>
-            
-            <form onSubmit={submitChallenge} className="space-y-4">
-              <div>
-                <label className="block text-sm text-zinc-300 mb-2">Issue Type</label>
-                <select
-                  value={challengeReason}
-                  onChange={(e) => setChallengeReason(e.target.value)}
-                  className="w-full rounded border border-white/10 bg-black px-3 py-2 text-white outline-none focus:border-red-500"
-                >
-                  <option value="WRONG_EXPLANATION">Incorrect Information / Wrong Explanation</option>
-                  <option value="TYPO">Typo / Grammatical Error</option>
-                  <option value="UNCLEAR_WORDING">Unclear Wording</option>
-                  <option value="OTHER">Other Issue</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-zinc-300 mb-2">Description</label>
-                <textarea
-                  required
-                  rows={4}
-                  value={challengeDesc}
-                  onChange={(e) => setChallengeDesc(e.target.value)}
-                  placeholder="Explain what is wrong with the note..."
-                  className="w-full rounded border border-white/10 bg-black px-3 py-2 text-white outline-none focus:border-red-500"
-                />
-              </div>
-              <div className="flex gap-4 pt-4">
-                <button type="submit" className="flex-1 rounded bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500">Submit</button>
-                <button type="button" onClick={() => setSelectedNote(null)} className="flex-1 rounded bg-zinc-800 px-4 py-2 text-white hover:bg-zinc-700">Cancel</button>
-              </div>
-            </form>
-          </Panel>
-        </div>
-      )}
-
-      {/* Custom Success Popup */}
-      {showSuccessPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <Panel className="w-full max-w-sm border border-emerald-500/30 bg-zinc-950 p-8 text-center animate-in fade-in zoom-in duration-200">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 mb-6">
-              <div className="h-8 w-8 rounded-sm bg-emerald-500 flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">Review Submitted!</h3>
-            <p className="text-sm text-zinc-400">The note creator has been notified.</p>
-          </Panel>
         </div>
       )}
     </>

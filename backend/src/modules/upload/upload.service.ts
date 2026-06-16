@@ -4,7 +4,9 @@ import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
@@ -68,16 +70,13 @@ export class UploadService {
 
       await this.s3Client.send(command);
 
-      // Generate CDN URL
-      const cdnUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
-
-      // Store metadata in database
+      // Store metadata in database (storing the raw S3 key in cdn_url field)
       const asset = await this.prisma.asset.create({
         data: {
           file_name: file.originalname,
           file_size: file.size,
           mime_type: file.mimetype,
-          cdn_url: cdnUrl,
+          cdn_url: key, // Store raw key here since public URLs are removed
         },
       });
 
@@ -88,11 +87,16 @@ export class UploadService {
     }
   }
 
-  async deleteFile(cdnUrl: string): Promise<void> {
+  async deleteFile(keyOrUrl: string): Promise<void> {
     try {
-      // Extract key from CDN URL
-      const baseUrl = process.env.R2_PUBLIC_URL!;
-      const key = cdnUrl.replace(`${baseUrl}/`, "");
+      // If it's a legacy public URL, try to extract the key
+      let key = keyOrUrl;
+      if (keyOrUrl.startsWith("http")) {
+         try {
+           const urlObj = new URL(keyOrUrl);
+           key = urlObj.pathname.substring(1); // remove leading slash
+         } catch(e) {}
+      }
 
       const command = new DeleteObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME!,
@@ -102,8 +106,8 @@ export class UploadService {
       await this.s3Client.send(command);
 
       // Delete from database
-      await this.prisma.asset.delete({
-        where: { cdn_url: cdnUrl },
+      await this.prisma.asset.deleteMany({
+        where: { cdn_url: keyOrUrl },
       });
     } catch (error) {
       console.error("File deletion error:", error);
@@ -115,5 +119,28 @@ export class UploadService {
     return this.prisma.asset.findMany({
       orderBy: { created_at: "desc" },
     });
+  }
+
+  /**
+   * Generates a temporary, 5-minute GET URL for an object.
+   */
+  async generatePresignedUrl(key: string): Promise<string> {
+    try {
+      // If the key is somehow a legacy HTTP URL, return it as-is to avoid breaking old assets.
+      if (key.startsWith("http")) {
+        return key;
+      }
+
+      const command = new GetObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME!,
+        Key: key,
+      });
+
+      // Expires in 5 minutes (300 seconds)
+      return await getSignedUrl(this.s3Client, command, { expiresIn: 300 });
+    } catch (error) {
+      console.error("Failed to generate presigned URL:", error);
+      throw new BadRequestException("Could not sign URL");
+    }
   }
 }

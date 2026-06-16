@@ -41,7 +41,7 @@ export class AdminService {
       challengesSubmitted
     ] = await Promise.all([
       this.prisma.note.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
-      this.prisma.note.findMany({ where: { approved_by: userId, approved_at: { gte: oneYearAgo } }, select: { approved_at: true } }),
+      Promise.resolve([]), // notes no longer have approval workflow
       this.prisma.question.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
       this.prisma.question.findMany({ where: { approved_by: userId, approved_at: { gte: oneYearAgo } }, select: { approved_at: true } }),
       this.prisma.test.findMany({ where: { created_by: userId, created_at: { gte: oneYearAgo } }, select: { created_at: true } }),
@@ -61,7 +61,7 @@ export class AdminService {
     };
 
     notesCreated.forEach(n => addActivity(n.created_at, "notes created"));
-    notesReviewed.forEach(n => addActivity(n.approved_at, "notes reviewed"));
+    // notesReviewed no longer used
     questionsCreated.forEach(q => addActivity(q.created_at, "questions created"));
     questionsReviewed.forEach(q => addActivity(q.approved_at, "questions reviewed"));
     testsCreated.forEach(t => addActivity(t.created_at, "tests created"));
@@ -194,7 +194,7 @@ export class AdminService {
    */
   async updateUser(
     id: string,
-    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean; custom_role_id?: string | null; course_enrolled?: string | null; add_enrollment?: string[]; remove_enrollment?: string[] },
+    data: { role?: string; first_name?: string; last_name?: string; assigned_teacher_id?: string | null; is_active?: boolean; custom_role_id?: string | null; course_enrolled?: string | null; add_enrollment?: string[]; remove_enrollment?: string[]; add_ts_enrollment?: string[]; remove_ts_enrollment?: string[] },
   ) {
     try {
       const user = await this.prisma.user.findUnique({ where: { id } });
@@ -243,6 +243,24 @@ export class AdminService {
         for (const courseId of data.remove_enrollment) {
           await this.prisma.courseEnrollment.deleteMany({
             where: { user_id: id, course_id: courseId }
+          });
+        }
+      }
+
+      if (data.add_ts_enrollment && data.add_ts_enrollment.length > 0) {
+        for (const tsId of data.add_ts_enrollment) {
+          await this.prisma.testSeriesEnrollment.upsert({
+            where: { user_id_test_series_id: { user_id: id, test_series_id: tsId } },
+            update: {},
+            create: { user_id: id, test_series_id: tsId },
+          }).catch(() => null);
+        }
+      }
+
+      if (data.remove_ts_enrollment && data.remove_ts_enrollment.length > 0) {
+        for (const tsId of data.remove_ts_enrollment) {
+          await this.prisma.testSeriesEnrollment.deleteMany({
+            where: { user_id: id, test_series_id: tsId }
           });
         }
       }
@@ -452,7 +470,7 @@ export class AdminService {
         const questions_submitted = await this.prisma.question.count({ where: { created_by: pawn.id } });
         const notes_created = await this.prisma.note.count({ where: { created_by: pawn.id } });
         const questions_approved = await this.prisma.question.count({ where: { created_by: pawn.id, approval_status: 'APPROVED' } });
-        const notes_approved = await this.prisma.note.count({ where: { created_by: pawn.id, approval_status: 'APPROVED' } });
+        const notes_approved = await this.prisma.note.count({ where: { created_by: pawn.id } });
         
         const total_submitted = questions_submitted + notes_created;
         const total_approved = questions_approved + notes_approved;

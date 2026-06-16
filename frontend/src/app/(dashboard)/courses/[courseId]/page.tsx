@@ -7,7 +7,7 @@ import SearchableSelect from "@/components/ui/SearchableSelect";
 import MultiSearchableSelect from "@/components/ui/MultiSearchableSelect";
 import { HierarchyService } from "@/services/hierarchy.service";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield, Loader2, Search, Swords } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield, Loader2, Search, Swords, Upload } from "lucide-react";
 import CourseLeaderboard from "@/components/ui/CourseLeaderboard";
 import ChessPiece3D from "@/components/ui/ChessPiece3D";
 import { api } from "@/lib/api";
@@ -17,6 +17,8 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { CartService } from "@/services/cart.service";
 import { useRouter } from "next/navigation";
 import TestProgressBar from "@/components/ui/TestProgressBar";
+import { NotesService } from "@/services/notes.service";
+import uploadService from "@/services/upload.service";
 
 const TEST_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
   TOPICWISE: { label: "Topicwise", color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
@@ -241,6 +243,28 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
       await HierarchyService.deleteCourse(course.id);
       router.push("/courses");
     }
+  };
+
+  const handleUploadNote = async (topicId: string, topicName: string) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/pdf";
+    input.onchange = async () => {
+      if (input.files && input.files[0]) {
+        try {
+          setLoading(true);
+          const file = input.files[0];
+          const pdf_url = await uploadService.uploadDocument(file);
+          await NotesService.createNote({ topic_id: topicId, title: `${topicName} Notes`, pdf_url });
+          fetchCourse();
+        } catch (err) {
+          alert("Failed to upload note");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    input.click();
   };
 
   // --- Drag and Drop Handlers ---
@@ -956,10 +980,16 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                         
                                         {!editingTopic && (
                                           <div className="flex flex-wrap items-center gap-2 mt-auto pt-3 border-t border-white/5">
-                                            {topic.has_notes && (
+                                            {topic.has_notes ? (
                                               <Link href={`/topics/${topic.id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition-colors whitespace-nowrap">
                                                 <FileText size={14} /> Notes
                                               </Link>
+                                            ) : (
+                                              (user?.role === "ADMIN" || user?.role === "TEACHER") && isSectionManager(section) && (
+                                                <button onClick={() => handleUploadNote(topic.id, topic.name)} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-xs font-medium text-amber-400 transition-colors whitespace-nowrap">
+                                                  <Upload size={14} /> Upload Note
+                                                </button>
+                                              )
                                             )}
                                             
                                             {user?.role === "ADMIN" || user?.role === "TEACHER" ? (

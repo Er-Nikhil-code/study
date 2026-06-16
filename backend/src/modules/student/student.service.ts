@@ -49,14 +49,7 @@ export class StudentService {
         }, 
         select: { created_at: true } 
       }),
-      this.prisma.note.findMany({ 
-        where: { 
-          approved_by: userId, 
-          approved_at: { gte: oneYearAgo },
-          ...(filterByCourse && { topic: { chapter: { section: { course_id: { in: enrolledCourseIds } } } } })
-        }, 
-        select: { approved_at: true } 
-      }),
+      Promise.resolve([]), // notes no longer have approval workflow
       this.prisma.question.findMany({ 
         where: { 
           created_by: userId, 
@@ -118,7 +111,7 @@ export class StudentService {
     };
 
     notesCreated.forEach(n => addActivity(n.created_at, "notes created"));
-    notesReviewed.forEach(n => addActivity(n.approved_at, "notes reviewed"));
+    // notesReviewed no longer used
     questionsCreated.forEach(q => addActivity(q.created_at, "questions created"));
     questionsReviewed.forEach(q => addActivity(q.approved_at, "questions reviewed"));
     testsCreated.forEach(t => addActivity(t.created_at, "tests created"));

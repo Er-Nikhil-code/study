@@ -42,6 +42,16 @@ export default function AdminUserProfilePage() {
     queryFn: () => HierarchyService.getFullHierarchy(),
   });
 
+  const { data: testSeries = [] } = useQuery({
+    queryKey: ["testSeries", "hierarchy"],
+    queryFn: () => HierarchyService.getTestSeriesHierarchy(),
+  });
+
+  const { data: knights } = useQuery({
+    queryKey: ["knights"],
+    queryFn: () => adminService.getUsers({ role: "TEACHER", limit: 100 }),
+  });
+
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
       return await adminService.updateUser(userId, data);
@@ -66,6 +76,7 @@ export default function AdminUserProfilePage() {
         is_active: user.is_active,
         custom_role_id: user.custom_role_id || "",
         course_enrolled: user.course_enrolled || "",
+        assigned_teacher_id: user.assigned_teacher_id || "",
       });
     }
     setIsEditing(!isEditing);
@@ -75,6 +86,7 @@ export default function AdminUserProfilePage() {
     const payload = { ...editForm };
     if (payload.course_enrolled === "") payload.course_enrolled = null;
     if (payload.custom_role_id === "") payload.custom_role_id = null;
+    if (payload.assigned_teacher_id === "") payload.assigned_teacher_id = null;
     updateMutation.mutate(payload);
   };
 
@@ -185,6 +197,21 @@ export default function AdminUserProfilePage() {
                       ))}
                     </select>
                   </div>
+                  {editForm.role === "INTERN" && (
+                    <div>
+                      <label className="text-xs text-zinc-500 mb-1 block">Assigned Knight</label>
+                      <select
+                        value={editForm.assigned_teacher_id || ""}
+                        onChange={e => setEditForm({ ...editForm, assigned_teacher_id: e.target.value || null })}
+                        className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-red-500/50"
+                      >
+                        <option value="">None</option>
+                        {knights?.data?.map((k: any) => (
+                          <option key={k.id} value={k.id}>{k.first_name} {k.last_name} ({k.email})</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 pt-2">
                     <input
                       type="checkbox"
@@ -300,17 +327,54 @@ export default function AdminUserProfilePage() {
                       </div>
                     )}
                     <span className="text-zinc-500 mt-2">Enrolled Test Series</span>
-                    <div className="flex flex-wrap gap-2 w-full">
-                      {user.test_series_enrollments?.length > 0 ? (
-                        user.test_series_enrollments.map((enr: any) => (
-                          <span key={enr.test_series_id} className="text-xs font-medium bg-red-500/10 text-red-300 border border-red-500/20 rounded-full px-3 py-1">
-                            {enr.test_series?.name || enr.test_series_id}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-zinc-500 text-sm">— No test series enrolled —</span>
-                      )}
-                    </div>
+                    {isEditing ? (
+                      <div className="flex flex-col w-full gap-2">
+                        {user.test_series_enrollments?.map((enr: any) => (
+                          <div key={enr.test_series_id} className="flex justify-between items-center bg-white/5 border border-white/10 rounded px-3 py-1.5 w-full">
+                            <span className="text-sm text-zinc-300">{enr.test_series?.name || enr.test_series_id}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const payload = { ...editForm, remove_ts_enrollment: [...(editForm.remove_ts_enrollment || []), enr.test_series_id] };
+                                updateMutation.mutate(payload);
+                              }}
+                              className="text-xs text-red-400 hover:text-red-300 p-1"
+                            >
+                              Unenroll
+                            </button>
+                          </div>
+                        ))}
+                        <div className="flex w-full items-center gap-2 mt-2">
+                          <select
+                            value={editForm.ts_enrolled || ""}
+                            onChange={e => {
+                                if (e.target.value) {
+                                  const payload = { ...editForm, add_ts_enrollment: [e.target.value] };
+                                  updateMutation.mutate(payload);
+                                }
+                            }}
+                            className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-zinc-400 outline-none focus:border-red-500/50"
+                          >
+                            <option value="">+ Enroll in new test series...</option>
+                            {testSeries.filter((ts: any) => !user.test_series_enrollments?.some((enr: any) => enr.test_series_id === ts.id)).map((ts: any) => (
+                              <option key={ts.id} value={ts.id}>{ts.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2 w-full">
+                        {user.test_series_enrollments?.length > 0 ? (
+                          user.test_series_enrollments.map((enr: any) => (
+                            <span key={enr.test_series_id} className="text-xs font-medium bg-red-500/10 text-red-300 border border-red-500/20 rounded-full px-3 py-1">
+                              {enr.test_series?.name || enr.test_series_id}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-zinc-500 text-sm">— No test series enrolled —</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
                 {user.assigned_teacher && (

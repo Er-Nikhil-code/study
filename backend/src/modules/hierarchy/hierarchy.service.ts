@@ -251,7 +251,7 @@ export class HierarchyService {
       update: { notes_viewed: true }
     });
 
-    const notesCount = await this.prisma.note.count({ where: { topic_id: topicId, approval_status: 'APPROVED' } });
+    const notesCount = await this.prisma.note.count({ where: { topic_id: topicId } });
     const requireNotes = notesCount > 0;
 
     if ((progress.notes_viewed || !requireNotes) && progress.tests_completed && !progress.is_completed) {
@@ -270,7 +270,7 @@ export class HierarchyService {
       update: { tests_completed: true }
     });
 
-    const notesCount = await this.prisma.note.count({ where: { topic_id: topicId, approval_status: 'APPROVED' } });
+    const notesCount = await this.prisma.note.count({ where: { topic_id: topicId } });
     const requireNotes = notesCount > 0;
 
     if ((progress.notes_viewed || !requireNotes) && progress.tests_completed && !progress.is_completed) {
@@ -352,7 +352,7 @@ export class HierarchyService {
               include: {
                 topics: {
                   include: {
-                    _count: { select: { notes: { where: { approval_status: 'APPROVED' } } } }
+                    _count: { select: { notes: true } }
                   },
                   orderBy: { order: 'asc' }
                 }
@@ -503,7 +503,7 @@ export class HierarchyService {
               include: {
                 topics: {
                   include: {
-                    _count: { select: { notes: { where: { approval_status: 'APPROVED' } } } }
+                    _count: { select: { notes: true } }
                   },
                   orderBy: { order: 'asc' }
                 }

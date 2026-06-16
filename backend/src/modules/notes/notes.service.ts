@@ -5,51 +5,26 @@ import { PrismaService } from "../../prisma/prisma.service";
 export class NotesService {
   constructor(private prisma: PrismaService) {}
 
-  async createNote(data: { topic_id: string; title: string; content_html: string }, userId: string, role: string) {
-    if (role === "INTERN") {
-      const intern = await this.prisma.user.findUnique({ where: { id: userId } });
-      if (intern?.assigned_teacher_id) {
-        const topic = await this.prisma.topic.findUnique({
-          where: { id: data.topic_id },
-          include: { chapter: { include: { section: { include: { managers: true } } } } }
-        });
-        if (topic) {
-          const section = topic.chapter.section;
-          const isManager = section.managers.some(m => m.id === intern.assigned_teacher_id);
-          const courseId = section.course_id;
-          if (courseId && !isManager) {
-            const staffAssigned = await this.prisma.courseStaff.findUnique({
-              where: { course_id_user_id: { course_id: courseId, user_id: intern.assigned_teacher_id } }
-            });
-            const course = await this.prisma.course.findUnique({ where: { id: courseId } });
-            if (!staffAssigned && course?.created_by !== intern.assigned_teacher_id) {
-              throw new BadRequestException("You can only create notes for courses your assigned teacher is managing");
-            }
-          }
-        }
-      }
+  async createNote(data: { topic_id: string; title: string; pdf_url: string }, userId: string, role: string) {
+    if (role !== "ADMIN" && role !== "TEACHER") {
+      throw new BadRequestException("Only Admins and Teachers can create notes");
     }
-
-    // Interns go to PENDING_REVIEW, Teachers/Admins go to APPROVED
-    const status = role === "INTERN" ? "PENDING_REVIEW" : "APPROVED";
 
     return this.prisma.note.create({
       data: {
         topic_id: data.topic_id,
         title: data.title,
-        content_html: data.content_html,
+        pdf_url: data.pdf_url,
         created_by: userId,
-        approval_status: status,
-        ...(status === "APPROVED" && { approved_by: userId, approved_at: new Date() }),
       },
     });
   }
 
-  async updateNote(noteId: string, data: { title?: string; content_html?: string; topic_id?: string }, userId: string, role: string) {
+  async updateNote(noteId: string, data: { title?: string; pdf_url?: string; topic_id?: string }, userId: string, role: string) {
     const note = await this.prisma.note.findUnique({ where: { id: noteId } });
     if (!note) throw new NotFoundException("Note not found");
 
-    if ((role === "TEACHER" || role === "INTERN") && note.created_by !== userId) {
+    if (role !== "ADMIN" && note.created_by !== userId) {
       throw new BadRequestException("You can only edit notes that you have created");
     }
 
@@ -57,9 +32,8 @@ export class NotesService {
       where: { id: noteId },
       data: {
         ...(data.title && { title: data.title }),
-        ...(data.content_html && { content_html: data.content_html }),
+        ...(data.pdf_url && { pdf_url: data.pdf_url }),
         ...(data.topic_id && { topic_id: data.topic_id }),
-        ...(role === "INTERN" && { approval_status: "PENDING_REVIEW" }), // Auto-reset status for interns
       },
       include: {
         topic: { include: { chapter: { include: { section: { include: { course: true } } } } } }
@@ -75,94 +49,25 @@ export class NotesService {
       }
     });
     if (!note) throw new NotFoundException("Note not found");
-
-    // Interns can only see their own notes; teachers/admins can see all
-    if (role === "INTERN" && note.created_by !== userId) {
-      throw new BadRequestException("You can only view notes that you created");
-    }
-
     return note;
   }
 
-  async getPendingNotes(userId: string, role: string) {
-    if (role === "TEACHER") {
-      // Get interns assigned to this teacher
-      const interns = await this.prisma.user.findMany({
-        where: { assigned_teacher_id: userId },
-        select: { id: true },
-      });
-      const internIds = interns.map(i => i.id);
-
-      return this.prisma.note.findMany({
-        where: {
-          approval_status: "PENDING_REVIEW",
-          created_by: { in: internIds },
-        },
-        include: { topic: { include: { chapter: { include: { section: { include: { course: true } } } } } } }
-      });
-    }
-
-    if (role === "ADMIN") {
-      return this.prisma.note.findMany({
-        where: { approval_status: "PENDING_REVIEW" },
-        include: { topic: { include: { chapter: { include: { section: { include: { course: true } } } } } } }
-      });
-    }
-
-    return [];
-  }
-
-  async reviewNote(noteId: string, status: "APPROVED" | "REJECTED", reviewerId: string, rejectionNote?: string, contentHtml?: string) {
-    const note = await this.prisma.note.findUnique({ where: { id: noteId } });
-    if (!note) throw new NotFoundException("Note not found");
-
-    const updated = await this.prisma.note.update({
-      where: { id: noteId },
-      data: {
-        approval_status: status,
-        approved_by: status === "APPROVED" ? reviewerId : null,
-        approved_at: status === "APPROVED" ? new Date() : null,
-        rejection_note: status === "REJECTED" ? rejectionNote : null,
-        ...(contentHtml && { content_html: contentHtml }),
-      },
-    });
-
-    if (status === "APPROVED" && note.created_by) {
-      await this.prisma.userStats.upsert({
-        where: { user_id: note.created_by },
-        update: { total_score: { increment: 5 } },
-        create: { user_id: note.created_by, total_score: 5 }
-      });
-    }
-
-    return updated;
-  }
-
-  async getApprovedNotesByTopic(topicId: string) {
+  async getNotesByTopic(topicId: string) {
     return this.prisma.note.findMany({
-      where: { topic_id: topicId, approval_status: "APPROVED" },
+      where: { topic_id: topicId },
       orderBy: { created_at: "asc" }
     });
   }
 
   async listNotes(
-    filters: { intern_only?: string; teacher_id?: string; admin_search?: boolean; search?: string },
+    filters: { teacher_id?: string; admin_search?: boolean; search?: string },
     skip = 0,
     take = 20
   ) {
     const where: any = {};
 
-    if (filters.intern_only) {
-      where.created_by = filters.intern_only;
-    }
-    
     if (filters.teacher_id) {
-      const interns = await this.prisma.user.findMany({
-        where: { assigned_teacher_id: filters.teacher_id },
-        select: { id: true },
-      });
-      const internIds = interns.map(i => i.id);
-      where.created_by = { in: [filters.teacher_id, ...internIds] };
+      where.created_by = filters.teacher_id;
     }
 
     if (filters.search) {

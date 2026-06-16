@@ -86,12 +86,6 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
     items.push({ label: "Test Series", href: "/test-series", icon: FileText });
   }
 
-  // Notes
-  if (hasPerm("review_notes") || user.role === "TEACHER" || user.role === "ADMIN") {
-    items.push({ label: "Notes", href: "/teacher/notes/review", icon: FileEdit });
-  } else if (hasPerm("create_notes") || user.role === "INTERN") {
-    items.push({ label: "Notes", href: "/intern/notes/create", icon: FileEdit });
-  }
 
   // Challenges
   if (hasPerm("manage_challenges") || user.role === "TEACHER") {

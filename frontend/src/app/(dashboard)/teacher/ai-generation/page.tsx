@@ -603,7 +603,7 @@ export default function AIGenerationPage() {
                         const checked = e.target.checked;
                         if (checked) {
                           try {
-                            const notes = await NotesService.getApprovedNotes(form.topicId);
+                            const notes = await NotesService.getNotesByTopic(form.topicId);
                             if (!notes || notes.length === 0) {
                               setNotesWarning("Notes unavailable for this topic.");
                               setForm({...form, useNotes: false});
