@@ -20,6 +20,31 @@ export default function InternNotesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState("ALL");
+  const [clearedNotes, setClearedNotes] = useState<string[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("clearedNotes");
+    if (saved) {
+      try {
+        setClearedNotes(JSON.parse(saved));
+      } catch (e) {}
+    }
+  }, []);
+
+  const handleClear = (id: string) => {
+    const next = [...clearedNotes, id];
+    setClearedNotes(next);
+    localStorage.setItem("clearedNotes", JSON.stringify(next));
+  };
+
+  const handleClearAll = () => {
+    const toClear = notes
+      .filter((n) => n.approval_status !== "DRAFT" && n.approval_status !== "PENDING_REVIEW")
+      .map((n) => n.id);
+    const next = Array.from(new Set([...clearedNotes, ...toClear]));
+    setClearedNotes(next);
+    localStorage.setItem("clearedNotes", JSON.stringify(next));
+  };
 
   const fetchNotes = useCallback(async () => {
     setLoading(true);
@@ -38,9 +63,11 @@ export default function InternNotesPage() {
     fetchNotes();
   }, [fetchNotes]);
 
-  const filtered = filterStatus === "ALL"
+  let filtered = filterStatus === "ALL"
     ? notes
     : notes.filter((n) => n.approval_status === filterStatus);
+    
+  filtered = filtered.filter(n => !clearedNotes.includes(n.id));
 
   return (
     <>
@@ -75,6 +102,15 @@ export default function InternNotesPage() {
           <option value="APPROVED">Approved</option>
           <option value="REJECTED">Rejected</option>
         </select>
+        
+        {notes.some(n => n.approval_status !== "DRAFT" && n.approval_status !== "PENDING_REVIEW" && !clearedNotes.includes(n.id)) && (
+          <button 
+            onClick={handleClearAll}
+            className="ml-auto rounded-xl border border-white/10 bg-white/[0.03] px-4 py-1.5 text-sm font-medium text-zinc-300 hover:bg-white/[0.06] hover:text-white transition"
+          >
+            Clear All Reviewed
+          </button>
+        )}
       </div>
 
       {error && (
@@ -136,6 +172,14 @@ export default function InternNotesPage() {
                 {/* Submit for review if DRAFT or NEEDS_REVISION */}
                 {(note.approval_status === "DRAFT" || note.approval_status === "NEEDS_REVISION") && (
                   <SubmitButton noteId={note.id} onSuccess={fetchNotes} />
+                )}
+                {(note.approval_status !== "DRAFT" && note.approval_status !== "PENDING_REVIEW") && (
+                  <button 
+                    onClick={() => handleClear(note.id)}
+                    className="ml-auto rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-400 transition hover:bg-white/[0.06] hover:text-white"
+                  >
+                    Clear
+                  </button>
                 )}
               </div>
             </Panel>

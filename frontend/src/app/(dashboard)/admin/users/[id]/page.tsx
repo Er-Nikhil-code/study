@@ -11,6 +11,7 @@ import { api } from "@/lib/api";
 import adminService from "@/services/admin.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import { getChessRoleName } from "@/lib/role";
+import { format } from "date-fns";
 
 export default function AdminUserProfilePage() {
   const params = useParams();
@@ -346,6 +347,30 @@ export default function AdminUserProfilePage() {
                     <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">6-Month Activity Graph</h4>
                     <ActivityGraph data={user.activity_graph || []} userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
                   </div>
+
+                  {user.contributing_courses && user.contributing_courses.length > 0 && (
+                    <div className="mt-8">
+                      <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider border-b border-emerald-500/10 pb-2">Contributing Courses</h4>
+                      <div className="grid gap-3 sm:grid-cols-2 mt-3">
+                        {user.contributing_courses.map((course: any) => (
+                          <div key={course.id} className="p-4 bg-black/40 border border-emerald-500/20 rounded-xl">
+                            <h5 className="text-sm font-semibold text-white mb-2">{course.name}</h5>
+                            {course.sections?.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {course.sections.map((sec: any) => (
+                                  <span key={sec.id} className="text-[10px] px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                    {sec.name}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-[10px] text-zinc-500 italic">No assigned sections in this course</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </Panel>
               </>
             )}
@@ -357,24 +382,112 @@ export default function AdminUserProfilePage() {
                   <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">6-Month Activity Graph</h4>
                   <ActivityGraph data={user.activity_graph || []} userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
                 </div>
-                {user.interns && user.interns.length > 0 && (
-                  <div className="mt-6">
-                    <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider border-b border-white/10 pb-2">Assigned Pawns (Interns)</h4>
+
+                {user.assigned_courses && user.assigned_courses.length > 0 && (
+                  <div className="mt-8">
+                    <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider border-b border-white/10 pb-2">Assigned Courses & Sections</h4>
                     <div className="grid gap-3 sm:grid-cols-2 mt-3">
-                      {user.interns.map((intern: any) => (
-                        <div key={intern.id} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg">
-                          <div className="h-10 w-10 rounded-full overflow-hidden bg-zinc-800 shrink-0">
-                            {intern.profile_picture ? (
-                              <Image src={intern.profile_picture} alt="Intern" width={40} height={40} className="h-full w-full object-cover" />
-                            ) : (
-                              <div className="h-full w-full flex items-center justify-center text-zinc-500 font-bold text-sm">
-                                {intern.first_name?.charAt(0) || "U"}
-                              </div>
+                      {user.assigned_courses.map((course: any) => (
+                        <div key={course.id} className="p-4 bg-white/5 border border-white/10 rounded-xl">
+                          <div className="flex justify-between items-start mb-2">
+                            <h5 className="text-sm font-semibold text-white">{course.name}</h5>
+                            {course.created_by === user.id && (
+                              <span className="text-[9px] uppercase tracking-wider bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">Creator</span>
                             )}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <h5 className="text-sm font-medium text-white truncate">{intern.first_name} {intern.last_name}</h5>
-                            <p className="text-[10px] text-zinc-400 truncate">{intern.email}</p>
+                          {course.sections?.length > 0 ? (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {course.sections.map((sec: any) => (
+                                <span key={sec.id} className="text-[10px] px-2 py-1 rounded-md bg-white/10 text-zinc-300 border border-white/20">
+                                  {sec.name}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-zinc-500 italic mt-2 block">General Staff / No specific sections managed</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {user.pawns_details && user.pawns_details.length > 0 && (
+                  <div className="mt-8">
+                    <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider border-b border-white/10 pb-2">Assigned Pawns (Interns)</h4>
+                    <div className="flex flex-col gap-3 mt-3">
+                      {user.pawns_details.map((intern: any) => (
+                        <div key={intern.id} className="flex flex-col sm:flex-row items-center sm:items-stretch gap-4 p-4 bg-black/40 border border-white/10 rounded-xl">
+                          {/* Profile Column */}
+                          <div className="flex flex-col items-center gap-2 w-32 shrink-0">
+                            <div className="h-14 w-14 rounded-full overflow-hidden bg-zinc-800 border-2 border-zinc-700">
+                              {intern.profile_picture ? (
+                                <Image src={intern.profile_picture} alt="Intern" width={56} height={56} className="h-full w-full object-cover" />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center text-zinc-500 font-bold text-xl">
+                                  {intern.first_name?.charAt(0) || "U"}
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-center">
+                              <h5 className="text-sm font-semibold text-white truncate w-32 px-2" title={`${intern.first_name} ${intern.last_name}`}>
+                                {intern.first_name} {intern.last_name}
+                              </h5>
+                              <p className="text-[10px] text-zinc-400 truncate w-32 px-2" title={intern.email}>{intern.email}</p>
+                            </div>
+                          </div>
+
+                          {/* Divider */}
+                          <div className="hidden sm:block w-px bg-white/10" />
+
+                          {/* Stats Column */}
+                          <div className="flex-1 flex flex-col justify-between min-w-0 py-1 w-full">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                              <div className="bg-white/5 p-2 rounded-lg text-center border border-white/5">
+                                <div className="text-[9px] text-zinc-500 uppercase tracking-wider mb-1">Questions</div>
+                                <div className="text-sm font-bold text-emerald-400">{intern.questions_submitted || 0}</div>
+                              </div>
+                              <div className="bg-white/5 p-2 rounded-lg text-center border border-white/5">
+                                <div className="text-[9px] text-zinc-500 uppercase tracking-wider mb-1">Notes</div>
+                                <div className="text-sm font-bold text-amber-400">{intern.notes_created || 0}</div>
+                              </div>
+                              <div className="bg-white/5 p-2 rounded-lg text-center border border-white/5">
+                                <div className="text-[9px] text-zinc-500 uppercase tracking-wider mb-1">Approval %</div>
+                                <div className="text-sm font-bold text-white">{intern.approval_percentage}%</div>
+                              </div>
+                              <div className="bg-white/5 p-2 rounded-lg text-center border border-white/5 flex flex-col justify-center">
+                                <div className="text-[9px] text-zinc-500 uppercase tracking-wider mb-1">Last Login</div>
+                                <div className="text-[10px] font-medium text-zinc-300">
+                                  {intern.last_login_at ? format(new Date(intern.last_login_at), "MMM d, yyyy") : "Never"}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Joined:</span>
+                                <span className="text-xs text-zinc-300">{format(new Date(intern.created_at), "MMM d, yyyy")}</span>
+                              </div>
+                              <div className="flex flex-col sm:items-end">
+                                <span className="text-[9px] text-zinc-500 mb-1 uppercase tracking-wider">10-Day Activity Heatmap</span>
+                                <div className="flex items-center gap-1.5 bg-black/60 px-2 py-1.5 rounded-lg border border-white/5">
+                                  <span className="text-[9px] text-zinc-600">Old</span>
+                                  <div className="flex gap-1">
+                                    {intern.heatmap?.map((day: any, i: number) => {
+                                      let bg = "bg-zinc-800";
+                                      if (day.count > 0 && day.count <= 2) bg = "bg-emerald-900/60";
+                                      else if (day.count > 2 && day.count <= 5) bg = "bg-emerald-700/80";
+                                      else if (day.count > 5 && day.count <= 10) bg = "bg-emerald-500";
+                                      else if (day.count > 10) bg = "bg-emerald-400";
+                                      return (
+                                        <div key={i} className={`w-3.5 h-3.5 rounded-[2px] ${bg} transition-colors hover:ring-1 hover:ring-white/50`} title={`${day.date}: ${day.count} activities`} />
+                                      );
+                                    })}
+                                  </div>
+                                  <span className="text-[9px] text-zinc-600">New</span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}

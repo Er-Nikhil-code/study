@@ -330,28 +330,11 @@ export class HierarchyService {
     if (userRole === 'STUDENT') {
       courseWhere = { status: 'PUBLISHED' };
     } else if (userRole === 'TEACHER') {
-      // Teachers see courses they created, are staff on, or manage a section in
-      courseWhere = {
-        OR: [
-          { created_by: userId },
-          { staff: { some: { user_id: userId } } },
-          { sections: { some: { managers: { some: { id: userId } } } } }
-        ]
-      };
+      // Teachers and Interns can see all courses
+      // The frontend restricts edit options and question creation to their assigned sections
+      courseWhere = {};
     } else if (userRole === 'INTERN') {
-      // Interns see courses where their assigned teacher is creator or staff
-      if (assignedTeacherId) {
-        courseWhere = {
-          OR: [
-            { created_by: assignedTeacherId },
-            { staff: { some: { user_id: assignedTeacherId } } },
-            { sections: { some: { managers: { some: { id: assignedTeacherId } } } } }
-          ]
-        };
-      } else {
-        // Intern with no assigned teacher sees nothing
-        courseWhere = { id: '__none__' };
-      }
+      courseWhere = {};
     }
     // ADMIN: courseWhere stays {} (see all)
 

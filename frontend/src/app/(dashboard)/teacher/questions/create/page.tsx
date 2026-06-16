@@ -333,11 +333,13 @@ export default function CreateQuestionPage() {
                             ?.filter((s: any) => {
                               if (user?.role === "ADMIN") return true;
                               if (currentCourse?.created_by === user?.id) return true;
+                              if (currentCourse?.staff?.some((st: any) => st.user?.id === user?.id || st.user_id === user?.id)) return true;
                               if (s.managers?.some((m: any) => m.id === user?.id)) return true;
-                              // INTERN: show sections where assigned teacher is manager or course creator
+                              // INTERN: show sections where assigned teacher is manager, course creator, or staff
                               const teacherId = user?.assigned_teacher_id || (user as any)?.assigned_teacher?.id;
                               if (user?.role === "INTERN" && teacherId) {
                                 if (currentCourse?.created_by === teacherId) return true;
+                                if (currentCourse?.staff?.some((st: any) => st.user?.id === teacherId || st.user_id === teacherId)) return true;
                                 if (s.managers?.some((m: any) => m.id === teacherId)) return true;
                               }
                               return false;

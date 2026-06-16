@@ -103,9 +103,8 @@ export default function CreateTestPage() {
     if (bankPyq !== "ALL") params.is_pyq = bankPyq === "YES";
     if (bankYear) params.exam_year = bankYear;
     
-    if (!bankCourseId && !bankSectionId && !bankChapterId && topicId) {
-      params.topic_id = topicId;
-    }
+    // Do not automatically restrict the question bank to the destination topic.
+    // The user can use the bank filters to find questions across all courses.
 
     QuestionsService.getAll(params).then((res) => {
       const approvedOnly = res.data.filter((q: any) => q.approval_status === "APPROVED");

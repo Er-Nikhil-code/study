@@ -67,19 +67,19 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
   const [addingChapterTo, setAddingChapterTo] = useState<string | null>(null);
   const [addingTopicTo, setAddingTopicTo] = useState<string | null>(null);
   
-  const [sectionForm, setSectionForm] = useState({ name: "", description: "", order: 1 });
-  const [chapterForm, setChapterForm] = useState({ name: "", description: "", order: 1 });
-  const [topicForm, setTopicForm] = useState({ name: "", description: "", order: 1 });
+  const [sectionForm, setSectionForm] = useState({ name: "", description: "", order: 1 as number | string });
+  const [chapterForm, setChapterForm] = useState({ name: "", description: "", order: 1 as number | string });
+  const [topicForm, setTopicForm] = useState({ name: "", description: "", order: 1 as number | string });
 
   // Forms for editing
   const [editingSection, setEditingSection] = useState<string | null>(null);
-  const [editSectionForm, setEditSectionForm] = useState({ name: "", description: "", order: 1 });
+  const [editSectionForm, setEditSectionForm] = useState({ name: "", description: "", order: 1 as number | string });
 
   const [editingChapter, setEditingChapter] = useState<string | null>(null);
-  const [editChapterForm, setEditChapterForm] = useState({ name: "", description: "", order: 1 });
+  const [editChapterForm, setEditChapterForm] = useState({ name: "", description: "", order: 1 as number | string });
 
   const [editingTopic, setEditingTopic] = useState<string | null>(null);
-  const [editTopicForm, setEditTopicForm] = useState({ name: "", description: "", order: 1 });
+  const [editTopicForm, setEditTopicForm] = useState({ name: "", description: "", order: 1 as number | string });
 
   const countWords = (str: string) => str.trim() ? str.trim().split(/\s+/).length : 0;
 
@@ -131,7 +131,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
       alert("Section description cannot exceed 80 words.");
       return;
     }
-    await HierarchyService.createSection({ ...sectionForm, test_series_id: series.id });
+    await HierarchyService.createSection({ ...sectionForm, order: Number(sectionForm.order), test_series_id: series.id });
     setAddingSection(false);
     setSectionForm({ name: "", description: "", order: 1 });
     fetchSeries();
@@ -143,7 +143,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
       alert("Chapter description cannot exceed 50 words.");
       return;
     }
-    await HierarchyService.createChapter({ ...chapterForm, section_id: sectionId });
+    await HierarchyService.createChapter({ ...chapterForm, order: Number(chapterForm.order), section_id: sectionId });
     setAddingChapterTo(null);
     setChapterForm({ name: "", description: "", order: 1 });
     setExpandedSections(prev => ({ ...prev, [sectionId]: true }));
@@ -156,7 +156,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
       alert("Topic description cannot exceed 20 words.");
       return;
     }
-    await HierarchyService.createTopic({ ...topicForm, chapter_id: chapterId });
+    await HierarchyService.createTopic({ ...topicForm, order: Number(topicForm.order), chapter_id: chapterId });
     setAddingTopicTo(null);
     setTopicForm({ name: "", description: "", order: 1 });
     setExpandedChapters(prev => ({ ...prev, [chapterId]: true }));
@@ -170,7 +170,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
       alert("Section description cannot exceed 80 words.");
       return;
     }
-    await HierarchyService.updateSection(sectionId, editSectionForm);
+    await HierarchyService.updateSection(sectionId, { ...editSectionForm, order: Number(editSectionForm.order) });
     setEditingSection(null);
     fetchSeries();
   };
@@ -181,7 +181,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
       alert("Chapter description cannot exceed 50 words.");
       return;
     }
-    await HierarchyService.updateChapter(chapterId, editChapterForm);
+    await HierarchyService.updateChapter(chapterId, { ...editChapterForm, order: Number(editChapterForm.order) });
     setEditingChapter(null);
     fetchSeries();
   };
@@ -192,7 +192,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
       alert("Topic description cannot exceed 20 words.");
       return;
     }
-    await HierarchyService.updateTopic(topicId, editTopicForm);
+    await HierarchyService.updateTopic(topicId, { ...editTopicForm, order: Number(editTopicForm.order) });
     setEditingTopic(null);
     fetchSeries();
   };
@@ -576,7 +576,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                     </div>
                     <div className="w-24">
                       <label className="text-xs text-zinc-400 block mb-1">Order</label>
-                      <input type="number" min="1" required value={sectionForm.order} onChange={e => setSectionForm({...sectionForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
+                      <input type="number" min="1" required value={sectionForm.order} onChange={e => setSectionForm({...sectionForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
                     </div>
                   </div>
                   <div>
@@ -621,7 +621,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                       <form onSubmit={(e) => handleEditSection(e, section.id)} onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2 flex-1 max-w-lg">
                         <div className="flex gap-2 w-full">
                           <input autoFocus type="text" value={editSectionForm.name} onChange={e => setEditSectionForm({...editSectionForm, name: e.target.value})} className="flex-1 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Section name" />
-                          <input type="number" min="1" value={editSectionForm.order} onChange={e => setEditSectionForm({...editSectionForm, order: Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
+                          <input type="number" min="1" value={editSectionForm.order} onChange={e => setEditSectionForm({...editSectionForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
                           <button type="submit" className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
                           <button type="button" onClick={() => setEditingSection(null)} className="px-3 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
                         </div>
@@ -711,7 +711,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                             </div>
                             <div className="w-24">
                               <label className="text-xs text-zinc-400 block mb-1">Order</label>
-                              <input type="number" min="1" required value={chapterForm.order} onChange={e => setChapterForm({...chapterForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
+                              <input type="number" min="1" required value={chapterForm.order} onChange={e => setChapterForm({...chapterForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
                             </div>
                           </div>
                           <div>
@@ -757,7 +757,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                                   <form onSubmit={(e) => handleEditChapter(e, chapter.id)} onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2 flex-1 max-w-sm">
                                     <div className="flex gap-2 w-full">
                                       <input autoFocus type="text" value={editChapterForm.name} onChange={e => setEditChapterForm({...editChapterForm, name: e.target.value})} className="flex-1 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Chapter name" />
-                                      <input type="number" min="1" value={editChapterForm.order} onChange={e => setEditChapterForm({...editChapterForm, order: Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
+                                      <input type="number" min="1" value={editChapterForm.order} onChange={e => setEditChapterForm({...editChapterForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
                                       <button type="submit" className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
                                       <button type="button" onClick={() => setEditingChapter(null)} className="px-2 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
                                     </div>
@@ -820,7 +820,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                                           <input type="text" placeholder="Topic Name" required value={topicForm.name} onChange={e => setTopicForm({...topicForm, name: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
                                         </div>
                                         <div className="w-24">
-                                          <input type="number" min="1" placeholder="Order" required value={topicForm.order} onChange={e => setTopicForm({...topicForm, order: Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
+                                          <input type="number" min="1" placeholder="Order" required value={topicForm.order} onChange={e => setTopicForm({...topicForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
                                         </div>
                                       </div>
                                       <div>
@@ -898,7 +898,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                                           <form onSubmit={(e) => handleEditTopic(e, topic.id)} className="flex flex-col gap-2 flex-1 z-20">
                                             <div className="flex gap-2 w-full">
                                               <input autoFocus type="text" value={editTopicForm.name} onChange={e => setEditTopicForm({...editTopicForm, name: e.target.value})} className="flex-1 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" />
-                                              <input type="number" min="1" value={editTopicForm.order} onChange={e => setEditTopicForm({...editTopicForm, order: Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
+                                              <input type="number" min="1" value={editTopicForm.order} onChange={e => setEditTopicForm({...editTopicForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
                                             </div>
                                             <div>
                                               <div className="flex justify-between items-center mb-1 px-1">
@@ -928,6 +928,15 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                                                 )}
                                                 <h5 className="font-medium text-white text-md leading-tight group-hover:text-red-400 transition-colors">{topic.name}</h5>
                                               </div>
+                                              
+                                              {topic.tests?.[0]?.test_type && (() => {
+                                                const cfg = TEST_TYPE_CONFIG[topic.tests[0].test_type];
+                                                return cfg ? (
+                                                  <span className={`shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border mt-0.5 ${cfg.color}`}>
+                                                    {cfg.label}
+                                                  </span>
+                                                ) : null;
+                                              })()}
                                             </div>
                                             {topic.description ? (
                                               <p className="text-xs text-zinc-400 line-clamp-2 mb-4 leading-relaxed">{topic.description}</p>
@@ -1005,14 +1014,6 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                                         )}
                                         {!editingTopic && topic.tests?.[0] && (
                                           <div className="mt-3">
-                                            {topic.tests[0].test_type && (() => {
-                                              const cfg = TEST_TYPE_CONFIG[topic.tests[0].test_type];
-                                              return cfg ? (
-                                                <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border mb-2 ${cfg.color}`}>
-                                                  {cfg.label}
-                                                </span>
-                                              ) : null;
-                                            })()}
                                             <TestProgressBar
                                               score={topic.tests[0].score}
                                               totalMarks={topic.tests[0].total_marks}

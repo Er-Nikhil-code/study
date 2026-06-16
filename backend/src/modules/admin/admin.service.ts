@@ -389,15 +389,103 @@ export class AdminService {
         }
       }
 
+      // Fetch contributing courses (sections managed by their knight)
+      let contributing_courses: any[] = [];
+      if (user.assigned_teacher_id) {
+        contributing_courses = await this.prisma.course.findMany({
+          where: {
+            OR: [
+              { created_by: user.assigned_teacher_id },
+              { staff: { some: { user_id: user.assigned_teacher_id } } },
+              { sections: { some: { managers: { some: { id: user.assigned_teacher_id } } } } }
+            ]
+          },
+          include: {
+            sections: {
+              where: { managers: { some: { id: user.assigned_teacher_id } } },
+              select: { id: true, name: true, order: true }
+            }
+          }
+        });
+      }
+
       extraStats = { 
         approved_questions: approvedCount, 
         calculated_earnings: earnings,
+        contributing_courses
       };
     } else if (user.role === "TEACHER") {
       const testsCount = await this.prisma.test.count({
         where: { created_by: id }
       });
-      extraStats = { tests_created: testsCount };
+      
+      const assigned_courses = await this.prisma.course.findMany({
+        where: {
+          OR: [
+            { created_by: id },
+            { staff: { some: { user_id: id } } },
+            { sections: { some: { managers: { some: { id } } } } }
+          ]
+        },
+        include: {
+          sections: {
+            where: { managers: { some: { id } } },
+            select: { id: true, name: true, order: true }
+          }
+        }
+      });
+
+      const rawPawns = await this.prisma.user.findMany({
+        where: { role: 'INTERN', assigned_teacher_id: id },
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          created_at: true,
+          last_login_at: true,
+          profile_picture: true,
+        }
+      });
+
+      const pawns_details = await Promise.all(rawPawns.map(async (pawn) => {
+        const questions_submitted = await this.prisma.question.count({ where: { created_by: pawn.id } });
+        const notes_created = await this.prisma.note.count({ where: { created_by: pawn.id } });
+        const questions_approved = await this.prisma.question.count({ where: { created_by: pawn.id, approval_status: 'APPROVED' } });
+        const notes_approved = await this.prisma.note.count({ where: { created_by: pawn.id, approval_status: 'APPROVED' } });
+        
+        const total_submitted = questions_submitted + notes_created;
+        const total_approved = questions_approved + notes_approved;
+        const approval_percentage = total_submitted > 0 ? Math.round((total_approved / total_submitted) * 100) : 0;
+        
+        const tenDaysAgo = new Date();
+        tenDaysAgo.setDate(tenDaysAgo.getDate() - 9); // Include today
+        tenDaysAgo.setHours(0, 0, 0, 0);
+        
+        const recentActivities = await this.prisma.dailyActivity.findMany({
+          where: { user_id: pawn.id, date: { gte: tenDaysAgo } },
+          select: { date: true, activity_count: true }
+        });
+        
+        const heatmap = [];
+        for (let i = 9; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const dStr = d.toISOString().split('T')[0];
+          const act = recentActivities.find((a: any) => a.date.toISOString().split('T')[0] === dStr);
+          heatmap.push({ date: dStr, count: act?.activity_count || 0 });
+        }
+
+        return {
+          ...pawn,
+          questions_submitted,
+          notes_created,
+          approval_percentage,
+          heatmap
+        };
+      }));
+
+      extraStats = { tests_created: testsCount, assigned_courses, pawns_details };
     }
 
     // Attach unified activity graph for all roles

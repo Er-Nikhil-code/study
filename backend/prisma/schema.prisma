@@ -210,6 +210,7 @@ model Note {
   approved_by     String? // User ID of approver (teacher/admin)
   approved_at     DateTime?
   rejection_note  String?
+  is_cleared      Boolean                @default(false)
   created_at      DateTime               @default(now())
   updated_at      DateTime               @updatedAt
 
@@ -250,6 +251,7 @@ model Question {
   approved_by     String? // User ID of approver (teacher/admin)
   approved_at     DateTime?
   rejection_note  String?
+  is_cleared      Boolean                     @default(false)
   embedding       Unsupported("vector(768)")?
   created_at      DateTime                    @default(now())
   updated_at      DateTime                    @updatedAt

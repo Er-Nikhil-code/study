@@ -106,10 +106,12 @@ export default function CreateNotePage() {
                     const course = topics.find((c: any) => c.id === formData.course_id);
                     if (user?.role === "ADMIN") return true;
                     if (course?.created_by === user?.id) return true;
+                    if (course?.staff?.some((st: any) => st.user?.id === user?.id || st.user_id === user?.id)) return true;
                     if (s.managers?.some((m: any) => m.id === user?.id)) return true;
                     const teacherId = user?.assigned_teacher_id || (user as any)?.assigned_teacher?.id;
                     if (teacherId) {
                       if (course?.created_by === teacherId) return true;
+                      if (course?.staff?.some((st: any) => st.user?.id === teacherId || st.user_id === teacherId)) return true;
                       if (s.managers?.some((m: any) => m.id === teacherId)) return true;
                     }
                     return false;

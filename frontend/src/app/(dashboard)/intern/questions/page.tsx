@@ -18,6 +18,33 @@ export default function InternQuestionsPage() {
   // Submitting state
   const [submittingId, setSubmittingId] = useState<string | null>(null);
 
+  // Cleared items state
+  const [clearedQuestions, setClearedQuestions] = useState<string[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("clearedQuestions");
+    if (saved) {
+      try {
+        setClearedQuestions(JSON.parse(saved));
+      } catch (e) {}
+    }
+  }, []);
+
+  const handleClear = (id: string) => {
+    const next = [...clearedQuestions, id];
+    setClearedQuestions(next);
+    localStorage.setItem("clearedQuestions", JSON.stringify(next));
+  };
+
+  const handleClearAll = () => {
+    const toClear = questions
+      .filter((q) => q.created_by === userId && q.approval_status !== "DRAFT" && q.approval_status !== "PENDING_REVIEW")
+      .map((q) => q.id);
+    const next = Array.from(new Set([...clearedQuestions, ...toClear]));
+    setClearedQuestions(next);
+    localStorage.setItem("clearedQuestions", JSON.stringify(next));
+  };
+
   const fetchQuestions = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -70,8 +97,12 @@ export default function InternQuestionsPage() {
     if (filterStatus !== "ALL") {
       filtered = filtered.filter(q => q.approval_status === filterStatus);
     }
+    
+    // Filter out cleared questions
+    filtered = filtered.filter(q => !clearedQuestions.includes(q.id));
+    
     return filtered;
-  }, [questions, filterStatus, userId]);
+  }, [questions, filterStatus, userId, clearedQuestions]);
 
   return (
     <>
@@ -103,6 +134,15 @@ export default function InternQuestionsPage() {
           <option value="NEEDS_REVISION">Needs Revision</option>
           <option value="REJECTED">Rejected</option>
         </select>
+        
+        {questions.some(q => q.created_by === userId && q.approval_status !== "DRAFT" && q.approval_status !== "PENDING_REVIEW" && !clearedQuestions.includes(q.id)) && (
+          <button 
+            onClick={handleClearAll}
+            className="ml-auto rounded-xl border border-white/10 bg-white/[0.03] px-4 py-1.5 text-sm font-medium text-zinc-300 hover:bg-white/[0.06] hover:text-white transition"
+          >
+            Clear All Reviewed
+          </button>
+        )}
       </div>
 
       {error && (
@@ -111,7 +151,7 @@ export default function InternQuestionsPage() {
         </div>
       )}
 
-      <div className="mt-6 grid gap-4">
+      <div className="mt-6 space-y-4">
         {loading ? (
           [...Array(3)].map((_, i) => (
             <Panel key={i} className="p-5 h-32 hidden bg-white/[0.03]">
@@ -169,6 +209,14 @@ export default function InternQuestionsPage() {
                 <button className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]">
                   Preview
                 </button>
+                {(q.approval_status !== "DRAFT" && q.approval_status !== "PENDING_REVIEW") && (
+                  <button 
+                    onClick={() => handleClear(q.id)}
+                    className="ml-auto rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-400 transition hover:bg-white/[0.06] hover:text-white"
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
             </Panel>
           ))
