@@ -15,10 +15,9 @@ export function getSecureUrl(key: string | null | undefined): string {
     // However, the backend is configured to let legacy URLs pass through generatePresignedUrl unharmed.
   }
 
-  // Ensure we're in the browser environment before accessing localStorage
   let token = "";
   if (typeof window !== "undefined") {
-    token = localStorage.getItem("accessToken") || "";
+    token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken") || "";
   }
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
