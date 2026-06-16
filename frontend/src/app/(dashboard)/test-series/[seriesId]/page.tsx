@@ -17,6 +17,13 @@ import { useAuthStore } from "@/store/auth.store";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { CartService } from "@/services/cart.service";
 import { useRouter } from "next/navigation";
+import TestProgressBar from "@/components/ui/TestProgressBar";
+
+const TEST_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
+  TOPICWISE: { label: "Topicwise", color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
+  UNITWISE: { label: "Unitwise", color: "text-purple-400 bg-purple-500/10 border-purple-500/20" },
+  FULL_SYLLABUS: { label: "Full Syllabus", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+};
 
 export default function TestSeriesDetailPage({ params }: { params: Promise<{ seriesId: string }> }) {
   const unwrappedParams = use(params);
@@ -997,27 +1004,22 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
                                           </div>
                                         )}
                                         {!editingTopic && topic.tests?.[0] && (
-                                          <div className="flex flex-wrap items-center justify-between gap-2 mt-3 py-2 px-3 rounded-lg bg-black/20 border border-white/5 text-[11px] text-zinc-400">
-                                            <div className="flex gap-1.5 items-center">
-                                              <span className="text-zinc-500">Total Marks:</span>
-                                              <span className="text-white font-semibold">{topic.tests[0].total_marks}</span>
-                                            </div>
-                                            <div className="flex gap-1.5 items-center">
-                                              <span className="text-zinc-500">Questions:</span>
-                                              <span className="text-white font-semibold">{topic.tests[0].questions_count || 0}</span>
-                                            </div>
-                                            <div className="flex gap-1.5 items-center">
-                                              <span className="text-zinc-500">Marks:</span>
-                                              <span className="text-white font-semibold">{topic.tests[0].score !== null ? topic.tests[0].score : '-'}</span>
-                                            </div>
-                                            <div className="flex gap-1.5 items-center">
-                                              <span className="text-zinc-500">Rank:</span>
-                                              <span className="text-white font-semibold">{topic.tests[0].rank !== null ? topic.tests[0].rank : '-'}</span>
-                                            </div>
-                                            <div className="flex gap-1.5 items-center">
-                                              <span className="text-zinc-500">Passing Marks:</span>
-                                              <span className="text-white font-semibold">{topic.tests[0].passing_marks !== null ? topic.tests[0].passing_marks : '-'}</span>
-                                            </div>
+                                          <div className="mt-3">
+                                            {topic.tests[0].test_type && (() => {
+                                              const cfg = TEST_TYPE_CONFIG[topic.tests[0].test_type];
+                                              return cfg ? (
+                                                <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border mb-2 ${cfg.color}`}>
+                                                  {cfg.label}
+                                                </span>
+                                              ) : null;
+                                            })()}
+                                            <TestProgressBar
+                                              score={topic.tests[0].score}
+                                              totalMarks={topic.tests[0].total_marks}
+                                              passingMarks={topic.tests[0].passing_marks}
+                                              rank={topic.tests[0].rank}
+                                              totalAspirants={topic.tests[0].total_aspirants}
+                                            />
                                           </div>
                                         )}
                                       </div>

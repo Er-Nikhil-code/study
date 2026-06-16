@@ -8,9 +8,10 @@ import adminService from "@/services/admin.service";
 import studentService from "@/services/student.service";
 import {
   Bell, BellOff, Check, CheckCheck, Trophy, Flame,
-  ShieldCheck, BookOpen, Megaphone, Star,
+  ShieldCheck, BookOpen, Megaphone, Star, Trash2, Send
 } from "lucide-react";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import { useAuthStore } from "@/store/auth.store";
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
   RANK_UPDATE:        { icon: <Trophy size={16} />,    color: "text-yellow-400 bg-yellow-400/10" },
@@ -53,6 +54,8 @@ function groupByDate(notifications: any[]) {
 
 export default function NotificationsPage() {
   const queryClient = useQueryClient();
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === "ADMIN";
 
   const { data, isLoading } = useQuery({
     queryKey: ["notifications"],
@@ -71,6 +74,29 @@ export default function NotificationsPage() {
     mutationFn: () => adminService.markAllNotificationsRead(),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
+
+  const deleteNotificationMutation = useMutation({
+    mutationFn: (id: string) => adminService.deleteNotification(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+
+  const clearAllMutation = useMutation({
+    mutationFn: () => adminService.clearAllNotifications(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+
+  const sendCustomMutation = useMutation({
+    mutationFn: (data: { title: string; message: string; role?: string }) => adminService.sendCustomNotification(data.title, data.message, data.role),
+    onSuccess: () => {
+      alert("Custom notification sent!");
+      setShowCustomModal(false);
+      setCustomForm({ title: "", message: "", role: "ALL" });
+    },
+    onError: (err: any) => alert(err?.response?.data?.message || "Failed to send notification"),
+  });
+
+  const [showCustomModal, setShowCustomModal] = useState(false);
+  const [customForm, setCustomForm] = useState({ title: "", message: "", role: "ALL" });
 
   const notifications = data?.data || [];
   const unreadCount = data?.unread_count || 0;
@@ -117,16 +143,37 @@ export default function NotificationsPage() {
                 : "You're all caught up!"
             }
           />
-          {unreadCount > 0 && (
-            <button
-              onClick={() => markAllMutation.mutate()}
-              disabled={markAllMutation.isPending}
-              className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-300 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-50"
-            >
-              <CheckCheck size={14} />
-              Mark all read
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <button
+                onClick={() => setShowCustomModal(true)}
+                className="shrink-0 inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/20 transition-all"
+              >
+                <Send size={14} />
+                Send Custom
+              </button>
+            )}
+            {notifications.length > 0 && (
+              <button
+                onClick={() => clearAllMutation.mutate()}
+                disabled={clearAllMutation.isPending}
+                className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-400 transition hover:bg-red-500/20 hover:text-red-300 disabled:opacity-50"
+              >
+                <Trash2 size={14} />
+                Clear All
+              </button>
+            )}
+            {unreadCount > 0 && (
+              <button
+                onClick={() => markAllMutation.mutate()}
+                disabled={markAllMutation.isPending}
+                className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-300 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-50"
+              >
+                <CheckCheck size={14} />
+                Mark all read
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-8 space-y-8">
@@ -161,8 +208,7 @@ export default function NotificationsPage() {
                       return (
                         <div
                           key={n.id}
-                          className="cursor-pointer group relative"
-                          onClick={() => !n.is_read && markReadMutation.mutate(n.id)}
+                          className="group relative"
                         >
                           <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/0 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
                         <Panel
@@ -172,7 +218,7 @@ export default function NotificationsPage() {
                             <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-inner transition-transform group-hover:scale-110 ${config.color}`}>
                               {config.icon}
                             </div>
-                            <div className="flex-1 min-w-0 pt-0.5">
+                            <div className="flex-1 min-w-0 pt-0.5 cursor-pointer" onClick={() => !n.is_read && markReadMutation.mutate(n.id)}>
                               <div className="flex items-center justify-between gap-2 mb-1.5">
                                 <p className={`text-[15px] font-semibold tracking-tight ${n.is_read ? "text-zinc-200 group-hover:text-white" : "text-white"}`}>
                                   {n.title}
@@ -185,6 +231,14 @@ export default function NotificationsPage() {
                                       <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                                     </span>
                                   )}
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); deleteNotificationMutation.mutate(n.id); }}
+                                    disabled={deleteNotificationMutation.isPending}
+                                    className="p-1 rounded bg-black/40 text-zinc-500 hover:text-red-400 hover:bg-red-500/20 transition-all opacity-0 group-hover:opacity-100"
+                                    title="Delete notification"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
                                 </div>
                               </div>
                               <p className={`text-sm leading-relaxed ${!n.is_read ? "text-zinc-300 font-medium" : "text-zinc-400"}`}>{n.message}</p>
@@ -374,6 +428,63 @@ export default function NotificationsPage() {
         </div>
       )}
 
+      {/* Admin Custom Notification Modal */}
+      {showCustomModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl relative">
+            <h3 className="text-xl font-bold text-white mb-4">Send Custom Notification</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-zinc-400 block mb-1">Target Audience</label>
+                <select 
+                  value={customForm.role}
+                  onChange={e => setCustomForm({...customForm, role: e.target.value})}
+                  className="w-full rounded-xl border border-white/10 bg-black px-4 py-2.5 text-sm text-white focus:border-indigo-500/50 outline-none"
+                >
+                  <option value="ALL">All Users</option>
+                  <option value="STUDENT">Students Only</option>
+                  <option value="TEACHER">Teachers Only</option>
+                  <option value="INTERN">Interns Only</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-zinc-400 block mb-1">Title</label>
+                <input 
+                  type="text" 
+                  value={customForm.title}
+                  onChange={e => setCustomForm({...customForm, title: e.target.value})}
+                  placeholder="E.g. System Maintenance"
+                  className="w-full rounded-xl border border-white/10 bg-black px-4 py-2.5 text-sm text-white focus:border-indigo-500/50 outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-zinc-400 block mb-1">Message</label>
+                <textarea 
+                  value={customForm.message}
+                  onChange={e => setCustomForm({...customForm, message: e.target.value})}
+                  placeholder="Enter your message here..."
+                  className="w-full rounded-xl border border-white/10 bg-black px-4 py-2.5 text-sm text-white focus:border-indigo-500/50 outline-none min-h-[100px]"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button 
+                onClick={() => setShowCustomModal(false)}
+                className="px-4 py-2 text-sm text-zinc-400 hover:text-white"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => sendCustomMutation.mutate(customForm)}
+                disabled={!customForm.title || !customForm.message || sendCustomMutation.isPending}
+                className="px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition disabled:opacity-50"
+              >
+                {sendCustomMutation.isPending ? "Sending..." : "Send"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

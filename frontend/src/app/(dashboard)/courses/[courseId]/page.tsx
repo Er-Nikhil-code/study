@@ -16,6 +16,13 @@ import { useAuthStore } from "@/store/auth.store";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { CartService } from "@/services/cart.service";
 import { useRouter } from "next/navigation";
+import TestProgressBar from "@/components/ui/TestProgressBar";
+
+const TEST_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
+  TOPICWISE: { label: "Topicwise", color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
+  UNITWISE: { label: "Unitwise", color: "text-purple-400 bg-purple-500/10 border-purple-500/20" },
+  FULL_SYLLABUS: { label: "Full Syllabus", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+};
 
 export default function CourseDetailPage({ params }: { params: Promise<{ courseId: string }> }) {
   const unwrappedParams = use(params);
@@ -29,6 +36,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   const [error, setError] = useState<string | null>(null);
   
   const isCreatorOrAdmin = user?.role === "ADMIN" || (course && user?.id === course.created_by);
+
+  const isSectionManager = (section: any) => {
+    if (isCreatorOrAdmin) return true;
+    if (!user || !section?.managers) return false;
+    return section.managers.some((m: any) => m.id === user.id);
+  };
 
   const { data: knights } = useQuery({
     queryKey: ["knights"],
@@ -232,12 +245,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   // --- Drag and Drop Handlers ---
   const handleDragStart = (e: React.DragEvent, id: string, type: "SECTION" | "CHAPTER" | "TOPIC", parentId: string | null, index: number) => {
+    e.stopPropagation();
     e.dataTransfer.effectAllowed = "move";
     setDraggedItem({ id, type, sourceParentId: parentId, index });
   };
 
   const handleDragOver = (e: React.DragEvent, type: "SECTION" | "CHAPTER" | "TOPIC", parentId: string | null, index: number) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!draggedItem) return;
     if (draggedItem.type !== type || draggedItem.sourceParentId !== parentId) return;
     if (dragOverIndex !== index || dragOverParentId !== parentId) {
@@ -248,6 +263,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   const handleDrop = async (e: React.DragEvent, type: "SECTION" | "CHAPTER" | "TOPIC", parentId: string | null, dropIndex: number) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!draggedItem) return;
     if (draggedItem.type !== type || draggedItem.sourceParentId !== parentId) {
       setDraggedItem(null);
@@ -589,8 +605,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             {course.sections?.map((section: any, idx: number) => (
               <Panel 
                 key={section.id} 
-                className={`p-0 overflow-hidden border ${draggedItem?.id === section.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === null && draggedItem?.type === "SECTION" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-950/40 backdrop-blur-md shadow-2xl relative rounded-2xl transition-all duration-300 hover:border-white/10`}
-                draggable={isCreatorOrAdmin}
+                className={`p-0 overflow-hidden border ${draggedItem?.id === section.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === null && draggedItem?.type === "SECTION" ? (draggedItem.index < idx ? 'border-b-2 border-b-red-500 border-white/5' : 'border-t-2 border-t-red-500 border-white/5') : 'border-white/5'} bg-zinc-950/40 backdrop-blur-md shadow-2xl relative rounded-2xl transition-all duration-300 hover:border-white/10`}
+                draggable={isSectionManager(section)}
                 onDragStart={(e) => handleDragStart(e, section.id, "SECTION", null, idx)}
                 onDragOver={(e) => handleDragOver(e, "SECTION", null, idx)}
                 onDrop={(e) => handleDrop(e, "SECTION", null, idx)}
@@ -601,7 +617,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   className="w-full flex items-center justify-between p-5 bg-white/[0.02] hover:bg-white/[0.04] transition-all cursor-pointer border-b border-white/5"
                 >
                   <div className="flex items-center gap-4 flex-1">
-                    {isCreatorOrAdmin && (
+                    {isSectionManager(section) && (
                       <div className="cursor-grab hover:text-white text-zinc-500 px-1 py-4 flex items-center">
                         <GripVertical size={16} />
                       </div>
@@ -629,7 +645,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       <div className="flex items-center flex-wrap gap-4">
                         <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
                           {section.name}
-                          {isCreatorOrAdmin && (
+                          {isSectionManager(section) && (
                             <div className="flex items-center gap-1">
                               <button 
                                 onClick={(e) => { e.stopPropagation(); setEditingSection(section.id); setEditSectionForm({ name: section.name, description: section.description || "", order: section.order || 1 }); }}
@@ -646,7 +662,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                             </div>
                           )}
                         </h3>
-                        {isCreatorOrAdmin && (
+                        {user?.role === "ADMIN" && (
                           <div className="flex items-center gap-2 border-l border-white/10 pl-4" onClick={(e) => e.stopPropagation()}>
                             <Shield size={14} className="text-emerald-500/70" />
                             <span className="text-[11px] text-zinc-500 font-medium tracking-wider">MANAGER:</span>
@@ -674,7 +690,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                     )}
                   </div>
                   <div className="flex items-center gap-4">
-                    {isCreatorOrAdmin && (
+                    {isSectionManager(section) && (
                       <button 
                         onClick={(e) => { 
                           e.stopPropagation(); 
@@ -728,8 +744,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         {section.chapters?.map((chapter: any, idx: number) => (
                           <div 
                             key={chapter.id} 
-                            className={`rounded-xl border overflow-hidden ${draggedItem?.id === chapter.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === section.id && draggedItem?.type === "CHAPTER" ? 'border-t-2 border-t-red-500 border-white/10' : 'border-white/10'} bg-zinc-900/30 relative`}
-                            draggable={isCreatorOrAdmin}
+                            className={`rounded-xl border overflow-hidden ${draggedItem?.id === chapter.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === section.id && draggedItem?.type === "CHAPTER" ? (draggedItem.index < idx ? 'border-b-2 border-b-red-500 border-white/10' : 'border-t-2 border-t-red-500 border-white/10') : 'border-white/10'} bg-zinc-900/30 relative`}
+                            draggable={isSectionManager(section)}
                             onDragStart={(e) => handleDragStart(e, chapter.id, "CHAPTER", section.id, idx)}
                             onDragOver={(e) => handleDragOver(e, "CHAPTER", section.id, idx)}
                             onDrop={(e) => handleDrop(e, "CHAPTER", section.id, idx)}
@@ -740,7 +756,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                               className="w-full flex items-center justify-between p-4 bg-white/[0.02] hover:bg-white/[0.04] transition-colors cursor-pointer border-b border-white/5"
                             >
                               <div className="flex-1 flex items-center gap-3">
-                                {isCreatorOrAdmin && (
+                                {isSectionManager(section) && (
                                   <div className="cursor-grab hover:text-white text-zinc-600 px-1 py-1">
                                     <GripVertical size={14} />
                                   </div>
@@ -765,7 +781,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                   <h4 className="text-lg font-semibold text-zinc-200 flex items-center gap-2">
                                     <span className="text-zinc-500 text-sm font-normal">Ch {idx + 1}.</span> 
                                     {chapter.name}
-                                    {isCreatorOrAdmin && (
+                                    {isSectionManager(section) && (
                                       <div className="flex items-center gap-1">
                                         <button 
                                           onClick={(e) => { e.stopPropagation(); setEditingChapter(chapter.id); setEditChapterForm({ name: chapter.name, description: chapter.description || "", order: chapter.order || 1 }); }}
@@ -785,7 +801,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                 )}
                               </div>
                               <div className="flex items-center gap-4">
-                                {isCreatorOrAdmin && (
+                                {isSectionManager(section) && (
                                   <button 
                                     onClick={(e) => { 
                                       e.stopPropagation(); 
@@ -860,14 +876,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                       ) : (
                                         <div 
                                           key={topic.id} 
-                                          className={`p-4 rounded-xl border ${draggedItem?.id === topic.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === chapter.id && draggedItem?.type === "TOPIC" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-900/50 transition-all flex flex-col h-full group relative cursor-default`}
-                                          draggable={isCreatorOrAdmin}
+                                          className={`p-4 rounded-xl border ${draggedItem?.id === topic.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === chapter.id && draggedItem?.type === "TOPIC" ? (draggedItem.index < idx ? 'border-b-2 border-b-red-500 border-white/5' : 'border-t-2 border-t-red-500 border-white/5') : 'border-white/5'} bg-zinc-900/50 transition-all flex flex-col h-full group relative cursor-default`}
+                                          draggable={isSectionManager(section)}
                                           onDragStart={(e) => handleDragStart(e, topic.id, "TOPIC", chapter.id, idx)}
                                           onDragOver={(e) => handleDragOver(e, "TOPIC", chapter.id, idx)}
                                           onDrop={(e) => handleDrop(e, "TOPIC", chapter.id, idx)}
                                           onDragEnd={() => { setDraggedItem(null); setDragOverIndex(null); setDragOverParentId(null); }}
                                         >
-                                        {isCreatorOrAdmin && editingTopic !== topic.id && (
+                                        {isSectionManager(section) && editingTopic !== topic.id && (
                                           <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
                                             <button 
                                               onClick={() => { setEditingTopic(topic.id); setEditTopicForm({ name: topic.name, description: topic.description || "", order: topic.order || 1 }); }}
@@ -908,7 +924,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                           <div className="flex-1">
                                             <div className="flex justify-between items-start mb-2 pr-6">
                                               <div className="flex items-center gap-2">
-                                                {isCreatorOrAdmin && (
+                                                {isSectionManager(section) && (
                                                   <div className="cursor-grab hover:text-white text-zinc-600">
                                                     <GripVertical size={14} />
                                                   </div>
@@ -947,13 +963,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                                     <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors whitespace-nowrap">
                                                       <BarChart2 size={14} /> Analysis
                                                     </Link>
-                                                    {isCreatorOrAdmin && (
+                                                    {isSectionManager(section) && (
                                                       <Link href={`/teacher/tests/${topic.test_id}/edit`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-xs font-medium text-blue-400 transition-colors whitespace-nowrap">
                                                         <Edit2 size={14} /> Edit
                                                       </Link>
                                                     )}
                                                   </>
-                                                ) : isCreatorOrAdmin ? (
+                                                ) : isSectionManager(section) ? (
                                                   <Link href={`/teacher/tests/create?topic_id=${topic.id}&topic_name=${encodeURIComponent(topic.name)}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-medium text-white shadow-lg shadow-emerald-500/20 transition-all">
                                                     <Plus size={14} /> Create Test
                                                   </Link>
@@ -996,34 +1012,22 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                           </div>
                                         )}
                                         {!editingTopic && topic.tests?.[0] && (
-                                          <div className="mt-2 pt-2 border-t border-white/5 flex flex-col gap-1.5">
-                                            <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-zinc-400">
-                                              <div className="flex gap-1.5 items-center">
-                                                <span className="text-zinc-500">Marks:</span>
-                                                <span className="text-white font-medium">{topic.tests[0].score !== null ? topic.tests[0].score : '-'} / {topic.tests[0].total_marks || 0}</span>
-                                              </div>
-                                              <div className="flex gap-1.5 items-center">
-                                                <span className="text-zinc-500">Rank:</span>
-                                                <span className="text-white font-medium">{topic.tests[0].rank !== null ? topic.tests[0].rank : '-'} / {topic.tests[0].total_aspirants || 0}</span>
-                                              </div>
-                                            </div>
-                                            
-                                            {topic.tests[0].passing_marks !== null && topic.tests[0].score !== null && (
-                                              <div className="w-full">
-                                                <div className="flex justify-between text-[9px] mb-1">
-                                                  <span className="text-zinc-500 uppercase tracking-wider">Cutoff: {topic.tests[0].passing_marks}</span>
-                                                  <span className={topic.tests[0].score >= topic.tests[0].passing_marks ? "text-emerald-400 font-bold uppercase tracking-wider" : "text-red-400 font-bold uppercase tracking-wider"}>
-                                                    {topic.tests[0].score >= topic.tests[0].passing_marks ? "Cleared" : "Not Cleared"}
-                                                  </span>
-                                                </div>
-                                                <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
-                                                  <div 
-                                                    className={`h-full transition-all duration-500 ${topic.tests[0].score >= topic.tests[0].passing_marks ? 'bg-gradient-to-r from-emerald-600 to-emerald-400' : 'bg-gradient-to-r from-red-600 to-red-400'}`} 
-                                                    style={{ width: `${Math.min(100, Math.max(0, (topic.tests[0].score / (topic.tests[0].total_marks || 1)) * 100))}%` }}
-                                                  />
-                                                </div>
-                                              </div>
-                                            )}
+                                          <div className="mt-2 pt-2 border-t border-white/5">
+                                            {topic.tests[0].test_type && (() => {
+                                              const cfg = TEST_TYPE_CONFIG[topic.tests[0].test_type];
+                                              return cfg ? (
+                                                <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border mb-2 ${cfg.color}`}>
+                                                  {cfg.label}
+                                                </span>
+                                              ) : null;
+                                            })()}
+                                            <TestProgressBar
+                                              score={topic.tests[0].score}
+                                              totalMarks={topic.tests[0].total_marks}
+                                              passingMarks={topic.tests[0].passing_marks}
+                                              rank={topic.tests[0].rank}
+                                              totalAspirants={topic.tests[0].total_aspirants}
+                                            />
                                           </div>
                                         )}
                                         </div>

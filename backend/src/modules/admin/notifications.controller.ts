@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Patch,
+  Delete,
   Param,
   Query,
   UseGuards,
@@ -45,5 +46,17 @@ export class NotificationsController {
   @HttpCode(HttpStatus.OK)
   async markAllRead(@Request() req: any) {
     return this.adminService.markAllNotificationsRead(req.user.sub);
+  }
+
+  @Delete("clear-all")
+  @HttpCode(HttpStatus.OK)
+  async clearAllNotifications(@Request() req: any) {
+    return this.adminService.deleteAllNotifications(req.user.sub);
+  }
+
+  @Delete(":id")
+  @HttpCode(HttpStatus.OK)
+  async deleteNotification(@Request() req: any, @Param("id") id: string) {
+    return this.adminService.deleteNotification(id, req.user.sub);
   }
 }

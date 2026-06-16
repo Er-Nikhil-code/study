@@ -414,6 +414,7 @@ export class HierarchyService {
         title: true,
         total_marks: true,
         passing_marks: true,
+        test_type: true,
         _count: { select: { test_questions: true } }
       }
     });
@@ -458,6 +459,7 @@ export class HierarchyService {
                 title: t.title,
                 total_marks: t.total_marks,
                 passing_marks: t.passing_marks,
+                test_type: t.test_type,
                 questions_count: t._count?.test_questions || 0,
                 has_attempted: !!latestAttempt,
                 latest_attempt_id: latestAttempt ? latestAttempt.id : null,
@@ -561,6 +563,7 @@ export class HierarchyService {
         title: true,
         total_marks: true,
         passing_marks: true,
+        test_type: true,
         _count: { select: { test_questions: true } }
       }
     });
@@ -604,6 +607,7 @@ export class HierarchyService {
                 title: t.title,
                 total_marks: t.total_marks,
                 passing_marks: t.passing_marks,
+                test_type: t.test_type,
                 questions_count: t._count?.test_questions || 0,
                 has_attempted: !!latestAttempt,
                 latest_attempt_id: latestAttempt ? latestAttempt.id : null,

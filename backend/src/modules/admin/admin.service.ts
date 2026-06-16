@@ -845,6 +845,49 @@ export class AdminService {
     });
   }
 
+  async deleteNotification(notificationId: string, userId: string) {
+    return this.prisma.notificationEvent.deleteMany({
+      where: { id: notificationId, user_id: userId },
+    });
+  }
+
+  async deleteAllNotifications(userId: string) {
+    return this.prisma.notificationEvent.deleteMany({
+      where: { user_id: userId },
+    });
+  }
+
+  async sendCustomNotification(adminId: string, dto: { title: string; message: string; role?: string }) {
+    let users = [];
+    if (dto.role) {
+      // For specific role
+      // But role is an enum. Role could be 'ALL' or a specific role.
+      // Wait, is Role mapped directly?
+      if (dto.role === 'ALL') {
+        users = await this.prisma.user.findMany({ select: { id: true } });
+      } else {
+        users = await this.prisma.user.findMany({ where: { role: dto.role as any }, select: { id: true } });
+      }
+    } else {
+      users = await this.prisma.user.findMany({ select: { id: true } });
+    }
+
+    const notifications = users.map(u => ({
+      user_id: u.id,
+      type: 'CUSTOM' as any,
+      title: dto.title,
+      message: dto.message,
+      data_json: { sent_by: adminId },
+    }));
+
+    if (notifications.length > 0) {
+      return this.prisma.notificationEvent.createMany({
+        data: notifications,
+      });
+    }
+    return { count: 0 };
+  }
+
   async getRecentActivity(take = 10) {
     const [recentUsers, recentChallenges, recentQuestions] = await Promise.all([
       this.prisma.user.findMany({

@@ -251,6 +251,18 @@ class AdminService {
     await api.patch("/notifications/read-all");
   }
 
+  async deleteNotification(id: string): Promise<void> {
+    await api.delete(`/notifications/${id}`);
+  }
+
+  async clearAllNotifications(): Promise<void> {
+    await api.delete("/notifications/clear-all");
+  }
+
+  async sendCustomNotification(title: string, message: string, role?: string): Promise<void> {
+    await api.post("/admin/notifications/custom", { title, message, role });
+  }
+
   /* ─── Recent Activity (admin only) ─── */
   async getRecentActivity(take = 10): Promise<{
     recent_users: any[];

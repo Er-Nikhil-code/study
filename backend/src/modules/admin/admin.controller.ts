@@ -95,16 +95,24 @@ export class AdminController {
     await this.adminService.deleteUser(id);
   }
 
-  /**
-   * POST /api/admin/notifications
-   * Send a manual custom notification to a specific user
-   */
   @Post("notifications")
   async sendNotification(
     @Request() req: any,
     @Body() body: { user_id: string; title: string; message: string }
   ) {
     return this.adminService.sendNotification(body.user_id, body.title, body.message, req.user.sub);
+  }
+
+  /**
+   * POST /api/admin/notifications/custom
+   * Send a manual custom notification to all users or a specific role
+   */
+  @Post("notifications/custom")
+  async sendCustomNotification(
+    @Request() req: any,
+    @Body() body: { title: string; message: string; role?: string }
+  ) {
+    return this.adminService.sendCustomNotification(req.user.sub, body);
   }
 
   @Get("notifications/sent")

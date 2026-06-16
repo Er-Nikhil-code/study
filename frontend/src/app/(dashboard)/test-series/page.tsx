@@ -340,17 +340,17 @@ export default function TestSeriesPage() {
           ))}
         </div>
       ) : (
-        <div className="mt-8 grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           {(user?.role === "ADMIN" || user?.role === "TEACHER") && (
             <Panel 
-              className="relative flex flex-col items-center justify-center p-6 border-2 border-dashed border-white/20 hover:border-red-500/50 hover:bg-red-500/5 transition-all cursor-pointer min-h-[250px] group"
+              className="relative flex flex-col items-center justify-center p-4 border-2 border-dashed border-white/20 hover:border-red-500/50 hover:bg-red-500/5 transition-all cursor-pointer min-h-[150px] group"
               onClick={() => setCreatingSeries(true)}
             >
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 text-zinc-400 group-hover:scale-110 group-hover:text-red-400 group-hover:bg-red-500/10 transition-all mb-4">
-                <Plus size={32} />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-zinc-400 group-hover:scale-110 group-hover:text-red-400 group-hover:bg-red-500/10 transition-all mb-2">
+                <Plus size={20} />
               </div>
-              <h3 className="text-lg font-bold text-white group-hover:text-red-400 transition-colors">Create Test Series</h3>
-              <p className="text-sm text-zinc-500 text-center mt-2 group-hover:text-zinc-400">Add a new test series to your curriculum.</p>
+              <h3 className="text-sm font-bold text-white group-hover:text-red-400 transition-colors">Create Test Series</h3>
+              <p className="text-xs text-zinc-500 text-center mt-1 group-hover:text-zinc-400">Add a new test series.</p>
             </Panel>
           )}
           {(() => {
@@ -397,19 +397,19 @@ export default function TestSeriesPage() {
                     </button>
                   )}
 
-                  <Link href={`/test-series/${series.id}`} className="flex-1 flex flex-col p-6">
-                    <div className="flex items-start gap-4 mb-6">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500/20 to-red-500/5 border border-red-500/30 text-red-400 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all">
-                        <BookOpen size={28} />
+                  <Link href={`/test-series/${series.id}`} className="flex-1 flex flex-col p-4">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-red-500/20 to-red-500/5 border border-red-500/30 text-red-400 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(239,68,68,0.2)] transition-all">
+                        <BookOpen size={20} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400 tracking-wide leading-relaxed drop-shadow-sm group-hover:from-white group-hover:to-zinc-300 transition-all">{series.name}</h3>
-                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <h3 className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400 tracking-wide leading-relaxed drop-shadow-sm group-hover:from-white group-hover:to-zinc-300 transition-all">{series.name}</h3>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                           {canSeeCodeAndId && (
-                            <span className="whitespace-nowrap shrink-0 text-[10px] uppercase tracking-wider font-semibold text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-md">{series.code}</span>
+                            <span className="whitespace-nowrap shrink-0 text-[9px] uppercase tracking-wider font-semibold text-red-400 bg-red-400/10 border border-red-400/20 px-1.5 py-0.5 rounded">{series.code}</span>
                           )}
                           {!series.is_enrolled && (series.price > 0 || series.discount_price > 0) && (
-                            <div className="flex items-center shrink-0 whitespace-nowrap gap-2 text-zinc-400 bg-white/5 px-2 py-0.5 rounded-md text-[11px] font-medium">
+                            <div className="flex items-center shrink-0 whitespace-nowrap gap-1.5 text-zinc-400 bg-white/5 px-1.5 py-0.5 rounded text-[9px] font-medium">
                               {series.discount_price > 0 ? (
                                 <>
                                   <span className="line-through opacity-50">₹{series.price}</span>
@@ -425,10 +425,10 @@ export default function TestSeriesPage() {
                     </div>
                     
                     {!isStudent && (
-                      <div className="mt-auto pt-5 border-t border-white/10 flex flex-col gap-3">
-                        <div className="flex justify-between items-center text-sm">
+                      <div className="mt-auto pt-3 border-t border-white/10 flex flex-col gap-2">
+                        <div className="flex justify-between items-center text-xs">
                           <span className="text-zinc-400">Curriculum</span>
-                          <span className="text-zinc-200 font-semibold bg-white/5 px-2 py-1 rounded-md">{series.sections?.length || 0} Sections</span>
+                          <span className="text-zinc-200 font-semibold bg-white/5 px-2 py-0.5 rounded">{series.sections?.length || 0} Sections</span>
                         </div>
                         {user?.role === "ADMIN" ? (
                           <div className="flex flex-col gap-1.5 mt-3 pt-3 border-t border-white/5 text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
@@ -460,17 +460,17 @@ export default function TestSeriesPage() {
                   </Link>
 
                   {isStudent && (
-                    <div className="px-6 pb-6 pt-2 z-10">
+                    <div className="px-4 pb-4 pt-1 z-10">
                       {series.is_enrolled ? (
-                        <div className="w-full rounded-xl bg-emerald-500/10 border border-emerald-500/20 py-2.5 text-center text-sm font-semibold text-emerald-400 flex items-center justify-center gap-2">
-                          <span className="relative flex h-2 w-2">
+                        <div className="w-full rounded-lg bg-emerald-500/10 border border-emerald-500/20 py-1.5 text-center text-xs font-semibold text-emerald-400 flex items-center justify-center gap-1.5">
+                          <span className="relative flex h-1.5 w-1.5">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                           </span>
                           Enrolled
                         </div>
                       ) : (
-                        <Link href={`/test-series/${series.id}`} className="block w-full rounded-xl bg-red-600 hover:bg-red-500 transition-all py-2.5 text-center text-sm font-bold text-white shadow shadow-red-500/20">
+                        <Link href={`/test-series/${series.id}`} className="block w-full rounded-lg bg-red-600 hover:bg-red-500 transition-all py-1.5 text-center text-xs font-bold text-white shadow shadow-red-500/20">
                           Enroll
                         </Link>
                       )}
