@@ -27,7 +27,7 @@ export class AuthService {
     private brevoService: BrevoService,
     private otpService: OtpService,
     private passwordResetService: PasswordResetService,
-  ) {}
+  ) { }
 
   /**
    * Fetch current user and generate fresh tokens
@@ -35,9 +35,9 @@ export class AuthService {
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { 
+      include: {
         custom_role: true,
-        assigned_teacher: { select: { first_name: true, last_name: true } },
+        assigned_teacher: { select: { id: true, first_name: true, last_name: true } },
         course_enrollments: {
           include: { course: true }
         },
@@ -73,7 +73,7 @@ export class AuthService {
     });
 
     const { password_hash, course_enrollments, ...userWithoutPassword } = user;
-    
+
     // Map the actual enrolled course name to the legacy string field for frontend compatibility
     let courseEnrolledStr = userWithoutPassword.course_enrolled;
     if (course_enrollments && course_enrollments.length > 0) {
@@ -84,6 +84,7 @@ export class AuthService {
     return {
       user: {
         ...userWithoutPassword,
+        assigned_teacher_id: user.assigned_teacher_id || null,
         course_enrolled: courseEnrolledStr,
         enrolled_test_series: user.test_series_enrollments?.map((e: any) => e.test_series) || [],
         assigned_interns: user.interns || [],
@@ -362,7 +363,7 @@ export class AuthService {
       // Find user
       const user = await this.prisma.user.findUnique({
         where: { email },
-        include: { 
+        include: {
           custom_role: true,
           course_enrollments: {
             include: { course: true }
@@ -606,11 +607,11 @@ export class AuthService {
       const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
       const expiresAt = new Date(
         Date.now() +
-          this.configService.get<number>("JWT_REFRESH_EXPIRY_DAYS", 7) *
-            24 *
-            60 *
-            60 *
-            1000,
+        this.configService.get<number>("JWT_REFRESH_EXPIRY_DAYS", 7) *
+        24 *
+        60 *
+        60 *
+        1000,
       );
 
       await this.prisma.refreshToken.create({

@@ -107,9 +107,10 @@ export default function CreateNotePage() {
                     if (user?.role === "ADMIN") return true;
                     if (course?.created_by === user?.id) return true;
                     if (s.managers?.some((m: any) => m.id === user?.id)) return true;
-                    if (user?.assigned_teacher_id) {
-                      if (course?.created_by === user.assigned_teacher_id) return true;
-                      if (s.managers?.some((m: any) => m.id === user.assigned_teacher_id)) return true;
+                    const teacherId = user?.assigned_teacher_id || (user as any)?.assigned_teacher?.id;
+                    if (teacherId) {
+                      if (course?.created_by === teacherId) return true;
+                      if (s.managers?.some((m: any) => m.id === teacherId)) return true;
                     }
                     return false;
                   })

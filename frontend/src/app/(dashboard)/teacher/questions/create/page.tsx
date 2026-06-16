@@ -335,9 +335,10 @@ export default function CreateQuestionPage() {
                               if (currentCourse?.created_by === user?.id) return true;
                               if (s.managers?.some((m: any) => m.id === user?.id)) return true;
                               // INTERN: show sections where assigned teacher is manager or course creator
-                              if (user?.role === "INTERN" && user?.assigned_teacher_id) {
-                                if (currentCourse?.created_by === user.assigned_teacher_id) return true;
-                                if (s.managers?.some((m: any) => m.id === user.assigned_teacher_id)) return true;
+                              const teacherId = user?.assigned_teacher_id || (user as any)?.assigned_teacher?.id;
+                              if (user?.role === "INTERN" && teacherId) {
+                                if (currentCourse?.created_by === teacherId) return true;
+                                if (s.managers?.some((m: any) => m.id === teacherId)) return true;
                               }
                               return false;
                             })
