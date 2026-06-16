@@ -156,8 +156,8 @@ model Section {
   order          Int
   created_at     DateTime    @default(now())
 
-  managers       User[]      @relation("SectionManagers")
-  chapters       Chapter[]
+  managers User[]    @relation("SectionManagers")
+  chapters Chapter[]
 
   @@unique([course_id, name])
   @@unique([test_series_id, name])
@@ -200,14 +200,14 @@ model Topic {
 }
 
 model Note {
-  id              String      @id @default(cuid())
-  topic_id        String
-  topic           Topic       @relation(fields: [topic_id], references: [id], onDelete: Cascade)
-  created_by      String      // User ID of creator (Teacher/Admin)
-  title           String
-  pdf_url         String
-  created_at      DateTime    @default(now())
-  updated_at      DateTime    @updatedAt
+  id         String   @id @default(cuid())
+  topic_id   String
+  topic      Topic    @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  created_by String // User ID of creator (Teacher/Admin)
+  title      String
+  pdf_url    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   challenges Challenge[]
 
@@ -229,7 +229,7 @@ model Asset {
 model Question {
   id              String                      @id @default(cuid())
   topic_id        String?
-  topic           Topic?                       @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  topic           Topic?                      @relation(fields: [topic_id], references: [id], onDelete: Cascade)
   created_by      String? // User ID of creator
   creator         User?                       @relation(fields: [created_by], references: [id], onDelete: SetNull)
   question_type   QuestionType
@@ -280,7 +280,7 @@ model QuestionVersion {
 model Test {
   id               String     @id @default(cuid())
   topic_id         String?
-  topic            Topic?      @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  topic            Topic?     @relation(fields: [topic_id], references: [id], onDelete: Cascade)
   title            String
   description      String?
   created_by       String // User ID
@@ -493,8 +493,6 @@ model UserStats {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-
-  @@index([user_id])
 }
 
 model DailyActivity {
@@ -693,6 +691,9 @@ model Order {
 
   items   OrderItem[]
   invoice Invoice?
+
+  @@index([user_id])
+  @@index([status])
 }
 
 enum OrderStatus {
@@ -710,6 +711,10 @@ model OrderItem {
   test_series_id String?
   test_series    TestSeries? @relation(fields: [test_series_id], references: [id])
   price_paid     Float // Store the price at the time of purchase
+
+  @@index([order_id])
+  @@index([course_id])
+  @@index([test_series_id])
 }
 
 model Invoice {
