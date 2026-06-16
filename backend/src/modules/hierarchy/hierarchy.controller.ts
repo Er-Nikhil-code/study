@@ -88,7 +88,7 @@ export class HierarchyController {
   }
 
   @Patch("sections/:id")
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   updateSection(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; description?: string; order?: number }) {
     return this.hierarchyService.updateSection(id, req.user.sub, req.user.role, data);
   }
@@ -106,37 +106,37 @@ export class HierarchyController {
   }
 
   @Post("chapters")
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   createChapter(@Request() req: any, @Body() data: { section_id: string; name: string; description: string; order: number }) {
     return this.hierarchyService.createChapter(req.user.sub, req.user.role, data);
   }
 
   @Patch("chapters/:id")
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   updateChapter(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; description?: string; order?: number }) {
     return this.hierarchyService.updateChapter(id, req.user.sub, req.user.role, data);
   }
 
   @Delete("chapters/:id")
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   deleteChapter(@Param("id") id: string, @Request() req: any) {
     return this.hierarchyService.deleteChapter(id, req.user.sub, req.user.role);
   }
 
   @Post("topics")
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   createTopic(@Request() req: any, @Body() data: { chapter_id: string; name: string; description: string; order: number }) {
     return this.hierarchyService.createTopic(req.user.sub, req.user.role, data);
   }
 
   @Patch("topics/:id")
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   updateTopic(@Param("id") id: string, @Request() req: any, @Body() data: { name?: string; description?: string; order?: number }) {
     return this.hierarchyService.updateTopic(id, req.user.sub, req.user.role, data);
   }
 
   @Delete("topics/:id")
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   deleteTopic(@Param("id") id: string, @Request() req: any) {
     return this.hierarchyService.deleteTopic(id, req.user.sub, req.user.role);
   }

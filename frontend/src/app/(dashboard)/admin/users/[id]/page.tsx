@@ -298,6 +298,18 @@ export default function AdminUserProfilePage() {
                         )}
                       </div>
                     )}
+                    <span className="text-zinc-500 mt-2">Enrolled Test Series</span>
+                    <div className="flex flex-wrap gap-2 w-full">
+                      {user.test_series_enrollments?.length > 0 ? (
+                        user.test_series_enrollments.map((enr: any) => (
+                          <span key={enr.test_series_id} className="text-xs font-medium bg-red-500/10 text-red-300 border border-red-500/20 rounded-full px-3 py-1">
+                            {enr.test_series?.name || enr.test_series_id}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-zinc-500 text-sm">— No test series enrolled —</span>
+                      )}
+                    </div>
                   </div>
                 )}
                 {user.assigned_teacher && (
@@ -345,6 +357,30 @@ export default function AdminUserProfilePage() {
                   <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider">6-Month Activity Graph</h4>
                   <ActivityGraph data={user.activity_graph || []} userName={`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email} />
                 </div>
+                {user.interns && user.interns.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="text-xs font-medium text-zinc-400 mb-3 uppercase tracking-wider border-b border-white/10 pb-2">Assigned Pawns (Interns)</h4>
+                    <div className="grid gap-3 sm:grid-cols-2 mt-3">
+                      {user.interns.map((intern: any) => (
+                        <div key={intern.id} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+                          <div className="h-10 w-10 rounded-full overflow-hidden bg-zinc-800 shrink-0">
+                            {intern.profile_picture ? (
+                              <Image src={intern.profile_picture} alt="Intern" width={40} height={40} className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center text-zinc-500 font-bold text-sm">
+                                {intern.first_name?.charAt(0) || "U"}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h5 className="text-sm font-medium text-white truncate">{intern.first_name} {intern.last_name}</h5>
+                            <p className="text-[10px] text-zinc-400 truncate">{intern.email}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </Panel>
             )}
 

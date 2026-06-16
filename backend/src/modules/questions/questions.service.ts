@@ -57,15 +57,24 @@ export class QuestionsService {
     try {
       this.logger.debug(`📝 [QUESTIONS] Creating question for user ${userId} (role: ${userRole})`);
 
+      const creatorUser = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: { custom_role: true }
+      });
+
       // Validate topic or test exists
       let courseId = null;
+      let isManager = false;
       if (data.topic_id) {
         const topic = await this.prisma.topic.findUnique({
           where: { id: data.topic_id },
-          include: { chapter: { include: { section: true } } }
+          include: { chapter: { include: { section: { include: { managers: true } } } } }
         });
         if (!topic) throw new NotFoundException(`Topic with ID "${data.topic_id}" not found`);
         courseId = topic.chapter.section.course_id;
+        if (creatorUser?.assigned_teacher_id && topic.chapter.section.managers.some(m => m.id === creatorUser.assigned_teacher_id)) {
+          isManager = true;
+        }
       } else if (data.test_id) {
         const test = await this.prisma.test.findUnique({ where: { id: data.test_id } });
         if (!test) throw new NotFoundException(`Test with ID "${data.test_id}" not found`);
@@ -74,12 +83,7 @@ export class QuestionsService {
         throw new BadRequestException("Either topic_id or test_id must be provided");
       }
 
-      const creatorUser = await this.prisma.user.findUnique({
-        where: { id: userId },
-        include: { custom_role: true }
-      });
-
-      if (userRole === "INTERN" && courseId) {
+      if (userRole === "INTERN" && courseId && !isManager) {
         if (creatorUser?.assigned_teacher_id) {
           const staffAssigned = await this.prisma.courseStaff.findUnique({
             where: { course_id_user_id: { course_id: courseId, user_id: creatorUser.assigned_teacher_id } }

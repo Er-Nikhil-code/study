@@ -24,6 +24,32 @@ export class TestsService {
    *  TEST CRUD (Teacher / Admin)
    * ════════════════════════════════════════════ */
 
+  private async checkTestPermission(testId: string, userId: string, role: string) {
+    if (role === "ADMIN") return;
+    const test = await this.prisma.test.findUnique({
+      where: { id: testId },
+      include: { topic: { include: { chapter: { include: { section: { include: { course: true, test_series: true, managers: true } } } } } } }
+    });
+    if (!test) throw new NotFoundException("Test not found");
+    
+    if (test.created_by === userId) return;
+
+    let userToCheck = userId;
+    if (role === "INTERN") {
+      const intern = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (intern?.assigned_teacher_id) userToCheck = intern.assigned_teacher_id;
+    }
+
+    if (test.topic?.chapter?.section) {
+      const section = test.topic.chapter.section;
+      if (section.managers.some(m => m.id === userToCheck)) return;
+      if (section.course?.created_by === userToCheck) return;
+      if (section.test_series?.created_by === userToCheck) return;
+    }
+
+    throw new ForbiddenException("Not the test creator or section manager");
+  }
+
   async createTest(
     creatorId: string,
     role: string,
@@ -42,17 +68,23 @@ export class TestsService {
       test_type?: any;
     },
   ) {
+    let userToCheck = creatorId;
+    if (role === "INTERN") {
+      const intern = await this.prisma.user.findUnique({ where: { id: creatorId } });
+      if (intern?.assigned_teacher_id) userToCheck = intern.assigned_teacher_id;
+    }
+
     if (data.topic_id && role !== "ADMIN") {
       const topic = await this.prisma.topic.findUnique({
         where: { id: data.topic_id },
         include: { chapter: { include: { section: { include: { course: true, test_series: true, managers: true } } } } }
       });
       if (!topic) throw new NotFoundException("Topic not found");
-      const isManager = topic.chapter.section.managers.some(m => m.id === creatorId);
-      if (topic.chapter.section.course && topic.chapter.section.course.created_by !== creatorId && !isManager) {
+      const isManager = topic.chapter.section.managers.some(m => m.id === userToCheck);
+      if (topic.chapter.section.course && topic.chapter.section.course.created_by !== userToCheck && !isManager) {
         throw new ForbiddenException("You can only create tests for courses you created or sections you manage.");
       }
-      if (topic.chapter.section.test_series && topic.chapter.section.test_series.created_by !== creatorId && !isManager) {
+      if (topic.chapter.section.test_series && topic.chapter.section.test_series.created_by !== userToCheck && !isManager) {
         throw new ForbiddenException("You can only create tests for test series you created or sections you manage.");
       }
     }
@@ -119,10 +151,7 @@ export class TestsService {
       end_time?: Date | null;
     },
   ) {
-    const test = await this.prisma.test.findUnique({ where: { id: testId } });
-    if (!test) throw new NotFoundException("Test not found");
-    if (role !== "ADMIN" && test.created_by !== userId)
-      throw new ForbiddenException("Not the test creator");
+    await this.checkTestPermission(testId, userId, role);
 
     return this.prisma.test.update({
       where: { id: testId },
@@ -134,13 +163,13 @@ export class TestsService {
   }
 
   async publishTest(testId: string, userId: string, role: string) {
+    await this.checkTestPermission(testId, userId, role);
+
     const test = await this.prisma.test.findUnique({
       where: { id: testId },
       include: { _count: { select: { test_questions: true } } },
     });
     if (!test) throw new NotFoundException("Test not found");
-    if (role !== "ADMIN" && test.created_by !== userId)
-      throw new ForbiddenException("Not the test creator");
     if (test._count.test_questions === 0)
       throw new BadRequestException("Cannot publish a test with no questions");
 
@@ -151,10 +180,7 @@ export class TestsService {
   }
 
   async deleteTest(testId: string, userId: string, role: string) {
-    const test = await this.prisma.test.findUnique({ where: { id: testId } });
-    if (!test) throw new NotFoundException("Test not found");
-    if (role !== "ADMIN" && test.created_by !== userId)
-      throw new ForbiddenException("Not the test creator");
+    await this.checkTestPermission(testId, userId, role);
     
     // Find all users who took this test so we can update their stats after deletion
     const attempts = await this.prisma.attempt.findMany({
@@ -176,10 +202,7 @@ export class TestsService {
   }
 
   async addQuestionsToTest(testId: string, questionIds: string[], userId: string, role: string) {
-    const test = await this.prisma.test.findUnique({ where: { id: testId } });
-    if (!test) throw new NotFoundException("Test not found");
-    if (role !== "ADMIN" && test.created_by !== userId)
-      throw new ForbiddenException("Not the test creator");
+    await this.checkTestPermission(testId, userId, role);
 
     const existingCount = await this.prisma.testQuestion.count({
       where: { test_id: testId },
@@ -199,10 +222,7 @@ export class TestsService {
   }
 
   async updateTestQuestions(testId: string, questionIds: string[], userId: string, role: string) {
-    const test = await this.prisma.test.findUnique({ where: { id: testId } });
-    if (!test) throw new NotFoundException("Test not found");
-    if (role !== "ADMIN" && test.created_by !== userId)
-      throw new ForbiddenException("Not the test creator");
+    await this.checkTestPermission(testId, userId, role);
 
     await this.prisma.testQuestion.deleteMany({
       where: { test_id: testId },

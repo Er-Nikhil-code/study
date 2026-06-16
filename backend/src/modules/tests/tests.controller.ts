@@ -104,7 +104,7 @@ export class TestsController {
 
   @Get("manage/list")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   async listTeacherTests(
     @Request() req: any,
     @Query("topic_id") topicId?: string,
@@ -134,14 +134,14 @@ export class TestsController {
 
   @Get(":id/preview")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   async getTestPreview(@Param("id") id: string, @Request() req: any) {
     return this.testsService.getTestPreview(id, req.user.sub, req.user.role);
   }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   async createTest(
     @Request() req: any,
     @Body()
@@ -165,7 +165,7 @@ export class TestsController {
 
   @Patch(":id")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   async updateTest(
     @Param("id") id: string,
     @Request() req: any,
@@ -191,7 +191,7 @@ export class TestsController {
 
   @Post(":id/publish")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   @HttpCode(HttpStatus.OK)
   async publishTest(@Param("id") id: string, @Request() req: any) {
     return this.testsService.publishTest(id, req.user.sub, req.user.role);
@@ -199,7 +199,7 @@ export class TestsController {
 
   @Delete(":id")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteTest(@Param("id") id: string, @Request() req: any) {
     await this.testsService.deleteTest(id, req.user.sub, req.user.role);
@@ -207,7 +207,7 @@ export class TestsController {
 
   @Post(":id/questions")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   async addQuestions(
     @Param("id") id: string,
     @Request() req: any,
@@ -223,7 +223,7 @@ export class TestsController {
 
   @Put(":id/questions")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("TEACHER", "ADMIN")
+  @Roles("INTERN", "TEACHER", "ADMIN")
   async updateQuestions(
     @Param("id") id: string,
     @Request() req: any,

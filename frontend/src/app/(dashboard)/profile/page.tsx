@@ -329,10 +329,20 @@ export default function ProfilePage() {
             </h3>
             <div className="space-y-4">
               {user.role === "STUDENT" && (
-                <div>
-                  <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Enrolled In</p>
-                  <p className="text-sm text-white mt-1 font-medium">{profileData.course_enrolled || "N/A"}</p>
-                </div>
+                <>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Enrolled Courses</p>
+                    <p className="text-sm text-white mt-1 font-medium">{profileData.course_enrolled || "N/A"}</p>
+                  </div>
+                  {profileData.enrolled_test_series && profileData.enrolled_test_series.length > 0 && (
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Enrolled Test Series</p>
+                      <p className="text-sm text-white mt-1 font-medium">
+                        {profileData.enrolled_test_series.map((ts: any) => ts.name).join(", ")}
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
               {user.role === "INTERN" && profileData.assigned_teacher && (
                 <div>
@@ -366,6 +376,33 @@ export default function ProfilePage() {
           </Panel>
         </div>
       </div>
+
+      {/* Teacher Assigned Interns Section */}
+      {user.role === "TEACHER" && profileData.assigned_interns && profileData.assigned_interns.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold text-white mb-4">Assigned Pawns (Interns)</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {profileData.assigned_interns.map((intern: any) => (
+              <Panel key={intern.id} className="flex items-center gap-4 p-4 hover:border-red-500/30 transition">
+                <div className="h-12 w-12 rounded-full overflow-hidden bg-zinc-800 shrink-0 border border-white/10">
+                  {intern.profile_picture ? (
+                    <NextImage src={intern.profile_picture} alt="Intern" width={48} height={48} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <User size={20} className="text-zinc-500" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-sm font-semibold text-white truncate">{intern.first_name} {intern.last_name}</h4>
+                  <p className="text-xs text-zinc-400 truncate">{intern.email}</p>
+                  <div className="text-[10px] mt-1 font-mono text-zinc-500 truncate" title={intern.id}>ID: {intern.id}</div>
+                </div>
+              </Panel>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Photo Modal (View / Upload) ── */}
       {showPhotoModal && (

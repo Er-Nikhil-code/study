@@ -21,6 +21,16 @@ export class HierarchyService {
     if (section.course?.created_by === userId) return;
     if (section.test_series?.created_by === userId) return;
     if (section.managers.some(m => m.id === userId)) return;
+
+    if (role === "INTERN") {
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (user?.assigned_teacher_id) {
+        if (section.course?.created_by === user.assigned_teacher_id) return;
+        if (section.test_series?.created_by === user.assigned_teacher_id) return;
+        if (section.managers.some(m => m.id === user.assigned_teacher_id)) return;
+      }
+    }
+
     throw new ForbiddenException("You are not authorized to manage this section");
   }
 

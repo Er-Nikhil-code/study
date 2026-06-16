@@ -358,6 +358,8 @@ export class AdminService {
         assigned_teacher: { select: { id: true, first_name: true, last_name: true, email: true } },
         user_stats: true,
         course_enrollments: { include: { course: true } },
+        test_series_enrollments: { include: { test_series: true } },
+        interns: { select: { id: true, first_name: true, last_name: true, email: true, profile_picture: true } }
       },
     });
 

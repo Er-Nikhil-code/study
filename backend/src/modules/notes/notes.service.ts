@@ -11,11 +11,13 @@ export class NotesService {
       if (intern?.assigned_teacher_id) {
         const topic = await this.prisma.topic.findUnique({
           where: { id: data.topic_id },
-          include: { chapter: { include: { section: true } } }
+          include: { chapter: { include: { section: { include: { managers: true } } } } }
         });
         if (topic) {
-          const courseId = topic.chapter.section.course_id;
-          if (courseId) {
+          const section = topic.chapter.section;
+          const isManager = section.managers.some(m => m.id === intern.assigned_teacher_id);
+          const courseId = section.course_id;
+          if (courseId && !isManager) {
             const staffAssigned = await this.prisma.courseStaff.findUnique({
               where: { course_id_user_id: { course_id: courseId, user_id: intern.assigned_teacher_id } }
             });

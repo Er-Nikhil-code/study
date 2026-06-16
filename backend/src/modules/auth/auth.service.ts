@@ -40,6 +40,12 @@ export class AuthService {
         assigned_teacher: { select: { first_name: true, last_name: true } },
         course_enrollments: {
           include: { course: true }
+        },
+        test_series_enrollments: {
+          include: { test_series: true }
+        },
+        interns: {
+          select: { id: true, first_name: true, last_name: true, email: true, profile_picture: true }
         }
       },
     });
@@ -79,6 +85,8 @@ export class AuthService {
       user: {
         ...userWithoutPassword,
         course_enrolled: courseEnrolledStr,
+        enrolled_test_series: user.test_series_enrollments?.map((e: any) => e.test_series) || [],
+        assigned_interns: user.interns || [],
       },
       accessToken,
       refreshToken,
