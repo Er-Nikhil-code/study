@@ -44,7 +44,7 @@ export function getSidebarNavItems(user: AuthUser | null): NavItem[] {
   // Students have a fixed view for now
   if (user.role === "STUDENT") {
     return [
-      { label: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
+      { label: "Warrior Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
       { label: "Available Courses", href: "/courses", icon: Library },
       { label: "Test Series", href: "/test-series", icon: FileText },
       { label: "Notifications", href: "/notifications", icon: Bell },
