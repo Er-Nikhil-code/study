@@ -153,7 +153,7 @@ export class ChallengesService {
             },
           },
           note: {
-            select: { id: true, title: true, content_html: true },
+            select: { id: true, title: true },
           },
           created_by: {
             select: { id: true, first_name: true, last_name: true, email: true },
@@ -444,7 +444,7 @@ export class ChallengesService {
           },
         },
         note: {
-          select: { id: true, title: true, content_html: true, topic: { select: { name: true } } },
+          select: { id: true, title: true, topic: { select: { name: true } } },
         }
       },
     });
