@@ -13,7 +13,10 @@ import {
   Req,
   ForbiddenException,
   BadRequestException,
+  UseInterceptors,
 } from "@nestjs/common";
+import { CacheInterceptor } from "@nestjs/cache-manager";
+import { UserCacheInterceptor } from "../common/interceptors/user-cache.interceptor";
 import { QuestionsService } from "./questions.service";
 import { AiGeneratorService } from "./ai-generator.service";
 import { z } from "zod";
@@ -66,12 +69,14 @@ export class QuestionsController {
 
   @Get("topics")
   @Roles("INTERN", "TEACHER", "ADMIN")
+  @UseInterceptors(CacheInterceptor)
   async listTopics() {
     return this.questionsService.findAllTopics();
   }
 
   @Get()
   @Roles("INTERN", "TEACHER", "ADMIN")
+  @UseInterceptors(UserCacheInterceptor)
   async listQuestions(
     @Query("topic_id") topicId?: string,
     @Query("chapter_id") chapterId?: string,
@@ -118,6 +123,7 @@ export class QuestionsController {
 
   @Get(":id")
   @Roles("INTERN", "TEACHER", "ADMIN")
+  @UseInterceptors(UserCacheInterceptor)
   async getQuestion(@Param("id") id: string, @Req() req: any) {
     const question = await this.questionsService.findQuestionById(id);
     const userId = req.user.id || req.user.sub;

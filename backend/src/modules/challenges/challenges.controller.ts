@@ -10,7 +10,9 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
 } from "@nestjs/common";
+import { UserCacheInterceptor } from "../common/interceptors/user-cache.interceptor";
 import { ChallengesService } from "./challenges.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
@@ -41,6 +43,7 @@ export class ChallengesController {
   /* ── Student: my challenges ── */
   @UseGuards(JwtAuthGuard)
   @Get("mine")
+  @UseInterceptors(UserCacheInterceptor)
   async getMyChallenges(@Request() req: any) {
     return this.challengesService.getMyChallenges(req.user.sub);
   }
@@ -56,6 +59,7 @@ export class ChallengesController {
   @Get("assigned")
   @UseGuards(RolesGuard)
   @Roles("TEACHER", "ADMIN")
+  @UseInterceptors(UserCacheInterceptor)
   async getAssignedChallenges(
     @Request() req: any,
     @Query("status") status?: string,
@@ -73,6 +77,7 @@ export class ChallengesController {
   @Get("escalation-targets")
   @UseGuards(RolesGuard)
   @Roles("TEACHER", "ADMIN")
+  @UseInterceptors(UserCacheInterceptor)
   async getEscalationTargets(@Request() req: any) {
     return this.challengesService.getEscalationTargets(req.user.sub);
   }

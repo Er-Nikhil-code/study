@@ -1,10 +1,13 @@
 import { Module } from "@nestjs/common";
+import { CacheModule } from "@nestjs/cache-manager";
+import { createKeyv } from "@keyv/redis";
 import { APP_INTERCEPTOR } from "@nestjs/core";
 import { AuditInterceptor } from "./modules/common/interceptors/audit.interceptor";
 import { PrismaService } from "./prisma/prisma.service";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { ThrottlerStorageRedisService } from "@nest-lab/throttler-storage-redis";
 import { JwtModule } from "@nestjs/jwt";
 import { AuthModule } from "./modules/auth/auth.module";
 import { EmailModule } from "./modules/email/email.module";
@@ -32,33 +35,46 @@ import { UploadModule } from "./modules/upload/upload.module";
       envFilePath: [".env.local", ".env"],
     }),
     ScheduleModule.forRoot(),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        store: createKeyv(config.get<string>("REDIS_URL") || "redis://localhost:6379"),
+      }),
+    }),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || "your-secret-key",
       signOptions: { expiresIn: "1h" },
     }),
-    ThrottlerModule.forRoot([
-      {
-        name: "register",
-        ttl: 900000, // 15 minutes in milliseconds
-        limit: 5, // 5 requests per 15 minutes
-      },
-      {
-        name: "verifyOtp",
-        ttl: 900000, // 15 minutes
-        limit: 10, // 10 requests per 15 minutes
-      },
-      {
-        name: "forgotPassword",
-        ttl: 1800000, // 30 minutes
-        limit: 5, // 5 requests per 30 minutes
-      },
-      {
-        name: "resetPassword",
-        ttl: 1800000, // 30 minutes
-        limit: 5, // 5 requests per 30 minutes
-      },
-    ]),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        storage: new ThrottlerStorageRedisService(config.get<string>("REDIS_URL") || "redis://localhost:6379"),
+        throttlers: [
+          {
+            name: "register",
+            ttl: 900000, // 15 minutes in milliseconds
+            limit: 5, // 5 requests per 15 minutes
+          },
+          {
+            name: "verifyOtp",
+            ttl: 900000, // 15 minutes
+            limit: 10, // 10 requests per 15 minutes
+          },
+          {
+            name: "forgotPassword",
+            ttl: 1800000, // 30 minutes
+            limit: 5, // 5 requests per 30 minutes
+          },
+          {
+            name: "resetPassword",
+            ttl: 1800000, // 30 minutes
+            limit: 5, // 5 requests per 30 minutes
+          },
+        ],
+      }),
+    }),
     AuthModule,
     EmailModule,
     RolesModule,

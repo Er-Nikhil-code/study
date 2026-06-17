@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Req, Query } from "@nestjs/common";
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Req, Query, UseInterceptors } from "@nestjs/common";
+import { CacheInterceptor } from "@nestjs/cache-manager";
 import { NotesService } from "./notes.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
@@ -56,6 +57,7 @@ export class NotesController {
 
   @Get("topic/:topicId")
   @Roles("STUDENT", "TEACHER", "ADMIN")
+  @UseInterceptors(CacheInterceptor)
   getNotesByTopic(@Param("topicId") topicId: string) {
     return this.notesService.getNotesByTopic(topicId);
   }

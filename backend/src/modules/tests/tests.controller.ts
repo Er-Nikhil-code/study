@@ -12,7 +12,10 @@ import {
   HttpCode,
   HttpStatus,
   Put,
+  UseInterceptors,
 } from "@nestjs/common";
+import { CacheInterceptor } from "@nestjs/cache-manager";
+import { UserCacheInterceptor } from "../common/interceptors/user-cache.interceptor";
 import { TestsService } from "./tests.service";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
@@ -25,6 +28,7 @@ export class TestsController {
   /* ── Public / Student ── */
 
   @Get()
+  @UseInterceptors(CacheInterceptor)
   async listTests(
     @Query("topic_id") topicId?: string,
     @Query("search") search?: string,
@@ -42,12 +46,14 @@ export class TestsController {
   }
 
   @Get(":id")
+  @UseInterceptors(CacheInterceptor)
   async getTest(@Param("id") id: string) {
     return this.testsService.getTestDetails(id);
   }
 
   @Get(":id/leaderboard")
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(UserCacheInterceptor)
   async getTestLeaderboard(
     @Param("id") id: string,
     @Request() req: any
@@ -105,6 +111,7 @@ export class TestsController {
   @Get("manage/list")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("INTERN", "TEACHER", "ADMIN")
+  @UseInterceptors(UserCacheInterceptor)
   async listTeacherTests(
     @Request() req: any,
     @Query("topic_id") topicId?: string,
@@ -244,6 +251,7 @@ export class TestsController {
   @Get("series/manage")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("INTERN", "TEACHER", "ADMIN")
+  @UseInterceptors(UserCacheInterceptor)
   async getAdminTestSeries(@Request() req: any) {
     return this.testsService.getAdminTestSeries(req.user.sub, req.user.role);
   }
