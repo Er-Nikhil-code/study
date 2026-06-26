@@ -716,6 +716,7 @@ export class TestsService {
 
     try {
       switch (questionType) {
+        case "ASSERTION_REASON":
         case "SINGLE_CORRECT": {
           const correct =
             studentAnswer?.selected_option === answerKey?.correct_option;
@@ -745,6 +746,13 @@ export class TestsService {
         }
 
         case "FILL_BLANK": {
+          if (answerKey?.correct_option) {
+            const correct = studentAnswer?.selected_option === answerKey?.correct_option;
+            return {
+              isCorrect: correct,
+              marks: correct ? marks : -negativeMark,
+            };
+          }
           const blanks = answerKey?.blanks || [];
           let allCorrect = true;
           for (const blank of blanks) {
@@ -762,6 +770,13 @@ export class TestsService {
         }
 
         case "NUMERICAL": {
+          if (answerKey?.correct_option) {
+            const correct = studentAnswer?.selected_option === answerKey?.correct_option;
+            return {
+              isCorrect: correct,
+              marks: correct ? marks : -negativeMark,
+            };
+          }
           const diff = Math.abs(
             Number(studentAnswer?.value) - Number(answerKey?.value),
           );
