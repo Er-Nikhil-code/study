@@ -93,7 +93,7 @@ export function ContentBlockRenderer({
         switch (block.type) {
           case "TEXT":
             return (
-              <p key={index} className="text-gray-200 leading-relaxed">
+              <p key={index} className="text-zinc-800 dark:text-zinc-200 leading-relaxed">
                 {block.content || ""}
               </p>
             );
@@ -103,7 +103,7 @@ export function ContentBlockRenderer({
                 <LatexRenderer
                   content={block.content || ""}
                   displayMode
-                  className="text-gray-100"
+                  className="text-zinc-900 dark:text-zinc-100"
                 />
               </div>
             );
@@ -113,7 +113,7 @@ export function ContentBlockRenderer({
                 key={index}
                 src={block.content}
                 alt={`Content image ${index + 1}`}
-                className="rounded-lg max-w-full h-auto border border-white/10"
+                className="rounded-lg max-w-full h-auto border border-zinc-200 dark:border-white/10"
               />
             ) : null;
           default:
