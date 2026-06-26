@@ -14,11 +14,14 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "transparent",
-          color: "#ef4444",
-          fontSize: "130px",
+          background: "#050505",
+          border: "2px solid rgba(255,255,255,0.2)",
+          borderRadius: "40px",
+          color: "#dc2626",
+          fontSize: "120px",
           fontWeight: "900",
           fontFamily: "system-ui, -apple-system, sans-serif",
+          boxShadow: "inset 0 2px 2px rgba(255,255,255,0.1), 0 8px 20px rgba(0,0,0,0.5)",
         }}
       >
         C
