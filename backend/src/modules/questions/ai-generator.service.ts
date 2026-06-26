@@ -192,19 +192,21 @@ SOLUTION FORMAT RULES (STRICTLY FOLLOW):
         }
       });
 
-      let rawText = response.text;
+      const rawText = response.text;
       if (!rawText) throw new Error("No output from model");
-      
-      // Fix LLM JSON escaping bugs where \text is parsed as <tab>ext
-      // We look for literal \t, \f, \r, \n followed by the rest of the macro and double escape them.
-      rawText = rawText.replace(/\\text/g, '\\\\text');
-      rawText = rawText.replace(/\\times/g, '\\\\times');
-      rawText = rawText.replace(/\\frac/g, '\\\\frac');
-      rawText = rawText.replace(/\\rightarrow/g, '\\\\rightarrow');
-      rawText = rawText.replace(/\\neq/g, '\\\\neq');
       
       const parsedQuestions = JSON.parse(rawText);
       const validatedQuestions = AiQuestionOutputSchema.parse(parsedQuestions);
+
+      // Deep fix swallowed LaTeX macros (e.g. \text becoming <tab>ext) safely
+      const repairLatexSwallow = (str?: string): string | undefined => {
+        if (!str) return str;
+        return str
+          .replace(/\t/g, '\\t')
+          .replace(/\f/g, '\\f')
+          .replace(/\r/g, '\\r')
+          .replace(/\neq/g, '\\neq');
+      };
 
       // Normalization step to ensure A, B, C, D mapping just in case the AI hallucinates numbers
       const idMap: Record<string, string> = { "1": "A", "2": "B", "3": "C", "4": "D", "5": "E", "6": "F" };
@@ -212,7 +214,8 @@ SOLUTION FORMAT RULES (STRICTLY FOLLOW):
       const normalizedQuestions = validatedQuestions.map(q => {
         const newOptions = q.options.map(opt => ({
           ...opt,
-          id: idMap[opt.id] || opt.id
+          id: idMap[opt.id] || opt.id,
+          text: repairLatexSwallow(opt.text)
         }));
         
         let newAnswerKey = q.answerKey;
@@ -222,7 +225,13 @@ SOLUTION FORMAT RULES (STRICTLY FOLLOW):
            newAnswerKey = idMap[newAnswerKey] || newAnswerKey;
         }
 
-        return { ...q, options: newOptions, answerKey: newAnswerKey };
+        return { 
+          ...q, 
+          questionText: repairLatexSwallow(q.questionText),
+          solutionText: repairLatexSwallow(q.solutionText),
+          options: newOptions, 
+          answerKey: newAnswerKey 
+        };
       });
 
       return normalizedQuestions;
