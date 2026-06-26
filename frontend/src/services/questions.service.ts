@@ -53,4 +53,8 @@ export const QuestionsService = {
   escalate(id: string) {
     return api.patch(`/admin/questions/${id}/escalate`).then((r) => r.data);
   },
+
+  deleteQuestion(id: string) {
+    return api.delete(`/admin/questions/${id}`).then((r) => r.data);
+  },
 };

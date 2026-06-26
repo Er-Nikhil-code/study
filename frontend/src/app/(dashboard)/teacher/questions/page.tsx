@@ -149,6 +149,20 @@ export default function TeacherQuestionsPage() {
     return false;
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this question? This action cannot be undone.")) return;
+    try {
+      await QuestionsService.deleteQuestion(id);
+      queryClient.invalidateQueries({ queryKey: ["questions", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["teacher", "dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["intern", "dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "dashboard", "stats"] });
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to delete question");
+    }
+  };
+
+
   return (
     <>
       <SectionTitle
@@ -404,10 +418,16 @@ export default function TeacherQuestionsPage() {
                         {canSeeActions(q) && (
                           <>
                             {canEdit(q) && (
-                              <Link href={`/teacher/questions/${q.id}/edit`}
-                                className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-xs text-zinc-300 transition hover:bg-white/[0.06]">
-                                Edit
-                              </Link>
+                              <>
+                                <Link href={`/teacher/questions/${q.id}/edit`}
+                                  className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] text-zinc-300 transition hover:bg-white/[0.06]">
+                                  Edit
+                                </Link>
+                                <button onClick={() => handleDelete(q.id)}
+                                  className="rounded-lg border border-red-500/30 bg-white/[0.03] px-2 py-1 text-[10px] text-red-400 transition hover:bg-red-500/10">
+                                  Delete
+                                </button>
+                              </>
                             )}
                             {userRole === "INTERN" && q.created_by === userId && (q.approval_status === "DRAFT" || q.approval_status === "NEEDS_REVISION") && (
                               <button onClick={() => handleSubmitReview(q.id)} disabled={submittingId === q.id}

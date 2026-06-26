@@ -111,7 +111,6 @@ export class TestsController {
   @Get("manage/list")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("INTERN", "TEACHER", "ADMIN")
-  @UseInterceptors(UserCacheInterceptor)
   async listTeacherTests(
     @Request() req: any,
     @Query("topic_id") topicId?: string,
@@ -251,7 +250,6 @@ export class TestsController {
   @Get("series/manage")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("INTERN", "TEACHER", "ADMIN")
-  @UseInterceptors(UserCacheInterceptor)
   async getAdminTestSeries(@Request() req: any) {
     return this.testsService.getAdminTestSeries(req.user.sub, req.user.role);
   }
