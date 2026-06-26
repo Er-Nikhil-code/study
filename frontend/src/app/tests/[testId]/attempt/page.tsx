@@ -286,9 +286,6 @@ export default function AttemptPage() {
             <button onClick={toggleTheme} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <button onClick={() => window.close()} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition" title="Close Window">
-              <X size={18} />
-            </button>
             <button onClick={() => setShowSubmitModal(true)} disabled={submitting}
               className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
               {submitting ? "Submitting…" : "Submit"}
@@ -299,9 +296,9 @@ export default function AttemptPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* MAIN QUESTION */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-12">
           {q && (
-            <div className="mx-auto max-w-3xl">
+            <div className="max-w-4xl mr-auto">
 
               <div className="mt-4 text-black dark:text-white">
                 <ContentBlockRenderer blocks={q.content_json || []} />

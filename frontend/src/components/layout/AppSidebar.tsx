@@ -12,9 +12,10 @@ import { LogOut, ChevronDown, ChevronLeft, ChevronRight, User } from "lucide-rea
 import type { NavItem } from "@/lib/nav";
 import { getChessRoleName } from "@/lib/role";
 import { useQuery } from "@tanstack/react-query";
-import { Caveat } from "next/font/google";
+import { Caveat, Montserrat } from "next/font/google";
 
 const caveat = Caveat({ subsets: ["latin"], weight: ["700"] });
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["800"] });
 
 type AppSidebarProps = {
   items: NavItem[];
@@ -108,10 +109,14 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
         </div>
         {/* If collapsed, show a mini version of the logo */}
         {isCollapsed && (
-          <Link href={getDashboardUrl()} className="flex shrink-0 items-center justify-center w-full group relative">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black/60 backdrop-blur-md border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.5)] group-hover:border-white/30 transition-all font-bold text-red-600 drop-shadow-[0_1px_2px_rgba(220,38,38,0.5)] text-xl relative">
+          <Link href={getDashboardUrl()} className="flex shrink-0 items-center justify-center w-full group relative" style={{ perspective: "1000px" }}>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-black/60 backdrop-blur-md border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.5)] transition-all duration-300 ease-out font-extrabold text-red-600 dark:text-red-500 text-2xl relative ${montserrat.className}
+              group-hover:border-white/30 group-hover:-translate-y-1 group-hover:rotate-x-12
+              group-hover:drop-shadow-[0_4px_4px_rgba(220,38,38,0.4)]
+              group-hover:[text-shadow:1px_1px_0_#991b1b,2px_2px_0_#991b1b,3px_3px_0_#7f1d1d]`}
+              style={{ transformStyle: "preserve-3d" }}>
               C
-              <span className={`absolute -right-3 -bottom-2 text-[10px] text-red-500 tracking-normal lowercase -rotate-12 drop-shadow-md ${caveat.className}`}>
+              <span className={`absolute -right-3 -bottom-2 text-[10px] text-red-500 tracking-normal lowercase -rotate-12 drop-shadow-md ${caveat.className} transition-transform duration-300 group-hover:scale-110`}>
                 today
               </span>
             </div>
