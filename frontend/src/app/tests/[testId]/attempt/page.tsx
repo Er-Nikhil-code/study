@@ -268,11 +268,19 @@ export default function AttemptPage() {
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Q {currentIdx + 1}/{questions.length}</span>
           </div>
-          <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
-            timeLeft < 300 ? "bg-red-600/20 text-red-500 dark:text-red-300"
-              : timeLeft < 600 ? "bg-red-500/15 text-red-500 dark:text-red-300"
-              : "bg-black/5 dark:bg-white/[0.05] text-black dark:text-white"
-          }`}>{formatTime(timeLeft)}</div>
+          <div className="flex items-center gap-3">
+            {q && (
+              <div className="hidden sm:flex flex-col items-end justify-center text-[10.5px] font-bold leading-tight">
+                <span className="text-emerald-500">+{q.marks}</span>
+                {q.negative_marks > 0 && <span className="text-red-500">-{q.negative_marks}</span>}
+              </div>
+            )}
+            <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
+              timeLeft < 300 ? "bg-red-600/20 text-red-500 dark:text-red-300"
+                : timeLeft < 600 ? "bg-red-500/15 text-red-500 dark:text-red-300"
+                : "bg-black/5 dark:bg-white/[0.05] text-black dark:text-white"
+            }`}>{formatTime(timeLeft)}</div>
+          </div>
           <div className="flex items-center gap-3">
             <button onClick={() => setShowPalette(!showPalette)} className="lg:hidden rounded-lg border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] p-2 text-sm">☰</button>
             <button onClick={toggleTheme} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
@@ -294,12 +302,7 @@ export default function AttemptPage() {
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {q && (
             <div className="mx-auto max-w-3xl">
-              <div className="flex items-start justify-between gap-4">
-                <span className="rounded-full border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.04] px-3 py-1 text-xs text-zinc-600 dark:text-zinc-400">
-                  {q.question_type.replace(/_/g, " ")} · {q.difficulty} · {q.marks} mark{q.marks !== 1 ? "s" : ""}
-                  {q.negative_marks > 0 && <span className="text-red-500 dark:text-red-400 ml-1">(−{q.negative_marks})</span>}
-                </span>
-              </div>
+
               <div className="mt-4 text-black dark:text-white">
                 <ContentBlockRenderer blocks={q.content_json || []} />
               </div>

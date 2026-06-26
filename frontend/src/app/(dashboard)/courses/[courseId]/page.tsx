@@ -961,16 +961,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                                 )}
                                                 <h5 className="font-medium text-white text-md leading-tight group-hover:text-red-400 transition-colors">{topic.name}</h5>
                                               </div>
-                                              
-                                              {topic.tests?.[0]?.test_type && (() => {
-                                                const cfg = TEST_TYPE_CONFIG[topic.tests[0].test_type];
-                                                return cfg ? (
-                                                  <span className={`shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border mt-0.5 ${cfg.color}`}>
-                                                    {cfg.label}
-                                                  </span>
-                                                ) : null;
-                                              })()}
-                                            </div>
+                                              </div>
                                             {topic.description ? (
                                               <p className="text-xs text-zinc-400 line-clamp-2 mb-4 leading-relaxed">{topic.description}</p>
                                             ) : (
