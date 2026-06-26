@@ -7,7 +7,7 @@
   padding: 0;
   box-sizing: border-box;
   transition-property: background-color, border-color, color, fill, stroke;
-  transition-duration: 300ms;
+  transition-duration: 1s;
   transition-timing-function: ease-in-out;
 }
 
