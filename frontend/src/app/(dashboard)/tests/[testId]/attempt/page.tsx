@@ -118,7 +118,9 @@ export default function AttemptPage() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [loading, timeLeft === 0]);
 
-  /* ─── Navigation Warning ─── */
+  /* ─── Anti-Cheat & Navigation Warning ─── */
+  const violationsRef = useRef(0);
+
   useEffect(() => {
     if (loading || submitting || timeLeft <= 0) return;
 
@@ -154,14 +156,28 @@ export default function AttemptPage() {
       }
     };
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        violationsRef.current += 1;
+        if (violationsRef.current === 1) {
+          alert("WARNING: Navigating away from the test window is not allowed. If you leave this screen again, your test will be automatically submitted.");
+        } else if (violationsRef.current >= 2) {
+          alert("Test automatically submitted due to repeated tab switching.");
+          handleSubmit();
+        }
+      }
+    };
+
     window.addEventListener("beforeunload", handleBeforeUnload);
     window.addEventListener("popstate", handlePopState);
     document.addEventListener("click", handleClick, { capture: true });
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       window.removeEventListener("popstate", handlePopState);
       document.removeEventListener("click", handleClick, { capture: true });
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [loading, submitting, timeLeft]);
 

@@ -101,12 +101,12 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                     </h3>
                     <div className="flex gap-2">
                       <a
-                        href={getSecureUrl(note.pdf_url)}
+                        href={`/notes-viewer?url=${encodeURIComponent(getSecureUrl(note.pdf_url))}&title=${encodeURIComponent(note.title)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-blue-400 transition-opacity bg-white/5 px-3 py-1.5 rounded-lg font-medium"
                       >
-                        <ExternalLink size={14} /> Open in new tab
+                        <ExternalLink size={14} /> Open Dedicated Viewer
                       </a>
                       <a
                         href={getSecureUrl(note.pdf_url)}
@@ -126,23 +126,22 @@ export default function TopicViewerPage({ params }: { params: Promise<{ topicId:
                     </div>
                   </div>
                   
-                  <div className="w-full bg-zinc-950 flex justify-center items-center p-4">
+                  <div className="w-full bg-zinc-950 flex justify-center items-center p-8 border-t border-white/5">
                     {note.pdf_url ? (
-                      <object
-                        data={getSecureUrl(note.pdf_url)}
-                        type="application/pdf"
-                        className="w-full h-[800px] rounded-lg border border-white/10 bg-zinc-900"
-                      >
-                        <div className="flex flex-col items-center justify-center p-12 text-center">
-                          <FileText size={48} className="text-zinc-600 mb-4" />
-                          <p className="text-zinc-400 mb-4">Your browser does not support inline PDF viewing.</p>
-                          <a href={getSecureUrl(note.pdf_url)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 font-medium">
-                            Click here to view PDF
-                          </a>
-                        </div>
-                      </object>
+                      <div className="flex flex-col items-center justify-center text-center">
+                        <FileText size={48} className="text-zinc-600 mb-4" />
+                        <p className="text-zinc-400 mb-4">View this note in our dedicated viewer with Night Mode support.</p>
+                        <a 
+                          href={`/notes-viewer?url=${encodeURIComponent(getSecureUrl(note.pdf_url))}&title=${encodeURIComponent(note.title)}`}
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 font-medium shadow-lg shadow-red-900/20"
+                        >
+                          Open Notes Viewer
+                        </a>
+                      </div>
                     ) : (
-                      <div className="p-12 text-center text-zinc-500">
+                      <div className="text-center text-zinc-500">
                         Invalid PDF URL for this note.
                       </div>
                     )}

@@ -220,13 +220,13 @@ export default function TeacherTestsPage() {
         />
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+      <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {loading ? (
-          <div className="py-12 text-center text-sm text-zinc-500 lg:col-span-3">
+          <div className="py-12 text-center text-sm text-zinc-500 col-span-full">
             Loading tests...
           </div>
         ) : tests.length === 0 ? (
-          <Panel className="py-12 text-center text-sm text-zinc-500 lg:col-span-3">
+          <Panel className="py-12 text-center text-sm text-zinc-500 col-span-full">
             No tests found. Create a new test to get started!
           </Panel>
         ) : (

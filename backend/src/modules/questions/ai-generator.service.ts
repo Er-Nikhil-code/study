@@ -24,8 +24,32 @@ export class AiGeneratorService {
     if (apiKey) {
       this.ai = new GoogleGenAI({ apiKey });
     } else {
-      this.logger.warn('GEMINI_API_KEY is not set. AI generation will fail.');
+      this.logger.warn('GEMINI_API_KEY not provided. AI generation will be disabled.');
     }
+  }
+
+  async getQuota(userId: string, role: string) {
+    if (role !== 'TEACHER') {
+      return { remaining: 50, limit: 50, used: 0, isUnlimited: true };
+    }
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const generatedToday = await this.prisma.question.count({
+      where: {
+        created_by: userId,
+        created_at: { gte: todayStart },
+        approval_status: 'AI_GENERATED'
+      }
+    });
+
+    return { 
+      remaining: Math.max(0, 50 - generatedToday), 
+      limit: 50, 
+      used: generatedToday,
+      isUnlimited: false
+    };
   }
 
   async generateQuestions(

@@ -56,12 +56,6 @@ export default function TestCard({ test }: { test: TestCardData }) {
         >
           Open
         </Link>
-        <Link
-          href={`/tests/${test.id}/attempt`}
-          className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.06]"
-        >
-          Start
-        </Link>
       </div>
     </Panel>
   );

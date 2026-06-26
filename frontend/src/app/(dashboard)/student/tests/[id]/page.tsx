@@ -21,12 +21,19 @@ export default function TestInstructionsPage() {
   });
 
   const startMutation = useMutation({
-    mutationFn: () => TestsService.startAttempt(testId),
-    onSuccess: (data: any) => {
-      // The API should return the new attempt object
-      router.push(`/student/tests/${testId}/attempt/${data.id}`);
+    mutationFn: (win: Window | null) => TestsService.startAttempt(testId).then(data => ({ data, win })),
+    onSuccess: ({ data, win }: any) => {
+      const url = `/student/tests/${testId}/attempt/${data.id}`;
+      if (win) {
+        win.location.href = url;
+        router.push("/student/tests");
+      } else {
+        // Fallback
+        router.push(url);
+      }
     },
-    onError: (err: any) => {
+    onError: (err: any, win: any) => {
+      if (win) win.close();
       alert(err?.response?.data?.message || "Failed to start test.");
     }
   });
@@ -150,7 +157,15 @@ export default function TestInstructionsPage() {
 
         <button
           disabled={!agreed || startMutation.isPending}
-          onClick={() => startMutation.mutate()}
+          onClick={() => {
+            const features = `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${window.screen.availWidth},height=${window.screen.availHeight}`;
+            const win = window.open("about:blank", "testWindow", features);
+            if (!win) {
+              alert("Popup blocked! Please allow popups for this site to take the test in a dedicated window.");
+              return;
+            }
+            startMutation.mutate(win);
+          }}
           className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-12 py-4 rounded-xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg shadow-red-900/20"
         >
           {startMutation.isPending ? "Preparing Exam..." : (

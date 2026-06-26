@@ -68,8 +68,14 @@ export default function AIGenerationPage() {
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<any>(null);
   const [similarityPrompt, setSimilarityPrompt] = useState<{ idx: number; q: any; similar: any[] } | null>(null);
+  const [quota, setQuota] = useState<{ remaining: number; limit: number; used: number; isUnlimited: boolean } | null>(null);
+
+  const fetchQuota = () => {
+    AiService.getQuota().then(setQuota).catch(console.error);
+  };
 
   useEffect(() => {
+    fetchQuota();
     HierarchyService.getFullHierarchy().then(setHierarchy).catch(() => setError("Failed to load hierarchy"));
     AdminTestSeriesService.getAdminTestSeries().then(res => setTestSeriesList(res || [])).catch(() => setError("Failed to load test series"));
   }, []);
@@ -154,6 +160,7 @@ export default function AIGenerationPage() {
         customInstructions: form.customInstructions
       });
       setGeneratedQuestions(res);
+      fetchQuota();
     } catch (err: any) {
       const msg = err?.response?.data?.message;
       if (msg === "notes unavailable") {
@@ -719,7 +726,21 @@ export default function AIGenerationPage() {
           <div className="mt-4 pt-4 border-t border-white/10">
             <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded text-xs text-blue-300">
               <strong className="block mb-1 text-blue-400">Knight Quota</strong>
-              You can generate a maximum of 50 AI questions per day. Your knight account acts as the creator.
+              {quota ? (
+                quota.isUnlimited ? (
+                  <span>You have unlimited AI question generation.</span>
+                ) : (
+                  <span>
+                    You can generate a maximum of {quota.limit} AI questions per day.
+                    <br />
+                    <span className="font-semibold text-blue-200 mt-1 block">
+                      Remaining: {quota.remaining} questions ({quota.used} used today)
+                    </span>
+                  </span>
+                )
+              ) : (
+                <span>Loading quota...</span>
+              )}
             </div>
           </div>
         </Panel>

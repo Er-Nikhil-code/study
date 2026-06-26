@@ -1,6 +1,11 @@
 import { api } from "@/lib/api";
 
 export const AiService = {
+  async getQuota() {
+    const res = await api.get('/questions/ai/quota');
+    return res.data;
+  },
+
   generateQuestions(data: { 
     topicId?: string;
     testId?: string;

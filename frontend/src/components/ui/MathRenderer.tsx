@@ -33,6 +33,10 @@ export default function MathRenderer({ text, className = "" }: { text: string; c
         }
       });
 
+      // Normalize inline bullets and "Answer:" to ensure they start on a new line
+      result = result.replace(/([^\n])\s*([•])\s/g, '$1\n$2 ');
+      result = result.replace(/([^\n])\s*(Answer:)/g, '$1\n$2');
+
       // Convert bullet points (•, -, *) at the start of lines to proper list items
       const lines = result.split("\n");
       let inList = false;

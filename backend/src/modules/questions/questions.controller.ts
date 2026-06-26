@@ -254,6 +254,13 @@ export class QuestionsController {
 
   /* ── AI Generation workflow ── */
 
+  @Get("ai/quota")
+  @Roles("TEACHER", "ADMIN")
+  async getAiQuota(@Req() req: any) {
+    const userId = req.user.id || req.user.sub;
+    return this.aiGeneratorService.getQuota(userId, req.user.role);
+  }
+
   @Post("ai/generate")
   @Roles("TEACHER", "ADMIN")
   async generateQuestions(@Body() body: { 

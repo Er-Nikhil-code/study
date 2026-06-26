@@ -45,11 +45,22 @@ export default function TestDetailsPage() {
 
   const handleStart = async () => {
     setStarting(true);
+    const features = `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${window.screen.availWidth},height=${window.screen.availHeight}`;
+    const win = window.open("about:blank", "testWindow", features);
+    if (!win) {
+      alert("Popup blocked! Please allow popups for this site to take the test in a dedicated window.");
+      setStarting(false);
+      return;
+    }
+    
     try {
       const result = await studentService.startAttempt(testId);
-      router.push(`/tests/${testId}/attempt?attemptId=${result.attempt.id}`);
+      const url = `/tests/${testId}/attempt?attemptId=${result.attempt.id}`;
+      win.location.href = url;
     } catch (err: any) {
+      win.close();
       alert(err?.response?.data?.message || "Failed to start test");
+    } finally {
       setStarting(false);
     }
   };
