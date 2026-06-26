@@ -76,7 +76,6 @@ export class QuestionsController {
 
   @Get()
   @Roles("INTERN", "TEACHER", "ADMIN")
-  @UseInterceptors(UserCacheInterceptor)
   async listQuestions(
     @Query("topic_id") topicId?: string,
     @Query("chapter_id") chapterId?: string,
@@ -123,7 +122,6 @@ export class QuestionsController {
 
   @Get(":id")
   @Roles("INTERN", "TEACHER", "ADMIN")
-  @UseInterceptors(UserCacheInterceptor)
   async getQuestion(@Param("id") id: string, @Req() req: any) {
     const question = await this.questionsService.findQuestionById(id);
     const userId = req.user.id || req.user.sub;
