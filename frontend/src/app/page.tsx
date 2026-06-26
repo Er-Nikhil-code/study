@@ -342,12 +342,12 @@ export default function HomePage() {
 
       {/* Left Section - Alien Typed Quotes */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-start px-8 md:px-16 py-12 md:py-16 relative z-10">
-        {/* Premium Minimalist Logo in Glassmorphism */}
-        <div className="mb-10 md:mb-14 relative group cursor-default inline-block bg-black/30 backdrop-blur-3xl border border-white/20 p-8 md:p-10 rounded-[2.5rem] shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_2px_rgba(255,255,255,0.1)]">
+        {/* Premium Minimalist Logo */}
+        <div className="mb-10 md:mb-14 relative group cursor-default">
           {/* Subtle glow instead of intense gradient blur */}
-          <div className="absolute -inset-4 bg-white/5 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+          <div className="absolute -inset-4 bg-white/5 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
-          <div className="relative transform transition-transform duration-500 group-hover:scale-[1.02]">
+          <div className="relative transform transition-transform duration-500 group-hover:scale-[1.01]">
             <h1 className={`text-6xl md:text-8xl tracking-[0.15em] uppercase flex items-center pr-4 pb-2 z-10 ${quicksand.className} relative`}>
               <span className="text-red-600 drop-shadow-[0_1px_4px_rgba(220,38,38,0.5)]">
                 C
@@ -361,11 +361,11 @@ export default function HomePage() {
             </h1>
 
             {/* Minimal static underline */}
-            <div className="relative mt-4 h-[3px] w-20 rounded-full bg-gradient-to-r from-red-600 to-red-800 shadow-[0_0_10px_rgba(220,38,38,0.4)] opacity-80 transition-all duration-500 group-hover:w-32"></div>
+            <div className="relative mt-4 h-[3px] w-16 rounded-full bg-gradient-to-r from-red-600 to-red-800 shadow-sm opacity-80 transition-all duration-500 group-hover:w-24"></div>
 
-            <p className="text-zinc-300 text-sm md:text-base mt-6 tracking-[0.2em] font-light uppercase flex items-center gap-3 opacity-90">
+            <p className="text-zinc-400 text-sm md:text-base mt-4 tracking-[0.2em] font-light uppercase flex items-center gap-3 opacity-70">
               Learn smarter
-              <span className="h-1.5 w-1.5 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.8)]"></span>
+              <span className="h-1 w-1 rounded-full bg-red-600 opacity-60"></span>
               Score higher
             </p>
           </div>
