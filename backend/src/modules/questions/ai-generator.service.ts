@@ -156,8 +156,9 @@ SOLUTION FORMAT RULES (STRICTLY FOLLOW):
 - Keep each step to 1-2 sentences maximum.
 - For math/science questions, use LaTeX notation: wrap inline math in $...$ (e.g. $x^2 + y^2 = r^2$) and display math in $$...$$ (e.g. $$\\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$).
 - For chemical equations, use LaTeX: e.g. $\\text{2H}_2 + \\text{O}_2 \\rightarrow \\text{2H}_2\\text{O}$
-- Use LaTeX for ALL mathematical expressions, formulas, equations, fractions, exponents, subscripts, Greek letters, etc.
-- Also use LaTeX in questionText and option texts when they contain mathematical expressions.`;
+- CRITICAL: You MUST wrap ALL numbers, variables, mathematical expressions, formulas, equations, bases (like 16 or 2), fractions, exponents, subscripts, and Greek letters in $...$ (inline) or $$...$$ (display). If you do not include the $ signs, the rendering will completely break!
+- Therefore, always write $(121)_x$ instead of just (121)_x.
+- EXTREMELY IMPORTANT: Because your response is JSON, you MUST double-escape all LaTeX backslashes! For example, write \\\\text{} instead of \\text{}, \\\\times instead of \\times, and \\\\frac instead of \\frac. If you don't double-escape, the JSON parser will swallow the backslashes and the math will render incorrectly (e.g. "ext" instead of "text").`;
 
     try {
       const response = await this.ai.models.generateContent({
@@ -191,8 +192,16 @@ SOLUTION FORMAT RULES (STRICTLY FOLLOW):
         }
       });
 
-      const rawText = response.text;
+      let rawText = response.text;
       if (!rawText) throw new Error("No output from model");
+      
+      // Fix LLM JSON escaping bugs where \text is parsed as <tab>ext
+      // We look for literal \t, \f, \r, \n followed by the rest of the macro and double escape them.
+      rawText = rawText.replace(/\\text/g, '\\\\text');
+      rawText = rawText.replace(/\\times/g, '\\\\times');
+      rawText = rawText.replace(/\\frac/g, '\\\\frac');
+      rawText = rawText.replace(/\\rightarrow/g, '\\\\rightarrow');
+      rawText = rawText.replace(/\\neq/g, '\\\\neq');
       
       const parsedQuestions = JSON.parse(rawText);
       const validatedQuestions = AiQuestionOutputSchema.parse(parsedQuestions);
