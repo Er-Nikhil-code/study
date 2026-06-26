@@ -22,9 +22,11 @@ export default function Icon() {
           fontWeight: "900",
           fontFamily: "system-ui, -apple-system, sans-serif",
           boxShadow: "inset 0 1px 1px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5)",
+          position: "relative",
         }}
       >
         C
+        <span style={{ position: "absolute", bottom: "0px", right: "-4px", fontSize: "10px", color: "#ef4444", transform: "rotate(-12deg)", fontFamily: "cursive", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>today</span>
       </div>
     ),
     { ...size }
