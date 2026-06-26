@@ -373,13 +373,13 @@ export default function HomePage() {
           className="min-h-[200px] md:min-h-[240px] w-full max-w-lg mt-4"
           style={{ opacity, transition: "opacity 0.8s ease-in-out" }}
         >
-          <h2 className={`text-base md:text-lg font-medium leading-snug mb-5 ${quicksand.className}`}>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-300">
+          <h2 className={`text-sm md:text-base font-medium leading-snug mb-3 ${quicksand.className}`}>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-200 to-zinc-400">
               {displayedGreeting}
             </span>
             {phase === "typing-greeting" && <span className="elegant-cursor" />}
           </h2>
-          <p className="text-[10px] md:text-xs leading-relaxed font-light tracking-wide text-zinc-400">
+          <p className="text-[9px] md:text-[10px] leading-relaxed font-semibold tracking-[0.15em] text-red-500/80 uppercase">
             {displayedBody}
             {phase === "typing-body" && <span className="elegant-cursor" />}
           </p>

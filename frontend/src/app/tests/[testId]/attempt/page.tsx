@@ -281,7 +281,13 @@ export default function AttemptPage() {
       <header className="sticky top-0 z-30 border-b border-zinc-200 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-lg px-4 py-3">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Q {currentIdx + 1}/{questions.length}</span>
+            {q && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] text-xs font-bold">
+                <span className="text-emerald-500">+{q.marks}</span>
+                <span className="text-zinc-300 dark:text-zinc-700">|</span>
+                <span className="text-red-500">-{q.negative_marks || 0}</span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
@@ -292,13 +298,7 @@ export default function AttemptPage() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => setShowPalette(!showPalette)} className="lg:hidden rounded-lg border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] p-2 text-sm">☰</button>
-            {q && (
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] text-xs font-bold">
-                <span className="text-emerald-500">+{q.marks}</span>
-                <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                <span className="text-red-500">-{q.negative_marks || 0}</span>
-              </div>
-            )}
+
             <button onClick={toggleTheme} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
