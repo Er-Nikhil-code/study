@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import MathRenderer from "./MathRenderer";
 
 /**
  * Renders LaTeX math expressions using KaTeX.
@@ -93,9 +94,9 @@ export function ContentBlockRenderer({
         switch (block.type) {
           case "TEXT":
             return (
-              <p key={index} className="leading-relaxed">
-                {block.content || ""}
-              </p>
+              <div key={index} className="leading-relaxed">
+                <MathRenderer text={block.content || ""} />
+              </div>
             );
           case "LATEX":
             return (

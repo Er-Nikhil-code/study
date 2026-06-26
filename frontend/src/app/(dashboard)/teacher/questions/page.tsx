@@ -9,6 +9,7 @@ import { QuestionsService } from "@/services/questions.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import authService from "@/services/auth.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import MathRenderer from "@/components/ui/MathRenderer";
 
 const QUESTION_TYPES = [
   "ALL", "SINGLE_CORRECT", "MULTIPLE_CORRECT", "NUMERICAL", "TRUE_FALSE", "MATCHING", "PASSAGE", "ESSAY", "FILL_BLANK", "IMAGE_BASED", "DRAG_DROP", "CODE", "ASSERTION_REASON"
@@ -381,7 +382,7 @@ export default function TeacherQuestionsPage() {
                           className="text-sm font-medium text-white line-clamp-2 w-full text-left sm:text-center"
                           title={q.content_json?.[0]?.content?.substring(0, 100) || "Question Content"}
                         >
-                          {q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}
+                          <MathRenderer text={q.content_json?.[0]?.content || "Question Content"} className="inline" />
                         </div>
                       </button>
 

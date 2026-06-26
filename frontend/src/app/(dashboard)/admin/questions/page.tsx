@@ -6,7 +6,9 @@ import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { adminNavItems } from "../nav";
 import adminService, { type AdminQuestion } from "@/services/admin.service";
+import { Trash2 } from "lucide-react";
 import { HierarchyService } from "@/services/hierarchy.service";
+import MathRenderer from "@/components/ui/MathRenderer";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import UserHoverCard from "@/components/ui/UserHoverCard";
 
@@ -351,7 +353,7 @@ export default function AdminQuestionsPage() {
                           className="text-sm font-medium text-white line-clamp-2 w-full text-left sm:text-center"
                           title={q.content_json?.[0]?.content?.substring(0, 100) || "Question Content"}
                         >
-                          {q.content_json?.[0]?.content?.substring(0, 40) || "Question Content"}
+                          <MathRenderer text={q.content_json?.[0]?.content || "Question Content"} className="inline" />
                         </div>
                       </button>
 
