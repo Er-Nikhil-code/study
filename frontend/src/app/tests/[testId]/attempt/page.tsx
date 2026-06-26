@@ -278,32 +278,48 @@ export default function AttemptPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex flex-col">
       {/* HEADER */}
-      <header className="sticky top-0 z-30 border-b border-zinc-200 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-lg px-4 py-3">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-4">
-            {q && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] text-xs font-bold">
-                <span className="text-emerald-500">+{q.marks}</span>
-                <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                <span className="text-red-500">-{q.negative_marks || 0}</span>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
-              timeLeft < 300 ? "bg-red-600/20 text-red-500 dark:text-red-300"
-                : timeLeft < 600 ? "bg-red-500/15 text-red-500 dark:text-red-300"
-                : "bg-black/5 dark:bg-white/[0.05] text-black dark:text-white"
-            }`}>{formatTime(timeLeft)}</div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => setShowPalette(!showPalette)} className="lg:hidden rounded-lg border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] p-2 text-sm">☰</button>
+      <header className="sticky top-0 z-30 border-b border-zinc-200 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-lg">
+        <div className="flex items-center w-full">
+          {/* Left section (Main Question Area) */}
+          <div className="flex-1 flex items-center justify-between px-4 sm:px-6 lg:px-12 py-3 lg:border-r border-zinc-200 dark:border-white/10">
+            <div className="flex items-center gap-4">
+              {q && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] text-xs font-bold">
+                  <span className="text-emerald-500">+{q.marks}</span>
+                  <span className="text-zinc-300 dark:text-zinc-700">|</span>
+                  <span className="text-red-500">-{q.negative_marks || 0}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
+                timeLeft < 300 ? "bg-red-600/20 text-red-500 dark:text-red-300"
+                  : timeLeft < 600 ? "bg-red-500/15 text-red-500 dark:text-red-300"
+                  : "bg-black/5 dark:bg-white/[0.05] text-black dark:text-white"
+              }`}>{formatTime(timeLeft)}</div>
+            </div>
 
+            {/* Mobile right items (Hidden on Desktop) */}
+            <div className="flex lg:hidden items-center gap-2">
+              <button onClick={() => setShowPalette(!showPalette)} className="rounded-lg border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] p-2 text-sm">☰</button>
+              <button onClick={toggleTheme} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
+                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+              <button onClick={() => setShowSubmitModal(true)} disabled={submitting}
+                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
+                {submitting ? "Submitting…" : "Submit"}
+              </button>
+            </div>
+          </div>
+
+          {/* Right section (Sidebar Area - Desktop Only) */}
+          <div className="hidden lg:flex w-72 shrink-0 items-center justify-end px-8 py-3 gap-3">
             <button onClick={toggleTheme} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             <button onClick={() => setShowSubmitModal(true)} disabled={submitting}
-              className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
+              className="rounded-xl bg-red-600 px-5 py-2 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition hover:bg-red-700 disabled:opacity-50">
               {submitting ? "Submitting…" : "Submit"}
             </button>
           </div>
