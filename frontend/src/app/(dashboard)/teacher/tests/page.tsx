@@ -232,11 +232,11 @@ export default function TeacherTestsPage() {
         ) : (
           tests.map((test) => (
             <Panel key={test.id} accent={test.status === "PUBLISHED" || test.status === "ONGOING"} className="p-5">
-              <div className="flex justify-between items-start">
-                <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500 break-all" title={test.id}>
+              <div className="flex justify-between items-start gap-2">
+                <div className="font-mono text-[8px] uppercase tracking-wider text-zinc-500 break-all leading-tight" title={test.id}>
                   {test.id}
                 </div>
-                <div className="text-[10px] text-zinc-500 bg-white/5 px-2 py-0.5 rounded-full">
+                <div className="text-[9px] text-zinc-400 bg-white/5 px-2 py-0.5 rounded-full shrink-0">
                   {test.creator ? (test.creator.first_name || "King") : "King"}
                 </div>
               </div>

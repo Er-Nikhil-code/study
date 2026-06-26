@@ -2,7 +2,7 @@ import { api } from "@/lib/api";
 
 export const AiService = {
   async getQuota() {
-    const res = await api.get('/questions/ai/quota');
+    const res = await api.get('/admin/questions/ai/quota');
     return res.data;
   },
 

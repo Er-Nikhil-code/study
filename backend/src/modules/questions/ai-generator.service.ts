@@ -141,7 +141,8 @@ D: "Assertion (A) is false but Reason (R) is true."`;
 
     const prompt = `${hierarchyContextStr}
 
-Task: Generate ${count} ${difficulty} difficulty ${questionType} questions specifically for the Topic "${context.topicName}".
+Task: Generate EXACTLY ${count} ${difficulty} difficulty ${questionType} questions specifically for the Topic "${context.topicName}".
+CRITICAL: You MUST generate EXACTLY ${count} questions. Do not generate more or fewer than ${count}.
 ${useNotes && contextNotesStr ? `Use the following notes as context/reference:\n${contextNotesStr}\n` : ''}
 ${customInstructions ? `Custom Instructions: ${customInstructions}\n` : ''}
 Ensure the questions vary appropriately within the specified difficulty and are relevant to the provided course hierarchy context. ${optionsInstruction}
