@@ -158,8 +158,10 @@ SOLUTION FORMAT RULES (STRICTLY FOLLOW):
 - For math/science questions, use LaTeX notation: wrap inline math in $...$ (e.g. $x^2 + y^2 = r^2$) and display math in $$...$$ (e.g. $$\\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$).
 - For chemical equations, use LaTeX: e.g. $\\text{2H}_2 + \\text{O}_2 \\rightarrow \\text{2H}_2\\text{O}$
 - CRITICAL: You MUST wrap ALL numbers, variables, mathematical expressions, formulas, equations, bases (like 16 or 2), fractions, exponents, subscripts, and Greek letters in $...$ (inline) or $$...$$ (display). If you do not include the $ signs, the rendering will completely break!
-- Therefore, always write $(121)_x$ instead of just (121)_x.
-- EXTREMELY IMPORTANT: Because your response is JSON, you MUST double-escape all LaTeX backslashes! For example, write \\\\text{} instead of \\text{}, \\\\times instead of \\times, and \\\\frac instead of \\frac. If you don't double-escape, the JSON parser will swallow the backslashes and the math will render incorrectly (e.g. "ext" instead of "text").`;
+- For example, ALWAYS write $(10110)_2$ instead of (10110)_2, and $76_8$ instead of 76_8. THIS IS A STRICT REQUIREMENT!
+- EXTREMELY IMPORTANT: Because your response is JSON, you MUST double-escape all LaTeX backslashes! For example, write \\\\text{} instead of \\text{}, \\\\times instead of \\times, and \\\\frac instead of \\frac. If you don't double-escape, the JSON parser will swallow the backslashes and the math will render incorrectly.
+- HOWEVER, do NOT double-escape standard JSON formatting characters like \\n (newlines). Only double-escape LaTeX commands.
+- When drawing a horizontal line in an array, ALWAYS use \\\\ \\\\hline (with a space) and NEVER \\\\\\\\hline!`;
 
     try {
       const response = await this.ai.models.generateContent({

@@ -14,9 +14,16 @@ export default function MathRenderer({ text, className = "" }: { text: string; c
     if (!text) return "";
 
     try {
+      // Fix common LLM markdown issue where \\hline is generated instead of \\ \hline
+      // Also fix literal \n and \, which AI sometimes outputs due to double-escaping confusion
+      const sanitizedText = text
+        .replace(/\\\\hline/g, '\\\\ \\\\hline')
+        .replace(/\\n/g, '\n')
+        .replace(/\\,/g, ' ');
+      
       // Split on display math first ($$...$$), then inline math ($...$)
       // Process display math: $$...$$
-      let result = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => {
+      let result = sanitizedText.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => {
         try {
           return `<div class="math-display">${katex.renderToString(math.trim(), { displayMode: true, throwOnError: false })}</div>`;
         } catch {
