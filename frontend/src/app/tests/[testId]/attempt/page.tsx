@@ -292,6 +292,13 @@ export default function AttemptPage() {
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => setShowPalette(!showPalette)} className="lg:hidden rounded-lg border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] p-2 text-sm">☰</button>
+            {q && (
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] text-xs font-bold">
+                <span className="text-emerald-500">+{q.marks}</span>
+                <span className="text-zinc-300 dark:text-zinc-700">|</span>
+                <span className="text-red-500">-{q.negative_marks || 0}</span>
+              </div>
+            )}
             <button onClick={toggleTheme} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
@@ -314,10 +321,6 @@ export default function AttemptPage() {
                   <span className="flex items-center justify-center h-8 w-8 rounded-lg bg-red-600/10 text-red-600 dark:text-red-400 font-bold text-sm">
                     {currentIdx + 1}
                   </span>
-                  <div className="flex flex-col items-center text-[10px] font-bold leading-tight bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-md p-1.5 w-full">
-                    <span className="text-emerald-500">+{q.marks}</span>
-                    <span className="text-red-500 mt-0.5">-{q.negative_marks || 0}</span>
-                  </div>
                 </div>
                 <div className="flex-1">
                   <ContentBlockRenderer blocks={q.content_json || []} />

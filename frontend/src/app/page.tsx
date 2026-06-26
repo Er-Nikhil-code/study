@@ -343,27 +343,24 @@ export default function HomePage() {
       {/* Left Section - Alien Typed Quotes */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-start px-8 md:px-16 py-12 md:py-16 relative z-10">
         {/* Premium Minimalist Logo */}
-        <div className="mb-10 md:mb-14 relative group cursor-default">
-          {/* Subtle glow instead of intense gradient blur */}
-          <div className="absolute -inset-4 bg-white/5 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-          <div className="relative transform transition-transform duration-500 group-hover:scale-[1.01]">
-            <h1 className={`text-6xl md:text-8xl tracking-[0.15em] uppercase flex items-center pr-4 pb-2 z-10 ${quicksand.className} relative`}>
+        <div className="mb-10 md:mb-14 relative cursor-default">
+          <div className="relative transform">
+            <h1 className={`text-5xl md:text-7xl tracking-[0.15em] uppercase flex items-center pr-4 pb-2 z-10 ${quicksand.className} relative`}>
               <span className="text-red-600 drop-shadow-[0_1px_4px_rgba(220,38,38,0.5)]">
                 C
               </span>
               <span className="text-white drop-shadow-md">
                 ODIFY
               </span>
-              <span className={`absolute -right-4 md:-right-8 -bottom-2 md:bottom-2 text-2xl md:text-4xl text-red-500 tracking-normal lowercase -rotate-12 drop-shadow-lg ${caveat.className}`}>
+              <span className={`absolute -right-3 md:-right-6 -bottom-2 md:bottom-1 text-xl md:text-3xl text-red-500 tracking-normal lowercase -rotate-12 drop-shadow-lg ${caveat.className}`}>
                 today
               </span>
             </h1>
 
             {/* Minimal static underline */}
-            <div className="relative mt-4 h-[3px] w-16 rounded-full bg-gradient-to-r from-red-600 to-red-800 shadow-sm opacity-80 transition-all duration-500 group-hover:w-24"></div>
+            <div className="relative mt-4 h-[3px] w-16 rounded-full bg-gradient-to-r from-red-600 to-red-800 shadow-sm opacity-80"></div>
 
-            <p className="text-zinc-400 text-sm md:text-base mt-4 tracking-[0.2em] font-light uppercase flex items-center gap-3 opacity-70">
+            <p className="text-zinc-400 text-xs md:text-sm mt-4 tracking-[0.2em] font-light uppercase flex items-center gap-3 opacity-70">
               Learn smarter
               <span className="h-1 w-1 rounded-full bg-red-600 opacity-60"></span>
               Score higher
@@ -376,13 +373,13 @@ export default function HomePage() {
           className="min-h-[200px] md:min-h-[240px] w-full max-w-lg mt-4"
           style={{ opacity, transition: "opacity 0.8s ease-in-out" }}
         >
-          <h2 className={`text-lg md:text-xl font-medium leading-snug mb-5 ${quicksand.className}`}>
+          <h2 className={`text-base md:text-lg font-medium leading-snug mb-5 ${quicksand.className}`}>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-300">
               {displayedGreeting}
             </span>
             {phase === "typing-greeting" && <span className="elegant-cursor" />}
           </h2>
-          <p className="text-xs md:text-sm leading-relaxed font-light tracking-wide text-zinc-400">
+          <p className="text-[10px] md:text-xs leading-relaxed font-light tracking-wide text-zinc-400">
             {displayedBody}
             {phase === "typing-body" && <span className="elegant-cursor" />}
           </p>
@@ -391,14 +388,14 @@ export default function HomePage() {
         {/* Minimalist accent line */}
         <div className="mt-8 flex items-center gap-3 opacity-40">
           <div className="h-px w-12 bg-gradient-to-r from-red-500 to-transparent" />
-          <span className="text-[10px] text-zinc-600 uppercase tracking-[0.3em] font-medium">codify.today</span>
+          <span className="text-[9px] text-zinc-600 uppercase tracking-[0.3em] font-medium">codify.today</span>
           <div className="h-px w-12 bg-gradient-to-l from-red-500 to-transparent" />
         </div>
       </div>
 
       {/* Right Section - Auth Box */}
       <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-12 py-16 relative z-10">
-        <div className="w-full max-w-md p-8 sm:p-10 bg-black/40 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_2px_rgba(255,255,255,0.1)] relative overflow-hidden">
+        <div className="w-full max-w-md p-8 sm:p-10 relative overflow-hidden">
           {/* Tabs */}
           <div className="flex gap-2 mb-8 bg-black/60 p-1.5 rounded-xl border border-white/10 relative z-10 shadow-inner">
             <button
