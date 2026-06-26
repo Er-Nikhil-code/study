@@ -122,6 +122,8 @@ export default function EditTestPage() {
     if (!bankCourseId && !bankSectionId && !bankChapterId && topicId) {
       params.topic_id = topicId;
     }
+    
+    params.limit = 1000;
 
     QuestionsService.getAll(params).then((res) => {
       const approvedOnly = res.data.filter((q: any) => q.approval_status === "APPROVED");

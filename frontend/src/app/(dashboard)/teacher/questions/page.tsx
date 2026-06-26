@@ -90,6 +90,8 @@ export default function TeacherQuestionsPage() {
       if (debouncedSearch) filters.search = debouncedSearch;
       if (pyqFilter !== "ALL") filters.is_pyq = pyqFilter === "YES";
       if (yearFilter) filters.exam_year = yearFilter;
+
+      filters.limit = 1000;
       
       return await QuestionsService.getAll(filters);
     },
