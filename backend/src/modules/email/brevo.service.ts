@@ -230,9 +230,10 @@ export class BrevoService {
     items: Array<{ name: string; price: number }>;
   }): Promise<{ messageId: string }> {
     const fullName = [data.firstName, data.lastName].filter(Boolean).join(" ");
-    const formattedDate = new Date(data.date).toLocaleDateString('en-IN', {
+    const formattedDate = new Date(data.date).toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
       day: 'numeric', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+      hour: '2-digit', minute: '2-digit', hour12: true
     });
     
     let itemsHtml = '';

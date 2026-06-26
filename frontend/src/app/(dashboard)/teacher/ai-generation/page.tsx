@@ -9,6 +9,7 @@ import { HierarchyService } from "@/services/hierarchy.service";
 import { QuestionsService } from "@/services/questions.service";
 import { NotesService } from "@/services/notes.service";
 import { Brain, Sparkles, AlertTriangle, Loader2, Save, Trash2, Check, Info, Edit2, PlusCircle } from "lucide-react";
+import MathRenderer from "@/components/ui/MathRenderer";
 import UserHoverCard from "@/components/ui/UserHoverCard";
 import { useAuthStore } from "@/store/auth.store";
 import { AdminTestSeriesService } from "@/services/test-series.admin.service";
@@ -198,6 +199,16 @@ export default function AIGenerationPage() {
   };
 
   const handleSaveQuestion = async (idx: number, q: any) => {
+    // Validate that we have a valid destination before saving
+    if (selectedDestination.startsWith("course_") && !form.topicId) {
+      setError("Please select a topic before saving to bank. Go back and choose Course → Section → Chapter → Topic.");
+      return;
+    }
+    if (selectedDestination.startsWith("series_") && !selectedTest) {
+      setError("Please select a test before saving.");
+      return;
+    }
+
     setSavingIdx(idx);
     try {
       // First, check similarity
@@ -351,8 +362,8 @@ export default function AIGenerationPage() {
       }
 
       const mappedData: any = {
-        topic_id: selectedDestination.startsWith("course_") ? form.topicId : undefined,
-        test_id: selectedDestination.startsWith("series_") ? finalTestId : undefined,
+        topic_id: selectedDestination.startsWith("course_") && form.topicId ? form.topicId : undefined,
+        test_id: selectedDestination.startsWith("series_") && finalTestId ? finalTestId : undefined,
         type: mappedType,
         difficulty: q.difficulty || form.difficulty,
         marks: 1,
@@ -361,7 +372,6 @@ export default function AIGenerationPage() {
         options_json: optionsJson,
         answer_key: answerKey,
         solution_json: q.solutionText ? [{ type: "TEXT", content: q.solutionText }] : [],
-        approval_status: "APPROVED", // Mapped directly to APPROVED to prevent Zod dropping causing issues
       };
 
       await QuestionsService.create(mappedData);
@@ -821,7 +831,7 @@ export default function AIGenerationPage() {
                   }`}>{q.difficulty}</span>
                 </div>
               </div>
-              <div className="text-white font-medium mb-4">{idx + 1}. {q.questionText}</div>
+              <div className="text-white font-medium mb-4">{idx + 1}. <MathRenderer text={q.questionText} className="inline" /></div>
               
               {/* Options */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
@@ -832,7 +842,7 @@ export default function AIGenerationPage() {
                     key={opt.id} 
                     className={`p-3 rounded-lg border text-sm ${isCorrect ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-100' : 'bg-white/5 border-white/10 text-zinc-300'}`}
                   >
-                    <span className="font-mono text-xs opacity-50 mr-2">{opt.id}.</span> {opt.text}
+                    <span className="font-mono text-xs opacity-50 mr-2">{opt.id}.</span> <MathRenderer text={opt.text} className="inline" />
                     {isCorrect && <Check size={14} className="inline ml-2 text-emerald-400" />}
                   </div>
                   );
@@ -842,7 +852,8 @@ export default function AIGenerationPage() {
               {/* Solution */}
               {q.solutionText && (
                 <div className="p-3 bg-black/40 rounded-lg border border-white/5 text-sm text-zinc-400 mb-4">
-                  <strong className="text-zinc-300">Solution:</strong> {q.solutionText}
+                  <strong className="text-zinc-300 block mb-2">Solution:</strong>
+                  <MathRenderer text={q.solutionText} />
                 </div>
               )}
 

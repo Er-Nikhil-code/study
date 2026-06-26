@@ -92,7 +92,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-white/10 bg-black/70 backdrop-blur-xl ${!mounted ? "transition-none" : "transition-all duration-300 ease-in-out"} ${
+      className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-white/5 bg-[#09090b] ${!mounted ? "transition-none" : "transition-all duration-300 ease-in-out"} ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
@@ -128,12 +128,12 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
             const Icon = item.icon;
             
             const itemContent = (
-              <div className="relative">
-                <Icon size={20} className={active ? "text-red-400" : "text-zinc-500 group-hover:text-zinc-300"} />
+              <div className="relative flex items-center justify-center">
+                <Icon size={20} className={active ? "text-white" : "text-zinc-500 group-hover:text-zinc-300 transition-colors"} />
                 {item.href === "/notifications" && unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                   </span>
                 )}
               </div>
@@ -149,50 +149,53 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
               </>
             );
 
-            const itemClass = [
-              "group flex items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-              active ? "bg-red-500/10 text-red-400" : "text-zinc-400 hover:bg-white/[0.04] hover:text-white",
-              isCollapsed ? "justify-center" : "justify-start gap-3",
-            ].join(" ");
-
             return (
-              <div key={item.label} className="flex flex-col space-y-1">
-                {item.subItems ? (
-                  <button
-                    onClick={() => {
-                      if (isCollapsed) setIsCollapsed(false);
-                      toggleMenu(item.label);
-                    }}
-                    title={isCollapsed ? item.label : undefined}
-                    className={itemClass}
-                  >
-                    {itemContentFull}
-                  </button>
-                ) : (
-                  <Link
-                    href={item.href}
-                    onMouseEnter={() => handlePrefetch(item.href)}
-                    title={isCollapsed ? item.label : undefined}
-                    className={itemClass}
-                  >
-                    {itemContentFull}
-                  </Link>
-                )}
+                <div key={item.label} className="group relative w-full mb-1">
+                  {/* Top-Level Link or Toggle */}
+                  {item.subItems ? (
+                    <button
+                      onClick={() => {
+                        if (isCollapsed) setIsCollapsed(false);
+                        toggleMenu(item.label);
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-full transition-all duration-200 outline-none
+                        ${active 
+                          ? "bg-gradient-to-r from-[#ff4e00] to-[#ff8a00] text-white shadow-[0_0_15px_rgba(255,78,0,0.3)]" 
+                          : "text-zinc-400 hover:text-white hover:bg-white/5"
+                        }`}
+                      title={isCollapsed ? item.label : undefined}
+                    >
+                      {itemContentFull}
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      onClick={() => item.href !== "#" && handlePrefetch(item.href)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-full transition-all duration-200 outline-none
+                        ${active 
+                          ? "bg-gradient-to-r from-[#ff4e00] to-[#ff8a00] text-white shadow-[0_0_15px_rgba(255,78,0,0.3)]" 
+                          : "text-zinc-400 hover:text-white hover:bg-white/5"
+                        }`}
+                      title={isCollapsed ? item.label : undefined}
+                    >
+                      {itemContentFull}
+                    </Link>
+                  )}
 
                 {item.subItems && isExpanded && !isCollapsed && (
                   <div className="ml-4 pl-3 border-l border-white/10 flex flex-col space-y-1 mt-1">
                     {item.subItems.map((subItem) => {
                       const subActive = activeHref === subItem.href || (activeHref && activeHref.startsWith(subItem.href) && subItem.href !== "/" && subItem.href !== "#");
-                      const SubIcon = subItem.icon;
                       return (
                         <Link
                           key={subItem.label}
                           href={subItem.href}
-                          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 ${
-                            subActive ? "bg-red-500/10 text-red-400" : "text-zinc-400 hover:bg-white/[0.04] hover:text-white"
+                          onClick={() => handlePrefetch(subItem.href)}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-full transition-all duration-200 ${
+                            subActive ? "bg-white/10 text-white" : "text-zinc-400 hover:text-white hover:bg-white/5"
                           }`}
                         >
-                          <SubIcon size={16} className={subActive ? "text-red-400" : "text-zinc-500"} />
+                          <span className={`h-1.5 w-1.5 rounded-full ${subActive ? "bg-[#ff4e00]" : "bg-zinc-600"}`} />
                           <span className="truncate">{subItem.label}</span>
                         </Link>
                       );
@@ -206,7 +209,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
       </div>
 
       {/* Footer / Profile */}
-      <div className="p-4 border-t border-white/10 relative" ref={dropdownRef}>
+      <div className={`p-4 border-t border-white/5 bg-[#09090b] relative`} ref={dropdownRef}>
         {!mounted ? (
           <div className="h-12 w-full hidden rounded-xl bg-white/[0.02]" />
         ) : isAuthenticated && user ? (

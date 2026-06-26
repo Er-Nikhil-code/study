@@ -18,8 +18,8 @@ body {
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #050505;
-  color: white;
+  background-color: #09090b; /* zinc-950 */
+  color: #fafafa; /* zinc-50 */
 }
 
 input {
@@ -138,4 +138,28 @@ button {
 
 th {
   text-align: center !important;
+}
+
+/* MathRenderer styles */
+.math-renderer p {
+  margin: 0.25rem 0;
+}
+.math-renderer .math-list {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+.math-renderer .math-list li {
+  margin: 0.25rem 0;
+}
+.math-renderer .math-display {
+  margin: 0.75rem 0;
+  text-align: center;
+  overflow-x: auto;
+}
+.math-renderer.inline {
+  display: inline;
+}
+.math-renderer.inline p {
+  display: inline;
 }

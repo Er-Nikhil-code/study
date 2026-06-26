@@ -576,6 +576,102 @@ export class AuthService {
   }
 
   /**
+   * Refresh access token using a valid refresh token (single-use rotation)
+   */
+  async refreshTokens(refreshTokenStr: string): Promise<{ accessToken: string; refreshToken: string; user: any }> {
+    try {
+      // 1. Verify the JWT signature and expiry
+      let payload: any;
+      try {
+        payload = this.jwtService.verify(refreshTokenStr, {
+          secret: this.configService.get<string>('JWT_SECRET'),
+        });
+      } catch {
+        throw new UnauthorizedException('Invalid or expired refresh token');
+      }
+
+      const userId = payload.sub;
+      if (!userId) {
+        throw new UnauthorizedException('Invalid refresh token payload');
+      }
+
+      // 2. Find all valid (non-revoked, non-expired) refresh tokens for this user
+      const storedTokens = await this.prisma.refreshToken.findMany({
+        where: {
+          user_id: userId,
+          revoked_at: null,
+          expires_at: { gt: new Date() },
+        },
+        orderBy: { created_at: 'desc' },
+      });
+
+      // 3. Check the provided token against stored hashes
+      let matchedToken: any = null;
+      for (const stored of storedTokens) {
+        const isMatch = await bcrypt.compare(refreshTokenStr, stored.token_hash);
+        if (isMatch) {
+          matchedToken = stored;
+          break;
+        }
+      }
+
+      if (!matchedToken) {
+        // Token was already used or revoked — potential token theft, revoke all
+        await this.prisma.refreshToken.updateMany({
+          where: { user_id: userId, revoked_at: null },
+          data: { revoked_at: new Date() },
+        });
+        throw new UnauthorizedException('Refresh token has been revoked');
+      }
+
+      // 4. Revoke the used refresh token (single-use)
+      await this.prisma.refreshToken.update({
+        where: { id: matchedToken.id },
+        data: { revoked_at: new Date() },
+      });
+
+      // 5. Fetch user and generate new token pair
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          custom_role: true,
+          assigned_teacher: { select: { id: true, first_name: true, last_name: true } },
+          course_enrollments: { include: { course: true } },
+          test_series_enrollments: { include: { test_series: true } },
+          interns: { select: { id: true, first_name: true, last_name: true, email: true, profile_picture: true } },
+        },
+      });
+
+      if (!user || !user.is_active) {
+        throw new UnauthorizedException('User not found or deactivated');
+      }
+
+      const tokens = await this.generateTokens(userId, user.email, user.role);
+
+      const { password_hash, course_enrollments, ...userWithoutPassword } = user;
+      let courseEnrolledStr = userWithoutPassword.course_enrolled;
+      if (course_enrollments && course_enrollments.length > 0) {
+        courseEnrolledStr = course_enrollments.map(e => e.course.name).join(", ");
+      }
+
+      return {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        user: {
+          ...userWithoutPassword,
+          assigned_teacher_id: user.assigned_teacher_id || null,
+          course_enrolled: courseEnrolledStr,
+          enrolled_test_series: user.test_series_enrollments?.map((e: any) => e.test_series) || [],
+          assigned_interns: user.interns || [],
+        },
+      };
+    } catch (error: any) {
+      this.logger.error(`Refresh token error: ${error?.message}`, error?.stack);
+      throw error;
+    }
+  }
+
+  /**
    * Generate JWT tokens (access + refresh)
    */
   private async generateTokens(

@@ -60,6 +60,30 @@ export class AuthController {
   }
 
   /**
+   * POST /auth/refresh
+   * Exchange a valid refresh token for new access + refresh tokens
+   * No JwtAuthGuard — the access token is expired
+   */
+  @Post("refresh")
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(@Body() body: { refreshToken: string }) {
+    try {
+      if (!body.refreshToken) {
+        throw new BadRequestException("Refresh token is required");
+      }
+      const result = await this.authService.refreshTokens(body.refreshToken);
+      return {
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        user: result.user,
+      };
+    } catch (error: any) {
+      this.logger.error(`Refresh token endpoint error: ${error?.message || "Unknown error"}`);
+      throw error;
+    }
+  }
+
+  /**
    * GET /auth/users/:id/hover
    * Fetch public user info for hover cards
    */

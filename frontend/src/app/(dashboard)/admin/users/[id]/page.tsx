@@ -77,6 +77,10 @@ export default function AdminUserProfilePage() {
         custom_role_id: user.custom_role_id || "",
         course_enrolled: user.course_enrolled || "",
         assigned_teacher_id: user.assigned_teacher_id || "",
+        pending_remove_courses: [] as string[],
+        pending_add_courses: [] as string[],
+        pending_remove_ts: [] as string[],
+        pending_add_ts: [] as string[],
       });
     }
     setIsEditing(!isEditing);
@@ -87,6 +91,16 @@ export default function AdminUserProfilePage() {
     if (payload.course_enrolled === "") payload.course_enrolled = null;
     if (payload.custom_role_id === "") payload.custom_role_id = null;
     if (payload.assigned_teacher_id === "") payload.assigned_teacher_id = null;
+    // Include buffered enrollment changes
+    if (payload.pending_remove_courses?.length) payload.remove_enrollment = payload.pending_remove_courses;
+    if (payload.pending_add_courses?.length) payload.add_enrollment = payload.pending_add_courses;
+    if (payload.pending_remove_ts?.length) payload.remove_ts_enrollment = payload.pending_remove_ts;
+    if (payload.pending_add_ts?.length) payload.add_ts_enrollment = payload.pending_add_ts;
+    // Clean up internal fields
+    delete payload.pending_remove_courses;
+    delete payload.pending_add_courses;
+    delete payload.pending_remove_ts;
+    delete payload.pending_add_ts;
     updateMutation.mutate(payload);
   };
 
@@ -280,14 +294,18 @@ export default function AdminUserProfilePage() {
                     <span className="text-zinc-500">Enrolled Courses</span>
                     {isEditing ? (
                       <div className="flex flex-col w-full gap-2">
-                        {user.course_enrollments?.map((enr: any) => (
+                        {user.course_enrollments
+                          ?.filter((enr: any) => !(editForm.pending_remove_courses || []).includes(enr.course_id))
+                          .map((enr: any) => (
                           <div key={enr.course_id} className="flex justify-between items-center bg-white/5 border border-white/10 rounded px-3 py-1.5 w-full">
                             <span className="text-sm text-zinc-300">{enr.course?.name || enr.course_id}</span>
                             <button
                               type="button"
                               onClick={() => {
-                                const payload = { ...editForm, remove_enrollment: [...(editForm.remove_enrollment || []), enr.course_id] };
-                                updateMutation.mutate(payload);
+                                setEditForm((prev: any) => ({
+                                  ...prev,
+                                  pending_remove_courses: [...(prev.pending_remove_courses || []), enr.course_id],
+                                }));
                               }}
                               className="text-xs text-red-400 hover:text-red-300 p-1"
                             >
@@ -295,19 +313,49 @@ export default function AdminUserProfilePage() {
                             </button>
                           </div>
                         ))}
+                        {(editForm.pending_add_courses || []).map((courseId: string) => {
+                          const course = courses.find((c: any) => c.id === courseId);
+                          return (
+                            <div key={courseId} className="flex justify-between items-center bg-emerald-500/10 border border-emerald-500/20 rounded px-3 py-1.5 w-full">
+                              <span className="text-sm text-emerald-300">{course?.name || courseId} <span className="text-xs text-emerald-400/60">(pending)</span></span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditForm((prev: any) => ({
+                                    ...prev,
+                                    pending_add_courses: (prev.pending_add_courses || []).filter((id: string) => id !== courseId),
+                                  }));
+                                }}
+                                className="text-xs text-zinc-400 hover:text-zinc-300 p-1"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          );
+                        })}
+                        {(editForm.pending_remove_courses || []).length > 0 && (
+                          <p className="text-xs text-amber-400/80 mt-1">⚠ {editForm.pending_remove_courses.length} course(s) will be unenrolled on save</p>
+                        )}
                         <div className="flex w-full items-center gap-2 mt-2">
                           <select
-                            value={editForm.course_enrolled || ""}
+                            value=""
                             onChange={e => {
                                 if (e.target.value) {
-                                  const payload = { ...editForm, add_enrollment: [e.target.value] };
-                                  updateMutation.mutate(payload);
+                                  setEditForm((prev: any) => ({
+                                    ...prev,
+                                    pending_add_courses: [...(prev.pending_add_courses || []), e.target.value],
+                                  }));
                                 }
                             }}
                             className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-zinc-400 outline-none focus:border-red-500/50"
                           >
                             <option value="">+ Enroll in new course...</option>
-                            {courses.filter((c: any) => !user.course_enrollments?.some((enr: any) => enr.course_id === c.id)).map((c: any) => (
+                            {courses
+                              .filter((c: any) => 
+                                !user.course_enrollments?.some((enr: any) => enr.course_id === c.id) &&
+                                !(editForm.pending_add_courses || []).includes(c.id)
+                              )
+                              .map((c: any) => (
                               <option key={c.id} value={c.id}>{c.name}</option>
                             ))}
                           </select>
@@ -329,14 +377,18 @@ export default function AdminUserProfilePage() {
                     <span className="text-zinc-500 mt-2">Enrolled Test Series</span>
                     {isEditing ? (
                       <div className="flex flex-col w-full gap-2">
-                        {user.test_series_enrollments?.map((enr: any) => (
+                        {user.test_series_enrollments
+                          ?.filter((enr: any) => !(editForm.pending_remove_ts || []).includes(enr.test_series_id))
+                          .map((enr: any) => (
                           <div key={enr.test_series_id} className="flex justify-between items-center bg-white/5 border border-white/10 rounded px-3 py-1.5 w-full">
                             <span className="text-sm text-zinc-300">{enr.test_series?.name || enr.test_series_id}</span>
                             <button
                               type="button"
                               onClick={() => {
-                                const payload = { ...editForm, remove_ts_enrollment: [...(editForm.remove_ts_enrollment || []), enr.test_series_id] };
-                                updateMutation.mutate(payload);
+                                setEditForm((prev: any) => ({
+                                  ...prev,
+                                  pending_remove_ts: [...(prev.pending_remove_ts || []), enr.test_series_id],
+                                }));
                               }}
                               className="text-xs text-red-400 hover:text-red-300 p-1"
                             >
@@ -344,19 +396,49 @@ export default function AdminUserProfilePage() {
                             </button>
                           </div>
                         ))}
+                        {(editForm.pending_add_ts || []).map((tsId: string) => {
+                          const ts = testSeries.find((t: any) => t.id === tsId);
+                          return (
+                            <div key={tsId} className="flex justify-between items-center bg-emerald-500/10 border border-emerald-500/20 rounded px-3 py-1.5 w-full">
+                              <span className="text-sm text-emerald-300">{ts?.name || tsId} <span className="text-xs text-emerald-400/60">(pending)</span></span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditForm((prev: any) => ({
+                                    ...prev,
+                                    pending_add_ts: (prev.pending_add_ts || []).filter((id: string) => id !== tsId),
+                                  }));
+                                }}
+                                className="text-xs text-zinc-400 hover:text-zinc-300 p-1"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          );
+                        })}
+                        {(editForm.pending_remove_ts || []).length > 0 && (
+                          <p className="text-xs text-amber-400/80 mt-1">⚠ {editForm.pending_remove_ts.length} test series will be unenrolled on save</p>
+                        )}
                         <div className="flex w-full items-center gap-2 mt-2">
                           <select
-                            value={editForm.ts_enrolled || ""}
+                            value=""
                             onChange={e => {
                                 if (e.target.value) {
-                                  const payload = { ...editForm, add_ts_enrollment: [e.target.value] };
-                                  updateMutation.mutate(payload);
+                                  setEditForm((prev: any) => ({
+                                    ...prev,
+                                    pending_add_ts: [...(prev.pending_add_ts || []), e.target.value],
+                                  }));
                                 }
                             }}
                             className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-1.5 text-sm text-zinc-400 outline-none focus:border-red-500/50"
                           >
                             <option value="">+ Enroll in new test series...</option>
-                            {testSeries.filter((ts: any) => !user.test_series_enrollments?.some((enr: any) => enr.test_series_id === ts.id)).map((ts: any) => (
+                            {testSeries
+                              .filter((ts: any) => 
+                                !user.test_series_enrollments?.some((enr: any) => enr.test_series_id === ts.id) &&
+                                !(editForm.pending_add_ts || []).includes(ts.id)
+                              )
+                              .map((ts: any) => (
                               <option key={ts.id} value={ts.id}>{ts.name}</option>
                             ))}
                           </select>

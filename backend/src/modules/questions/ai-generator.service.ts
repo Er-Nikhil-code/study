@@ -121,7 +121,19 @@ Task: Generate ${count} ${difficulty} difficulty ${questionType} questions speci
 ${useNotes && contextNotesStr ? `Use the following notes as context/reference:\n${contextNotesStr}\n` : ''}
 ${customInstructions ? `Custom Instructions: ${customInstructions}\n` : ''}
 Ensure the questions vary appropriately within the specified difficulty and are relevant to the provided course hierarchy context. ${optionsInstruction}
-CRITICAL: The options array MUST use string IDs exactly as follows: "A", "B", "C", "D". Do NOT use numbers.`;
+CRITICAL: The options array MUST use string IDs exactly as follows: "A", "B", "C", "D". Do NOT use numbers.
+
+SOLUTION FORMAT RULES (STRICTLY FOLLOW):
+- Solutions MUST be concise and to-the-point. NO long paragraphs.
+- Use a step-by-step bullet point format:
+  • Step 1: [brief explanation]
+  • Step 2: [brief explanation]
+  • Answer: [final answer]
+- Keep each step to 1-2 sentences maximum.
+- For math/science questions, use LaTeX notation: wrap inline math in $...$ (e.g. $x^2 + y^2 = r^2$) and display math in $$...$$ (e.g. $$\\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$).
+- For chemical equations, use LaTeX: e.g. $\\text{2H}_2 + \\text{O}_2 \\rightarrow \\text{2H}_2\\text{O}$
+- Use LaTeX for ALL mathematical expressions, formulas, equations, fractions, exponents, subscripts, Greek letters, etc.
+- Also use LaTeX in questionText and option texts when they contain mathematical expressions.`;
 
     try {
       const response = await this.ai.models.generateContent({

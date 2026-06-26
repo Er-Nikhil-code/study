@@ -578,9 +578,15 @@ export class TestsService {
     }
 
     for (const response of attempt.responses) {
+      // Skip responses where the question was deleted after the student started the attempt
+      if (!response.question) {
+        this.logger.warn(`⚠️ Skipping response ${response.id}: question no longer exists`);
+        continue;
+      }
+
       const testQuestion = attempt.test.test_questions.find(tq => tq.id === response.test_question_id);
-      const pMarks = attempt.test.positive_marks || testQuestion?.marks_override || response.question.marks;
-      const nMarks = attempt.test.negative_marks ?? response.question.negative_marks;
+      const pMarks = attempt.test.positive_marks || testQuestion?.marks_override || response.question.marks || 0;
+      const nMarks = attempt.test.negative_marks ?? response.question.negative_marks ?? 0;
 
       const result = this.scoreResponse(
         response.answer_json,

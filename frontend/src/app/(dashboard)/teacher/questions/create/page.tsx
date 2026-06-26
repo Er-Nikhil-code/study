@@ -163,14 +163,16 @@ export default function CreateQuestionPage() {
   const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setSelectedDestination(val);
-    setFormData({ ...formData, course_id: "", section_id: "", chapter_id: "", topic_id: "" });
     setSelectedTestSeries("");
     setSelectedTest("");
 
     if (val.startsWith("course_")) {
-      setFormData({ ...formData, course_id: val.replace("course_", ""), section_id: "", chapter_id: "", topic_id: "" });
+      setFormData(prev => ({ ...prev, course_id: val.replace("course_", ""), section_id: "", chapter_id: "", topic_id: "" }));
     } else if (val.startsWith("series_")) {
+      setFormData(prev => ({ ...prev, course_id: "", section_id: "", chapter_id: "", topic_id: "" }));
       setSelectedTestSeries(val.replace("series_", ""));
+    } else {
+      setFormData(prev => ({ ...prev, course_id: "", section_id: "", chapter_id: "", topic_id: "" }));
     }
   };
 
