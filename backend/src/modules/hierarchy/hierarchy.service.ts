@@ -352,7 +352,8 @@ export class HierarchyService {
               include: {
                 topics: {
                   include: {
-                    _count: { select: { notes: true } }
+                    _count: { select: { notes: true } },
+                    notes: { select: { id: true, title: true, pdf_url: true } }
                   },
                   orderBy: { order: 'asc' }
                 }
@@ -464,7 +465,8 @@ export class HierarchyService {
               is_completed: prog?.is_completed || false,
               notes_viewed: prog?.notes_viewed || false,
               tests_completed: prog?.tests_completed || false,
-              has_notes: (topic._count?.notes || 0) > 0
+              has_notes: (topic._count?.notes || 0) > 0,
+              first_note: topic.notes?.[0] || null
             };
           });
           return { ...chapter, topics: mappedTopics };
@@ -503,7 +505,8 @@ export class HierarchyService {
               include: {
                 topics: {
                   include: {
-                    _count: { select: { notes: true } }
+                    _count: { select: { notes: true } },
+                    notes: { select: { id: true, title: true, pdf_url: true } }
                   },
                   orderBy: { order: 'asc' }
                 }
@@ -612,7 +615,8 @@ export class HierarchyService {
               is_completed: prog?.is_completed || false,
               notes_viewed: prog?.notes_viewed || false,
               tests_completed: prog?.tests_completed || false,
-              has_notes: (topic._count?.notes || 0) > 0
+              has_notes: (topic._count?.notes || 0) > 0,
+              first_note: topic.notes?.[0] || null
             };
           });
           return { ...chapter, topics: mappedTopics };
