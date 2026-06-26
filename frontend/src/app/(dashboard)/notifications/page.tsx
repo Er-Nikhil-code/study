@@ -184,7 +184,7 @@ export default function NotificationsPage() {
               ))}
             </div>
           ) : notifications.length === 0 ? (
-            <Panel className="flex flex-col items-center justify-center py-24 text-center border-dashed border-white/10 bg-white/[0.01]">
+            <Panel className="flex flex-col items-center justify-center h-[26rem] text-center border-dashed border-white/10 bg-white/[0.01]">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/[0.02] text-zinc-600 mb-6 shadow-inner">
                 <BellOff size={40} />
               </div>
@@ -275,7 +275,7 @@ export default function NotificationsPage() {
               ))}
             </div>
           ) : challenges.length === 0 ? (
-            <Panel className="flex flex-col items-center justify-center py-24 text-center border-dashed border-white/10 bg-white/[0.01]">
+            <Panel className="flex flex-col items-center justify-center h-[26rem] text-center border-dashed border-white/10 bg-white/[0.01]">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/[0.02] text-zinc-600 mb-6 shadow-inner">
                 <ShieldCheck size={40} />
               </div>

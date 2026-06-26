@@ -338,11 +338,11 @@ export default function AttemptPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* MAIN QUESTION */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-12">
+        <main className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 lg:px-12">
           {q && (
             <div className="max-w-4xl mr-auto">
 
-              <div className="mt-4 text-black dark:text-white flex gap-4 items-start">
+              <div className="text-black dark:text-white flex gap-4 items-start">
                 <div className="shrink-0 flex flex-col items-center gap-2 mt-0.5">
                   <span className="flex items-center justify-center h-8 w-8 rounded-lg bg-red-600/10 text-red-600 dark:text-red-400 font-bold text-sm">
                     {currentIdx + 1}
@@ -352,8 +352,8 @@ export default function AttemptPage() {
                   <ContentBlockRenderer blocks={q.content_json || []} />
                 </div>
               </div>
-              <div className="mt-6">{renderAnswerInput(q, answers[q.id], setAnswer)}</div>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="mt-4">{renderAnswerInput(q, answers[q.id], setAnswer)}</div>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
                 <button onClick={clearAnswer} className="rounded-xl border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] px-4 py-2 text-sm text-zinc-600 dark:text-zinc-300 transition hover:bg-black/10 dark:hover:bg-white/[0.06]">Clear Response</button>
                 <button onClick={toggleReview}
                   className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${reviews.has(q.id)
