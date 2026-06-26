@@ -261,8 +261,13 @@ export default function EditQuestionPage() {
           payload.answer_key = { answer: tfData.answer, correct_option: tfData.correct_option };
           break;
         case "FILL_BLANK":
+          const hasValidFibOptions = fibData.options.some((o: any) => o.text && o.text.trim() !== "");
           payload.options_json = { options: fibData.options };
-          payload.answer_key = { blanks: fibData.blanks, correct_option: fibData.correct_option };
+          if (hasValidFibOptions) {
+            payload.answer_key = { correct_option: fibData.correct_option };
+          } else {
+            payload.answer_key = { blanks: fibData.blanks, correct_option: fibData.correct_option };
+          }
           break;
         case "MATCHING":
           payload.options_json = {
