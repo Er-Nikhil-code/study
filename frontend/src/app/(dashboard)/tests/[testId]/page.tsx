@@ -56,7 +56,7 @@ export default function TestDetailsPage() {
     try {
       const result = await studentService.startAttempt(testId);
       const url = `/tests/${testId}/attempt?attemptId=${result.attempt.id}`;
-      win.location.href = url;
+      win.location.href = window.location.origin + url;
     } catch (err: any) {
       win.close();
       alert(err?.response?.data?.message || "Failed to start test");

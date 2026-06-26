@@ -11,6 +11,7 @@ import Link from "next/link";
 import AppLoader from "@/components/ui/AppLoader";
 import { Sun, Moon, X } from "lucide-react";
 import { useThemeStore } from "@/store/theme.store";
+import { toast } from "sonner";
 
 /* ─── Helper: format seconds to MM:SS ─── */
 function formatTime(sec: number) {
@@ -63,6 +64,8 @@ export default function AttemptPage() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const endTimeRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const autoSubmitRef = useRef(false);
 
@@ -90,6 +93,8 @@ export default function AttemptPage() {
             (Date.now() - new Date(result.attempt.started_at).getTime()) / 1000,
           );
           const remaining = Math.max(0, result.duration_minutes * 60 - elapsed);
+          
+          endTimeRef.current = Date.now() + (remaining * 1000);
           setTimeLeft(remaining);
         }
       } catch (err: any) {
@@ -109,15 +114,23 @@ export default function AttemptPage() {
       handleSubmit();
       return;
     }
+    
+    // Ensure endTime is set
+    if (!endTimeRef.current) {
+      endTimeRef.current = Date.now() + (timeLeft * 1000);
+    }
+    
     timerRef.current = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) {
-          clearInterval(timerRef.current!);
-          return 0;
-        }
-        return t - 1;
-      });
-    }, 1000);
+      if (!endTimeRef.current) return;
+      const remainingSeconds = Math.max(0, Math.floor((endTimeRef.current - Date.now()) / 1000));
+      
+      setTimeLeft(remainingSeconds);
+      
+      if (remainingSeconds <= 0) {
+        clearInterval(timerRef.current!);
+      }
+    }, 500);
+    
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [loading, timeLeft === 0]);
 
@@ -163,9 +176,11 @@ export default function AttemptPage() {
       if (document.visibilityState === "hidden") {
         violationsRef.current += 1;
         if (violationsRef.current === 1) {
-          alert("WARNING: Navigating away from the test window is not allowed. If you leave this screen again, your test will be automatically submitted.");
+          toast.error("WARNING: Navigating away from the test window is not allowed.", {
+            description: "If you leave this screen again, your test will be automatically submitted."
+          });
         } else if (violationsRef.current >= 2) {
-          alert("Test automatically submitted due to repeated tab switching.");
+          toast.error("Test automatically submitted due to repeated tab switching.");
           handleSubmit();
         }
       }
@@ -269,12 +284,6 @@ export default function AttemptPage() {
             <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Q {currentIdx + 1}/{questions.length}</span>
           </div>
           <div className="flex items-center gap-3">
-            {q && (
-              <div className="hidden sm:flex flex-col items-end justify-center text-[10.5px] font-bold leading-tight">
-                <span className="text-emerald-500">+{q.marks}</span>
-                {q.negative_marks > 0 && <span className="text-red-500">-{q.negative_marks}</span>}
-              </div>
-            )}
             <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
               timeLeft < 300 ? "bg-red-600/20 text-red-500 dark:text-red-300"
                 : timeLeft < 600 ? "bg-red-500/15 text-red-500 dark:text-red-300"
@@ -300,11 +309,17 @@ export default function AttemptPage() {
           {q && (
             <div className="max-w-4xl mr-auto">
 
-              <div className="mt-4 text-black dark:text-white flex gap-3 items-start">
-                <span className="shrink-0 flex items-center justify-center h-8 w-8 rounded-lg bg-red-600/10 text-red-600 dark:text-red-400 font-bold text-sm">
-                  {currentIdx + 1}
-                </span>
-                <div className="flex-1 pt-1">
+              <div className="mt-4 text-black dark:text-white flex gap-4 items-start">
+                <div className="shrink-0 flex flex-col items-center gap-2 mt-0.5">
+                  <span className="flex items-center justify-center h-8 w-8 rounded-lg bg-red-600/10 text-red-600 dark:text-red-400 font-bold text-sm">
+                    {currentIdx + 1}
+                  </span>
+                  <div className="flex flex-col items-center text-[10px] font-bold leading-tight bg-white dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-md p-1.5 w-full">
+                    <span className="text-emerald-500">+{q.marks}</span>
+                    <span className="text-red-500 mt-0.5">-{q.negative_marks || 0}</span>
+                  </div>
+                </div>
+                <div className="flex-1">
                   <ContentBlockRenderer blocks={q.content_json || []} />
                 </div>
               </div>
