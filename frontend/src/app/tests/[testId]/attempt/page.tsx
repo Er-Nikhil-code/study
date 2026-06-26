@@ -400,8 +400,8 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
               <button key={opt.id} onClick={() => setAnswer({ selected_option: opt.id })}
                 className={`w-full text-left rounded-xl border p-4 text-sm transition ${
                   currentAnswer?.selected_option === opt.id
-                    ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-100"
-                    : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+                    ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
+                    : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
                 }`}>
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-current text-xs mr-3">{opt.id}</span>
                 {opt.text}
@@ -415,20 +415,20 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
         return (
           <input type="text" value={currentAnswer?.blanks?.[0] || ""} onChange={(e) => setAnswer({ blanks: { 0: e.target.value } })}
             placeholder="Type your answer…"
-            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30" />
+            className="w-full rounded-xl border border-zinc-300 dark:border-white/10 bg-white dark:bg-white/[0.03] px-4 py-3 text-black dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:border-red-500/50 dark:focus:border-red-500/30" />
         );
       }
       if (q.question_type === "NUMERICAL") {
         return (
           <input type="number" step="any" value={currentAnswer?.value ?? ""} onChange={(e) => setAnswer({ value: e.target.value })}
             placeholder="Enter numerical answer…"
-            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30" />
+            className="w-full rounded-xl border border-zinc-300 dark:border-white/10 bg-white dark:bg-white/[0.03] px-4 py-3 text-black dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:border-red-500/50 dark:focus:border-red-500/30" />
         );
       }
       return (
         <textarea value={currentAnswer?.text || ""} onChange={(e) => setAnswer({ text: e.target.value })}
           placeholder="Enter your answer…"
-          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30 min-h-[120px]" />
+          className="w-full rounded-xl border border-zinc-300 dark:border-white/10 bg-white dark:bg-white/[0.03] px-4 py-3 text-black dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:border-red-500/50 dark:focus:border-red-500/30 min-h-[120px]" />
       );
     case "MULTIPLE_CORRECT":
       return (
@@ -442,11 +442,11 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
                 setAnswer({ selected_options: next });
               }}
                 className={`w-full text-left rounded-xl border p-4 text-sm transition ${
-                  isSelected ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-100"
-                    : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+                  isSelected ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
+                    : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
                 }`}>
                 <span className={`inline-flex h-6 w-6 items-center justify-center rounded mr-3 border text-xs ${
-                  isSelected ? "border-emerald-400 bg-emerald-500/30" : "border-current"
+                  isSelected ? "border-emerald-500 dark:border-emerald-400 bg-emerald-500/20 dark:bg-emerald-500/30" : "border-current"
                 }`}>{isSelected ? "✓" : opt.id}</span>
                 {opt.text}
               </button>
@@ -463,8 +463,8 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
               <button key={opt.id} onClick={() => setAnswer({ selected_option: opt.id })}
                 className={`flex-1 rounded-xl border p-4 text-center text-sm font-medium transition ${
                   currentAnswer?.selected_option === opt.id
-                    ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-100"
-                    : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+                    ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
+                    : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
                 }`}>{opt.text}</button>
             ))}
           </div>
@@ -476,8 +476,8 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
             <button key={val} onClick={() => setAnswer({ answer: val === "True" })}
               className={`flex-1 rounded-xl border p-4 text-center text-sm font-medium transition ${
                 currentAnswer?.answer === (val === "True")
-                  ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-100"
-                  : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+                  ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
+                  : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
               }`}>{val}</button>
           ))}
         </div>
@@ -486,7 +486,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
       return (
         <textarea value={currentAnswer?.text || ""} onChange={(e) => setAnswer({ text: e.target.value })}
           placeholder="Enter your answer…"
-          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder-zinc-500 outline-none focus:border-red-500/30 min-h-[120px]" />
+          className="w-full rounded-xl border border-zinc-300 dark:border-white/10 bg-white dark:bg-white/[0.03] px-4 py-3 text-black dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none focus:border-red-500/50 dark:focus:border-red-500/30 min-h-[120px]" />
       );
   }
 }
