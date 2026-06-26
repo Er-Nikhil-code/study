@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { Quicksand } from "next/font/google";
+import { Quicksand, Caveat } from "next/font/google";
 import { authService } from "@/services/auth.service";
 import { useAuthStore, AuthUser } from "@/store/auth.store";
 import Logo from "@/components/ui/Logo";
+
+const caveat = Caveat({ subsets: ["latin"], weight: ["700"] });
 
 const QUOTES = [
   { greeting: "“Never let the future disturb you.”", body: "— Marcus Aurelius" },
@@ -346,12 +348,15 @@ export default function HomePage() {
           <div className="absolute -inset-4 bg-white/5 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
           <div className="relative transform transition-transform duration-500 group-hover:scale-[1.01]">
-            <h1 className={`text-6xl md:text-7xl ${quicksand.className} font-medium tracking-[0.1em] uppercase flex items-center`}>
-              <span className="text-white drop-shadow-md">
-                CODI
+            <h1 className={`text-6xl md:text-8xl tracking-[0.15em] uppercase flex items-center pr-4 pb-2 z-10 ${quicksand.className} relative`}>
+              <span className="text-red-600 drop-shadow-[0_1px_4px_rgba(220,38,38,0.5)]">
+                C
               </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-br from-red-500 to-red-600 drop-shadow-[0_1px_4px_rgba(220,38,38,0.4)]">
-                FY
+              <span className="text-white drop-shadow-md">
+                ODIFY
+              </span>
+              <span className={`absolute -right-4 md:-right-8 -bottom-2 md:bottom-2 text-2xl md:text-4xl text-red-500 tracking-normal lowercase -rotate-12 drop-shadow-lg ${caveat.className}`}>
+                .today
               </span>
             </h1>
 

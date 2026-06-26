@@ -983,7 +983,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                           <div className="flex flex-wrap items-center gap-2 mt-auto pt-3 border-t border-white/5">
                                             {topic.has_notes ? (
                                               <a 
-                                                href={topic.first_note ? `/notes-viewer?url=${encodeURIComponent(getSecureUrl(topic.first_note.pdf_url))}&title=${encodeURIComponent(topic.first_note.title)}` : `/topics/${topic.id}`}
+                                                href={topic.first_note ? `/notes-viewer?url=${encodeURIComponent(getSecureUrl(topic.first_note.pdf_url))}&title=${encodeURIComponent(topic.first_note.title)}&noteId=${topic.first_note.id}` : `/topics/${topic.id}`}
                                                 target={topic.first_note ? "_blank" : undefined}
                                                 rel={topic.first_note ? "opener" : undefined}
                                                 className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition-colors whitespace-nowrap"

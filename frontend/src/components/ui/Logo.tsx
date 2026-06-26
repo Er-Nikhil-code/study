@@ -31,9 +31,11 @@ export default function Logo({ className = "", size = "md" }: LogoProps) {
       <div
         className={`${sizeClasses[size]} ${quicksand.className} font-medium tracking-[0.1em] uppercase flex items-center pr-2 pb-1`}
       >
-        <span className="text-white drop-shadow-sm">CODI</span>
-        <span className="text-transparent bg-clip-text bg-gradient-to-br from-red-500 to-red-600 drop-shadow-[0_1px_2px_rgba(220,38,38,0.3)]">
-          FY
+        <span className="text-red-600 drop-shadow-[0_1px_2px_rgba(220,38,38,0.5)]">
+          C
+        </span>
+        <span className="text-white drop-shadow-sm">
+          ODIFY
         </span>
       </div>
       <div
