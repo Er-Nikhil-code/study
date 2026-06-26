@@ -115,7 +115,7 @@ function NotesViewerContent() {
         <object
           data={`${url}#toolbar=0&navpanes=0`}
           type="application/pdf"
-          className="absolute inset-0 w-full h-full transition-all duration-300"
+          className="absolute inset-0 w-full h-full transition-all duration-1000"
           style={{
             /* Invert colors and rotate hue to keep images roughly same color but flip background/text */
             filter: darkMode ? "invert(1) hue-rotate(180deg) brightness(0.9) contrast(1.1)" : "none"
