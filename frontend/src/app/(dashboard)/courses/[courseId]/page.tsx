@@ -971,7 +971,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                         )}
                                         
                                         {!editingTopic && (
-                                          <div className="flex flex-wrap items-center gap-2 mt-auto pt-3 border-t border-white/5">
+                                          <div className="flex flex-wrap items-center gap-2 mt-auto pt-1">
                                             {topic.has_notes ? (
                                               <a 
                                                 href={topic.first_note ? `/notes-viewer?url=${encodeURIComponent(getSecureUrl(topic.first_note.pdf_url))}&title=${encodeURIComponent(topic.first_note.title)}&noteId=${topic.first_note.id}` : `/topics/${topic.id}`}
@@ -1048,7 +1048,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                           </div>
                                         )}
                                         {!editingTopic && topic.tests?.[0] && (
-                                          <div className="mt-2 pt-2 border-t border-white/5">
+                                          <div className="mt-1">
                                             <TestProgressBar
                                               score={topic.tests[0].score}
                                               totalMarks={topic.tests[0].total_marks}

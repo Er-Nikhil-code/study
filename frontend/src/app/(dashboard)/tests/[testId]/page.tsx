@@ -58,8 +58,10 @@ export default function TestDetailsPage() {
     // Write a loading message so it's not just a stark white page
     win.document.write(`
       <html>
-        <body style="background-color: #000; color: #fff; font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-          <h2>Loading your test environment...</h2>
+        <body style="background-color: #050505; color: #a1a1aa; font-family: system-ui, sans-serif; display: flex; flex-direction: column; gap: 16px; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+          <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+          <div style="width: 20px; height: 20px; border: 2px solid #27272a; border-top-color: #ef4444; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <p style="font-size: 13px; font-weight: 500; letter-spacing: 0.5px; margin: 0;">Loading environment...</p>
         </body>
       </html>
     `);
