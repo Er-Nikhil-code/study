@@ -93,7 +93,7 @@ export function ContentBlockRenderer({
         switch (block.type) {
           case "TEXT":
             return (
-              <p key={index} className="text-zinc-800 dark:text-zinc-200 leading-relaxed">
+              <p key={index} className="leading-relaxed">
                 {block.content || ""}
               </p>
             );
@@ -103,7 +103,7 @@ export function ContentBlockRenderer({
                 <LatexRenderer
                   content={block.content || ""}
                   displayMode
-                  className="text-zinc-900 dark:text-zinc-100"
+                  className="inherit"
                 />
               </div>
             );

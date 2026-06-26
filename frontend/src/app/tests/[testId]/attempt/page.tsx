@@ -278,10 +278,10 @@ export default function AttemptPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex flex-col">
       {/* HEADER */}
-      <header className="sticky top-0 z-30 border-b border-zinc-200 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-lg">
+      <header className="sticky top-0 z-30 border-b border-zinc-200 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-lg relative">
         <div className="flex items-center w-full">
           {/* Left section (Main Question Area) */}
-          <div className="flex-1 flex items-center justify-between px-4 sm:px-6 lg:px-12 py-3 lg:border-r border-zinc-200 dark:border-white/10">
+          <div className="flex-1 flex items-center justify-between px-4 sm:px-6 lg:px-12 py-3">
             <div className="flex items-center gap-4">
               {q && (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] text-xs font-bold">
@@ -291,9 +291,10 @@ export default function AttemptPage() {
                 </div>
               )}
             </div>
-            
-            <div className="flex items-center gap-3">
-              <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
+
+            {/* Mobile Centered Timer (Visible on mobile only) */}
+            <div className="flex lg:hidden items-center justify-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+              <div className={`rounded-xl px-3 py-1 text-base font-mono font-bold tabular-nums pointer-events-auto ${
                 timeLeft < 300 ? "bg-red-600/20 text-red-500 dark:text-red-300"
                   : timeLeft < 600 ? "bg-red-500/15 text-red-500 dark:text-red-300"
                   : "bg-black/5 dark:bg-white/[0.05] text-black dark:text-white"
@@ -313,6 +314,15 @@ export default function AttemptPage() {
             </div>
           </div>
 
+          {/* Absolute Centered Timer (Desktop) */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden lg:flex items-center gap-3 pointer-events-none">
+            <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums pointer-events-auto ${
+              timeLeft < 300 ? "bg-red-600/20 text-red-500 dark:text-red-300"
+                : timeLeft < 600 ? "bg-red-500/15 text-red-500 dark:text-red-300"
+                : "bg-black/5 dark:bg-white/[0.05] text-black dark:text-white"
+            }`}>{formatTime(timeLeft)}</div>
+          </div>
+          
           {/* Right section (Sidebar Area - Desktop Only) */}
           <div className="hidden lg:flex w-72 shrink-0 items-center justify-end px-8 py-3 gap-3">
             <button onClick={toggleTheme} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
