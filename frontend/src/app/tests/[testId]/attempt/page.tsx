@@ -36,11 +36,11 @@ function getStatus(
 }
 
 const statusColors: Record<QStatus, string> = {
-  unanswered: "border-zinc-300 dark:border-zinc-600 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400",
-  answered: "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-200",
-  review: "border-purple-500/40 bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200",
+  unanswered: "border-zinc-300 dark:border-zinc-600 bg-white/60 dark:bg-black/40 text-zinc-700 dark:text-zinc-300 shadow-sm",
+  answered: "border-emerald-500 bg-emerald-500 text-white shadow-[0_2px_10px_rgba(16,185,129,0.4)]",
+  review: "border-purple-500 bg-purple-500 text-white shadow-[0_2px_10px_rgba(168,85,247,0.4)]",
   "review-answered":
-    "border-purple-500/40 bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200 ring-2 ring-emerald-400/50",
+    "border-purple-500 bg-purple-500 text-white shadow-[0_2px_10px_rgba(168,85,247,0.4)] ring-2 ring-emerald-500 ring-offset-1 dark:ring-offset-black",
 };
 
 export default function AttemptPage() {
@@ -300,8 +300,13 @@ export default function AttemptPage() {
           {q && (
             <div className="max-w-4xl mr-auto">
 
-              <div className="mt-4 text-black dark:text-white">
-                <ContentBlockRenderer blocks={q.content_json || []} />
+              <div className="mt-4 text-black dark:text-white flex gap-3 items-start">
+                <span className="shrink-0 flex items-center justify-center h-8 w-8 rounded-lg bg-red-600/10 text-red-600 dark:text-red-400 font-bold text-sm">
+                  {currentIdx + 1}
+                </span>
+                <div className="flex-1 pt-1">
+                  <ContentBlockRenderer blocks={q.content_json || []} />
+                </div>
               </div>
               <div className="mt-6">{renderAnswerInput(q, answers[q.id], setAnswer)}</div>
               <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -324,7 +329,7 @@ export default function AttemptPage() {
         </main>
 
         {/* SIDEBAR PALETTE */}
-        <aside className={`${showPalette ? "block" : "hidden"} lg:block w-72 border-l border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/50 p-4 overflow-y-auto`}>
+        <aside className={`${showPalette ? "block" : "hidden"} lg:block w-72 border-l border-white/20 bg-white/40 dark:bg-black/40 backdrop-blur-2xl p-4 overflow-y-auto`}>
           <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Question Palette</h3>
           <div className="grid grid-cols-2 gap-2 mb-4 text-[10px]">
             {([["unanswered","Not Answered"],["answered","Answered"],["review","For Review"],["review-answered","Review + Answered"]] as [QStatus,string][]).map(([status, label]) => (
@@ -355,27 +360,27 @@ export default function AttemptPage() {
 
       {/* SUBMIT MODAL */}
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-950 p-6 shadow-2xl">
-            <h3 className="text-lg font-semibold text-black dark:text-white">Submit Test?</h3>
-            <p className="mt-2 text-sm text-zinc-400">This action cannot be undone.</p>
-            <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-              <div className="rounded-xl bg-emerald-500/10 p-3">
-                <div className="text-lg font-bold text-emerald-300">{answeredCount}</div>
-                <div className="text-[10px] text-zinc-500">Answered</div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md">
+          <div className="w-full max-w-md rounded-3xl border border-white/20 bg-white/80 dark:bg-black/60 backdrop-blur-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+            <h3 className="text-xl font-bold text-black dark:text-white">Submit Test?</h3>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">This action cannot be undone.</p>
+            <div className="mt-6 grid grid-cols-3 gap-3 text-center">
+              <div className="rounded-2xl bg-emerald-500/20 dark:bg-emerald-500/10 border border-emerald-500/20 p-4 shadow-inner">
+                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{answeredCount}</div>
+                <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-500">Answered</div>
               </div>
-              <div className="rounded-xl bg-zinc-800 p-3">
-                <div className="text-lg font-bold text-zinc-300">{unansweredCount}</div>
-                <div className="text-[10px] text-zinc-500">Unanswered</div>
+              <div className="rounded-2xl bg-black/10 dark:bg-white/5 border border-black/10 dark:border-white/10 p-4 shadow-inner">
+                <div className="text-2xl font-black text-zinc-800 dark:text-zinc-200">{unansweredCount}</div>
+                <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Unanswered</div>
               </div>
-              <div className="rounded-xl bg-purple-500/10 p-3">
-                <div className="text-lg font-bold text-purple-300">{reviewCount}</div>
-                <div className="text-[10px] text-zinc-500">For Review</div>
+              <div className="rounded-2xl bg-purple-500/20 dark:bg-purple-500/10 border border-purple-500/20 p-4 shadow-inner">
+                <div className="text-2xl font-black text-purple-600 dark:text-purple-400">{reviewCount}</div>
+                <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-purple-700 dark:text-purple-500">For Review</div>
               </div>
             </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button onClick={() => setShowSubmitModal(false)} className="rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-400 transition hover:text-white">Cancel</button>
-              <button onClick={handleSubmit} className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700">Submit Now</button>
+            <div className="mt-8 flex justify-end gap-3">
+              <button onClick={() => setShowSubmitModal(false)} className="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-6 py-2.5 text-sm font-semibold text-zinc-700 dark:text-zinc-300 transition hover:bg-black/10 dark:hover:bg-white/10">Cancel</button>
+              <button onClick={handleSubmit} className="rounded-xl bg-red-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-500/30 transition hover:bg-red-700 hover:shadow-red-500/50">Submit Now</button>
             </div>
           </div>
         </div>
