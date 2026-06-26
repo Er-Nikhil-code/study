@@ -40,7 +40,7 @@ export default function TestSeriesCard({ test }: { test: TestSeriesTestItem }) {
 
       <div className="mt-4 flex gap-2">
         <Link
-          href={`/tests/${test.id}/attempt`}
+          href={`/tests/${test.id}`}
           className="flex-1 rounded-full bg-blue-600 px-4 py-2 text-center text-sm font-bold text-white transition hover:bg-blue-500"
         >
           {test.latest_attempt ? "Re-attempt" : "Attempt"}

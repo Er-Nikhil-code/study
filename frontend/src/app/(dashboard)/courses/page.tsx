@@ -371,7 +371,7 @@ export default function CoursesPage() {
               const isStudent = user?.role === "STUDENT";
               
               return (
-                <Panel key={course.id} className="relative flex flex-col p-0 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-red-500/10 hover:border-red-500/40 overflow-hidden group bg-white/5 backdrop-blur-xl">
+                <Panel key={course.id} className="relative flex flex-col p-0 transition-all hover:-translate-y-1 hover:border-red-500/40 overflow-hidden group bg-white/5 backdrop-blur-xl">
                   <div className="absolute inset-0 bg-gradient-to-b from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                   
                   {isCreatorOrAdmin && (

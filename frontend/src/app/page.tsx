@@ -398,7 +398,7 @@ export default function HomePage() {
 
       {/* Right Section - Auth Box */}
       <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-12 py-16 relative z-10">
-        <div className="w-full max-w-md p-8 sm:p-10 bg-black/40 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_2px_rgba(255,255,255,0.1)] relative overflow-hidden">
+        <div className="w-full max-w-md p-8 sm:p-10 bg-black/40 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_2px_rgba(255,255,255,0.1)] relative overflow-hidden">
           {/* Tabs */}
           <div className="flex gap-2 mb-8 bg-black/60 p-1.5 rounded-xl border border-white/10 relative z-10 shadow-inner">
             <button

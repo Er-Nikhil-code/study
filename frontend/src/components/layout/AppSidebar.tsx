@@ -109,10 +109,10 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
         {/* If collapsed, show a mini version of the logo */}
         {isCollapsed && (
           <Link href={getDashboardUrl()} className="flex shrink-0 items-center justify-center w-full group relative">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black/60 backdrop-blur-md border border-white/20 border-b-black shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.5)] group-hover:border-white/30 transition-all font-bold text-red-600 drop-shadow-[0_1px_2px_rgba(220,38,38,0.5)] text-xl relative">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black/60 backdrop-blur-md border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.5)] group-hover:border-white/30 transition-all font-bold text-red-600 drop-shadow-[0_1px_2px_rgba(220,38,38,0.5)] text-xl relative">
               C
               <span className={`absolute -right-3 -bottom-2 text-[10px] text-red-500 tracking-normal lowercase -rotate-12 drop-shadow-md ${caveat.className}`}>
-                .today
+                today
               </span>
             </div>
           </Link>

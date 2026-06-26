@@ -9,6 +9,8 @@ import studentService, {
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import Link from "next/link";
 import AppLoader from "@/components/ui/AppLoader";
+import { Sun, Moon, X } from "lucide-react";
+import { useThemeStore } from "@/store/theme.store";
 
 /* ─── Helper: format seconds to MM:SS ─── */
 function formatTime(sec: number) {
@@ -34,14 +36,15 @@ function getStatus(
 }
 
 const statusColors: Record<QStatus, string> = {
-  unanswered: "border-zinc-600 bg-zinc-800 text-zinc-400",
-  answered: "border-emerald-500/40 bg-emerald-500/20 text-emerald-200",
-  review: "border-purple-500/40 bg-purple-500/20 text-purple-200",
+  unanswered: "border-zinc-300 dark:border-zinc-600 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400",
+  answered: "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-200",
+  review: "border-purple-500/40 bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200",
   "review-answered":
-    "border-purple-500/40 bg-purple-500/20 text-purple-200 ring-2 ring-emerald-400/50",
+    "border-purple-500/40 bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-purple-200 ring-2 ring-emerald-400/50",
 };
 
 export default function AttemptPage() {
+  const { theme, toggleTheme } = useThemeStore();
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -248,33 +251,39 @@ export default function AttemptPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center">
         <div className="text-center max-w-md">
-          <p className="text-red-400">{error}</p>
-          <Link href="/tests" className="mt-4 inline-block text-zinc-400 hover:text-white">← Back to tests</Link>
+          <p className="text-red-500 dark:text-red-400">{error}</p>
+          <Link href="/tests" className="mt-4 inline-block text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white">← Back to tests</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex flex-col">
       {/* HEADER */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-black/90 backdrop-blur-lg px-4 py-3">
+      <header className="sticky top-0 z-30 border-b border-zinc-200 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-lg px-4 py-3">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-zinc-400">Q {currentIdx + 1}/{questions.length}</span>
+            <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Q {currentIdx + 1}/{questions.length}</span>
           </div>
           <div className={`rounded-xl px-4 py-1.5 text-lg font-mono font-bold tabular-nums ${
-            timeLeft < 300 ? "bg-red-600/20 text-red-300"
-              : timeLeft < 600 ? "bg-red-500/15 text-red-300"
-              : "bg-white/[0.05] text-white"
+            timeLeft < 300 ? "bg-red-600/20 text-red-500 dark:text-red-300"
+              : timeLeft < 600 ? "bg-red-500/15 text-red-500 dark:text-red-300"
+              : "bg-black/5 dark:bg-white/[0.05] text-black dark:text-white"
           }`}>{formatTime(timeLeft)}</div>
           <div className="flex items-center gap-3">
-            <button onClick={() => setShowPalette(!showPalette)} className="lg:hidden rounded-lg border border-white/10 bg-white/[0.03] p-2 text-sm">☰</button>
+            <button onClick={() => setShowPalette(!showPalette)} className="lg:hidden rounded-lg border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] p-2 text-sm">☰</button>
+            <button onClick={toggleTheme} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <button onClick={() => window.close()} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition" title="Close Window">
+              <X size={18} />
+            </button>
             <button onClick={() => setShowSubmitModal(true)} disabled={submitting}
               className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
-              {submitting ? "Submitting…" : "Submit Test"}
+              {submitting ? "Submitting…" : "Submit"}
             </button>
           </div>
         </div>
@@ -286,42 +295,42 @@ export default function AttemptPage() {
           {q && (
             <div className="mx-auto max-w-3xl">
               <div className="flex items-start justify-between gap-4">
-                <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-zinc-400">
+                <span className="rounded-full border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.04] px-3 py-1 text-xs text-zinc-600 dark:text-zinc-400">
                   {q.question_type.replace(/_/g, " ")} · {q.difficulty} · {q.marks} mark{q.marks !== 1 ? "s" : ""}
-                  {q.negative_marks > 0 && <span className="text-red-400 ml-1">(−{q.negative_marks})</span>}
+                  {q.negative_marks > 0 && <span className="text-red-500 dark:text-red-400 ml-1">(−{q.negative_marks})</span>}
                 </span>
               </div>
-              <div className="mt-4">
+              <div className="mt-4 text-black dark:text-white">
                 <ContentBlockRenderer blocks={q.content_json || []} />
               </div>
               <div className="mt-6">{renderAnswerInput(q, answers[q.id], setAnswer)}</div>
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <button onClick={clearAnswer} className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-zinc-300 transition hover:bg-white/[0.06]">Clear Response</button>
+                <button onClick={clearAnswer} className="rounded-xl border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] px-4 py-2 text-sm text-zinc-600 dark:text-zinc-300 transition hover:bg-black/10 dark:hover:bg-white/[0.06]">Clear Response</button>
                 <button onClick={toggleReview}
                   className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${reviews.has(q.id)
-                    ? "border-purple-500/40 bg-purple-500/20 text-purple-200"
-                    : "border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06]"
+                    ? "border-purple-500/40 bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-200"
+                    : "border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] text-zinc-600 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/[0.06]"
                   }`}>
                   {reviews.has(q.id) ? "✓ Marked for Review" : "Mark for Review"}
                 </button>
                 <div className="flex-1" />
                 <button onClick={() => setCurrentIdx((i) => Math.max(0, i - 1))} disabled={currentIdx === 0}
-                  className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-2 text-sm text-zinc-300 transition hover:bg-white/[0.06] disabled:opacity-30">← Previous</button>
+                  className="rounded-xl border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] px-5 py-2 text-sm text-zinc-600 dark:text-zinc-300 transition hover:bg-black/10 dark:hover:bg-white/[0.06] disabled:opacity-30">← Previous</button>
                 <button onClick={() => setCurrentIdx((i) => Math.min(questions.length - 1, i + 1))} disabled={currentIdx === questions.length - 1}
-                  className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-200 transition hover:bg-emerald-500/15 disabled:opacity-30">Save & Next →</button>
+                  className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-200 transition hover:bg-emerald-500/20 dark:hover:bg-emerald-500/15 disabled:opacity-30">Save & Next →</button>
               </div>
             </div>
           )}
         </main>
 
         {/* SIDEBAR PALETTE */}
-        <aside className={`${showPalette ? "block" : "hidden"} lg:block w-72 border-l border-white/10 bg-black/50 p-4 overflow-y-auto`}>
+        <aside className={`${showPalette ? "block" : "hidden"} lg:block w-72 border-l border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/50 p-4 overflow-y-auto`}>
           <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Question Palette</h3>
           <div className="grid grid-cols-2 gap-2 mb-4 text-[10px]">
             {([["unanswered","Not Answered"],["answered","Answered"],["review","For Review"],["review-answered","Review + Answered"]] as [QStatus,string][]).map(([status, label]) => (
               <div key={status} className="flex items-center gap-1.5">
                 <span className={`h-4 w-4 rounded border ${statusColors[status]}`} />
-                <span className="text-zinc-500">{label}</span>
+                <span className="text-zinc-600 dark:text-zinc-500">{label}</span>
               </div>
             ))}
           </div>
@@ -336,10 +345,10 @@ export default function AttemptPage() {
               );
             })}
           </div>
-          <div className="mt-6 space-y-2 text-xs text-zinc-400">
-            <div className="flex justify-between"><span>Answered</span><span className="text-emerald-300">{answeredCount}</span></div>
-            <div className="flex justify-between"><span>Unanswered</span><span className="text-zinc-300">{unansweredCount}</span></div>
-            <div className="flex justify-between"><span>For Review</span><span className="text-purple-300">{reviewCount}</span></div>
+          <div className="mt-6 space-y-2 text-xs text-zinc-500 dark:text-zinc-400">
+            <div className="flex justify-between"><span>Answered</span><span className="text-emerald-600 dark:text-emerald-300">{answeredCount}</span></div>
+            <div className="flex justify-between"><span>Unanswered</span><span className="text-zinc-500 dark:text-zinc-300">{unansweredCount}</span></div>
+            <div className="flex justify-between"><span>For Review</span><span className="text-purple-600 dark:text-purple-300">{reviewCount}</span></div>
           </div>
         </aside>
       </div>
@@ -347,8 +356,8 @@ export default function AttemptPage() {
       {/* SUBMIT MODAL */}
       {showSubmitModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
-            <h3 className="text-lg font-semibold text-white">Submit Test?</h3>
+          <div className="w-full max-w-md rounded-3xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-950 p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold text-black dark:text-white">Submit Test?</h3>
             <p className="mt-2 text-sm text-zinc-400">This action cannot be undone.</p>
             <div className="mt-4 grid grid-cols-3 gap-3 text-center">
               <div className="rounded-xl bg-emerald-500/10 p-3">
