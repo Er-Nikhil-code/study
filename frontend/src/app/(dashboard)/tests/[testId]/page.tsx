@@ -11,6 +11,7 @@ import studentService from "@/services/student.service";
 import { useAuthStore } from "@/store/auth.store";
 import { api } from "@/lib/api";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import MathRenderer from "@/components/ui/MathRenderer";
 
 export default function TestDetailsPage() {
   const { user } = useAuthStore();
@@ -291,7 +292,7 @@ export default function TestDetailsPage() {
                           <span className="flex-shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full border border-zinc-600 text-xs mr-3 mt-0.5">
                             {opt.id}
                           </span>
-                          <span>{opt.text}</span>
+                          <MathRenderer text={opt.text} className="inline" />
                         </div>
                       ))}
                     </div>

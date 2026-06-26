@@ -7,6 +7,7 @@ import studentService, {
   type SavedResponse,
 } from "@/services/student.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import MathRenderer from "@/components/ui/MathRenderer";
 import Link from "next/link";
 import AppLoader from "@/components/ui/AppLoader";
 import { Sun, Moon, X } from "lucide-react";
@@ -453,7 +454,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
                     : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
                 }`}>
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-current text-xs mr-3">{opt.id}</span>
-                {opt.text}
+                <MathRenderer text={opt.text} className="inline" />
               </button>
             ))}
           </div>
@@ -497,7 +498,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
                 <span className={`inline-flex h-6 w-6 items-center justify-center rounded mr-3 border text-xs ${
                   isSelected ? "border-emerald-500 dark:border-emerald-400 bg-emerald-500/20 dark:bg-emerald-500/30" : "border-current"
                 }`}>{isSelected ? "✓" : opt.id}</span>
-                {opt.text}
+                <MathRenderer text={opt.text} className="inline" />
               </button>
             );
           })}
@@ -514,7 +515,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
                   currentAnswer?.selected_option === opt.id
                     ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
                     : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
-                }`}>{opt.text}</button>
+                }`}><MathRenderer text={opt.text} className="inline" /></button>
             ))}
           </div>
         );

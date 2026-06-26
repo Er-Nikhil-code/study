@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
+import { MathPreview } from "@/components/ui/MathRenderer";
 import { QuestionsService } from "@/services/questions.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import authService from "@/services/auth.service";
@@ -388,6 +389,7 @@ export default function EditQuestionPage() {
               className="w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white outline-none focus:border-red-500/30 font-mono"
               placeholder={formData.type === "PASSAGE" ? "Enter passage content" : formData.type === "ASSERTION_REASON" ? "Assertion (A): ...\nReason (R): ..." : "Enter question statement"}
             />
+            <MathPreview text={formData.content} />
           </div>
         </Panel>
 
@@ -479,6 +481,7 @@ export default function EditQuestionPage() {
               className="w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white outline-none focus:border-red-500/30"
               placeholder="Detailed solution or explanation"
             />
+            <MathPreview text={formData.solution} />
           </div>
         </Panel>
 

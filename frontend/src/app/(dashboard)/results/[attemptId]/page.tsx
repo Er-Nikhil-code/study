@@ -6,6 +6,7 @@ import Link from "next/link";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import MathRenderer from "@/components/ui/MathRenderer";
 import studentService from "@/services/student.service";
 
 const CHALLENGE_REASONS = [
@@ -299,7 +300,7 @@ export default function ResultDetailPage() {
                                 key={opt.id} 
                                 className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all ${borderColor} ${bgColor}`}
                               >
-                                <div className="text-zinc-200 text-sm flex-1">{opt.text}</div>
+                                <MathRenderer text={opt.text} className="inline text-zinc-200 text-sm flex-1" />
                                 {icon}
                               </div>
                             );

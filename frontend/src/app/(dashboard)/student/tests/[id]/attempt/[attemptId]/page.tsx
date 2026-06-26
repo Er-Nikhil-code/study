@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { TestsService } from "@/services/tests.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import MathRenderer from "@/components/ui/MathRenderer";
 import { AlertTriangle, Clock, User, Check, Send } from "lucide-react";
 
 type QuestionStatus = "not_visited" | "not_answered" | "answered" | "marked" | "answered_marked";
@@ -324,7 +325,7 @@ export default function ExamInterfacePage() {
                         )}
                       </div>
                     </div>
-                    <div className="text-zinc-800 text-base">{opt.text}</div>
+                    <MathRenderer text={opt.text} className="inline text-zinc-800 text-base" />
                   </label>
                 );
               })}

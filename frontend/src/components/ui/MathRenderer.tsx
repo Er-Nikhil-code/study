@@ -84,3 +84,13 @@ export default function MathRenderer({ text, className = "" }: { text: string; c
     />
   );
 }
+
+export function MathPreview({ text }: { text: string }) {
+  if (!text || !text.includes('$')) return null;
+  return (
+    <div className="mt-2 p-3 bg-white/5 border border-white/10 rounded-xl text-sm text-zinc-300">
+      <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1 font-medium">Math Preview</div>
+      <MathRenderer text={text} className="inline" />
+    </div>
+  );
+}

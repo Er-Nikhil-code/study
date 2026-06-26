@@ -1,4 +1,5 @@
 import Panel from "@/components/ui/Panel";
+import { MathPreview } from "@/components/ui/MathRenderer";
 
 interface FillBlankFormProps {
   data: {
@@ -119,14 +120,17 @@ export default function FillBlankForm({ data, onChange }: FillBlankFormProps) {
                   className="h-4 w-4 accent-red-500 cursor-pointer"
                 />
                 <span className="text-zinc-400 font-medium w-4">{opt.id}.</span>
-                <input
-                  type="text"
-                  required
-                  value={opt.text}
-                  onChange={(e) => handleOptionChange(opt.id, e.target.value)}
-                  className="flex-1 rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-sm text-white outline-none focus:border-red-500/30"
-                  placeholder={`Option ${opt.id}`}
-                />
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    required
+                    value={opt.text}
+                    onChange={(e) => handleOptionChange(opt.id, e.target.value)}
+                    className="w-full rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-sm text-white outline-none focus:border-red-500/30"
+                    placeholder={`Option ${opt.id}`}
+                  />
+                  <MathPreview text={opt.text} />
+                </div>
               </div>
             ))}
           </div>

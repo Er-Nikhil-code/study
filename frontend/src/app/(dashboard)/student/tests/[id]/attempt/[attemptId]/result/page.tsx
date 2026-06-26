@@ -8,6 +8,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { TestsService } from "@/services/tests.service";
 import { ChallengesService } from "@/services/challenges.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import MathRenderer from "@/components/ui/MathRenderer";
 import { CheckCircle, XCircle, AlertTriangle, ArrowLeft, Trophy, Target, Flag } from "lucide-react";
 
 export default function TestResultPage() {
@@ -182,7 +183,7 @@ export default function TestResultPage() {
                           key={opt.id} 
                           className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all ${borderColor} ${bgColor}`}
                         >
-                          <div className="text-zinc-200 text-base flex-1">{opt.text}</div>
+                          <MathRenderer text={opt.text} className="inline text-zinc-200 text-base flex-1" />
                           {icon}
                         </div>
                       );

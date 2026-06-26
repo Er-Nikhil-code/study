@@ -6,6 +6,7 @@ import Link from "next/link";
 import Panel from "@/components/ui/Panel";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import MathRenderer from "@/components/ui/MathRenderer";
 import { QuestionsService } from "@/services/questions.service";
 import authService from "@/services/auth.service";
 import UserHoverCard from "@/components/ui/UserHoverCard";
@@ -197,7 +198,7 @@ export default function ReviewQuestionsPage() {
                   <div className="space-y-2">
                     {reviewQ.options_json.options.map((opt: any) => (
                       <div key={opt.id} className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-sm text-white flex gap-3">
-                        <span className="text-zinc-500">{opt.id}.</span> {opt.text}
+                        <span className="text-zinc-500">{opt.id}.</span> <MathRenderer text={opt.text} className="inline" />
                       </div>
                     ))}
                   </div>

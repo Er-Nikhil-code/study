@@ -9,6 +9,7 @@ import { TestsService } from "@/services/tests.service";
 import { QuestionsService } from "@/services/questions.service";
 import { HierarchyService } from "@/services/hierarchy.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import MathRenderer from "@/components/ui/MathRenderer";
 import { useAuthStore } from "@/store/auth.store";
 
 export default function CreateTestPage() {
@@ -349,7 +350,7 @@ export default function CreateTestPage() {
                           {q.options_json.options.map((opt: any) => (
                             <div key={opt.id} className="text-xs text-zinc-300 flex items-start bg-white/[0.02] border border-white/5 rounded p-2">
                               <span className="font-bold mr-2 text-zinc-500">{opt.id}.</span>
-                              <span>{opt.text}</span>
+                              <MathRenderer text={opt.text} className="inline" />
                             </div>
                           ))}
                         </div>

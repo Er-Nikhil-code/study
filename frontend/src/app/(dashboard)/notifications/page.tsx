@@ -11,6 +11,7 @@ import {
   ShieldCheck, BookOpen, Megaphone, Star, Trash2, Send
 } from "lucide-react";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
+import MathRenderer from "@/components/ui/MathRenderer";
 import { useAuthStore } from "@/store/auth.store";
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
@@ -392,7 +393,7 @@ export default function NotificationsPage() {
                         }
                         return (
                           <div key={opt.id} className={`p-3 rounded-lg border ${isCorrect ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-200' : 'border-white/10 bg-white/5 text-zinc-300'}`}>
-                            {opt.text}
+                            <MathRenderer text={opt.text} className="inline" />
                           </div>
                         );
                       });

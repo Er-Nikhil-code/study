@@ -1,4 +1,5 @@
 import Panel from "@/components/ui/Panel";
+import { MathPreview } from "@/components/ui/MathRenderer";
 
 interface McqFormProps {
   type: string;
@@ -99,14 +100,17 @@ export default function McqForm({ type, data, onChange }: McqFormProps) {
               />
             )}
             <span className="text-zinc-400 font-medium w-4">{opt.id}.</span>
-            <input
-              type="text"
-              required
-              value={opt.text}
-              onChange={(e) => updateOptionText(i, e.target.value)}
-              className="flex-1 rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm text-white outline-none focus:border-red-500/30"
-              placeholder={`Option ${opt.id}`}
-            />
+            <div className="flex-1">
+              <input
+                type="text"
+                required
+                value={opt.text}
+                onChange={(e) => updateOptionText(i, e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm text-white outline-none focus:border-red-500/30"
+                placeholder={`Option ${opt.id}`}
+              />
+              <MathPreview text={opt.text} />
+            </div>
           </div>
         ))}
       </div>

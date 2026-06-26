@@ -1,4 +1,5 @@
 import Panel from "@/components/ui/Panel";
+import { MathPreview } from "@/components/ui/MathRenderer";
 
 interface PassageFormProps {
   data: {
@@ -145,14 +146,17 @@ export default function PassageForm({ data, onChange }: PassageFormProps) {
                       ) : (
                         <>
                           <span className="text-xs font-mono text-zinc-500 w-4">{opt.id}.</span>
-                          <input
-                            type="text"
-                            required
-                            value={opt.text}
-                            onChange={(e) => updateOption(i, oIndex, e.target.value)}
-                            className="flex-1 rounded border border-white/5 bg-transparent px-2 py-1 text-sm text-white outline-none focus:border-red-500/30"
-                            placeholder={`Option ${opt.id}`}
-                          />
+                          <div className="flex-1">
+                            <input
+                              type="text"
+                              required
+                              value={opt.text}
+                              onChange={(e) => updateOption(i, oIndex, e.target.value)}
+                              className="w-full rounded border border-white/5 bg-transparent px-2 py-1 text-sm text-white outline-none focus:border-red-500/30"
+                              placeholder={`Option ${opt.id}`}
+                            />
+                            <MathPreview text={opt.text} />
+                          </div>
                         </>
                       )}
                     </div>
