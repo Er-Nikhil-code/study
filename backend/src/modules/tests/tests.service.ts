@@ -647,7 +647,7 @@ export class TestsService {
         update: { tests_completed: true }
       });
 
-      const notesCount = await this.prisma.note.count({ where: { topic_id: attempt.test.topic_id, approval_status: 'APPROVED' } });
+      const notesCount = await this.prisma.note.count({ where: { topic_id: attempt.test.topic_id } });
       const requireNotes = notesCount > 0;
 
       if ((progress.notes_viewed || !requireNotes) && progress.tests_completed && !progress.is_completed) {
