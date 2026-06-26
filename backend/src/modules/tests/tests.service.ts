@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  InternalServerErrorException,
   Logger,
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
@@ -185,20 +186,41 @@ export class TestsService {
     // Find all users who took this test so we can update their stats after deletion
     const attempts = await this.prisma.attempt.findMany({
       where: { test_id: testId },
-      select: { user_id: true },
-      distinct: ['user_id']
+      select: { user_id: true, id: true },
     });
 
-    const result = await this.prisma.test.delete({
-      where: { id: testId },
-    });
-    
-    // Recalculate stats for users affected by the deletion to update the global leaderboard
-    for (const attempt of attempts) {
-      await this.updateUserStats(attempt.user_id);
+    const uniqueUserIds = [...new Set(attempts.map(a => a.user_id))];
+    const attemptIds = attempts.map(a => a.id);
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        // Manually delete responses to avoid PostgreSQL multiple-cascade path conflicts
+        if (attemptIds.length > 0) {
+          await tx.response.deleteMany({
+            where: { attempt_id: { in: attemptIds } }
+          });
+        }
+        
+        // Delete attempts and test_questions
+        await tx.attempt.deleteMany({ where: { test_id: testId } });
+        await tx.testQuestion.deleteMany({ where: { test_id: testId } });
+
+        // Delete the test itself
+        await tx.test.delete({
+          where: { id: testId },
+        });
+      });
+    } catch (error) {
+      this.logger.error(`Error deleting test ${testId}:`, error);
+      throw new InternalServerErrorException("Failed to delete test from the database.");
     }
     
-    return result;
+    // Recalculate stats for users affected by the deletion to update the global leaderboard
+    for (const uId of uniqueUserIds) {
+      await this.updateUserStats(uId);
+    }
+    
+    return { success: true };
   }
 
   async addQuestionsToTest(testId: string, questionIds: string[], userId: string, role: string) {
@@ -787,7 +809,29 @@ export class TestsService {
       select: { score: true, max_score: true },
     });
 
-    if (attempts.length === 0) return;
+    if (attempts.length === 0) {
+      await this.prisma.userStats.upsert({
+        where: { user_id: userId },
+        create: {
+          user_id: userId,
+          total_tests: 0,
+          total_score: 0,
+          best_score: 0,
+          avg_accuracy: 0,
+          current_streak: 0,
+          longest_streak: 0,
+        },
+        update: {
+          total_tests: 0,
+          total_score: 0,
+          best_score: 0,
+          avg_accuracy: 0,
+          current_streak: 0,
+          longest_streak: 0,
+        },
+      });
+      return;
+    }
 
     const totalScore = attempts.reduce((s, a) => s + (a.score || 0), 0);
     const bestScore = Math.max(...attempts.map((a) => a.score || 0));
