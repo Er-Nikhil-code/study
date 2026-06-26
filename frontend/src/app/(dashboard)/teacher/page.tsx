@@ -7,8 +7,9 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import studentService from "@/services/student.service";
 import { useAuthStore } from "@/store/auth.store";
 import { Users, FileQuestion, ClipboardCheck, CheckCircle, XCircle, AlertCircle } from "lucide-react";
-import ActivityGraph from "@/components/ui/ActivityGraph";
-import ChessPiece3D from "@/components/ui/ChessPiece3D";
+import dynamic from "next/dynamic";
+const ActivityGraph = dynamic(() => import("@/components/ui/ActivityGraph"), { ssr: false });
+const ChessPiece3D = dynamic(() => import("@/components/ui/ChessPiece3D"), { ssr: false });
 
 const CHALLENGE_STATUS_STYLES: Record<string, string> = {
   PENDING: "border-red-500/20 bg-red-500/10 text-red-300",

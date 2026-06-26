@@ -6,9 +6,10 @@ import Link from "next/link";
 import studentService from "@/services/student.service";
 import Panel from "@/components/ui/Panel";
 import { useAuthStore } from "@/store/auth.store";
-import ActivityGraph from "@/components/ui/ActivityGraph";
-import MarksGraph from "@/components/ui/MarksGraph";
-import ChessPiece3D from "@/components/ui/ChessPiece3D";
+import dynamic from "next/dynamic";
+const ActivityGraph = dynamic(() => import("@/components/ui/ActivityGraph"), { ssr: false });
+const MarksGraph = dynamic(() => import("@/components/ui/MarksGraph"), { ssr: false });
+const ChessPiece3D = dynamic(() => import("@/components/ui/ChessPiece3D"), { ssr: false });
 
 export default function StudentDashboardPage() {
   const { user } = useAuthStore();

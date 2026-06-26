@@ -6,8 +6,9 @@ import studentService from "@/services/student.service";
 import Panel from "@/components/ui/Panel";
 import { useAuthStore } from "@/store/auth.store";
 import { PlusCircle, FileCheck, Clock, XCircle, RefreshCw, TrendingUp } from "lucide-react";
-import ActivityGraph from "@/components/ui/ActivityGraph";
-import ChessPiece3D from "@/components/ui/ChessPiece3D";
+import dynamic from "next/dynamic";
+const ActivityGraph = dynamic(() => import("@/components/ui/ActivityGraph"), { ssr: false });
+const ChessPiece3D = dynamic(() => import("@/components/ui/ChessPiece3D"), { ssr: false });
 
 const STATUS_COLORS: Record<string, string> = {
   APPROVED: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",

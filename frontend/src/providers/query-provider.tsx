@@ -13,8 +13,8 @@ export default function QueryProvider({ children }: QueryProviderProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Serve instantly from cache, but consider data stale after 1 minute to ensure background updates
-            staleTime: 1000 * 60, // 1 minute caching for blazing fast UX
+            // Serve instantly from cache, consider data stale after 5 minutes for blazing fast UX
+            staleTime: 1000 * 60 * 5, // 5 minutes caching
 
             gcTime: 1000 * 60 * 30, // 30 min
 
