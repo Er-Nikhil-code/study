@@ -13,6 +13,7 @@ import {
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import MathRenderer from "@/components/ui/MathRenderer";
 import { useAuthStore } from "@/store/auth.store";
+import ChallengeChat from "@/components/ui/ChallengeChat";
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
   RANK_UPDATE:        { icon: <Trophy size={16} />,    color: "text-yellow-400 bg-yellow-400/10" },
@@ -421,6 +422,14 @@ export default function NotificationsPage() {
                 </div>
               )}
             </div>
+
+            {viewChallenge.status !== "RESOLVED" && user && (
+              <ChallengeChat 
+                challengeId={viewChallenge.id} 
+                initialMessages={viewChallenge.messages || []} 
+                currentUserId={user.id} 
+              />
+            )}
 
             <div className="mt-8 flex justify-end">
               <button onClick={() => setViewChallenge(null)} className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-medium transition">Close</button>

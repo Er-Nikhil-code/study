@@ -30,7 +30,7 @@ function NotesViewerContent() {
         reason: reportReason,
         description: reportDescription,
       });
-      toast.success("Note sent for review successfully.");
+      toast.success("Thank you for your feedback. We will look into the matter on a priority basis, Warrior.");
       setIsReportModalOpen(false);
       setReportDescription("");
     } catch (error: any) {

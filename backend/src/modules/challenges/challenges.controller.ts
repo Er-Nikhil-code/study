@@ -107,8 +107,18 @@ export class ChallengesController {
   @Delete(":id")
   @UseGuards(RolesGuard)
   @Roles("ADMIN")
-  @HttpCode(HttpStatus.NO_CONTENT)
   async deleteChallenge(@Param("id") id: string, @Request() req: any) {
-    await this.challengesService.deleteChallenge(id, req.user.role);
+    return this.challengesService.deleteChallenge(id, req.user.role);
+  }
+
+  /* ── Chat: Add message ── */
+  @Post(":id/messages")
+  @HttpCode(HttpStatus.CREATED)
+  async addMessage(
+    @Param("id") id: string,
+    @Request() req: any,
+    @Body() body: { message: string },
+  ) {
+    return this.challengesService.addMessage(id, req.user.sub, body.message);
   }
 }

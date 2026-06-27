@@ -685,6 +685,15 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   await HierarchyService.assignSectionManagers(sectionId, userIds);
                   fetchCourse();
                 }}
+                onDrop={async (type, items) => {
+                  try {
+                    await HierarchyService.reorder(items);
+                    fetchCourse();
+                  } catch (err) {
+                    console.error("Reorder failed", err);
+                    alert("Failed to reorder items");
+                  }
+                }}
               />
 
               <div className="relative w-full lg:w-1/2 mt-12 pr-4">

@@ -183,7 +183,7 @@ function TopicCard({
                hover:-translate-y-0.5
                hover:border-white/[0.18]
                hover:shadow-[0_8px_24px_rgba(0,0,0,0.55),0_2px_6px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.10),0_0_0_1px_rgba(255,255,255,0.04)]`
-        }`}
+        } ${dragProps?.className || ""}`}
     >
       {/* Edit/Delete controls */}
       {canManage && !editing && (
@@ -439,6 +439,58 @@ export default function CurriculumViewer({
     return { done, total: all.length, pct: all.length ? Math.round((done / all.length) * 100) : 0 };
   };
 
+  const handleDragStart = (e: React.DragEvent, id: string, type: "SECTION" | "CHAPTER" | "TOPIC", parentId: string | null, idx: number) => {
+    e.stopPropagation();
+    e.dataTransfer.effectAllowed = "move";
+    setDragging({ id, type, parentId, idx });
+  };
+
+  const handleDragOver = (e: React.DragEvent, type: "SECTION" | "CHAPTER" | "TOPIC", parentId: string | null, idx: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (dragging && dragging.type === type && dragging.parentId === parentId && dragging.idx !== idx) {
+      setDragOver({ parentId, idx });
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, type: "SECTION" | "CHAPTER" | "TOPIC", parentId: string | null, dropIdx: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (dragging && dragging.type === type && dragging.parentId === parentId && dragging.idx !== dropIdx) {
+      let list: any[] = [];
+      if (type === "SECTION") list = [...sections];
+      else if (type === "CHAPTER") {
+        const parentSec = sections.find((s: any) => s.id === parentId);
+        list = [...(parentSec?.chapters || [])];
+      } else if (type === "TOPIC") {
+        const parentSec = sections.find((s: any) => s.chapters?.some((c: any) => c.id === parentId));
+        const parentChap = parentSec?.chapters?.find((c: any) => c.id === parentId);
+        list = [...(parentChap?.topics || [])];
+      }
+
+      if (list.length > 0) {
+        const dragItem = list[dragging.idx];
+        list.splice(dragging.idx, 1);
+        list.splice(dropIdx, 0, dragItem);
+
+        const reorderedItems = list.map((item, idx) => ({ id: item.id, type, order: idx + 1 }));
+
+        if (onDrop) {
+          onDrop(type, reorderedItems);
+        }
+      }
+    }
+
+    setDragging(null);
+    setDragOver(null);
+  };
+
+  const handleDragEnd = () => {
+    setDragging(null);
+    setDragOver(null);
+  };
+
   if (!sections.length) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -485,12 +537,20 @@ export default function CurriculumViewer({
                 <button
                   onClick={() => switchSection(section.id)}
                   onMouseEnter={() => setHoveredSectionId(section.id)}
+                  draggable={canManage}
+                  onDragStart={(e) => handleDragStart(e, section.id, "SECTION", null, sIdx)}
+                  onDragOver={(e) => handleDragOver(e, "SECTION", null, sIdx)}
+                  onDrop={(e) => handleDrop(e, "SECTION", null, sIdx)}
+                  onDragEnd={handleDragEnd}
                   title={section.name}
                   className={`w-full text-left px-2.5 py-2.5 rounded-xl border transition-all duration-200 relative overflow-hidden
                     ${isActive
                       ? "bg-red-500/10 border-red-500/25 shadow-[0_0_0_1px_rgba(239,68,68,0.12),inset_0_1px_0_rgba(255,255,255,0.05)]"
                       : "bg-white/[0.025] border-white/[0.06] hover:bg-white/[0.05] hover:border-white/10"
-                    }`}
+                    }
+                    ${dragOver?.parentId === null && dragOver?.idx === sIdx ? "border-t-2 border-t-emerald-500" : ""}
+                    ${dragging?.id === section.id ? "opacity-50" : ""}
+                  `}
                 >
                   {isActive && (
                     <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-red-500 rounded-r shadow-[0_0_6px_rgba(239,68,68,0.5)]" />
@@ -606,12 +666,20 @@ export default function CurriculumViewer({
                       setIsChapterPanelExpanded(false);
                     }}
                     onMouseEnter={() => setHoveredChapterId(chapter.id)}
+                    draggable={canManage}
+                    onDragStart={(e) => handleDragStart(e, chapter.id, "CHAPTER", activeSection.id, cIdx)}
+                    onDragOver={(e) => handleDragOver(e, "CHAPTER", activeSection.id, cIdx)}
+                    onDrop={(e) => handleDrop(e, "CHAPTER", activeSection.id, cIdx)}
+                    onDragEnd={handleDragEnd}
                     title={chapter.name}
                     className={`w-full text-left px-2.5 py-2.5 rounded-xl border transition-all duration-200 relative overflow-hidden
                       ${isActive
                         ? "bg-white/[0.07] border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                         : "bg-white/[0.025] border-white/[0.06] hover:bg-white/[0.05] hover:border-white/10"
-                      }`}
+                      }
+                      ${dragOver?.parentId === activeSection.id && dragOver?.idx === cIdx ? "border-t-2 border-t-emerald-500" : ""}
+                      ${dragging?.id === chapter.id ? "opacity-50" : ""}
+                    `}
                   >
                     {isActive && <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-zinc-300 rounded-r" />}
 
@@ -774,7 +842,14 @@ export default function CurriculumViewer({
               onDeleteTopic={onDeleteTopic}
               onUploadNote={onUploadNote}
               onDeleteTest={onDeleteTest}
-              dragProps={{}}
+              dragProps={{
+                draggable: isSectionManager(activeSection),
+                onDragStart: (e: any) => handleDragStart(e, topic.id, "TOPIC", activeChapter.id, tIdx),
+                onDragOver: (e: any) => handleDragOver(e, "TOPIC", activeChapter.id, tIdx),
+                onDrop: (e: any) => handleDrop(e, "TOPIC", activeChapter.id, tIdx),
+                onDragEnd: handleDragEnd,
+                className: `${dragOver?.parentId === activeChapter.id && dragOver?.idx === tIdx ? "border-t-2 border-t-emerald-500" : ""} ${dragging?.id === topic.id ? "opacity-50" : ""}`
+              }}
             />
           ))}
         </div>

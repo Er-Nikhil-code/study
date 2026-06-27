@@ -130,9 +130,16 @@ export class ChallengesService {
     });
     const internIds = interns.map(i => i.id);
 
+    const user = await this.prisma.user.findUnique({ where: { id: teacherId }, select: { role: true } });
+    const isIntern = user?.role === "INTERN";
+
     const where: any = { assigned_to: { in: [teacherId, ...internIds] } };
     if (status && status !== "ALL") {
       where.status = status;
+    }
+    // Knights (Interns) only handle question reviews, not note reviews
+    if (isIntern) {
+      where.note_id = null;
     }
 
     const [challenges, total] = await Promise.all([
@@ -158,6 +165,14 @@ export class ChallengesService {
           created_by: {
             select: { id: true, first_name: true, last_name: true, email: true },
           },
+          messages: {
+            orderBy: { created_at: "asc" },
+            include: {
+              user: {
+                select: { id: true, first_name: true, last_name: true, role: true, profile_picture: true }
+              }
+            }
+          }
         },
       }),
       this.prisma.challenge.count({ where }),
@@ -429,7 +444,7 @@ export class ChallengesService {
 
   async getMyChallenges(userId: string) {
     return this.prisma.challenge.findMany({
-      where: { submitted_by: userId },
+      where: { submitted_by: userId, note_id: null },
       orderBy: { created_at: "desc" },
       include: {
         question: {
@@ -445,9 +460,43 @@ export class ChallengesService {
         },
         note: {
           select: { id: true, title: true, topic: { select: { name: true } } },
+        },
+        messages: {
+          orderBy: { created_at: "asc" },
+          include: {
+            user: {
+              select: { id: true, first_name: true, last_name: true, role: true, profile_picture: true }
+            }
+          }
         }
       },
     });
+  }
+
+  /* ════════════════════════════════════════════
+   *  CHAT MESSAGES
+   * ════════════════════════════════════════════ */
+
+  async addMessage(challengeId: string, userId: string, message: string) {
+    const challenge = await this.prisma.challenge.findUnique({
+      where: { id: challengeId }
+    });
+    if (!challenge) throw new NotFoundException("Challenge not found");
+
+    const newMessage = await this.prisma.challengeMessage.create({
+      data: {
+        challenge_id: challengeId,
+        user_id: userId,
+        message: message,
+      },
+      include: {
+        user: {
+          select: { id: true, first_name: true, last_name: true, role: true, profile_picture: true }
+        }
+      }
+    });
+
+    return newMessage;
   }
 
   /* ════════════════════════════════════════════

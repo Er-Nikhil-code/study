@@ -52,6 +52,7 @@ model User {
   questions               Question[]
   cart                    Cart?
   orders                  Order[]
+  challenge_messages      ChallengeMessage[]
 
   @@index([email])
   @@index([role])
@@ -468,11 +469,28 @@ model Challenge {
 
   created_at  DateTime  @default(now())
   resolved_at DateTime?
+  
+  messages    ChallengeMessage[]
 
   @@index([question_id])
+  @@index([note_id])
+  @@index([submitted_by])
   @@index([assigned_to])
   @@index([status])
   @@index([created_at])
+}
+
+model ChallengeMessage {
+  id           String    @id @default(cuid())
+  challenge_id String
+  challenge    Challenge @relation(fields: [challenge_id], references: [id], onDelete: Cascade)
+  user_id      String
+  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  message      String
+  created_at   DateTime  @default(now())
+
+  @@index([challenge_id])
+  @@index([user_id])
 }
 
 model UserStats {

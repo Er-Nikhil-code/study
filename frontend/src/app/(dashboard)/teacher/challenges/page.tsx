@@ -7,8 +7,11 @@ import { ChallengesService } from "@/services/challenges.service";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import { Edit2, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import ChallengeChat from "@/components/ui/ChallengeChat";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function TeacherChallengesPage() {
+  const { user } = useAuthStore();
   const [challenges, setChallenges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -180,6 +183,14 @@ export default function TeacherChallengesPage() {
                 </div>
               </div>
 
+              {challenge.status !== "RESOLVED" && user && (
+                <ChallengeChat 
+                  challengeId={challenge.id} 
+                  initialMessages={challenge.messages || []} 
+                  currentUserId={user.id} 
+                />
+              )}
+
               {challenge.status === "PENDING" && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
@@ -197,14 +208,7 @@ export default function TeacherChallengesPage() {
                       <Edit2 size={14} /> Edit Question
                     </Link>
                   )}
-                  {challenge.note && (
-                    <Link
-                      href={`/intern/notes/${challenge.note.id}/edit?challengeId=${challenge.id}`}
-                      className="rounded-full flex items-center gap-2 border border-blue-500/20 bg-blue-500/10 px-4 py-2 text-sm font-medium text-blue-200 transition hover:bg-blue-500/15"
-                    >
-                      <Edit2 size={14} /> Edit Note
-                    </Link>
-                  )}
+
                   <button
                     onClick={() => openModal(challenge.id, "REJECT")}
                     disabled={processingId === challenge.id}
