@@ -129,9 +129,9 @@ export default function ExamInterfacePage() {
       let answerJson = {};
       if (ans !== null && ans !== undefined) {
         if (Array.isArray(ans)) {
-          answerJson = { correct_options: ans };
+          answerJson = { selected_options: ans };
         } else {
-          answerJson = { correct_option: ans };
+          answerJson = { selected_option: ans };
         }
       }
 

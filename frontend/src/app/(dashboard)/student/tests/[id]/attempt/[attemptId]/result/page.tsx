@@ -115,7 +115,7 @@ export default function TestResultPage() {
           const isIncorrect = response?.is_correct === false;
           const isUnattempted = !response || response.is_correct === null;
 
-          const studentAnsId = response?.answer_json?.correct_option || response?.answer_json?.answer;
+          const studentAnsId = response?.answer_json?.selected_option || response?.answer_json?.answer;
           const correctAnsId = q.answer_key?.correct_option || q.answer_key?.answer;
 
           return (
@@ -158,8 +158,8 @@ export default function TestResultPage() {
                       }
                       
                       // Check student selected options
-                      if (Array.isArray(response?.answer_json?.correct_options)) {
-                        isStudentMarked = response.answer_json.correct_options.includes(opt.id);
+                      if (Array.isArray(response?.answer_json?.selected_options)) {
+                        isStudentMarked = response.answer_json.selected_options.includes(opt.id);
                       } else {
                         isStudentMarked = studentAnsId === opt.id;
                       }
