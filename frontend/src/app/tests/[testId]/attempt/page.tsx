@@ -277,9 +277,9 @@ export default function AttemptPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white flex flex-col transition-colors duration-[1500ms]">
       {/* HEADER */}
-      <header className="sticky top-0 z-30 border-b border-zinc-200 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-lg relative">
+      <header className="sticky top-0 z-30 border-b border-zinc-200 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-lg relative transition-colors duration-[1500ms]">
         <div className="flex items-center w-full">
           {/* Left section (Main Question Area) */}
           <div className="flex-1 flex items-center justify-between px-4 sm:px-6 lg:px-12 py-3">
@@ -374,7 +374,7 @@ export default function AttemptPage() {
         </main>
 
         {/* SIDEBAR PALETTE */}
-        <aside className={`${showPalette ? "block" : "hidden"} lg:block w-72 border-l border-white/20 bg-white/40 dark:bg-black/40 backdrop-blur-2xl p-4 overflow-y-auto`}>
+        <aside className={`${showPalette ? "block" : "hidden"} lg:block w-72 border-l border-white/20 bg-white/40 dark:bg-black/40 backdrop-blur-2xl p-4 overflow-y-auto transition-colors duration-[1500ms]`}>
           <h3 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Question Palette</h3>
           <div className="grid grid-cols-2 gap-2 mb-4 text-[10px]">
             {([["unanswered","Not Answered"],["answered","Answered"],["review","For Review"],["review-answered","Review + Answered"]] as [QStatus,string][]).map(([status, label]) => (
@@ -448,7 +448,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
           <div className="space-y-3">
             {options.map((opt: any) => (
               <button key={opt.id} onClick={() => setAnswer({ selected_option: opt.id })}
-                className={`w-full text-left rounded-xl border p-4 text-sm transition ${
+                className={`w-full text-left rounded-xl border p-4 text-sm transition-colors duration-[1500ms] ${
                   currentAnswer?.selected_option === opt.id
                     ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
                     : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
@@ -491,7 +491,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
                 const next = isSelected ? selected.filter((s: string) => s !== opt.id) : [...selected, opt.id];
                 setAnswer({ selected_options: next });
               }}
-                className={`w-full text-left rounded-xl border p-4 text-sm transition ${
+                className={`w-full text-left rounded-xl border p-4 text-sm transition-colors duration-[1500ms] ${
                   isSelected ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
                     : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
                 }`}>
@@ -511,7 +511,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
           <div className="flex gap-4">
             {options.map((opt: any) => (
               <button key={opt.id} onClick={() => setAnswer({ selected_option: opt.id })}
-                className={`flex-1 rounded-xl border p-4 text-center text-sm font-medium transition ${
+                className={`flex-1 rounded-xl border p-4 text-center text-sm font-medium transition-colors duration-[1500ms] ${
                   currentAnswer?.selected_option === opt.id
                     ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
                     : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
@@ -524,7 +524,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
         <div className="flex gap-4">
           {["True", "False"].map((val) => (
             <button key={val} onClick={() => setAnswer({ answer: val === "True" })}
-              className={`flex-1 rounded-xl border p-4 text-center text-sm font-medium transition ${
+              className={`flex-1 rounded-xl border p-4 text-center text-sm font-medium transition-colors duration-[1500ms] ${
                 currentAnswer?.answer === (val === "True")
                   ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
                   : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
