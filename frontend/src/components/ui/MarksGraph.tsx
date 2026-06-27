@@ -136,7 +136,7 @@ export default function MarksGraph({
               />
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#ffffff20', strokeWidth: 1, strokeDasharray: '5 5' }} />
               <Line 
-                type="monotone" 
+                type="monotoneX" 
                 dataKey="percentage" 
                 stroke="#ef4444" 
                 strokeWidth={2}

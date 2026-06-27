@@ -14,6 +14,7 @@ function NotesViewerContent() {
   const noteId = searchParams.get("noteId");
   
   const [darkMode, setDarkMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportReason, setReportReason] = useState("TYPO");
   const [reportDescription, setReportDescription] = useState("");
@@ -41,6 +42,7 @@ function NotesViewerContent() {
 
   // Read system preference or local storage for initial dark mode state
   useEffect(() => {
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
     const saved = localStorage.getItem("notes-dark-mode");
     if (saved) {
       setDarkMode(saved === "true");
@@ -115,22 +117,36 @@ function NotesViewerContent() {
 
       {/* PDF Viewer Area */}
       <main className="flex-1 w-full bg-zinc-900 relative">
-        <object
-          data={`${url}#toolbar=0&navpanes=0`}
-          type="application/pdf"
-          className="absolute inset-0 w-full h-full"
-          style={{
-            transition: "filter 2s ease-in-out",
-            /* Invert colors and rotate hue to keep images roughly same color but flip background/text */
-            filter: darkMode ? "invert(1) hue-rotate(180deg) brightness(0.9) contrast(1.1)" : "none"
-          }}
-        >
+        {isMobile ? (
           <iframe 
             src={`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`}
-            className="w-full h-full border-none bg-white"
+            className="absolute inset-0 w-full h-full border-none bg-white"
             title="PDF Mobile Viewer"
           />
-        </object>
+        ) : (
+          <object
+            data={`${url}#toolbar=0&navpanes=0`}
+            type="application/pdf"
+            className="absolute inset-0 w-full h-full"
+            style={{
+              transition: "filter 2s ease-in-out",
+              /* Invert colors and rotate hue to keep images roughly same color but flip background/text */
+              filter: darkMode ? "invert(1) hue-rotate(180deg) brightness(0.9) contrast(1.1)" : "none"
+            }}
+          >
+            <div className="flex flex-col items-center justify-center h-full text-center p-8">
+              <p className="text-zinc-400 mb-4">Your browser does not support inline PDF viewing.</p>
+              <a 
+                href={url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 font-medium text-sm"
+              >
+                Click here to view PDF directly
+              </a>
+            </div>
+          </object>
+        )}
 
         {isReportModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
