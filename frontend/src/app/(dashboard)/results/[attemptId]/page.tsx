@@ -97,10 +97,18 @@ export default function ResultDetailPage() {
 
   return (
     <>
-        <SectionTitle 
-          title={data.test?.title || (viewMode === "analysis" ? "Test Analysis" : "Test Result")} 
-        />
-
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-4 mb-2">
+          <div>
+            {data.test?.topic?.chapter?.section?.test_series_id ? (
+              <Link href={`/test-series/${data.test.topic.chapter.section.test_series_id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">← Back to Test Series</Link>
+            ) : data.test?.topic?.chapter?.section?.course_id ? (
+              <Link href={`/courses/${data.test.topic.chapter.section.course_id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">← Back to Course</Link>
+            ) : (
+              <Link href="/student/dashboard" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">← Back to dashboard</Link>
+            )}
+          </div>
+          <h1 className="text-lg font-bold text-white tracking-tight">{data.test?.title || (viewMode === "analysis" ? "Test Analysis" : "Test Result")}</h1>
+        </div>
         {/* Subtle Single Line Summary */}
         {viewMode !== "analysis" && (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-y-2 rounded-xl border border-white/10 bg-white/[0.02] px-5 py-2 text-[13px]">
@@ -413,15 +421,6 @@ export default function ResultDetailPage() {
           
         </div>
 
-        <div className="mt-8 flex justify-center">
-          {data.test?.topic?.chapter?.section?.test_series_id ? (
-            <Link href={`/test-series/${data.test.topic.chapter.section.test_series_id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">← Back to Test Series</Link>
-          ) : data.test?.topic?.chapter?.section?.course_id ? (
-            <Link href={`/courses/${data.test.topic.chapter.section.course_id}`} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">← Back to Course</Link>
-          ) : (
-            <Link href="/student/dashboard" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">← Back to dashboard</Link>
-          )}
-        </div>
 
       {/* Challenge Modal */}
       {challengeQ && (
