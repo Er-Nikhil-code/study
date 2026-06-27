@@ -448,7 +448,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
           <div className="space-y-3">
             {options.map((opt: any) => (
               <button key={opt.id} onClick={() => setAnswer({ selected_option: opt.id })}
-                className={`w-full text-left rounded-xl border p-4 text-sm transition-colors duration-[1500ms] ${
+                className={`w-full text-left rounded-xl border p-4 text-sm transition-colors ${
                   currentAnswer?.selected_option === opt.id
                     ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
                     : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
@@ -491,7 +491,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
                 const next = isSelected ? selected.filter((s: string) => s !== opt.id) : [...selected, opt.id];
                 setAnswer({ selected_options: next });
               }}
-                className={`w-full text-left rounded-xl border p-4 text-sm transition-colors duration-[1500ms] ${
+                className={`w-full text-left rounded-xl border p-4 text-sm transition-colors ${
                   isSelected ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
                     : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
                 }`}>
