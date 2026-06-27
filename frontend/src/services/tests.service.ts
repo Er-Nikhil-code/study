@@ -33,6 +33,10 @@ export const TestsService = {
     return api.get(`/tests/any/attempt/${attemptId}/result`).then(r => r.data);
   },
 
+  getAttemptStatus(attemptId: string) {
+    return api.get(`/tests/any/attempt/${attemptId}/status`).then(r => r.data);
+  },
+
   getTeacherTests(params?: any) {
     return api.get("/tests/manage/list", { params }).then(res => res.data);
   },

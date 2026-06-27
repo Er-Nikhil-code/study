@@ -34,6 +34,17 @@ export default function ExamInterfacePage() {
     },
   });
 
+  const { data: attemptStatus } = useQuery({
+    queryKey: ["attemptStatus", attemptId],
+    queryFn: () => TestsService.getAttemptStatus(attemptId),
+  });
+
+  useEffect(() => {
+    if (attemptStatus && attemptStatus.status !== "IN_PROGRESS") {
+      router.replace(`/student/tests/${testId}/attempt/${attemptId}/result`);
+    }
+  }, [attemptStatus, router, testId, attemptId]);
+
   const submitMutation = useMutation({
     mutationFn: () => TestsService.submitAttempt(attemptId),
     onSuccess: () => {

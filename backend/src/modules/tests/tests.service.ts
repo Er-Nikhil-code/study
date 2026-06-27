@@ -961,6 +961,16 @@ export class TestsService {
    *  GET ATTEMPT WITH SOLUTIONS (for results)
    * ════════════════════════════════════════════ */
 
+  async getAttemptStatus(attemptId: string, userId: string) {
+    const attempt = await this.prisma.attempt.findUnique({
+      where: { id: attemptId },
+      select: { status: true, user_id: true }
+    });
+    if (!attempt) throw new NotFoundException("Attempt not found");
+    if (attempt.user_id !== userId) throw new ForbiddenException("Not your attempt");
+    return { status: attempt.status };
+  }
+
   async getAttemptResult(attemptId: string, userId: string) {
     const attempt = await this.prisma.attempt.findUnique({
       where: { id: attemptId },

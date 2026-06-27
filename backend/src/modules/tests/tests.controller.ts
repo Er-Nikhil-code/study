@@ -97,6 +97,15 @@ export class TestsController {
     return this.testsService.submitAttempt(attemptId, req.user.sub);
   }
 
+  @Get("any/attempt/:attemptId/status")
+  @UseGuards(JwtAuthGuard)
+  async getAttemptStatus(
+    @Param("attemptId") attemptId: string,
+    @Request() req: any,
+  ) {
+    return this.testsService.getAttemptStatus(attemptId, req.user.sub);
+  }
+
   @Get(":testId/attempt/:attemptId/result")
   @UseGuards(JwtAuthGuard)
   async getAttemptResult(
