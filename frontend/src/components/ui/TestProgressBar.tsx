@@ -48,13 +48,6 @@ export default function TestProgressBar({
           </span>
           <span className="text-zinc-600">/{totalMarks}</span>
         </span>
-        {rank !== null && (
-          <span className="text-zinc-400">
-            Rank:{" "}
-            <span className="text-white">{rank}</span>
-            <span className="text-zinc-600">/{totalAspirants}</span>
-          </span>
-        )}
         {cutoff > 0 && (
           <span className="text-zinc-400">
             Cutoff:{" "}
