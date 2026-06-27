@@ -105,8 +105,8 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
     >
       {/* ── Logo ─────────────────────────────────────────────────── */}
       <div className={`flex h-14 items-center border-b border-white/[0.06] shrink-0
-        ${isCollapsed ? "justify-center px-0" : "px-4 gap-2.5"}`}>
-        <Link href={getDashboardUrl()} className="flex items-center gap-2.5 shrink-0">
+        ${isCollapsed ? "justify-center px-0" : "px-4"}`}>
+        <Link href={getDashboardUrl()} className={`flex items-center shrink-0 ${isCollapsed ? "" : "gap-2.5"}`}>
           {/* Icon mark — always visible */}
           <div className={`flex items-center justify-center rounded-lg bg-red-600/10 border border-red-500/20
             shadow-[0_0_12px_rgba(220,38,38,0.2)] shrink-0 relative
@@ -118,9 +118,11 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
             </span>
           </div>
           {/* Wordmark */}
-          <span className={`text-white text-sm font-bold tracking-wider transition-opacity duration-700 ${montserrat.className} ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
-            <span className="text-red-500">C</span>ODIFY
-          </span>
+          <div className={`transition-[max-width,opacity] duration-700 overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[100px] opacity-100'}`}>
+            <span className={`text-white text-sm font-bold tracking-wider ${montserrat.className}`}>
+              <span className="text-red-500">C</span>ODIFY
+            </span>
+          </div>
         </Link>
       </div>
 
@@ -160,7 +162,9 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                           </span>
                         )}
                       </div>
-                      <span className={`truncate transition-opacity duration-700 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>{item.label}</span>
+                      <div className={`transition-[max-width,opacity] duration-700 overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[150px] opacity-100'}`}>
+                        <span className="truncate">{item.label}</span>
+                      </div>
                     </div>
                     {!isCollapsed && (
                       <ChevronDown size={13} className={`text-zinc-600 shrink-0 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
@@ -192,7 +196,9 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                         </span>
                       )}
                     </div>
-                    <span className={`truncate transition-opacity duration-700 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>{item.label}</span>
+                    <div className={`transition-[max-width,opacity] duration-700 overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[150px] opacity-100'}`}>
+                      <span className="truncate">{item.label}</span>
+                    </div>
                   </Link>
                 )}
 
@@ -264,11 +270,13 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
               ) : initials}
             </div>
 
-            <div className={`flex flex-col min-w-0 transition-opacity duration-700 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
+            <div className={`flex flex-col min-w-0 transition-[max-width,opacity] duration-700 overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[150px] opacity-100'}`}>
               <span className="text-[13px] font-semibold text-white truncate">{displayName}</span>
               <span className="text-[10px] uppercase tracking-wider text-zinc-500 truncate">{getChessRoleName(user.role)}</span>
             </div>
-            <ChevronDown size={12} className={`text-zinc-600 shrink-0 transition-all duration-700 ${isProfileOpen ? "rotate-180" : ""} ${isCollapsed ? 'opacity-0' : 'opacity-100'}`} />
+            <div className={`transition-[max-width,opacity] duration-700 overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[20px] opacity-100'}`}>
+              <ChevronDown size={12} className={`text-zinc-600 shrink-0 transition-transform duration-200 ${isProfileOpen ? "rotate-180" : ""}`} />
+            </div>
           </button>
         ) : (
           <Link
