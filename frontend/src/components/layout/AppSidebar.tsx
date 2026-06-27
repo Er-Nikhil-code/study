@@ -100,7 +100,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
       className={`fixed inset-y-0 left-0 z-50 flex flex-col
         bg-[#080808] border-r border-white/[0.06]
         ${!mounted ? "transition-none" : "transition-[width] duration-700 ease-in-out"}
-        ${isCollapsed ? "w-[60px]" : "w-56"}
+        ${isCollapsed ? "w-[60px]" : "w-52"}
         overflow-x-hidden whitespace-nowrap`}
     >
       {/* ── Logo ─────────────────────────────────────────────────── */}
@@ -233,7 +233,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
       <div className="relative shrink-0 p-2 border-t border-white/[0.06]" ref={dropdownRef}>
         {/* Profile dropdown */}
         {isProfileOpen && mounted && (
-          <div className={`absolute z-[100] rounded-xl border border-white/10 bg-[#111] shadow-xl animate-in fade-in zoom-in-95 duration-200
+          <div className={`absolute z-[100] rounded-xl border border-white/10 bg-black/60 backdrop-blur-xl shadow-2xl ring-1 ring-white/5 animate-in fade-in zoom-in-95 duration-200
             ${isCollapsed ? "left-full bottom-2 ml-3 w-36 slide-in-from-left-2" : "bottom-full mb-2 left-2 right-2 slide-in-from-bottom-2"}`}>
             <div className="p-1">
               <Link

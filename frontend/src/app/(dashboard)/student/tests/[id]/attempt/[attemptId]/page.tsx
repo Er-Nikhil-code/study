@@ -304,7 +304,6 @@ export default function ExamInterfacePage() {
                   <label 
                     key={opt.id} 
                     className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer
-                      transition-[border-color,background-color,box-shadow] duration-200 ease-in-out
                       ${isSelected
                         ? 'border-blue-500 bg-blue-50 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.15)]'
                         : 'border-zinc-200 bg-white hover:border-blue-300 hover:bg-zinc-50 hover:shadow-[inset_0_0_0_1px_rgba(147,197,253,0.2)]'
@@ -319,7 +318,6 @@ export default function ExamInterfacePage() {
                         className="peer sr-only"
                       />
                       <div className={`w-5 h-5 flex items-center justify-center
-                        transition-[border-color,background-color] duration-200 ease-in-out
                         ${isMulti ? 'rounded' : 'rounded-full'} border-2
                         ${isSelected
                           ? 'border-blue-600 bg-blue-600'
@@ -333,7 +331,7 @@ export default function ExamInterfacePage() {
                         )}
                       </div>
                     </div>
-                    <MathRenderer text={opt.text} className={`inline text-base leading-relaxed transition-colors duration-200 ${isSelected ? 'text-blue-900' : 'text-zinc-800'}`} />
+                    <MathRenderer text={opt.text} className={`inline text-base leading-relaxed ${isSelected ? 'text-blue-900' : 'text-zinc-800'}`} />
                   </label>
                 );
               })}

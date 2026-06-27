@@ -8,6 +8,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { ContentBlockRenderer } from "@/components/ui/LatexRenderer";
 import MathRenderer from "@/components/ui/MathRenderer";
 import studentService from "@/services/student.service";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const CHALLENGE_REASONS = [
   { value: "WRONG_ANSWER_KEY", label: "Wrong answer key" },
@@ -107,7 +108,9 @@ export default function ResultDetailPage() {
               <Link href="/student/dashboard" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-white">← Back to dashboard</Link>
             )}
           </div>
-          <h1 className="text-lg font-bold text-white tracking-tight">{data.test?.title || (viewMode === "analysis" ? "Test Analysis" : "Test Result")}</h1>
+          <div className="rounded-xl border border-white/10 bg-white/[0.02] px-5 py-2">
+            <h1 className="text-lg font-bold text-white tracking-tight">{data.test?.title || (viewMode === "analysis" ? "Test Analysis" : "Test Result")}</h1>
+          </div>
         </div>
         {/* Subtle Single Line Summary */}
         {viewMode !== "analysis" && (
@@ -181,6 +184,24 @@ export default function ResultDetailPage() {
                         )}
                       </div>
                     </div>
+
+                    {/* Navigation Arrows */}
+                    {idx > 0 && (
+                      <button 
+                        onClick={() => setActiveQuestionIdx(idx - 1)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 border border-white/10 text-white/50 hover:text-white hover:bg-black/80 transition z-10 shadow-lg backdrop-blur-sm"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                    )}
+                    {idx < testQuestions.length - 1 && (
+                      <button 
+                        onClick={() => setActiveQuestionIdx(idx + 1)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 border border-white/10 text-white/50 hover:text-white hover:bg-black/80 transition z-10 shadow-lg backdrop-blur-sm"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                    )}
 
                     <div className="flex-1 overflow-y-auto p-4 relative bg-[#0a0a0a]">
                       
@@ -335,32 +356,8 @@ export default function ResultDetailPage() {
                         >
                           Review
                         </button>
-                        <div className="text-xs text-zinc-500 text-right">
-                          {q.topic?.chapter?.section?.test_series?.name || q.topic?.chapter?.section?.course?.name || "Course"} → {q.topic?.chapter?.name} → {q.topic?.name}
-                        </div>
                       </div>
 
-                    </div>
-                    
-                    {/* Navigation Footer */}
-                    <div className="bg-zinc-900 border-t border-white/10 p-3 shrink-0 flex items-center justify-between">
-                      <button 
-                        onClick={() => setActiveQuestionIdx(Math.max(0, idx - 1))}
-                        disabled={idx === 0}
-                        className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 text-xs font-medium text-white transition disabled:opacity-50 flex items-center gap-1.5"
-                      >
-                        ← Previous
-                      </button>
-                      <div className="text-xs text-zinc-400 font-medium">
-                        {idx + 1} of {testQuestions.length}
-                      </div>
-                      <button 
-                        onClick={() => setActiveQuestionIdx(Math.min(testQuestions.length - 1, idx + 1))}
-                        disabled={idx === testQuestions.length - 1}
-                        className="px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-50"
-                      >
-                        Next →
-                      </button>
                     </div>
 
                   </Panel>
