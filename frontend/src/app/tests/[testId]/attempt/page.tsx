@@ -47,6 +47,14 @@ const statusColors: Record<QStatus, string> = {
 
 export default function AttemptPage() {
   const { theme, toggleTheme } = useThemeStore();
+  const [isThemeToggling, setIsThemeToggling] = useState(false);
+
+  const handleThemeToggle = () => {
+    setIsThemeToggling(true);
+    toggleTheme();
+    setTimeout(() => setIsThemeToggling(false), 1500);
+  };
+
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -305,7 +313,7 @@ export default function AttemptPage() {
             {/* Mobile right items (Hidden on Desktop) */}
             <div className="flex lg:hidden items-center gap-2">
               <button onClick={() => setShowPalette(!showPalette)} className="rounded-lg border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] p-2 text-sm">☰</button>
-              <button onClick={toggleTheme} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
+              <button onClick={handleThemeToggle} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
                 {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
               </button>
               <button onClick={() => setShowSubmitModal(true)} disabled={submitting}
@@ -326,7 +334,7 @@ export default function AttemptPage() {
           
           {/* Right section (Sidebar Area - Desktop Only) */}
           <div className="hidden lg:flex w-72 shrink-0 items-center justify-end px-8 py-3 gap-3">
-            <button onClick={toggleTheme} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
+            <button onClick={handleThemeToggle} className="rounded-xl p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition">
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             <button onClick={() => setShowSubmitModal(true)} disabled={submitting}
@@ -353,7 +361,7 @@ export default function AttemptPage() {
                   <ContentBlockRenderer blocks={q.content_json || []} />
                 </div>
               </div>
-              <div className="mt-4">{renderAnswerInput(q, answers[q.id], setAnswer)}</div>
+              <div className="mt-4">{renderAnswerInput(q, answers[q.id], setAnswer, isThemeToggling)}</div>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <button onClick={clearAnswer} className="rounded-xl border border-zinc-200 dark:border-white/10 bg-black/5 dark:bg-white/[0.03] px-4 py-2 text-sm text-zinc-600 dark:text-zinc-300 transition hover:bg-black/10 dark:hover:bg-white/[0.06]">Clear Response</button>
                 <button onClick={toggleReview}
@@ -435,7 +443,7 @@ export default function AttemptPage() {
 }
 
 /* ═════════════════════════════════════════════ */
-function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a: any) => void) {
+function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a: any) => void, isThemeToggling: boolean) {
   const options = (q.options_json as any)?.options || [];
 
   switch (q.question_type) {
@@ -448,7 +456,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
           <div className="space-y-3">
             {options.map((opt: any) => (
               <button key={opt.id} onClick={() => setAnswer({ selected_option: opt.id })}
-                className={`w-full text-left rounded-xl border p-4 text-sm transition-colors ${
+                className={`w-full text-left rounded-xl border p-4 text-sm ${isThemeToggling ? "transition-colors duration-[1500ms]" : "transition-none"} ${
                   currentAnswer?.selected_option === opt.id
                     ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
                     : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
@@ -491,7 +499,7 @@ function renderAnswerInput(q: AttemptQuestion, currentAnswer: any, setAnswer: (a
                 const next = isSelected ? selected.filter((s: string) => s !== opt.id) : [...selected, opt.id];
                 setAnswer({ selected_options: next });
               }}
-                className={`w-full text-left rounded-xl border p-4 text-sm transition-colors ${
+                className={`w-full text-left rounded-xl border p-4 text-sm ${isThemeToggling ? "transition-colors duration-[1500ms]" : "transition-none"} ${
                   isSelected ? "border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-100"
                     : "border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/[0.06]"
                 }`}>
