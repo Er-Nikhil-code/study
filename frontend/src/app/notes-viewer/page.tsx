@@ -75,9 +75,9 @@ function NotesViewerContent() {
       <header className="h-10 shrink-0 bg-black border-b border-white/10 px-4 flex items-center justify-between shadow-sm z-10">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => window.close()}
+            onClick={() => window.history.length > 1 ? window.history.back() : window.close()}
             className="text-zinc-400 hover:text-white transition p-1 rounded hover:bg-white/5"
-            title="Close Note"
+            title="Go Back"
           >
             <ArrowLeft size={16} />
           </button>
@@ -125,17 +125,11 @@ function NotesViewerContent() {
             filter: darkMode ? "invert(1) hue-rotate(180deg) brightness(0.9) contrast(1.1)" : "none"
           }}
         >
-          <div className="flex flex-col items-center justify-center h-full text-center p-8">
-            <p className="text-zinc-400 mb-4">Your browser does not support inline PDF viewing.</p>
-            <a 
-              href={url} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 font-medium text-sm"
-            >
-              Click here to view PDF directly
-            </a>
-          </div>
+          <iframe 
+            src={`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`}
+            className="w-full h-full border-none bg-white"
+            title="PDF Mobile Viewer"
+          />
         </object>
 
         {isReportModalOpen && (

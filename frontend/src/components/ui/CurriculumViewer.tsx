@@ -241,18 +241,16 @@ function TopicCard({
           <div className="flex flex-wrap items-center gap-1.5 mt-auto pt-1">
             {/* Notes */}
             {topic.has_notes ? (
-              <a
+              <Link
                 href={
                   topic.first_note
                     ? `/notes-viewer?url=${encodeURIComponent(getSecureUrl(topic.first_note.pdf_url))}&title=${encodeURIComponent(topic.first_note.title)}&noteId=${topic.first_note.id}`
                     : `/topics/${topic.id}`
                 }
-                target={topic.first_note ? "_blank" : undefined}
-                rel={topic.first_note ? "opener" : undefined}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-zinc-300 transition-colors"
               >
                 <FileText size={12} /> Notes
-              </a>
+              </Link>
             ) : canManage && (
               <button
                 onClick={() => onUploadNote?.(topic.id, topic.name)}
