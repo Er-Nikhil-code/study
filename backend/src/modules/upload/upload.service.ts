@@ -143,4 +143,25 @@ export class UploadService {
       throw new BadRequestException("Could not sign URL");
     }
   }
+
+  /**
+   * Retrieves the raw object stream from R2.
+   */
+  async getFileStream(key: string, range?: string) {
+    try {
+      if (key.startsWith("http")) {
+        return null;
+      }
+      const command = new GetObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME!,
+        Key: key,
+        ...(range ? { Range: range } : {}),
+      });
+      const response = await this.s3Client.send(command);
+      return response;
+    } catch (error) {
+      console.error("Failed to get file stream:", error);
+      throw new BadRequestException("Could not retrieve file stream");
+    }
+  }
 }

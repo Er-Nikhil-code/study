@@ -10,6 +10,7 @@ import {
   UseGuards,
   Query,
   Res,
+  Req,
 } from "@nestjs/common";
 import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -43,13 +44,45 @@ export class UploadController {
   }
 
   @Get("secure")
-  async getSecureUrl(@Query("key") key: string, @Res() res: Response) {
+  async getSecureUrl(@Query("key") key: string, @Req() req: any, @Res() res: Response) {
     if (!key) {
       throw new BadRequestException("Key is required");
     }
-    const presignedUrl = await this.uploadService.generatePresignedUrl(key);
-    // Redirect the browser directly to the securely generated R2 URL
-    return res.redirect(302, presignedUrl);
+
+    try {
+      const range = req.headers.range;
+      const fileStreamResponse = await this.uploadService.getFileStream(key, range);
+      
+      if (!fileStreamResponse) {
+        // It's a legacy public URL, redirect to it
+        return res.redirect(302, key);
+      }
+
+      res.set({
+        "Content-Type": fileStreamResponse.ContentType || "application/octet-stream",
+        "Accept-Ranges": "bytes",
+        "Cache-Control": "public, max-age=3600",
+      });
+
+      if (fileStreamResponse.ContentLength) {
+        res.set("Content-Length", fileStreamResponse.ContentLength.toString());
+      }
+
+      if (fileStreamResponse.ContentRange) {
+        res.status(206);
+        res.set("Content-Range", fileStreamResponse.ContentRange);
+      } else {
+        res.status(200);
+      }
+
+      // Pipe the S3 readable stream to the response
+      (fileStreamResponse.Body as any).pipe(res);
+    } catch (err) {
+      console.error("Secure URL streaming failed:", err);
+      // Fallback to presigned URL if streaming fails
+      const presignedUrl = await this.uploadService.generatePresignedUrl(key);
+      return res.redirect(302, presignedUrl);
+    }
   }
 
   @Get("assets")
