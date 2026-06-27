@@ -99,8 +99,9 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
       onMouseLeave={() => setIsCollapsed(true)}
       className={`fixed inset-y-0 left-0 z-50 flex flex-col
         bg-[#080808] border-r border-white/[0.06]
-        ${!mounted ? "transition-none" : "transition-[width] duration-300 ease-in-out"}
-        ${isCollapsed ? "w-[60px]" : "w-56"}`}
+        ${!mounted ? "transition-none" : "transition-[width] duration-700 ease-in-out"}
+        ${isCollapsed ? "w-[60px]" : "w-56"}
+        overflow-x-hidden whitespace-nowrap`}
     >
       {/* ── Logo ─────────────────────────────────────────────────── */}
       <div className={`flex h-14 items-center border-b border-white/[0.06] shrink-0
@@ -117,11 +118,9 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
             </span>
           </div>
           {/* Wordmark */}
-          {!isCollapsed && (
-            <span className={`text-white text-sm font-bold tracking-wider ${montserrat.className}`}>
-              <span className="text-red-500">C</span>ODIFY
-            </span>
-          )}
+          <span className={`text-white text-sm font-bold tracking-wider transition-opacity duration-700 ${montserrat.className} ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
+            <span className="text-red-500">C</span>ODIFY
+          </span>
         </Link>
       </div>
 
@@ -161,7 +160,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                           </span>
                         )}
                       </div>
-                      {!isCollapsed && <span className="truncate">{item.label}</span>}
+                      <span className={`truncate transition-opacity duration-700 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>{item.label}</span>
                     </div>
                     {!isCollapsed && (
                       <ChevronDown size={13} className={`text-zinc-600 shrink-0 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
@@ -193,7 +192,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
                         </span>
                       )}
                     </div>
-                    {!isCollapsed && <span className="truncate">{item.label}</span>}
+                    <span className={`truncate transition-opacity duration-700 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>{item.label}</span>
                   </Link>
                 )}
 
@@ -265,24 +264,20 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
               ) : initials}
             </div>
 
-            {!isCollapsed && (
-              <>
-                <div className="flex-1 min-w-0 text-left">
-                  <div className="text-[12px] font-semibold text-white truncate">{displayName}</div>
-                  <div className="text-[10px] text-zinc-500 truncate">{getChessRoleName(user?.role)}</div>
-                </div>
-                <ChevronDown size={12} className={`text-zinc-600 shrink-0 transition-transform duration-200 ${isProfileOpen ? "rotate-180" : ""}`} />
-              </>
-            )}
+            <div className={`flex flex-col min-w-0 transition-opacity duration-700 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
+              <span className="text-[13px] font-semibold text-white truncate">{displayName}</span>
+              <span className="text-[10px] uppercase tracking-wider text-zinc-500 truncate">{getChessRoleName(user.role)}</span>
+            </div>
+            <ChevronDown size={12} className={`text-zinc-600 shrink-0 transition-all duration-700 ${isProfileOpen ? "rotate-180" : ""} ${isCollapsed ? 'opacity-0' : 'opacity-100'}`} />
           </button>
-        ) : !isCollapsed ? (
+        ) : (
           <Link
             href="/"
-            className="flex w-full justify-center rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20"
+            className={`flex w-full justify-center rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-opacity duration-700 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}
           >
             Log in
           </Link>
-        ) : null}
+        )}
       </div>
     </aside>
   );
