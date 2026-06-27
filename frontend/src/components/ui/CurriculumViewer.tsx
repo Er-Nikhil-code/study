@@ -51,9 +51,7 @@ export interface CurriculumViewerProps {
   onAssignManagers?: (sectionId: string, userIds: string[]) => Promise<void>;
   onDrop?: (
     type: "SECTION" | "CHAPTER" | "TOPIC",
-    parentId: string | null,
-    fromIdx: number,
-    toIdx: number
+    items: { id: string; type: "SECTION" | "CHAPTER" | "TOPIC"; order: number }[]
   ) => Promise<void>;
 }
 

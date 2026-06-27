@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Send, User as UserIcon } from "lucide-react";
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -118,9 +118,9 @@ export default function ChallengeChat({ challengeId, initialMessages, currentUse
         <button
           type="submit"
           disabled={!newMessage.trim() || isSending}
-          className="w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 disabled:bg-zinc-800 disabled:text-zinc-600 flex items-center justify-center text-white transition-colors shrink-0"
+          className={`w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 disabled:bg-zinc-800 disabled:text-zinc-600 flex items-center justify-center text-white transition-colors shrink-0`}
         >
-          <Send size={14} className={isMe ? "" : "-ml-0.5"} />
+          <Send size={14} className="-ml-0.5" />
         </button>
       </form>
     </div>
