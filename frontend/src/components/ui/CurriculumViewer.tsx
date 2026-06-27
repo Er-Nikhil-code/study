@@ -454,12 +454,10 @@ export default function CurriculumViewer({
     >
 
       {/* ── PANEL 1: Sections Rail — collapses to ~52px, expands on hover ── */}
-      <div className="group/sec shrink-0 flex flex-col overflow-y-auto scrollbar-none
-        w-[52px] hover:w-56 transition-[width] duration-300 ease-in-out
-        border-r border-white/[0.06] pr-2 mr-1">
+      <div className={`group/sec shrink-0 flex flex-col overflow-y-auto scrollbar-none border-r border-white/[0.06] pr-2 transition-[width] duration-300 ease-in-out ${isChapterPanelExpanded ? 'w-56' : 'w-[52px] hover:w-56'} mr-1`}>
         <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-2 flex items-center gap-1.5 whitespace-nowrap overflow-hidden">
           <Layers size={10} className="shrink-0" />
-          <span className="opacity-0 group-hover/sec:opacity-100 transition-opacity duration-200">Sections</span>
+          <span className={`transition-opacity duration-200 ${isChapterPanelExpanded ? 'opacity-100' : 'opacity-0 group-hover/sec:opacity-100'}`}>Sections</span>
         </div>
 
         {sections.map((section: any, sIdx: number) => {
@@ -499,7 +497,7 @@ export default function CurriculumViewer({
                       {sIdx + 1}
                     </div>
                     {/* Expanded content — hidden when rail is narrow */}
-                    <div className="flex-1 min-w-0 opacity-0 group-hover/sec:opacity-100 transition-opacity duration-200 overflow-hidden">
+                    <div className={`flex-1 min-w-0 transition-opacity duration-200 overflow-hidden ${isChapterPanelExpanded ? 'opacity-100' : 'opacity-0 group-hover/sec:opacity-100'}`}>
                       <p className={`text-[11px] font-semibold leading-snug truncate ${isActive ? "text-white" : "text-zinc-300"}`}>
                         {section.name}
                       </p>
@@ -546,12 +544,12 @@ export default function CurriculumViewer({
         <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-2 flex items-center justify-between whitespace-nowrap">
           <span className="flex items-center gap-1.5">
             <BookOpen size={10} className="shrink-0" />
-            <span className="opacity-0 group-hover/ch:opacity-100 transition-opacity duration-200">Chapters</span>
+            <span className={`transition-opacity duration-200 ${isChapterPanelExpanded ? 'opacity-100' : 'opacity-0 group-hover/ch:opacity-100'}`}>Chapters</span>
           </span>
           {activeSection && isSectionManager(activeSection) && (
             <button
               onClick={() => setAddingChapterTo(activeSection.id)}
-              className="opacity-0 group-hover/ch:opacity-100 transition-opacity duration-200 flex items-center gap-0.5 text-red-400 hover:text-red-300 text-[10px]"
+              className={`transition-opacity duration-200 flex items-center gap-0.5 text-red-400 hover:text-red-300 text-[10px] ${isChapterPanelExpanded ? 'opacity-100' : 'opacity-0 group-hover/ch:opacity-100'}`}
             >
               <Plus size={10} /> Add
             </button>
@@ -613,7 +611,7 @@ export default function CurriculumViewer({
                         {cIdx + 1}
                       </div>
                       {/* Expanded content */}
-                      <div className="flex-1 min-w-0 opacity-0 group-hover/ch:opacity-100 transition-opacity duration-200 overflow-hidden">
+                      <div className={`flex-1 min-w-0 transition-opacity duration-200 overflow-hidden ${isChapterPanelExpanded ? 'opacity-100' : 'opacity-0 group-hover/ch:opacity-100'}`}>
                         <p className={`text-[11px] font-semibold leading-snug truncate ${isActive ? "text-white" : "text-zinc-300"}`}>
                           {chapter.name}
                         </p>
