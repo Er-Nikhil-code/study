@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { TestsService } from "@/services/tests.service";
@@ -29,6 +29,22 @@ export default function TestResultPage() {
   const [challengeQid, setChallengeQid] = useState<string | null>(null);
   const [challengeReason, setChallengeReason] = useState("WRONG_ANSWER_KEY");
   const [challengeDesc, setChallengeDesc] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Enter fullscreen on mount (same as exam page), exit on unmount
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const timer = setTimeout(() => {
+      el.requestFullscreen().catch(() => {});
+    }, 300);
+    return () => {
+      clearTimeout(timer);
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    };
+  }, []);
 
   const { data: res, isLoading } = useQuery({
     queryKey: ["test", testId, "attempt", attemptId, "result"],
@@ -124,8 +140,16 @@ export default function TestResultPage() {
     return "rounded-b-lg";
   };
 
+  const exitAndGo = (path: string) => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {}).finally(() => router.push(path));
+    } else {
+      router.push(path);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-white text-zinc-900 select-none overflow-hidden">
+    <div ref={containerRef} className="fixed inset-0 z-[100] flex flex-col bg-white text-zinc-900 select-none overflow-hidden">
       {/* Header */}
       <header className="h-16 bg-zinc-900 text-white flex items-center justify-between px-6 shrink-0 border-b border-zinc-800 shadow-sm">
         <div className="font-bold text-xl tracking-tight text-emerald-400 flex items-center gap-2">
@@ -168,7 +192,7 @@ export default function TestResultPage() {
           <div className="w-px h-6 bg-zinc-700" />
 
           <button
-            onClick={() => router.push("/student/tests")}
+            onClick={() => exitAndGo("/student/tests")}
             className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded-lg border border-zinc-700 transition text-sm font-medium"
           >
             <Home className="w-4 h-4" />
@@ -554,7 +578,7 @@ export default function TestResultPage() {
           {/* Exit to tests list */}
           <div className="p-4 border-t border-zinc-200 bg-zinc-50">
             <button
-              onClick={() => router.push("/student/tests")}
+              onClick={() => exitAndGo("/student/tests")}
               className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg font-bold shadow-md transition flex items-center justify-center gap-2"
             >
               <Home className="w-4 h-4" />

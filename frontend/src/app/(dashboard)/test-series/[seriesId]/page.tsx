@@ -9,6 +9,7 @@ import { HierarchyService } from "@/services/hierarchy.service";
 import { AdminTestSeriesService } from "@/services/test-series.admin.service";
 import Link from "next/link";
 import { ChevronDown, ChevronRight, BookOpen, ChevronLeft, Edit2, Plus, FileText, CheckCircle, BarChart2, Lock, GripVertical, Trash2, Users, Shield, Loader2, Search, Swords } from "lucide-react";
+import CurriculumViewer from '@/components/ui/CurriculumViewer';
 import CourseLeaderboard from "@/components/ui/CourseLeaderboard";
 import ChessPiece3D from "@/components/ui/ChessPiece3D";
 import { api } from "@/lib/api";
@@ -566,499 +567,91 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
           <div className="flex flex-col gap-8 w-full mt-4">
             <div className="flex-1 flex flex-col gap-10 items-start w-full">
 
-              <div className="flex-1 space-y-8 min-w-0 w-full">
-            {addingSection && (
-              <Panel className="border border-red-500/30 bg-black/50">
-                <form onSubmit={handleCreateSection} className="flex flex-col gap-4">
-                  <div className="flex flex-col sm:flex-row gap-4 items-end w-full">
-                    <div className="flex-1 w-full">
-                      <label className="text-xs text-zinc-400 block mb-1">Section Name</label>
-                      <input type="text" required value={sectionForm.name} onChange={e => setSectionForm({...sectionForm, name: e.target.value})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
-                    </div>
-                    <div className="w-24">
-                      <label className="text-xs text-zinc-400 block mb-1">Order</label>
-                      <input type="number" min="1" required value={sectionForm.order} onChange={e => setSectionForm({...sectionForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="text-xs text-zinc-400 block">Description (Max 80 words)</label>
-                      <span className={`text-[10px] ${countWords(sectionForm.description) > 80 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(sectionForm.description)} / 80</span>
-                    </div>
-                    <textarea required value={sectionForm.description} onChange={e => setSectionForm({...sectionForm, description: e.target.value})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white min-h-[60px]" placeholder="Enter section description..." />
-                  </div>
-                  <div className="flex gap-2">
-                    <button type="submit" className="rounded bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-500">Save</button>
-                    <button type="button" onClick={() => setAddingSection(false)} className="rounded px-4 py-2 text-sm text-zinc-400 hover:text-white">Cancel</button>
-                  </div>
-                </form>
-              </Panel>
-            )}
-
-            {series.sections?.map((section: any, idx: number) => (
-              <Panel 
-                key={section.id} 
-                className={`p-0 overflow-hidden border ${draggedItem?.id === section.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === null && draggedItem?.type === "SECTION" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-950/40 backdrop-blur-md shadow-2xl relative rounded-2xl transition-all duration-300 hover:border-white/10`}
-                draggable={isCreatorOrAdmin}
-                onDragStart={(e) => handleDragStart(e, section.id, "SECTION", null, idx)}
-                onDragOver={(e) => handleDragOver(e, "SECTION", null, idx)}
-                onDrop={(e) => handleDrop(e, "SECTION", null, idx)}
-                onDragEnd={() => { setDraggedItem(null); setDragOverIndex(null); setDragOverParentId(null); }}
-              >
-                <div 
-                  onClick={() => toggleSection(section.id)}
-                  className="w-full flex items-center justify-between p-5 bg-white/[0.02] hover:bg-white/[0.04] transition-all cursor-pointer border-b border-white/5"
-                >
-                  <div className="flex items-center gap-4 flex-1">
-                    {isCreatorOrAdmin && (
-                      <div className="cursor-grab hover:text-white text-zinc-500 px-1 py-4 flex items-center">
-                        <GripVertical size={16} />
+              {/* ─── Glassmorphism 3-panel Curriculum Viewer ─────────────────── */}
+              {addingSection && (
+                <Panel className="border border-red-500/30 bg-black/50 mb-6">
+                  <form onSubmit={handleCreateSection} className="flex flex-col gap-4">
+                    <div className="flex flex-col sm:flex-row gap-4 items-end w-full">
+                      <div className="flex-1 w-full">
+                        <label className="text-xs text-zinc-400 block mb-1">Section Name</label>
+                        <input type="text" required value={sectionForm.name} onChange={e => setSectionForm({...sectionForm, name: e.target.value})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
                       </div>
-                    )}
-                    <div className={`p-2 rounded-lg transition-colors ${expandedSections[section.id] ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-zinc-400'}`}>
-                      <BookOpen size={20} />
+                      <div className="w-24">
+                        <label className="text-xs text-zinc-400 block mb-1">Order</label>
+                        <input type="number" min="1" required value={sectionForm.order} onChange={e => setSectionForm({...sectionForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white" />
+                      </div>
                     </div>
-                    {editingSection === section.id ? (
-                      <form onSubmit={(e) => handleEditSection(e, section.id)} onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2 flex-1 max-w-lg">
-                        <div className="flex gap-2 w-full">
-                          <input autoFocus type="text" value={editSectionForm.name} onChange={e => setEditSectionForm({...editSectionForm, name: e.target.value})} className="flex-1 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Section name" />
-                          <input type="number" min="1" value={editSectionForm.order} onChange={e => setEditSectionForm({...editSectionForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
-                          <button type="submit" className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
-                          <button type="button" onClick={() => setEditingSection(null)} className="px-3 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
-                        </div>
-                        <div>
-                          <div className="flex justify-between items-center mb-1 px-1">
-                            <label className="text-[10px] text-zinc-500">Description (Max 80 words)</label>
-                            <span className={`text-[10px] ${countWords(editSectionForm.description) > 80 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(editSectionForm.description)} / 80</span>
-                          </div>
-                          <textarea required value={editSectionForm.description} onChange={e => setEditSectionForm({...editSectionForm, description: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white min-h-[40px]" placeholder="Section description..." />
-                        </div>
-                      </form>
-                    ) : (
-                      <div className="flex items-center flex-wrap gap-4">
-                        <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                          {section.name}
-                          {isCreatorOrAdmin && (
-                            <div className="flex items-center gap-1">
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); setEditingSection(section.id); setEditSectionForm({ name: section.name, description: section.description || "", order: section.order || 1 }); }}
-                                className="p-1.5 rounded-full hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
-                              >
-                                <Edit2 size={14} />
-                              </button>
-                              <button 
-                                onClick={(e) => handleDeleteSection(e, section.id)}
-                                className="p-1.5 rounded-full hover:bg-red-500/20 text-zinc-500 hover:text-red-400 transition-colors"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          )}
-                        </h3>
-                        {isCreatorOrAdmin && (
-                          <div className="flex items-center gap-2 border-l border-white/10 pl-4" onClick={(e) => e.stopPropagation()}>
-                            <Shield size={14} className="text-emerald-500/70" />
-                            <span className="text-[11px] text-zinc-500 font-medium tracking-wider">MANAGER:</span>
-                            <div className="w-72 relative z-20">
-                              <MultiSearchableSelect
-                                options={[
-                                  ...(knights?.data?.map((k: any) => ({
-                                    value: k.id,
-                                    label: [k.first_name, k.last_name].filter(Boolean).join(" ") || k.name || k.email || "Unknown User",
-                                    subLabel: k.email,
-                                    image: k.profile_picture
-                                  })) || [])
-                                ]}
-                                values={section.managers?.map((m: any) => m.id) || []}
-                                onChange={async (val) => {
-                                  await HierarchyService.assignSectionManagers(section.id, val);
-                                  fetchSeries();
-                                }}
-                                placeholder="Assign Managers..."
-                              />
-                            </div>
-                          </div>
-                        )}
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-xs text-zinc-400 block">Description (Max 80 words)</label>
+                        <span className={`text-[10px] ${countWords(sectionForm.description) > 80 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(sectionForm.description)} / 80</span>
                       </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4">
-                    {isCreatorOrAdmin && (
-                      <button 
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          setAddingChapterTo(section.id); 
-                          setExpandedSections(prev => ({...prev, [section.id]: true}));
-                          setChapterForm({ ...chapterForm, order: (section.chapters?.length || 0) + 1 });
-                        }}
-                        className="text-xs font-medium bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-zinc-400 hover:text-red-400 px-4 py-2 rounded-xl transition-all shadow-sm"
-                      >
-                        + Add Chapter
-                      </button>
-                    )}
-                    {expandedSections[section.id] ? <ChevronDown size={20} className="text-zinc-500" /> : <ChevronRight size={20} className="text-zinc-500" />}
-                  </div>
-                </div>
-
-                {expandedSections[section.id] && (
-                  <div className="p-5 bg-black/20 space-y-4">
-                    {addingChapterTo === section.id && (
-                      <div className="p-4 rounded-xl border border-red-500/20 bg-zinc-900/50 mb-4">
-                        <form onSubmit={(e) => handleCreateChapter(e, section.id)} className="flex flex-col gap-4">
-                          <div className="flex flex-col sm:flex-row gap-4 items-end w-full">
-                            <div className="flex-1 w-full">
-                              <label className="text-xs text-zinc-400 block mb-1">Chapter Name</label>
-                              <input type="text" required value={chapterForm.name} onChange={e => setChapterForm({...chapterForm, name: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
-                            </div>
-                            <div className="w-24">
-                              <label className="text-xs text-zinc-400 block mb-1">Order</label>
-                              <input type="number" min="1" required value={chapterForm.order} onChange={e => setChapterForm({...chapterForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex justify-between items-center mb-1">
-                              <label className="text-[10px] text-zinc-500">Description (Max 50 words)</label>
-                              <span className={`text-[10px] ${countWords(chapterForm.description) > 50 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(chapterForm.description)} / 50</span>
-                            </div>
-                            <textarea required placeholder="Brief description of the chapter" value={chapterForm.description} onChange={e => setChapterForm({...chapterForm, description: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white min-h-[60px]" />
-                          </div>
-                          <div className="flex gap-2 justify-end">
-                            <button type="button" onClick={() => setAddingChapterTo(null)} className="rounded px-3 py-1.5 text-xs text-zinc-400 hover:text-white">Cancel</button>
-                            <button type="submit" className="rounded bg-zinc-200 text-black px-3 py-1.5 text-xs hover:bg-white font-medium">Save</button>
-                          </div>
-                        </form>
-                      </div>
-                    )}
-
-                    {section.chapters?.length === 0 ? (
-                      <p className="text-sm text-zinc-500 text-center py-4">No chapters in this section.</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {section.chapters?.map((chapter: any, idx: number) => (
-                          <div 
-                            key={chapter.id} 
-                            className={`rounded-xl border overflow-hidden ${draggedItem?.id === chapter.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === section.id && draggedItem?.type === "CHAPTER" ? 'border-t-2 border-t-red-500 border-white/10' : 'border-white/10'} bg-zinc-900/30 relative`}
-                            draggable={isCreatorOrAdmin}
-                            onDragStart={(e) => handleDragStart(e, chapter.id, "CHAPTER", section.id, idx)}
-                            onDragOver={(e) => handleDragOver(e, "CHAPTER", section.id, idx)}
-                            onDrop={(e) => handleDrop(e, "CHAPTER", section.id, idx)}
-                            onDragEnd={() => { setDraggedItem(null); setDragOverIndex(null); setDragOverParentId(null); }}
-                          >
-                            <div 
-                              onClick={() => toggleChapter(chapter.id)}
-                              className="w-full flex items-center justify-between p-4 bg-white/[0.02] hover:bg-white/[0.04] transition-colors cursor-pointer border-b border-white/5"
-                            >
-                              <div className="flex-1 flex items-center gap-3">
-                                {isCreatorOrAdmin && (
-                                  <div className="cursor-grab hover:text-white text-zinc-600 px-1 py-1">
-                                    <GripVertical size={14} />
-                                  </div>
-                                )}
-                                {editingChapter === chapter.id ? (
-                                  <form onSubmit={(e) => handleEditChapter(e, chapter.id)} onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2 flex-1 max-w-sm">
-                                    <div className="flex gap-2 w-full">
-                                      <input autoFocus type="text" value={editChapterForm.name} onChange={e => setEditChapterForm({...editChapterForm, name: e.target.value})} className="flex-1 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Chapter name" />
-                                      <input type="number" min="1" value={editChapterForm.order} onChange={e => setEditChapterForm({...editChapterForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
-                                      <button type="submit" className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
-                                      <button type="button" onClick={() => setEditingChapter(null)} className="px-2 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
-                                    </div>
-                                    <div>
-                                      <div className="flex justify-between items-center mb-1 px-1">
-                                        <label className="text-[10px] text-zinc-500">Description (Max 50 words)</label>
-                                        <span className={`text-[10px] ${countWords(editChapterForm.description) > 50 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(editChapterForm.description)} / 50</span>
-                                      </div>
-                                      <textarea required value={editChapterForm.description} onChange={e => setEditChapterForm({...editChapterForm, description: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-sm text-white min-h-[40px]" placeholder="Chapter description..." />
-                                    </div>
-                                  </form>
-                                ) : (
-                                  <h4 className="text-lg font-semibold text-zinc-200 flex items-center gap-2">
-                                    <span className="text-zinc-500 text-sm font-normal">Ch {idx + 1}.</span> 
-                                    {chapter.name}
-                                    {isCreatorOrAdmin && (
-                                      <div className="flex items-center gap-1">
-                                        <button 
-                                          onClick={(e) => { e.stopPropagation(); setEditingChapter(chapter.id); setEditChapterForm({ name: chapter.name, description: chapter.description || "", order: chapter.order || 1 }); }}
-                                          className="p-1 rounded hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
-                                        >
-                                          <Edit2 size={12} />
-                                        </button>
-                                        <button 
-                                          onClick={(e) => handleDeleteChapter(e, chapter.id)}
-                                          className="p-1 rounded hover:bg-red-500/20 text-zinc-500 hover:text-red-400 transition-colors"
-                                        >
-                                          <Trash2 size={12} />
-                                        </button>
-                                      </div>
-                                    )}
-                                  </h4>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-4">
-                                {isCreatorOrAdmin && (
-                                  <button 
-                                    onClick={(e) => { 
-                                      e.stopPropagation(); 
-                                      setAddingTopicTo(chapter.id); 
-                                      setExpandedChapters(prev => ({...prev, [chapter.id]: true}));
-                                      setTopicForm({ ...topicForm, order: (chapter.topics?.length || 0) + 1 });
-                                    }}
-                                    className="text-[11px] font-medium bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-zinc-400 hover:text-red-400 px-3 py-1.5 rounded-lg transition-all shadow-sm"
-                                  >
-                                    + Add Topic
-                                  </button>
-                                )}
-                                {expandedChapters[chapter.id] ? <ChevronDown size={18} className="text-zinc-500" /> : <ChevronRight size={18} className="text-zinc-500" />}
-                              </div>
-                            </div>
-
-                            {expandedChapters[chapter.id] && (
-                              <div className="p-4 bg-black/40 space-y-3">
-                                {addingTopicTo === chapter.id && (
-                                  <div className="p-4 rounded-lg border border-red-500/20 bg-zinc-900 mb-4">
-                                    <form onSubmit={(e) => handleCreateTopic(e, chapter.id)} className="space-y-3">
-                                      <div className="flex gap-4">
-                                        <div className="flex-1">
-                                          <input type="text" placeholder="Topic Name" required value={topicForm.name} onChange={e => setTopicForm({...topicForm, name: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
-                                        </div>
-                                        <div className="w-24">
-                                          <input type="number" min="1" placeholder="Order" required value={topicForm.order} onChange={e => setTopicForm({...topicForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white" />
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <div className="flex justify-between items-center mb-1">
-                                          <label className="text-[10px] text-zinc-500">Description (Max 20 words)</label>
-                                          <span className={`text-[10px] ${countWords(topicForm.description) > 20 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(topicForm.description)} / 20</span>
-                                        </div>
-                                        <textarea required placeholder="Brief description of the topic" value={topicForm.description} onChange={e => setTopicForm({...topicForm, description: e.target.value})} className="w-full rounded border border-white/10 bg-black px-3 py-2 text-sm text-white min-h-[60px]" />
-                                      </div>
-                                      <div className="flex gap-2 justify-end">
-                                        <button type="button" onClick={() => setAddingTopicTo(null)} className="rounded px-3 py-1.5 text-xs text-zinc-400 hover:text-white">Cancel</button>
-                                        <button type="submit" className="rounded bg-red-600 px-3 py-1.5 text-xs text-white hover:bg-red-500 font-medium">Save Topic</button>
-                                      </div>
-                                    </form>
-                                  </div>
-                                )}
-
-                                {chapter.topics?.length === 0 ? (
-                                  <p className="text-sm text-zinc-500 text-center py-2">No topics in this chapter.</p>
-                                ) : (
-                                  <div className="grid gap-3 grid-cols-1 xl:grid-cols-2">
-                                    {chapter.topics?.map((topic: any, idx: number) => {
-                                      const absoluteTopicIdx = section.chapters?.flatMap((c:any) => c.topics || []).findIndex((t:any) => t?.id === topic.id);
-                                      const isPreviewLocked = user?.role === "STUDENT" && !series.is_enrolled && absoluteTopicIdx >= 2;
-
-                                      return isPreviewLocked ? (
-                                        <div 
-                                          key={topic.id} 
-                                          onClick={() => {
-                                            alert("This topic is locked in the free preview. Please enroll in or purchase the test series to unlock it.");
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                          }}
-                                          className="p-4 rounded-xl border border-white/5 bg-black/40 hover:bg-black/60 transition-all flex flex-col h-full group relative cursor-pointer"
-                                        >
-                                          <div className="flex-1">
-                                            <div className="flex justify-between items-start mb-2 pr-6">
-                                              <div className="flex items-center gap-2">
-                                                <div className="text-zinc-600"><Lock size={16} /></div>
-                                                <h5 className="font-medium text-zinc-500 text-md leading-tight">{topic.name}</h5>
-                                              </div>
-                                            </div>
-                                            <p className="text-[11px] text-zinc-600 font-medium mb-4 uppercase tracking-wider">Locked. Enroll to view contents.</p>
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <div 
-                                          key={topic.id} 
-                                          className={`p-4 rounded-xl border ${draggedItem?.id === topic.id ? 'opacity-50 border-red-500' : dragOverIndex === idx && dragOverParentId === chapter.id && draggedItem?.type === "TOPIC" ? 'border-t-2 border-t-red-500 border-white/5' : 'border-white/5'} bg-zinc-900/50 transition-all flex flex-col h-full group relative cursor-default`}
-                                          draggable={isCreatorOrAdmin}
-                                          onDragStart={(e) => handleDragStart(e, topic.id, "TOPIC", chapter.id, idx)}
-                                          onDragOver={(e) => handleDragOver(e, "TOPIC", chapter.id, idx)}
-                                          onDrop={(e) => handleDrop(e, "TOPIC", chapter.id, idx)}
-                                          onDragEnd={() => { setDraggedItem(null); setDragOverIndex(null); setDragOverParentId(null); }}
-                                        >
-                                        {isCreatorOrAdmin && editingTopic !== topic.id && (
-                                          <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
-                                            <button 
-                                              onClick={() => { setEditingTopic(topic.id); setEditTopicForm({ name: topic.name, description: topic.description || "", order: topic.order || 1 }); }}
-                                              className="p-1.5 rounded-full bg-black/50 text-zinc-400 hover:text-white hover:bg-white/10"
-                                              title="Edit Topic"
-                                            >
-                                              <Edit2 size={12} />
-                                            </button>
-                                            <button 
-                                              onClick={(e) => handleDeleteTopic(e, topic.id)}
-                                              className="p-1.5 rounded-full bg-black/50 text-zinc-400 hover:text-red-400 hover:bg-red-500/20"
-                                              title="Delete Topic"
-                                            >
-                                              <Trash2 size={12} />
-                                            </button>
-                                          </div>
-                                        )}
-
-                                        {editingTopic === topic.id ? (
-                                          <form onSubmit={(e) => handleEditTopic(e, topic.id)} className="flex flex-col gap-2 flex-1 z-20">
-                                            <div className="flex gap-2 w-full">
-                                              <input autoFocus type="text" value={editTopicForm.name} onChange={e => setEditTopicForm({...editTopicForm, name: e.target.value})} className="flex-1 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" />
-                                              <input type="number" min="1" value={editTopicForm.order} onChange={e => setEditTopicForm({...editTopicForm, order: e.target.value === "" ? "" : Number(e.target.value)})} className="w-20 rounded bg-black border border-white/20 px-2 py-1 text-sm text-white" placeholder="Order" />
-                                            </div>
-                                            <div>
-                                              <div className="flex justify-between items-center mb-1 px-1">
-                                                <label className="text-[10px] text-zinc-500">Description (Max 20 words)</label>
-                                                <span className={`text-[10px] ${countWords(editTopicForm.description) > 20 ? 'text-red-500' : 'text-zinc-500'}`}>{countWords(editTopicForm.description)} / 20</span>
-                                              </div>
-                                              <textarea required value={editTopicForm.description} onChange={e => setEditTopicForm({...editTopicForm, description: e.target.value})} className="w-full rounded bg-black border border-white/20 px-2 py-1 text-xs text-zinc-300 min-h-[50px]" />
-                                            </div>
-                                            <div className="flex gap-2 justify-end mt-1">
-                                              <button type="button" onClick={() => setEditingTopic(null)} className="px-2 py-1 bg-white/5 text-zinc-400 text-xs rounded hover:text-white">Cancel</button>
-                                              <button type="submit" className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded hover:bg-emerald-500/30">Save</button>
-                                            </div>
-                                          </form>
-                                        ) : (
-                                          <div className="flex-1">
-                                            <div className="flex justify-between items-start mb-2 pr-6">
-                                              <div className="flex items-center gap-2">
-                                                {isCreatorOrAdmin && (
-                                                  <div className="cursor-grab hover:text-white text-zinc-600">
-                                                    <GripVertical size={14} />
-                                                  </div>
-                                                )}
-                                                {topic.is_completed ? (
-                                                  <CheckCircle size={16} className="text-emerald-500 fill-emerald-500/20" />
-                                                ) : (
-                                                  <div className="w-4 h-4 rounded-full border-2 border-zinc-600 shrink-0" />
-                                                )}
-                                                <h5 className="font-medium text-white text-md leading-tight group-hover:text-red-400 transition-colors">{topic.name}</h5>
-                                              </div>
-                                              
-                                              {topic.tests?.[0]?.test_type && (() => {
-                                                const cfg = TEST_TYPE_CONFIG[topic.tests[0].test_type];
-                                                return cfg ? (
-                                                  <span className={`shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border mt-0.5 ${cfg.color}`}>
-                                                    {cfg.label}
-                                                  </span>
-                                                ) : null;
-                                              })()}
-                                            </div>
-                                            {topic.description ? (
-                                              <p className="text-xs text-zinc-400 line-clamp-2 mb-4 leading-relaxed">{topic.description}</p>
-                                            ) : (
-                                              <p className="text-xs text-zinc-600 italic mb-4">No description provided.</p>
-                                            )}
-                                          </div>
-                                        )}
-                                        
-                                        {!editingTopic && (
-                                          <div className="flex flex-wrap items-center gap-2 mt-auto pt-3 border-t border-white/5">
-                                            {topic.has_notes && (
-                                              <a 
-                                                href={topic.first_note ? `/notes-viewer?url=${encodeURIComponent(getSecureUrl(topic.first_note.pdf_url))}&title=${encodeURIComponent(topic.first_note.title)}&noteId=${topic.first_note.id}` : `/topics/${topic.id}`}
-                                                target={topic.first_note ? "_blank" : undefined}
-                                                rel={topic.first_note ? "opener" : undefined}
-                                                className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition-colors whitespace-nowrap"
-                                              >
-                                                <FileText size={14} /> Notes
-                                              </a>
-                                            )}
-                                            
-                                            {user?.role === "ADMIN" || user?.role === "TEACHER" ? (
-                                              <>
-                                                {topic.test_id ? (
-                                                  <>
-                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors whitespace-nowrap">
-                                                      <FileText size={14} /> Test
-                                                    </Link>
-                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors whitespace-nowrap">
-                                                      <BarChart2 size={14} /> Analysis
-                                                    </Link>
-                                                    {isCreatorOrAdmin && (
-                                                      <Link href={`/teacher/tests/${topic.test_id}/edit`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-xs font-medium text-blue-400 transition-colors whitespace-nowrap">
-                                                        <Edit2 size={14} /> Edit
-                                                      </Link>
-                                                    )}
-                                                  </>
-                                                ) : isCreatorOrAdmin ? (
-                                                  <Link href={`/teacher/tests/create?topic_id=${topic.id}&topic_name=${encodeURIComponent(topic.name)}`} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-medium text-white shadow-lg shadow-emerald-500/20 transition-all">
-                                                    <Plus size={14} /> Create Test
-                                                  </Link>
-                                                ) : (
-                                                  <span className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 text-xs font-medium text-zinc-500">
-                                                    No Test Yet
-                                                  </span>
-                                                )}
-                                              </>
-                                            ) : (
-                                              <>
-                                                {topic.has_attempted_tests ? (
-                                                  <>
-                                                    <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-medium text-red-400 transition-colors whitespace-nowrap">
-                                                      <CheckCircle size={14} /> Re-attempt
-                                                    </Link>
-                                                    {topic.latest_attempt_id && (
-                                                      <Link href={`/results/${topic.latest_attempt_id}?testId=${topic.test_id}&view=analysis`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-xs font-medium text-purple-400 transition-colors whitespace-nowrap">
-                                                        <BarChart2 size={14} /> Analysis
-                                                      </Link>
-                                                    )}
-                                                  </>
-                                                ) : (
-                                                  <>
-                                                    {topic.test_id ? (
-                                                      <div className="flex-1 flex gap-1 items-center">
-                                                        <Link href={`/tests/${topic.test_id}`} className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-medium text-white shadow-lg shadow-red-500/20 transition-all whitespace-nowrap">
-                                                          <CheckCircle size={14} /> Take Test
-                                                        </Link>
-                                                      </div>
-                                                    ) : (
-                                                      <span className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 text-xs font-medium text-zinc-500">
-                                                        No Test Yet
-                                                      </span>
-                                                    )}
-                                                  </>
-                                                )}
-                                              </>
-                                            )}
-                                          </div>
-                                        )}
-                                        {!editingTopic && topic.tests?.[0] && (
-                                          <div className="mt-3">
-                                            <TestProgressBar
-                                              score={topic.tests[0].score}
-                                              totalMarks={topic.tests[0].total_marks}
-                                              passingMarks={topic.tests[0].passing_marks}
-                                              rank={topic.tests[0].rank}
-                                              totalAspirants={topic.tests[0].total_aspirants}
-                                            />
-                                          </div>
-                                        )}
-                                      </div>
-                                    );
-                                  })}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Panel>
-            ))}
-
-              {series.sections?.length === 0 && !addingSection && (
-                <Panel className="border border-dashed border-white/10 bg-white/[0.01] text-center py-12 mt-8">
-                  <BookOpen size={32} className="mx-auto text-zinc-600 mb-3" />
-                  <p className="text-sm font-medium text-zinc-400 mb-4">Curriculum is empty for this series.</p>
-                  {isCreatorOrAdmin && (
-                    <button 
-                      onClick={() => setAddingSection(true)}
-                      className="inline-flex items-center gap-2 rounded bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20 transition"
-                    >
-                      <Plus size={16} /> Add First Section
-                    </button>
-                  )}
+                      <textarea required value={sectionForm.description} onChange={e => setSectionForm({...sectionForm, description: e.target.value})} className="w-full rounded border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white min-h-[60px]" placeholder="Enter section description..." />
+                    </div>
+                    <div className="flex gap-2">
+                      <button type="submit" className="rounded bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-500">Save</button>
+                      <button type="button" onClick={() => setAddingSection(false)} className="rounded px-4 py-2 text-sm text-zinc-400 hover:text-white">Cancel</button>
+                    </div>
+                  </form>
                 </Panel>
               )}
+
+              <CurriculumViewer
+                data={series}
+                mode="test-series"
+                user={user}
+                knights={knights?.data || []}
+                isSectionManager={() => isCreatorOrAdmin}
+                isCreatorOrAdmin={isCreatorOrAdmin}
+                onAddChapter={async (sectionId, form) => {
+                  await HierarchyService.createChapter({ ...form, order: Number(form.order), section_id: sectionId });
+                  fetchSeries();
+                }}
+                onAddTopic={async (chapterId, form) => {
+                  await HierarchyService.createTopic({ ...form, order: Number(form.order), chapter_id: chapterId });
+                  fetchSeries();
+                }}
+                onEditSection={async (sectionId, form) => {
+                  await HierarchyService.updateSection(sectionId, { ...form, order: Number(form.order) });
+                  fetchSeries();
+                }}
+                onEditChapter={async (chapterId, form) => {
+                  await HierarchyService.updateChapter(chapterId, { ...form, order: Number(form.order) });
+                  fetchSeries();
+                }}
+                onEditTopic={async (topicId, form) => {
+                  await HierarchyService.updateTopic(topicId, { ...form, order: Number(form.order) });
+                  fetchSeries();
+                }}
+                onDeleteSection={async (sectionId) => {
+                  if (confirm("Delete this section and all its contents?")) {
+                    await HierarchyService.deleteSection(sectionId);
+                    fetchSeries();
+                  }
+                }}
+                onDeleteChapter={async (chapterId) => {
+                  if (confirm("Delete this chapter and all its topics?")) {
+                    await HierarchyService.deleteChapter(chapterId);
+                    fetchSeries();
+                  }
+                }}
+                onDeleteTopic={async (topicId) => {
+                  if (confirm("Delete this topic?")) {
+                    await HierarchyService.deleteTopic(topicId);
+                    fetchSeries();
+                  }
+                }}
+                onDeleteTest={async (testId) => {
+                  if (confirm("Delete this test?")) {
+                    await api.delete(`/tests/${testId}`);
+                    fetchSeries();
+                  }
+                }}
+                onAssignManagers={async (sectionId, userIds) => {
+                  await HierarchyService.assignSectionManagers(sectionId, userIds);
+                  fetchSeries();
+                }}
+              />
 
               {/* Leaderboard Matches Test Series Box Width */}
               <div className="relative w-full lg:w-1/2 mt-12 pr-4">
@@ -1138,7 +731,7 @@ export default function TestSeriesDetailPage({ params }: { params: Promise<{ ser
               </Panel>
             </div>
           )}
-        </div>
+
 
         {/* Bottom Section: Enrolled Students */}
         {user?.role === "ADMIN" && (
