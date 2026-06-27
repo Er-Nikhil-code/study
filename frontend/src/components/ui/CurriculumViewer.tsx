@@ -573,11 +573,11 @@ export default function CurriculumViewer({
                           <>
                             <div className="flex-1 h-px rounded-full bg-white/5 overflow-hidden">
                               <div
-                                className={`h-full rounded-full ${pct === 100 ? "bg-emerald-500" : "bg-red-500/60"}`}
+                                className={`h-full rounded-full ${pct === 100 ? "bg-red-500" : "bg-red-500/60"}`}
                                 style={{ width: `${pct}%` }}
                               />
                             </div>
-                            <span className={`text-[9px] font-bold tabular-nums shrink-0 ${pct === 100 ? "text-emerald-400" : "text-zinc-600"}`}>
+                            <span className={`text-[9px] font-bold tabular-nums shrink-0 ${pct === 100 ? "text-red-400" : "text-zinc-500"}`}>
                               {pct}%
                             </span>
                           </>
@@ -697,9 +697,9 @@ export default function CurriculumViewer({
                           {total > 0 && (
                             <>
                               <div className="flex-1 h-px bg-white/5 rounded-full overflow-hidden">
-                                <div className={`h-full rounded-full ${pct === 100 ? "bg-emerald-500" : "bg-zinc-500/60"}`} style={{ width: `${pct}%` }} />
+                                <div className={`h-full rounded-full ${pct === 100 ? "bg-red-500" : "bg-red-500/60"}`} style={{ width: `${pct}%` }} />
                               </div>
-                              <span className={`text-[9px] font-bold tabular-nums ${pct === 100 ? "text-emerald-400" : "text-zinc-600"}`}>{pct}%</span>
+                              <span className={`text-[9px] font-bold tabular-nums ${pct === 100 ? "text-red-400" : "text-zinc-500"}`}>{pct}%</span>
                             </>
                           )}
                         </div>

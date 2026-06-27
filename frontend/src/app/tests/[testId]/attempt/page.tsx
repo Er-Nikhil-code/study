@@ -13,6 +13,7 @@ import AppLoader from "@/components/ui/AppLoader";
 import { Sun, Moon, X } from "lucide-react";
 import { useThemeStore } from "@/store/theme.store";
 import { toast } from "sonner";
+import { TestsService } from "@/services/tests.service";
 
 /* ─── Helper: format seconds to MM:SS ─── */
 function formatTime(sec: number) {
@@ -82,6 +83,19 @@ export default function AttemptPage() {
   useEffect(() => {
     async function init() {
       try {
+        const urlAttemptId = searchParams.get("attemptId");
+        if (urlAttemptId) {
+          try {
+            const statusRes = await TestsService.getAttemptStatus(urlAttemptId);
+            if (statusRes && statusRes.status !== "IN_PROGRESS") {
+              router.replace(`/results/${urlAttemptId}?testId=${testId}&view=result`);
+              return;
+            }
+          } catch (e) {
+            // ignore if not found or unauthorized
+          }
+        }
+
         const result = await studentService.startAttempt(testId);
         setAttemptId(result.attempt.id);
         setQuestions(result.questions);

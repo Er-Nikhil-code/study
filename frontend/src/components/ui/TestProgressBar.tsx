@@ -29,11 +29,9 @@ export default function TestProgressBar({
   rank,
   totalAspirants,
 }: TestProgressBarProps) {
-  if (score === null || score === undefined) return null;
-
   const cutoff = passingMarks ?? 0;
-  const passed = score >= cutoff;
-  const pct = totalMarks > 0 ? Math.min((score / totalMarks) * 100, 100) : 0;
+  const passed = score !== null && score >= cutoff;
+  const pct = score !== null && totalMarks > 0 ? Math.min((score / totalMarks) * 100, 100) : 0;
   const cutoffPct =
     totalMarks > 0 ? Math.min((cutoff / totalMarks) * 100, 100) : 0;
 
@@ -43,8 +41,8 @@ export default function TestProgressBar({
       <div className="flex items-center justify-between text-[10px] font-semibold tracking-wide mb-1.5 px-0.5">
         <span className="text-zinc-400">
           Marks:{" "}
-          <span className={passed ? "text-emerald-400" : "text-red-400"}>
-            {score}
+          <span className={score === null ? "text-zinc-500" : passed ? "text-emerald-400" : "text-red-400"}>
+            {score !== null ? score : "-"}
           </span>
           <span className="text-zinc-600">/{totalMarks}</span>
         </span>
@@ -61,7 +59,9 @@ export default function TestProgressBar({
         {/* Score fill */}
         <div
           className={`absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out ${
-            passed
+            score === null
+              ? "bg-transparent"
+              : passed
               ? "bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
               : "bg-gradient-to-r from-red-500 to-red-400 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
           }`}
