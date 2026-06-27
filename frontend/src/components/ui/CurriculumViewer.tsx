@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   BookOpen,
@@ -377,6 +377,7 @@ export default function CurriculumViewer({
   // active selections
   const [activeSectionId, setActiveSectionId] = useState<string>(sections[0]?.id || "");
   const [activeChapterId, setActiveChapterId] = useState<string>(sections[0]?.chapters?.[0]?.id || "");
+  const [hoveredSectionId, setHoveredSectionId] = useState<string | null>(null);
 
   // inline add-form visibility
   const [addingChapterTo, setAddingChapterTo] = useState<string | null>(null);
@@ -390,9 +391,20 @@ export default function CurriculumViewer({
   const [dragging, setDragging] = useState<{ id: string; type: string; parentId: string | null; idx: number } | null>(null);
   const [dragOver, setDragOver] = useState<{ parentId: string | null; idx: number } | null>(null);
 
-  const activeSection = sections.find((s: any) => s.id === activeSectionId) || sections[0];
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("last_curriculum_url", window.location.pathname);
+    }
+  }, []);
+
+  const displaySectionId = hoveredSectionId || activeSectionId;
+  const activeSection = sections.find((s: any) => s.id === displaySectionId) || sections[0];
   const chapters = activeSection?.chapters || [];
-  const activeChapter = chapters.find((c: any) => c.id === activeChapterId) || chapters[0];
+  // Use activeChapterId only if it belongs to the displaySection, else fall back to the section's first chapter
+  const isValidChapter = chapters.some((c: any) => c.id === activeChapterId);
+  const activeChapter = isValidChapter 
+    ? chapters.find((c: any) => c.id === activeChapterId) 
+    : chapters[0];
   const topics = activeChapter?.topics || [];
 
   // auto-select first chapter when section changes
@@ -429,7 +441,10 @@ export default function CurriculumViewer({
   }
 
   return (
-    <div className="flex gap-2 w-full min-h-[600px] max-h-[calc(100vh-260px)]">
+    <div 
+      className="flex gap-2 w-full min-h-[600px] max-h-[calc(100vh-260px)] items-start select-none overflow-hidden"
+      onMouseLeave={() => setHoveredSectionId(null)}
+    >
 
       {/* ── PANEL 1: Sections Rail — collapses to ~52px, expands on hover ── */}
       <div className="group/sec shrink-0 flex flex-col overflow-y-auto scrollbar-none
@@ -458,6 +473,7 @@ export default function CurriculumViewer({
               ) : (
                 <button
                   onClick={() => switchSection(section.id)}
+                  onMouseEnter={() => setHoveredSectionId(section.id)}
                   title={section.name}
                   className={`w-full text-left px-2.5 py-2.5 rounded-xl border transition-all duration-200 relative overflow-hidden
                     ${isActive
@@ -570,7 +586,11 @@ export default function CurriculumViewer({
                   />
                 ) : (
                   <button
-                    onClick={() => { setActiveChapterId(chapter.id); setAddingTopicTo(null); }}
+                    onClick={() => {
+                      setHoveredSectionId(null);
+                      setActiveSectionId(activeSection.id);
+                      setActiveChapterId(chapter.id);
+                    }}
                     title={chapter.name}
                     className={`w-full text-left px-2.5 py-2.5 rounded-xl border transition-all duration-200 relative overflow-hidden
                       ${isActive

@@ -36,7 +36,7 @@ export default function TestResultPage() {
     const el = containerRef.current;
     if (!el) return;
     const timer = setTimeout(() => {
-      el.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen().catch(() => {});
     }, 300);
     return () => {
       clearTimeout(timer);
@@ -140,7 +140,12 @@ export default function TestResultPage() {
     return "rounded-b-lg";
   };
 
-  const exitAndGo = (path: string) => {
+  const exitAndGo = () => {
+    const fallbackPath = "/student/dashboard";
+    // Check if we came from a course or series
+    const lastUrl = typeof window !== 'undefined' ? localStorage.getItem('last_curriculum_url') : null;
+    const path = lastUrl || fallbackPath;
+
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {}).finally(() => router.push(path));
     } else {
@@ -192,11 +197,11 @@ export default function TestResultPage() {
           <div className="w-px h-6 bg-zinc-700" />
 
           <button
-            onClick={() => exitAndGo("/student/tests")}
+            onClick={exitAndGo}
             className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded-lg border border-zinc-700 transition text-sm font-medium"
           >
             <Home className="w-4 h-4" />
-            Exit
+            Back to Course
           </button>
         </div>
       </header>
@@ -578,11 +583,11 @@ export default function TestResultPage() {
           {/* Exit to tests list */}
           <div className="p-4 border-t border-zinc-200 bg-zinc-50">
             <button
-              onClick={() => exitAndGo("/student/tests")}
-              className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg font-bold shadow-md transition flex items-center justify-center gap-2"
+              onClick={() => exitAndGo()}
+              className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg flex items-center justify-center gap-2 font-medium shadow-[0_0_15px_rgba(0,0,0,0.1)] transition-colors"
             >
               <Home className="w-4 h-4" />
-              Back to Tests
+              Back to Course
             </button>
           </div>
         </div>

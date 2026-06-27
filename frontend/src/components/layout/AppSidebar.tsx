@@ -117,7 +117,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
           {/* Wordmark */}
           {!isCollapsed && (
             <span className={`text-white text-sm font-bold tracking-wider ${montserrat.className}`}>
-              CODIFY
+              <span className="text-red-500">C</span>ODIFY
             </span>
           )}
         </Link>
@@ -233,7 +233,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
       </nav>
 
       {/* ── User / Profile ───────────────────────────────────────── */}
-      <div className="shrink-0 p-2 border-t border-white/[0.06]" ref={dropdownRef}>
+      <div className="relative shrink-0 p-2 border-t border-white/[0.06]" ref={dropdownRef}>
         {/* Profile dropdown */}
         {isProfileOpen && mounted && (
           <div className={`absolute bottom-full mb-2 rounded-xl border border-white/10 bg-[#111] shadow-xl

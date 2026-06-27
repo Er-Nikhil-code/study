@@ -37,10 +37,7 @@ export default function ExamInterfacePage() {
   const submitMutation = useMutation({
     mutationFn: () => TestsService.submitAttempt(attemptId),
     onSuccess: () => {
-      // Exit full screen if active
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(console.error);
-      }
+      // Keep full screen active for the result page
       router.replace(`/student/tests/${testId}/attempt/${attemptId}/result`);
     },
     onError: (err: any) => {
@@ -60,12 +57,10 @@ export default function ExamInterfacePage() {
 
     // Enter full screen
     const enterFullScreen = async () => {
-      if (examContainerRef.current) {
-        try {
-          await examContainerRef.current.requestFullscreen();
-        } catch (err) {
-          console.warn("Fullscreen API failed", err);
-        }
+      try {
+        await document.documentElement.requestFullscreen();
+      } catch (err) {
+        console.warn("Fullscreen API failed", err);
       }
     };
     
