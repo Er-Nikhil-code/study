@@ -378,6 +378,7 @@ export default function CurriculumViewer({
   const [hoveredSectionId, setHoveredSectionId] = useState<string | null>(null);
   const [hoveredChapterId, setHoveredChapterId] = useState<string | null>(null);
   const [isChapterPanelExpanded, setIsChapterPanelExpanded] = useState<boolean>(false);
+  const [showManagerSelect, setShowManagerSelect] = useState<boolean>(false);
 
   // inline add-form visibility
   const [addingChapterTo, setAddingChapterTo] = useState<string | null>(null);
@@ -422,6 +423,7 @@ export default function CurriculumViewer({
     setAddingChapterTo(null);
     setAddingTopicTo(null);
     setIsChapterPanelExpanded(true);
+    setShowManagerSelect(false);
   };
 
   // section progress helpers
@@ -662,17 +664,48 @@ export default function CurriculumViewer({
               <Shield size={10} className="text-emerald-500/60" />
               <span className="text-[10px] text-zinc-600 uppercase tracking-wider">Section Manager</span>
             </div>
-            <MultiSearchableSelect
-              options={knights.map((k: any) => ({
-                value: k.id,
-                label: [k.first_name, k.last_name].filter(Boolean).join(" ") || k.email || "Unknown",
-                subLabel: k.email,
-                image: k.profile_picture,
-              }))}
-              values={activeSection.managers?.map((m: any) => m.id) || []}
-              onChange={(val) => onAssignManagers?.(activeSection.id, val)}
-              placeholder="Assign managers…"
-            />
+            
+            {showManagerSelect ? (
+              <MultiSearchableSelect
+                options={knights.map((k: any) => ({
+                  value: k.id,
+                  label: [k.first_name, k.last_name].filter(Boolean).join(" ") || k.email || "Unknown",
+                  subLabel: k.email,
+                  image: k.profile_picture,
+                }))}
+                values={activeSection.managers?.map((m: any) => m.id) || []}
+                onChange={(val) => onAssignManagers?.(activeSection.id, val)}
+                placeholder="Assign managers…"
+              />
+            ) : (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {activeSection.managers?.length > 0 ? (
+                  activeSection.managers.map((m: any) => (
+                    <div key={m.id} className="relative group/mgr inline-block">
+                      {m.profile_picture ? (
+                        <img src={m.profile_picture} alt={m.first_name} className="w-6 h-6 rounded-full object-cover border border-white/10" />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-zinc-800 border border-white/5 text-zinc-400 flex items-center justify-center font-bold text-[9px]">
+                          {m.first_name?.charAt(0)?.toUpperCase() || "U"}
+                        </div>
+                      )}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 opacity-0 group-hover/mgr:opacity-100 transition-opacity bg-black text-white text-[9px] px-1.5 py-0.5 rounded whitespace-nowrap pointer-events-none z-50">
+                        {m.first_name} {m.last_name}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <span className="text-xs text-zinc-500 italic">None</span>
+                )}
+                <button 
+                  onClick={() => setShowManagerSelect(true)}
+                  className="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition"
+                  title="Assign managers"
+                >
+                  <Plus size={12} />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

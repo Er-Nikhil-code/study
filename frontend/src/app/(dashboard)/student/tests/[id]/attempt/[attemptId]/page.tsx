@@ -400,7 +400,7 @@ export default function ExamInterfacePage() {
                   <button
                     key={tq.id}
                     onClick={() => handleNavigate(idx)}
-                    className={`w-full aspect-square flex items-center justify-center text-sm font-bold shadow-sm transition hover:scale-105 ${getStatusColor(status)} ${isCurrent ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
+                    className={`w-full aspect-square flex items-center justify-center text-sm font-bold shadow-sm transition-transform hover:scale-105 ${getStatusColor(status)} ${isCurrent ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
                   >
                     {idx + 1}
                     {status === "answered_marked" && (

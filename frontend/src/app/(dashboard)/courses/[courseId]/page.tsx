@@ -411,11 +411,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       <span className="flex items-center gap-1.5 flex-wrap">
                         <span>Course Code: {course.code}</span>
                         <span>•</span>
-                        <span className="relative group/creator flex items-center gap-1 cursor-help">
-                          Creator: <span className="text-zinc-300 hover:text-white transition-colors">{course.creator ? `${course.creator.first_name} ${course.creator.last_name || ''}`.trim() : "King"}</span>
-                          
-                          <span className="absolute top-full left-0 mt-2 opacity-0 group-hover/creator:opacity-100 group-hover/creator:translate-y-0 translate-y-1 pointer-events-none transition-all duration-200 z-50">
-                            <span className="bg-black/90 backdrop-blur-md border border-white/10 shadow-2xl rounded-xl p-3 w-64 flex items-start gap-3 pointer-events-auto">
+                        <span className="flex items-center gap-1">
+                          Creator: <span className="relative group/creator cursor-help text-zinc-300 hover:text-white transition-colors">
+                            {course.creator ? `${course.creator.first_name} ${course.creator.last_name || ''}`.trim() : "King"}
+                            <span className="absolute top-full left-0 mt-2 opacity-0 group-hover/creator:opacity-100 group-hover/creator:translate-y-0 translate-y-1 pointer-events-none transition-all duration-200 z-50">
+                              <span className="bg-black/90 backdrop-blur-md border border-white/10 shadow-2xl rounded-xl p-3 w-64 flex items-start gap-3 pointer-events-auto cursor-default">
                               {course.creator ? (
                                 <>
                                   {course.creator.profile_picture ? (
@@ -447,7 +447,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           </span>
                         </span>
                       </span>
-                    ) : "Course Curriculum"
+                    </span>
+                  ) : "Course Curriculum"
                   } 
                 />
               </div>
