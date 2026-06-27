@@ -452,7 +452,7 @@ export default function CurriculumViewer({
 
   return (
     <div 
-      className="flex gap-2 w-full min-h-[600px] max-h-[calc(100vh-260px)] items-start select-none overflow-hidden"
+      className="flex gap-2 w-full min-h-[600px] max-h-[calc(100vh-260px)] items-stretch select-none overflow-hidden"
       onMouseLeave={() => {
         setHoveredSectionId(null);
         setHoveredChapterId(null);

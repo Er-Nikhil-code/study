@@ -237,7 +237,10 @@ export default function ExamInterfacePage() {
   };
 
   return (
-    <div ref={examContainerRef} className="fixed inset-0 z-[100] flex flex-col bg-white text-zinc-900 select-none overflow-hidden">
+    <>
+      {/* 2-second dark to light transition overlay to reduce eye strain */}
+      <div className="pointer-events-none fixed inset-0 z-[9999] bg-[#050505] animate-[fadeOutOverlay_2s_ease-in-out_forwards]" />
+      <div ref={examContainerRef} className="fixed inset-0 z-[100] flex flex-col bg-white text-zinc-900 select-none overflow-hidden">
       
       {/* Header */}
       <header className="h-16 bg-zinc-900 text-white flex items-center justify-between px-6 shrink-0 border-b border-zinc-800 shadow-sm">
@@ -434,7 +437,8 @@ export default function ExamInterfacePage() {
         </div>
 
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

@@ -67,7 +67,10 @@ function NotesViewerContent() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-zinc-950">
+    <>
+      {/* 2-second dark to light transition overlay to reduce eye strain */}
+      <div className="pointer-events-none fixed inset-0 z-[9999] bg-[#050505] animate-[fadeOutOverlay_2s_ease-in-out_forwards]" />
+      <div className="flex flex-col h-screen overflow-hidden bg-zinc-950">
       {/* Tiny Header */}
       <header className="h-10 shrink-0 bg-black border-b border-white/10 px-4 flex items-center justify-between shadow-sm z-10">
         <div className="flex items-center gap-3">
@@ -191,6 +194,7 @@ function NotesViewerContent() {
         )}
       </main>
     </div>
+    </>
   );
 }
 

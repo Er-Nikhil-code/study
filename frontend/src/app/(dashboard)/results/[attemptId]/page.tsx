@@ -175,15 +175,15 @@ export default function ResultDetailPage() {
                       </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 relative bg-zinc-950/30">
+                    <div className="flex-1 overflow-y-auto p-5 relative bg-[#0a0a0a]">
                       
                       {/* Question Content */}
-                      <div className="text-base font-medium text-zinc-200 mb-8 w-full leading-relaxed">
+                      <div className="text-[15px] font-medium text-zinc-200 mb-6 w-full leading-relaxed">
                         <ContentBlockRenderer blocks={q.content_json || []} />
                       </div>
 
                       {/* Options */}
-                      <div className="space-y-3 w-full mb-6">
+                      <div className="space-y-2.5 w-full mb-6">
                         {(() => {
                           const optionsToRender = q.options_json?.options || [];
 
@@ -209,7 +209,7 @@ export default function ResultDetailPage() {
                                 }
 
                                 return (
-                                  <div key={opt} className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all ${borderColor} ${bgColor}`}>
+                                  <div key={opt} className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all shadow-[0_2px_8px_rgba(0,0,0,0.4)] ${borderColor} ${bgColor}`}>
                                     <div className="text-zinc-200 text-sm flex-1">{opt}</div>
                                     {icon}
                                   </div>
@@ -298,7 +298,7 @@ export default function ResultDetailPage() {
                             return (
                               <div 
                                 key={opt.id} 
-                                className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all ${borderColor} ${bgColor}`}
+                                className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all shadow-[0_2px_8px_rgba(0,0,0,0.4)] ${borderColor} ${bgColor}`}
                               >
                                 <MathRenderer text={opt.text} className="inline text-zinc-200 text-sm flex-1" />
                                 {icon}
@@ -310,7 +310,7 @@ export default function ResultDetailPage() {
 
                       {/* Solution */}
                       {q.solution_json && (
-                        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 mt-6">
+                        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3.5 mt-5">
                           <div className="text-xs uppercase tracking-wide text-zinc-400 mb-2 font-semibold flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             Solution & Explanation
@@ -367,7 +367,7 @@ export default function ResultDetailPage() {
           </div>
 
           {/* Right Palette Area */}
-          <div className="w-full lg:w-80 shrink-0">
+          <div className="w-full lg:w-[280px] shrink-0">
             <Panel className="p-0 overflow-hidden sticky top-6">
               
               <div className="h-12 bg-zinc-900 border-b border-white/10 text-white flex items-center px-5 text-sm font-bold shadow-inner">
@@ -384,8 +384,8 @@ export default function ResultDetailPage() {
               )}
 
               {/* Question Grid */}
-              <div className="p-5 bg-black/20 max-h-[500px] overflow-y-auto">
-                <div className="grid grid-cols-5 gap-3">
+              <div className="p-4 bg-black/20 max-h-[500px] overflow-y-auto">
+                <div className="grid grid-cols-5 gap-2">
                   {testQuestions.map((tq: any, idx: number) => {
                     const q = tq.question;
                     const r = responses.find((resp: any) => resp.question_id === q.id);
