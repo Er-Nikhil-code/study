@@ -378,6 +378,7 @@ export default function CurriculumViewer({
   const [activeSectionId, setActiveSectionId] = useState<string>(sections[0]?.id || "");
   const [activeChapterId, setActiveChapterId] = useState<string>(sections[0]?.chapters?.[0]?.id || "");
   const [hoveredSectionId, setHoveredSectionId] = useState<string | null>(null);
+  const [hoveredChapterId, setHoveredChapterId] = useState<string | null>(null);
   const [isChapterPanelExpanded, setIsChapterPanelExpanded] = useState<boolean>(false);
 
   // inline add-form visibility
@@ -401,10 +402,12 @@ export default function CurriculumViewer({
   const displaySectionId = hoveredSectionId || activeSectionId;
   const activeSection = sections.find((s: any) => s.id === displaySectionId) || sections[0];
   const chapters = activeSection?.chapters || [];
-  // Use activeChapterId only if it belongs to the displaySection, else fall back to the section's first chapter
-  const isValidChapter = chapters.some((c: any) => c.id === activeChapterId);
+  
+  const displayChapterId = hoveredChapterId || activeChapterId;
+  // Use displayChapterId only if it belongs to the displaySection, else fall back to the section's first chapter
+  const isValidChapter = chapters.some((c: any) => c.id === displayChapterId);
   const activeChapter = isValidChapter 
-    ? chapters.find((c: any) => c.id === activeChapterId) 
+    ? chapters.find((c: any) => c.id === displayChapterId) 
     : chapters[0];
   const topics = activeChapter?.topics || [];
 
@@ -450,11 +453,14 @@ export default function CurriculumViewer({
   return (
     <div 
       className="flex gap-2 w-full min-h-[600px] max-h-[calc(100vh-260px)] items-start select-none overflow-hidden"
-      onMouseLeave={() => setHoveredSectionId(null)}
+      onMouseLeave={() => {
+        setHoveredSectionId(null);
+        setHoveredChapterId(null);
+      }}
     >
 
       {/* ── PANEL 1: Sections Rail — collapses to ~52px, expands on hover ── */}
-      <div className={`group/sec shrink-0 flex flex-col overflow-y-auto scrollbar-none border-r border-white/[0.06] pr-2 transition-[width] duration-300 ease-in-out ${isChapterPanelExpanded ? 'w-56' : 'w-[52px] hover:w-56'} mr-1`}>
+      <div className={`group/sec shrink-0 flex flex-col overflow-y-auto scrollbar-none border-r border-white/[0.06] pr-2 transition-[width] duration-700 ease-in-out ${isChapterPanelExpanded ? 'w-56' : 'w-[52px] hover:w-56'} mr-1`}>
         <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-2 flex items-center gap-1.5 whitespace-nowrap overflow-hidden">
           <Layers size={10} className="shrink-0" />
           <span className={`transition-opacity duration-200 ${isChapterPanelExpanded ? 'opacity-100' : 'opacity-0 group-hover/sec:opacity-100'}`}>Sections</span>
@@ -540,7 +546,10 @@ export default function CurriculumViewer({
       </div>
 
       {/* ── PANEL 2: Chapters — collapses to ~52px, expands on hover ──── */}
-      <div className={`group/ch shrink-0 flex flex-col overflow-y-auto scrollbar-none transition-[width] duration-300 ease-in-out border-r border-white/[0.06] pr-2 mr-1 ${isChapterPanelExpanded ? "w-52" : "w-[52px] hover:w-52"}`}>
+      <div 
+        className={`group/ch shrink-0 flex flex-col overflow-y-auto scrollbar-none transition-[width] duration-700 ease-in-out border-r border-white/[0.06] pr-2 mr-1 ${isChapterPanelExpanded ? "w-52" : "w-[52px] hover:w-52"}`}
+        onMouseLeave={() => setHoveredChapterId(null)}
+      >
         <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-2 flex items-center justify-between whitespace-nowrap">
           <span className="flex items-center gap-1.5">
             <BookOpen size={10} className="shrink-0" />
@@ -591,10 +600,12 @@ export default function CurriculumViewer({
                   <button
                     onClick={() => {
                       setHoveredSectionId(null);
+                      setHoveredChapterId(null);
                       setActiveSectionId(activeSection.id);
                       setActiveChapterId(chapter.id);
                       setIsChapterPanelExpanded(false);
                     }}
+                    onMouseEnter={() => setHoveredChapterId(chapter.id)}
                     title={chapter.name}
                     className={`w-full text-left px-2.5 py-2.5 rounded-xl border transition-all duration-200 relative overflow-hidden
                       ${isActive

@@ -95,6 +95,8 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
 
   return (
     <aside
+      onMouseEnter={() => setIsCollapsed(false)}
+      onMouseLeave={() => setIsCollapsed(true)}
       className={`fixed inset-y-0 left-0 z-50 flex flex-col
         bg-[#080808] border-r border-white/[0.06]
         ${!mounted ? "transition-none" : "transition-[width] duration-300 ease-in-out"}
@@ -123,17 +125,7 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
         </Link>
       </div>
 
-      {/* ── Collapse toggle ──────────────────────────────────────── */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-[52px] z-50 flex h-5.5 w-5.5 items-center justify-center
-          rounded-full border border-white/10 bg-[#111] text-zinc-500
-          hover:text-white hover:border-white/20 hover:bg-[#1a1a1a]
-          shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
-        style={{ width: 22, height: 22 }}
-      >
-        {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
-      </button>
+      {/* Manual toggle removed for hover-based expansion */}
 
       {/* ── Nav ──────────────────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto py-3 scrollbar-none">
