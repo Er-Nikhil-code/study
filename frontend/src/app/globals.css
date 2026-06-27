@@ -6,9 +6,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-duration: 1s;
-  transition-timing-function: ease-in-out;
+  /* Scope global transition to color-only properties at a snappy 150ms.
+     Anything needing a longer/different transition should use an explicit utility. */
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
 }
 
 html {
@@ -166,3 +168,43 @@ th {
 .math-renderer.inline p {
   display: inline;
 }
+
+/* ─── Scrollbar utilities ─── */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 99px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.16); }
+
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* ─── Reusable glass card ─── */
+.glass-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 1rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.glass-card:hover {
+  background: rgba(255,255,255,0.055);
+  border-color: rgba(255,255,255,0.13);
+}
+
+/* ─── Stat label utility ─── */
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(161,161,170,0.9); /* zinc-400 at slightly higher opacity */
+}
+
+/* ─── Readable body text on dark ─── */
+.body-text { color: rgba(228,228,231,0.85); } /* zinc-200 */
+.muted-text { color: rgba(161,161,170,0.8);  } /* zinc-400 */
+.dim-text   { color: rgba(113,113,122,0.9);  } /* zinc-500 */

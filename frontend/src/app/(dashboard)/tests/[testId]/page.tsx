@@ -123,43 +123,26 @@ export default function TestDetailsPage() {
         />
 
         <Panel accent className="mt-6 mb-8">
-          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
-            <div className="rounded-2xl bg-white/[0.03] p-4">
-              <div className="text-xs text-zinc-500">Duration</div>
-              <div className="mt-1 text-xl font-semibold text-white">
-                {test.duration_minutes} min
+          <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              { label: "Duration",      value: `${test.duration_minutes} min`,  accent: "border-l-blue-400" },
+              { label: "Questions",     value: questionCount,                    accent: "border-l-violet-400" },
+              { label: "Total Marks",   value: test.total_marks,                 accent: "border-l-amber-400" },
+              { label: "Passing Marks", value: test.passing_marks ?? "N/A",      accent: "border-l-emerald-400" },
+              { label: "Attempts",      value: attemptCount,                     accent: "border-l-purple-400" },
+            ].map(({ label, value, accent }) => (
+              <div key={label} className={`rounded-xl border-l-2 ${accent} bg-white/[0.04] border border-white/[0.08] pl-3 pr-4 py-3`}>
+                <div className="stat-label mb-1">{label}</div>
+                <div className="text-xl font-bold text-white">{value}</div>
               </div>
-            </div>
-            <div className="rounded-2xl bg-white/[0.03] p-4">
-              <div className="text-xs text-zinc-500">Questions</div>
-              <div className="mt-1 text-xl font-semibold text-white">
-                {questionCount}
-              </div>
-            </div>
-            <div className="rounded-2xl bg-white/[0.03] p-4">
-              <div className="text-xs text-zinc-500">Marks / Question</div>
-              <div className="mt-1 text-xl font-semibold flex items-baseline gap-1.5">
+            ))}
+            {/* Marks/Question gets special treatment */}
+            <div className="rounded-xl border-l-2 border-l-red-400 bg-white/[0.04] border border-white/[0.08] pl-3 pr-4 py-3">
+              <div className="stat-label mb-1">Marks / Q</div>
+              <div className="text-xl font-bold flex items-baseline gap-1.5">
                 <span className="text-emerald-400">+{test.positive_marks || 0}</span>
                 <span className="text-zinc-600 text-sm">/</span>
                 <span className="text-red-400">-{test.negative_marks || 0}</span>
-              </div>
-            </div>
-            <div className="rounded-2xl bg-white/[0.03] p-4">
-              <div className="text-xs text-zinc-500">Total Marks</div>
-              <div className="mt-1 text-xl font-semibold text-white">
-                {test.total_marks}
-              </div>
-            </div>
-            <div className="rounded-2xl bg-white/[0.03] p-4">
-              <div className="text-xs text-zinc-500">Passing Marks</div>
-              <div className="mt-1 text-xl font-semibold text-white">
-                {test.passing_marks ?? "N/A"}
-              </div>
-            </div>
-            <div className="rounded-2xl bg-white/[0.03] p-4">
-              <div className="text-xs text-zinc-500">Attempts</div>
-              <div className="mt-1 text-xl font-semibold text-white">
-                {attemptCount}
               </div>
             </div>
           </div>

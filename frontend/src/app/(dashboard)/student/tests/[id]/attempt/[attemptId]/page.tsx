@@ -305,11 +305,14 @@ export default function ExamInterfacePage() {
                 return (
                   <label 
                     key={opt.id} 
-                    className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      isSelected ? 'border-blue-500 bg-blue-50/50' : 'border-zinc-200 hover:border-blue-300 hover:bg-zinc-50'
-                    }`}
+                    className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer
+                      transition-[border-color,background-color,box-shadow] duration-200 ease-in-out
+                      ${isSelected
+                        ? 'border-blue-500 bg-blue-50 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.15)]'
+                        : 'border-zinc-200 bg-white hover:border-blue-300 hover:bg-zinc-50 hover:shadow-[inset_0_0_0_1px_rgba(147,197,253,0.2)]'
+                      }`}
                   >
-                    <div className="relative flex items-center justify-center mt-0.5">
+                    <div className="relative flex items-center justify-center mt-0.5 shrink-0">
                       <input 
                         type={isMulti ? "checkbox" : "radio"} 
                         name={`q_${currentQ.id}`} 
@@ -317,15 +320,22 @@ export default function ExamInterfacePage() {
                         onChange={() => handleOptionSelect(opt.id)}
                         className="peer sr-only"
                       />
-                      <div className={`w-5 h-5 flex items-center justify-center transition-all ${isMulti ? 'rounded' : 'rounded-full'} border-2 ${isSelected ? 'border-blue-600' : 'border-zinc-400'}`}>
+                      <div className={`w-5 h-5 flex items-center justify-center
+                        transition-[border-color,background-color] duration-200 ease-in-out
+                        ${isMulti ? 'rounded' : 'rounded-full'} border-2
+                        ${isSelected
+                          ? 'border-blue-600 bg-blue-600'
+                          : 'border-zinc-300 bg-white'
+                        }`}
+                      >
                         {isSelected && (
                           isMulti 
-                            ? <Check className="w-3.5 h-3.5 text-blue-600 font-bold" />
-                            : <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />
+                            ? <Check className="w-3.5 h-3.5 text-white font-bold" />
+                            : <div className="w-2 h-2 bg-white rounded-full" />
                         )}
                       </div>
                     </div>
-                    <MathRenderer text={opt.text} className="inline text-zinc-800 text-base" />
+                    <MathRenderer text={opt.text} className={`inline text-base leading-relaxed transition-colors duration-200 ${isSelected ? 'text-blue-900' : 'text-zinc-800'}`} />
                   </label>
                 );
               })}

@@ -69,23 +69,23 @@ export default function StudentDashboardPage() {
           {/* Quick Stats */}
           <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
             <Panel accent>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Current Streak</div>
-              <div className="mt-2 text-3xl font-semibold text-red-300">{studentData.current_streak}🔥</div>
-              <div className="mt-1 text-xs text-zinc-500">Longest: {studentData.longest_streak} days</div>
+              <div className="stat-label">Current Streak</div>
+              <div className="mt-2 text-3xl font-bold text-red-300">{studentData.current_streak}🔥</div>
+              <div className="mt-1 text-xs text-zinc-400">Longest: {studentData.longest_streak} days</div>
             </Panel>
             <Panel>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Global Rank</div>
-              <div className="mt-2 text-3xl font-semibold text-white">#{studentData.global_rank || "—"}</div>
+              <div className="stat-label">Global Rank</div>
+              <div className="mt-2 text-3xl font-bold text-white">#{studentData.global_rank || "—"}</div>
             </Panel>
             <Panel>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Tests Taken</div>
-              <div className="mt-2 text-3xl font-semibold text-white">{studentData.total_tests}</div>
+              <div className="stat-label">Tests Taken</div>
+              <div className="mt-2 text-3xl font-bold text-white">{studentData.total_tests}</div>
             </Panel>
             <Panel>
-              <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">Today</div>
-              <div className="mt-2 text-3xl font-semibold text-white">
+              <div className="stat-label">Today</div>
+              <div className="mt-2 text-3xl font-bold text-white">
                 {studentData.tests_today} test{studentData.tests_today !== 1 ? "s" : ""}
-                {studentData.has_activity_today && <span className="ml-2 text-emerald-400 text-sm">✓ Active</span>}
+                {studentData.has_activity_today && <span className="ml-2 text-emerald-300 text-sm font-semibold">✓ Active</span>}
               </div>
             </Panel>
           </div>
@@ -96,7 +96,7 @@ export default function StudentDashboardPage() {
               {studentData.activity_graph ? (
                 <Panel className="flex-1 flex flex-col">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-sm uppercase tracking-[0.2em] text-zinc-500 font-semibold shrink-0">Activity History</h3>
+                    <h3 className="stat-label">Activity History</h3>
                   </div>
                   <div className="flex-1 flex flex-col justify-end">
                     <ActivityGraph data={studentData.activity_graph} userName={name} />

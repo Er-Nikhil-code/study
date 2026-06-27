@@ -199,7 +199,7 @@ export default function NotificationsPage() {
               if (!items.length) return null;
               return (
                 <div key={label} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <h3 className="text-xs uppercase tracking-[0.25em] font-bold text-zinc-600 mb-4 ml-1 flex items-center gap-3">
+                  <h3 className="text-xs uppercase tracking-[0.18em] font-bold text-zinc-400 mb-4 ml-1 flex items-center gap-3">
                     {label}
                     <div className="h-px flex-1 bg-gradient-to-r from-white/5 to-transparent"></div>
                   </h3>
@@ -242,7 +242,7 @@ export default function NotificationsPage() {
                                   </button>
                                 </div>
                               </div>
-                              <p className={`text-sm leading-relaxed ${!n.is_read ? "text-zinc-300 font-medium" : "text-zinc-400"}`}>{n.message}</p>
+                              <p className={`text-sm leading-relaxed ${!n.is_read ? "text-zinc-200 font-medium" : "text-zinc-400"}`}>{n.message}</p>
                               {n.data_json?.question_content && (
                                 <div className="mt-3 bg-black/40 border border-white/5 rounded-xl p-4 text-sm text-zinc-300 max-h-40 overflow-y-auto">
                                   <ContentBlockRenderer blocks={n.data_json.question_content} />
@@ -287,7 +287,7 @@ export default function NotificationsPage() {
             </Panel>
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h3 className="text-xs uppercase tracking-[0.25em] font-bold text-zinc-600 mb-4 ml-1 flex items-center gap-3">
+              <h3 className="text-xs uppercase tracking-[0.18em] font-bold text-zinc-400 mb-4 ml-1 flex items-center gap-3">
                 RECENT
                 <div className="h-px flex-1 bg-gradient-to-r from-white/5 to-transparent"></div>
               </h3>

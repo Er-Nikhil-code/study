@@ -171,7 +171,7 @@ function TopicCard({
     <div
       {...dragProps}
       className={`group relative flex flex-col p-4 rounded-xl border backdrop-blur-sm transition-all duration-200
-        ${dragProps?.["data-dragging"] ? "opacity-40 border-red-500/50 scale-95" : "border-white/8 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 hover:shadow-lg hover:shadow-black/20"}`}
+        ${dragProps?.["data-dragging"] ? "opacity-40 border-red-500/50 scale-95" : "border-white/[0.10] bg-white/[0.05] hover:bg-white/[0.08] hover:border-white/20 hover:shadow-lg hover:shadow-black/20"}`}
     >
       {/* Edit/Delete controls */}
       {canManage && !editing && (
@@ -209,18 +209,18 @@ function TopicCard({
           {/* Title row */}
           <div className="flex items-center gap-2 mb-1.5 pr-14">
             {topic.is_completed ? (
-              <CheckCircle size={14} className="text-emerald-500 fill-emerald-500/20 shrink-0" />
+              <CheckCircle size={14} className="text-emerald-400 fill-emerald-400/20 shrink-0" />
             ) : (
-              <div className="w-3.5 h-3.5 rounded-full border-2 border-zinc-600 shrink-0" />
+              <div className="w-3.5 h-3.5 rounded-full border-2 border-zinc-500 shrink-0" />
             )}
-            <span className="text-sm font-semibold text-white group-hover:text-red-300 transition-colors line-clamp-2 leading-snug">
+            <span className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors line-clamp-2 leading-snug">
               {topic.name}
             </span>
           </div>
 
           {/* Description */}
           {topic.description && (
-            <p className="text-[11px] text-zinc-500 line-clamp-2 mb-3 leading-relaxed">
+            <p className="text-[11px] text-zinc-400 line-clamp-2 mb-3 leading-relaxed">
               {topic.description}
             </p>
           )}
@@ -284,7 +284,7 @@ function TopicCard({
                     <Plus size={12} /> Create Test
                   </Link>
                 ) : (
-                  <span className="text-[11px] text-zinc-600">No test yet</span>
+                  <span className="text-[11px] text-zinc-500">No test yet</span>
                 )}
               </>
             ) : (
@@ -421,7 +421,7 @@ export default function CurriculumViewer({
 
       {/* ── PANEL 1: Sections Rail ─────────────────────────────────────── */}
       <div className="w-60 shrink-0 flex flex-col gap-2 overflow-y-auto pr-1 scrollbar-thin">
-        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest px-1 mb-1 flex items-center gap-1.5">
+        <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-1 flex items-center gap-1.5">
           <Layers size={10} /> Sections
         </div>
 
@@ -456,10 +456,10 @@ export default function CurriculumViewer({
 
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-semibold leading-snug truncate ${isActive ? "text-white" : "text-zinc-400"}`}>
+                      <p className={`text-xs font-semibold leading-snug truncate ${isActive ? "text-white" : "text-zinc-300"}`}>
                         {section.name}
                       </p>
-                      <p className="text-[10px] text-zinc-600 mt-0.5">
+                      <p className="text-[10px] text-zinc-500 mt-0.5">
                         {section.chapters?.length || 0} chapters
                       </p>
                     </div>
@@ -506,7 +506,7 @@ export default function CurriculumViewer({
 
       {/* ── PANEL 2: Chapters ─────────────────────────────────────────── */}
       <div className="w-56 shrink-0 flex flex-col overflow-y-auto pr-1 scrollbar-thin">
-        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest px-1 mb-3 flex items-center justify-between">
+        <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-3 flex items-center justify-between">
           <span className="flex items-center gap-1.5"><BookOpen size={10} /> Chapters</span>
           {activeSection && isSectionManager(activeSection) && (
             <button
@@ -562,11 +562,11 @@ export default function CurriculumViewer({
 
                     <div className="flex items-start justify-between gap-1">
                       <div className="flex-1 min-w-0">
-                        <p className={`text-[11px] font-semibold leading-snug line-clamp-2 ${isActive ? "text-white" : "text-zinc-400"}`}>
-                          <span className="text-zinc-600 font-normal">{cIdx + 1}. </span>
+                        <p className={`text-[11px] font-semibold leading-snug line-clamp-2 ${isActive ? "text-white" : "text-zinc-300"}`}>
+                          <span className="text-zinc-500 font-normal">{cIdx + 1}. </span>
                           {chapter.name}
                         </p>
-                        <p className="text-[10px] text-zinc-600 mt-0.5">
+                        <p className="text-[10px] text-zinc-500 mt-0.5">
                           {chapter.topics?.length || 0} topics
                         </p>
                       </div>
@@ -636,7 +636,7 @@ export default function CurriculumViewer({
         {/* Chapter header */}
         <div className="flex items-center justify-between mb-4 sticky top-0 bg-[#050505]/80 backdrop-blur-md z-10 py-1 -mt-1">
           <div>
-            <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest flex items-center gap-1.5">
+            <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
               <Atom size={10} /> Topics
             </div>
             {activeChapter && (
@@ -672,9 +672,9 @@ export default function CurriculumViewer({
         {topics.length === 0 && !addingTopicTo && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center mb-3">
-              <Atom size={20} className="text-zinc-600" />
+              <Atom size={20} className="text-zinc-500" />
             </div>
-            <p className="text-sm text-zinc-600">No topics in this chapter yet.</p>
+            <p className="text-sm text-zinc-500">No topics in this chapter yet.</p>
           </div>
         )}
 
