@@ -236,8 +236,8 @@ export default function AppSidebar({ items, activeHref, isCollapsed, setIsCollap
       <div className="relative shrink-0 p-2 border-t border-white/[0.06]" ref={dropdownRef}>
         {/* Profile dropdown */}
         {isProfileOpen && mounted && (
-          <div className={`absolute bottom-full mb-2 rounded-xl border border-white/10 bg-[#111] shadow-xl
-            ${isCollapsed ? "left-2 right-2" : "left-2 right-2"}`}>
+          <div className={`absolute z-[100] rounded-xl border border-white/10 bg-[#111] shadow-xl
+            ${isCollapsed ? "left-full bottom-2 ml-3 w-36" : "bottom-full mb-2 left-2 right-2"}`}>
             <div className="p-1">
               <Link
                 href="/profile"

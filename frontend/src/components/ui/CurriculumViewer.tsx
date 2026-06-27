@@ -378,6 +378,7 @@ export default function CurriculumViewer({
   const [activeSectionId, setActiveSectionId] = useState<string>(sections[0]?.id || "");
   const [activeChapterId, setActiveChapterId] = useState<string>(sections[0]?.chapters?.[0]?.id || "");
   const [hoveredSectionId, setHoveredSectionId] = useState<string | null>(null);
+  const [isChapterPanelExpanded, setIsChapterPanelExpanded] = useState<boolean>(false);
 
   // inline add-form visibility
   const [addingChapterTo, setAddingChapterTo] = useState<string | null>(null);
@@ -410,10 +411,16 @@ export default function CurriculumViewer({
   // auto-select first chapter when section changes
   const switchSection = (sId: string) => {
     setActiveSectionId(sId);
+    // Find the first chapter of the new section
     const sec = sections.find((s: any) => s.id === sId);
-    setActiveChapterId(sec?.chapters?.[0]?.id || "");
+    if (sec && sec.chapters && sec.chapters.length > 0) {
+      setActiveChapterId(sec.chapters[0].id);
+    } else {
+      setActiveChapterId("");
+    }
     setAddingChapterTo(null);
     setAddingTopicTo(null);
+    setIsChapterPanelExpanded(true);
   };
 
   // section progress helpers
@@ -535,9 +542,7 @@ export default function CurriculumViewer({
       </div>
 
       {/* ── PANEL 2: Chapters — collapses to ~52px, expands on hover ──── */}
-      <div className="group/ch shrink-0 flex flex-col overflow-y-auto scrollbar-none
-        w-[52px] hover:w-52 transition-[width] duration-300 ease-in-out
-        border-r border-white/[0.06] pr-2 mr-1">
+      <div className={`group/ch shrink-0 flex flex-col overflow-y-auto scrollbar-none transition-[width] duration-300 ease-in-out border-r border-white/[0.06] pr-2 mr-1 ${isChapterPanelExpanded ? "w-52" : "w-[52px] hover:w-52"}`}>
         <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-2 flex items-center justify-between whitespace-nowrap">
           <span className="flex items-center gap-1.5">
             <BookOpen size={10} className="shrink-0" />
@@ -590,6 +595,7 @@ export default function CurriculumViewer({
                       setHoveredSectionId(null);
                       setActiveSectionId(activeSection.id);
                       setActiveChapterId(chapter.id);
+                      setIsChapterPanelExpanded(false);
                     }}
                     title={chapter.name}
                     className={`w-full text-left px-2.5 py-2.5 rounded-xl border transition-all duration-200 relative overflow-hidden
