@@ -157,7 +157,10 @@ function TopicCard({
 
   if (isPreviewLocked) {
     return (
-      <div className="group relative p-4 rounded-xl border border-white/5 bg-white/[0.02] backdrop-blur-sm cursor-not-allowed">
+      <div className="group relative p-4 rounded-xl border border-white/[0.08]
+        bg-gradient-to-b from-white/[0.04] to-white/[0.02]
+        shadow-[0_4px_16px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.06)]
+        backdrop-blur-sm cursor-not-allowed">
         <div className="flex items-center gap-2 mb-1">
           <Lock size={13} className="text-zinc-600 shrink-0" />
           <span className="text-sm font-medium text-zinc-600 line-clamp-1">{topic.name}</span>
@@ -170,8 +173,17 @@ function TopicCard({
   return (
     <div
       {...dragProps}
-      className={`group relative flex flex-col p-4 rounded-xl border backdrop-blur-sm transition-all duration-200
-        ${dragProps?.["data-dragging"] ? "opacity-40 border-red-500/50 scale-95" : "border-white/[0.10] bg-white/[0.05] hover:bg-white/[0.08] hover:border-white/20 hover:shadow-lg hover:shadow-black/20"}`}
+      className={`group relative flex flex-col p-4 rounded-xl border backdrop-blur-sm
+        transition-[transform,box-shadow,border-color,background-color] duration-200
+        ${
+          dragProps?.["data-dragging"]
+            ? "opacity-40 border-red-500/50 scale-95"
+            : `border-white/[0.09] bg-gradient-to-b from-white/[0.06] to-white/[0.03]
+               shadow-[0_4px_12px_rgba(0,0,0,0.5),0_1px_3px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.08)]
+               hover:-translate-y-0.5
+               hover:border-white/[0.18]
+               hover:shadow-[0_8px_24px_rgba(0,0,0,0.55),0_2px_6px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.10),0_0_0_1px_rgba(255,255,255,0.04)]`
+        }`}
     >
       {/* Edit/Delete controls */}
       {canManage && !editing && (
@@ -213,7 +225,7 @@ function TopicCard({
             ) : (
               <div className="w-3.5 h-3.5 rounded-full border-2 border-zinc-500 shrink-0" />
             )}
-            <span className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors line-clamp-2 leading-snug">
+            <span className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors duration-150 line-clamp-2 leading-snug">
               {topic.name}
             </span>
           </div>
@@ -262,7 +274,7 @@ function TopicCard({
                       <ClipboardList size={12} /> Test
                     </Link>
                     <Link
-                      href={`/tests/${topic.test_id}`}
+                      href={`/teacher/tests/${topic.test_id}/edit`}
                       className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-[11px] font-medium text-purple-400 transition"
                     >
                       <TrendingUp size={12} /> Analysis
@@ -417,12 +429,15 @@ export default function CurriculumViewer({
   }
 
   return (
-    <div className="flex gap-4 w-full min-h-[600px] max-h-[calc(100vh-280px)]">
+    <div className="flex gap-2 w-full min-h-[600px] max-h-[calc(100vh-260px)]">
 
-      {/* ── PANEL 1: Sections Rail ─────────────────────────────────────── */}
-      <div className="w-60 shrink-0 flex flex-col gap-2 overflow-y-auto pr-1 scrollbar-thin">
-        <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-1 flex items-center gap-1.5">
-          <Layers size={10} /> Sections
+      {/* ── PANEL 1: Sections Rail — collapses to ~52px, expands on hover ── */}
+      <div className="group/sec shrink-0 flex flex-col overflow-y-auto scrollbar-none
+        w-[52px] hover:w-56 transition-[width] duration-300 ease-in-out
+        border-r border-white/[0.06] pr-2 mr-1">
+        <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-2 flex items-center gap-1.5 whitespace-nowrap overflow-hidden">
+          <Layers size={10} className="shrink-0" />
+          <span className="opacity-0 group-hover/sec:opacity-100 transition-opacity duration-200">Sections</span>
         </div>
 
         {sections.map((section: any, sIdx: number) => {
@@ -431,7 +446,7 @@ export default function CurriculumViewer({
           const canManage = isSectionManager(section);
 
           return (
-            <div key={section.id} className="group relative">
+            <div key={section.id} className="group/item relative mb-1">
               {editingSectionId === section.id ? (
                 <InlineForm
                   label="Section"
@@ -443,57 +458,56 @@ export default function CurriculumViewer({
               ) : (
                 <button
                   onClick={() => switchSection(section.id)}
-                  className={`w-full text-left px-3.5 py-3 rounded-xl border transition-all duration-200 relative overflow-hidden
+                  title={section.name}
+                  className={`w-full text-left px-2.5 py-2.5 rounded-xl border transition-all duration-200 relative overflow-hidden
                     ${isActive
-                      ? "bg-red-500/10 border-red-500/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_4px_20px_rgba(239,68,68,0.08)]"
-                      : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10"
+                      ? "bg-red-500/10 border-red-500/25 shadow-[0_0_0_1px_rgba(239,68,68,0.12),inset_0_1px_0_rgba(255,255,255,0.05)]"
+                      : "bg-white/[0.025] border-white/[0.06] hover:bg-white/[0.05] hover:border-white/10"
                     }`}
                 >
-                  {/* Active indicator */}
                   {isActive && (
-                    <div className="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-red-500 rounded-r" />
+                    <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-red-500 rounded-r shadow-[0_0_6px_rgba(239,68,68,0.5)]" />
                   )}
 
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-semibold leading-snug truncate ${isActive ? "text-white" : "text-zinc-300"}`}>
+                  {/* Collapsed: just index dot */}
+                  <div className="flex items-center gap-2">
+                    <div className={`shrink-0 flex items-center justify-center w-5 h-5 rounded-md text-[10px] font-bold
+                      ${isActive ? "bg-red-500/20 text-red-400" : "bg-white/5 text-zinc-500"}`}>
+                      {sIdx + 1}
+                    </div>
+                    {/* Expanded content — hidden when rail is narrow */}
+                    <div className="flex-1 min-w-0 opacity-0 group-hover/sec:opacity-100 transition-opacity duration-200 overflow-hidden">
+                      <p className={`text-[11px] font-semibold leading-snug truncate ${isActive ? "text-white" : "text-zinc-300"}`}>
                         {section.name}
                       </p>
-                      <p className="text-[10px] text-zinc-500 mt-0.5">
-                        {section.chapters?.length || 0} chapters
-                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-[9px] text-zinc-500 shrink-0">
+                          {section.chapters?.length || 0} ch
+                        </p>
+                        {total > 0 && (
+                          <>
+                            <div className="flex-1 h-px rounded-full bg-white/5 overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${pct === 100 ? "bg-emerald-500" : "bg-red-500/60"}`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                            <span className={`text-[9px] font-bold tabular-nums shrink-0 ${pct === 100 ? "text-emerald-400" : "text-zinc-600"}`}>
+                              {pct}%
+                            </span>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    {total > 0 && (
-                      <span className={`text-[10px] font-bold tabular-nums shrink-0 ${pct === 100 ? "text-emerald-400" : isActive ? "text-red-400" : "text-zinc-600"}`}>
-                        {pct}%
-                      </span>
-                    )}
                   </div>
 
-                  {/* Progress bar */}
-                  {total > 0 && (
-                    <div className="mt-2 h-0.5 rounded-full bg-white/5 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-700 ${pct === 100 ? "bg-emerald-500" : "bg-red-500"}`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Manager controls */}
                   {canManage && (
-                    <div className="absolute top-2 right-2 hidden group-hover:flex items-center gap-0.5">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setEditingSectionId(section.id); }}
-                        className="p-1 rounded bg-black/60 text-zinc-500 hover:text-white transition"
-                      >
-                        <Edit2 size={10} />
+                    <div className="absolute top-1 right-1 hidden group-hover/item:flex items-center gap-0.5">
+                      <button onClick={(e) => { e.stopPropagation(); setEditingSectionId(section.id); }} className="p-0.5 rounded bg-black/60 text-zinc-500 hover:text-white">
+                        <Edit2 size={9} />
                       </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onDeleteSection?.(section.id); }}
-                        className="p-1 rounded bg-black/60 text-zinc-500 hover:text-red-400 transition"
-                      >
-                        <Trash2 size={10} />
+                      <button onClick={(e) => { e.stopPropagation(); onDeleteSection?.(section.id); }} className="p-0.5 rounded bg-black/60 text-zinc-500 hover:text-red-400">
+                        <Trash2 size={9} />
                       </button>
                     </div>
                   )}
@@ -504,14 +518,19 @@ export default function CurriculumViewer({
         })}
       </div>
 
-      {/* ── PANEL 2: Chapters ─────────────────────────────────────────── */}
-      <div className="w-56 shrink-0 flex flex-col overflow-y-auto pr-1 scrollbar-thin">
-        <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-3 flex items-center justify-between">
-          <span className="flex items-center gap-1.5"><BookOpen size={10} /> Chapters</span>
+      {/* ── PANEL 2: Chapters — collapses to ~52px, expands on hover ──── */}
+      <div className="group/ch shrink-0 flex flex-col overflow-y-auto scrollbar-none
+        w-[52px] hover:w-52 transition-[width] duration-300 ease-in-out
+        border-r border-white/[0.06] pr-2 mr-1">
+        <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-1 mb-2 flex items-center justify-between whitespace-nowrap">
+          <span className="flex items-center gap-1.5">
+            <BookOpen size={10} className="shrink-0" />
+            <span className="opacity-0 group-hover/ch:opacity-100 transition-opacity duration-200">Chapters</span>
+          </span>
           {activeSection && isSectionManager(activeSection) && (
             <button
               onClick={() => setAddingChapterTo(activeSection.id)}
-              className="flex items-center gap-0.5 text-red-400 hover:text-red-300 transition text-[10px]"
+              className="opacity-0 group-hover/ch:opacity-100 transition-opacity duration-200 flex items-center gap-0.5 text-red-400 hover:text-red-300 text-[10px]"
             >
               <Plus size={10} /> Add
             </button>
@@ -540,7 +559,7 @@ export default function CurriculumViewer({
             const canManage = isSectionManager(activeSection);
 
             return (
-              <div key={chapter.id} className="group relative">
+              <div key={chapter.id} className="group/ch-item relative mb-1">
                 {editingChapterId === chapter.id ? (
                   <InlineForm
                     label="Chapter"
@@ -552,52 +571,46 @@ export default function CurriculumViewer({
                 ) : (
                   <button
                     onClick={() => { setActiveChapterId(chapter.id); setAddingTopicTo(null); }}
-                    className={`w-full text-left px-3 py-2.5 rounded-xl border transition-all duration-200 relative overflow-hidden
+                    title={chapter.name}
+                    className={`w-full text-left px-2.5 py-2.5 rounded-xl border transition-all duration-200 relative overflow-hidden
                       ${isActive
-                        ? "bg-white/[0.06] border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
-                        : "bg-white/[0.02] border-white/5 hover:bg-white/[0.04] hover:border-white/10"
+                        ? "bg-white/[0.07] border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                        : "bg-white/[0.025] border-white/[0.06] hover:bg-white/[0.05] hover:border-white/10"
                       }`}
                   >
-                    {isActive && <div className="absolute left-0 top-1/4 bottom-1/4 w-0.5 bg-zinc-400 rounded-r" />}
+                    {isActive && <div className="absolute left-0 top-2 bottom-2 w-[3px] bg-zinc-300 rounded-r" />}
 
-                    <div className="flex items-start justify-between gap-1">
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-[11px] font-semibold leading-snug line-clamp-2 ${isActive ? "text-white" : "text-zinc-300"}`}>
-                          <span className="text-zinc-500 font-normal">{cIdx + 1}. </span>
+                    <div className="flex items-center gap-2">
+                      {/* Collapsed: chapter number badge */}
+                      <div className={`shrink-0 flex items-center justify-center w-5 h-5 rounded-md text-[10px] font-bold
+                        ${isActive ? "bg-white/10 text-white" : "bg-white/5 text-zinc-500"}`}>
+                        {cIdx + 1}
+                      </div>
+                      {/* Expanded content */}
+                      <div className="flex-1 min-w-0 opacity-0 group-hover/ch:opacity-100 transition-opacity duration-200 overflow-hidden">
+                        <p className={`text-[11px] font-semibold leading-snug truncate ${isActive ? "text-white" : "text-zinc-300"}`}>
                           {chapter.name}
                         </p>
-                        <p className="text-[10px] text-zinc-500 mt-0.5">
-                          {chapter.topics?.length || 0} topics
-                        </p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[9px] text-zinc-500 shrink-0">{chapter.topics?.length || 0}t</span>
+                          {total > 0 && (
+                            <>
+                              <div className="flex-1 h-px bg-white/5 rounded-full overflow-hidden">
+                                <div className={`h-full rounded-full ${pct === 100 ? "bg-emerald-500" : "bg-zinc-500/60"}`} style={{ width: `${pct}%` }} />
+                              </div>
+                              <span className={`text-[9px] font-bold tabular-nums ${pct === 100 ? "text-emerald-400" : "text-zinc-600"}`}>{pct}%</span>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      {total > 0 && (
-                        <span className={`text-[10px] font-bold tabular-nums shrink-0 ${pct === 100 ? "text-emerald-400" : "text-zinc-600"}`}>
-                          {pct}%
-                        </span>
-                      )}
                     </div>
 
-                    {total > 0 && (
-                      <div className="mt-1.5 h-0.5 rounded-full bg-white/5 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-700 ${pct === 100 ? "bg-emerald-500" : "bg-zinc-500"}`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    )}
-
                     {canManage && (
-                      <div className="absolute top-2 right-2 hidden group-hover:flex items-center gap-0.5">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setEditingChapterId(chapter.id); }}
-                          className="p-0.5 rounded bg-black/60 text-zinc-500 hover:text-white transition"
-                        >
+                      <div className="absolute top-1 right-1 hidden group-hover/ch-item:flex items-center gap-0.5">
+                        <button onClick={(e) => { e.stopPropagation(); setEditingChapterId(chapter.id); }} className="p-0.5 rounded bg-black/60 text-zinc-500 hover:text-white">
                           <Edit2 size={9} />
                         </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); onDeleteChapter?.(chapter.id); }}
-                          className="p-0.5 rounded bg-black/60 text-zinc-500 hover:text-red-400 transition"
-                        >
+                        <button onClick={(e) => { e.stopPropagation(); onDeleteChapter?.(chapter.id); }} className="p-0.5 rounded bg-black/60 text-zinc-500 hover:text-red-400">
                           <Trash2 size={9} />
                         </button>
                       </div>
