@@ -29,6 +29,14 @@ export default function DashboardShell({
   const dynamicNavItems = navItems || (mounted ? getSidebarNavItems(user) : []);
   const sidebarCollapsed = isSidebarCollapsed; // Use directly to avoid expansion flicker
 
+  if (activeHref?.includes("/attempt/")) {
+    return (
+      <div suppressHydrationWarning className="flex-1 w-full h-full min-h-screen bg-[#050505] text-white">
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div 
       suppressHydrationWarning 

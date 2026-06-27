@@ -46,36 +46,14 @@ export default function TestDetailsPage() {
 
   const handleStart = async () => {
     setStarting(true);
-    const features = `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${window.screen.availWidth},height=${window.screen.availHeight}`;
-    
-    // Open a blank window first to bypass popup blocker
-    const win = window.open("", "testWindow", features);
-    if (!win) {
-      alert("Popup blocked! Please allow popups for this site to take the test in a dedicated window.");
-      setStarting(false);
-      return;
-    }
-    
-    // Write a loading message so it's not just a stark white page
-    win.document.write(`
-      <html>
-        <body style="background-color: #050505; color: #a1a1aa; font-family: system-ui, sans-serif; display: flex; flex-direction: column; gap: 16px; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-          <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
-          <div style="width: 20px; height: 20px; border: 2px solid #27272a; border-top-color: #ef4444; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-          <p style="font-size: 13px; font-weight: 500; letter-spacing: 0.5px; margin: 0;">Loading environment...</p>
-        </body>
-      </html>
-    `);
     
     try {
       const result = await studentService.startAttempt(testId);
       const url = `/tests/${testId}/attempt?attemptId=${result.attempt.id}`;
       // Use replace so the loading page isn't in the back history
-      win.location.replace(window.location.origin + url);
+      window.location.replace(window.location.origin + url);
     } catch (err: any) {
-      win.close();
       alert(err?.response?.data?.message || "Failed to start test");
-    } finally {
       setStarting(false);
     }
   };
